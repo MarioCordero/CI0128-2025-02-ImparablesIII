@@ -1,14 +1,14 @@
 
 <template>
-  <CountriesList />
+  <SignUpEmployer />
 </template>
 <script>
-import CountriesList from './components/CountriesList.vue';
+import SignUpEmployer from './components/SignUpEmployer.vue';
 
 export default {
   name: 'App',
   components: {
-    CountriesList,
+    SignUpEmployer,
   }
 };
 </script>
