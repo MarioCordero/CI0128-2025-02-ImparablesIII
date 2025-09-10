@@ -70,6 +70,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -93,6 +95,26 @@ export default {
     };
   },
   methods: {
+    async submitForm() {
+      if (this.validateForm()) {
+        try {
+          const response = await axios.post(
+              'https://localhost:7030/api/SignUpEmployer',
+            this.form,
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          console.log('Registro exitoso:', response.data);
+          this.showVerification = true;
+        } catch (error) {
+          console.error(error);
+          alert('Error en el registro. Por favor, intenta de nuevo.');
+        }
+      }
+    },
     validateForm() {
       const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ' -]{2,50}$/;
       const cedulaRegex = /^[1-7][0-9]{8}$/;
@@ -123,13 +145,6 @@ export default {
         return age - 1 >= 18 && age - 1 < 99;
       }
       return age >= 18 && age < 99;
-    },
-    submitForm() {
-      if (this.validateForm()) {
-        // TODO: Send registration data to backend
-        // On success, show verification code input
-        this.showVerification = true;
-      }
     },
     verifyCode() {
       if (/^\d{6}$/.test(this.verificationCode)) {
