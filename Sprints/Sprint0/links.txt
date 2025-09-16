@@ -1,0 +1,8 @@
+Diseño conceptual base de datos:
+https://app.diagrams.net/?splash=0#G1zj6DTz44cvuadVFmIMBFhaFpXULk4khg#%7B%22pageId%22%3A%22ha987qfF8nhtWMnNRrpH%22%7D
+
+Figma (Debe solicitar permiso):
+https://www.figma.com/design/o1Zn35CHR6rszk4sXienWr/Web-Design?node-id=0-1&t=bZMuUtP16nY0vXM2-1
+
+MockUp:
+https://www.figma.com/proto/o1Zn35CHR6rszk4sXienWr/Web-Design?node-id=149-219&starting-point-node-id=149%3A219

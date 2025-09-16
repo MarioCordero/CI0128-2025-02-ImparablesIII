@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/christopherzuniga/Documents/education/CicloIII/Semestre VI/Ing. Software/my_labs_C28730_ci0126/Laboratorio4_Christopher_C28730/backend-lab-c28730/backend-lab-c28730.csproj": {}
+    "/home/mario/Desktop/UCR/CI0128-2025-02-ImparablesIII/backend/backend-lab-c28730.csproj": {}
   },
   "projects": {
-    "/Users/christopherzuniga/Documents/education/CicloIII/Semestre VI/Ing. Software/my_labs_C28730_ci0126/Laboratorio4_Christopher_C28730/backend-lab-c28730/backend-lab-c28730.csproj": {
+    "/home/mario/Desktop/UCR/CI0128-2025-02-ImparablesIII/backend/backend-lab-c28730.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/christopherzuniga/Documents/education/CicloIII/Semestre VI/Ing. Software/my_labs_C28730_ci0126/Laboratorio4_Christopher_C28730/backend-lab-c28730/backend-lab-c28730.csproj",
+        "projectUniqueName": "/home/mario/Desktop/UCR/CI0128-2025-02-ImparablesIII/backend/backend-lab-c28730.csproj",
         "projectName": "backend-lab-c28730",
-        "projectPath": "/Users/christopherzuniga/Documents/education/CicloIII/Semestre VI/Ing. Software/my_labs_C28730_ci0126/Laboratorio4_Christopher_C28730/backend-lab-c28730/backend-lab-c28730.csproj",
-        "packagesPath": "/Users/christopherzuniga/.nuget/packages/",
-        "outputPath": "/Users/christopherzuniga/Documents/education/CicloIII/Semestre VI/Ing. Software/my_labs_C28730_ci0126/Laboratorio4_Christopher_C28730/backend-lab-c28730/obj/",
+        "projectPath": "/home/mario/Desktop/UCR/CI0128-2025-02-ImparablesIII/backend/backend-lab-c28730.csproj",
+        "packagesPath": "/home/mario/.nuget/packages/",
+        "outputPath": "/home/mario/Desktop/UCR/CI0128-2025-02-ImparablesIII/backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/christopherzuniga/.nuget/NuGet/NuGet.Config"
+          "/home/mario/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -32,11 +32,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -79,7 +74,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.413/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.119/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
