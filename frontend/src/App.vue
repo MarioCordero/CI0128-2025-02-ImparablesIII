@@ -1,18 +1,10 @@
-
 <template>
-  <LandingPage />
+  <router-view />
 </template>
-<script>
-import LandingPage from './components/LandingPage.vue'
 
+<script>
 export default {
-  name: 'App',
-  // plugins: {
-  //   "@tailwindcss/postcss": {}
-  // },
-  components: {
-    LandingPage
-  }
+  name: 'App'
 };
 </script>
 

@@ -11,7 +11,10 @@
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vehicula gravida massa non vulputate. Phasellus efficitur, tellus ac elementum dignissim, purus diam vestibulum elit, id commodo orci sem nec mi. Donec venenatis sit amet nunc id efficitur. In ut risus in tellus ultricies porttitor quis eu est.
         </p>
         <div class="flex gap-4">
-          <button class="bg-gray-900 text-white font-bold px-8 py-3 rounded-full shadow-md hover:bg-gray-800 transition">
+          <button
+            class="bg-gray-900 text-white font-bold px-8 py-3 rounded-full shadow-md hover:bg-gray-800 transition"
+            @click="goToLogin"
+          >
             Iniciar sesión
           </button>
           <button class="bg-white text-gray-900 font-bold px-8 py-3 rounded-full border-2 border-gray-900 shadow-md hover:bg-gray-100 transition">
@@ -31,8 +34,10 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "LandingPage",
-};
+<script setup>
+import { useRouter } from 'vue-router'
+const router = useRouter()
+function goToLogin() {
+  router.push('/login')
+}
 </script>

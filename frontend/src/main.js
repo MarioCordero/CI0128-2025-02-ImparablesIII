@@ -6,9 +6,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import './assets/tailwind.css'
 // Componets on vue
 import LandingPage from './components/LandingPage.vue'
+import Login from './components/LoginPage.vue'
 
 const routes = [
-  { path: '/', component: LandingPage }
+  { path: '/', component: LandingPage },
+  { path: '/login', component: Login }
 ]
 
 const router = createRouter({
