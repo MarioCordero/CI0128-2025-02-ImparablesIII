@@ -1,14 +1,17 @@
 
 <template>
-  <CountriesList />
+  <LandingPage />
 </template>
 <script>
-import CountriesList from './components/CountriesList.vue';
+import LandingPage from './components/LandingPage.vue'
 
 export default {
   name: 'App',
+  plugins: {
+    "@tailwindcss/postcss": {}
+  },
   components: {
-    CountriesList,
+    LandingPage
   }
 };
 </script>
