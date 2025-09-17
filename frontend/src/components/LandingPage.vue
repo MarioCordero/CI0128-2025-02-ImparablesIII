@@ -1,52 +1,33 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-blue-50 to-blue-200 flex flex-col">
-
-    <!-- Hero Section -->
-    <section class="flex-1 flex flex-col items-center justify-center text-center px-4">
-      <h1 class="text-4xl md:text-6xl font-extrabold text-blue-800 mb-4">
-        Organize Your Life with PlaniFy
-      </h1>
-      <p class="text-lg md:text-2xl text-blue-700 mb-8">
-        The easiest way to plan, track, and achieve your goals.
-      </p>
-      <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow transition">
-        Get Started
-      </button>
-    </section>
-
-    <!-- Features Section -->
-    <section class="bg-white py-12">
-      <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
-        <div class="flex flex-col items-center">
-          <span class="text-blue-600 text-4xl mb-2">📅</span>
-          <h2 class="font-bold text-xl mb-2">Easy Scheduling</h2>
-          <p class="text-gray-600 text-center">Plan your tasks and events with a simple, intuitive interface.</p>
+  <div class="min-h-screen bg-blue-50 flex items-center justify-center">
+    <div class="max-w-5xl w-full bg-blue-50 rounded-lg shadow-none flex flex-col md:flex-row items-stretch p-6 md:p-12 gap-8">
+      <!-- Left: Logo, Title, Description, Buttons -->
+      <div class="flex-1 flex flex-col justify-center">
+        <div class="flex items-center mb-2">
+          <span class="text-5xl md:text-6xl mr-3">👥</span>
+          <span class="text-5xl md:text-6xl font-extrabold text-black">PlaniFy</span>
         </div>
-        <div class="flex flex-col items-center">
-          <span class="text-blue-600 text-4xl mb-2">✅</span>
-          <h2 class="font-bold text-xl mb-2">Track Progress</h2>
-          <p class="text-gray-600 text-center">Stay on top of your goals and see your achievements grow.</p>
-        </div>
-        <div class="flex flex-col items-center">
-          <span class="text-blue-600 text-4xl mb-2">🔔</span>
-          <h2 class="font-bold text-xl mb-2">Smart Reminders</h2>
-          <p class="text-gray-600 text-center">Never miss a deadline with customizable notifications.</p>
+        <p class="text-gray-700 mb-8 max-w-md">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vehicula gravida massa non vulputate. Phasellus efficitur, tellus ac elementum dignissim, purus diam vestibulum elit, id commodo orci sem nec mi. Donec venenatis sit amet nunc id efficitur. In ut risus in tellus ultricies porttitor quis eu est.
+        </p>
+        <div class="flex gap-4">
+          <button class="bg-gray-900 text-white font-bold px-8 py-3 rounded-full shadow-md hover:bg-gray-800 transition">
+            Iniciar sesión
+          </button>
+          <button class="bg-white text-gray-900 font-bold px-8 py-3 rounded-full border-2 border-gray-900 shadow-md hover:bg-gray-100 transition">
+            Crear cuenta
+          </button>
         </div>
       </div>
-    </section>
-
-    <section class="bg-white py-12">
-  <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4 border border-red-500">
-    <div class="bg-blue-100">A</div>
-    <div class="bg-blue-200">B</div>
-    <div class="bg-blue-300">C</div>
-  </div>
-</section>
-
-    <!-- Footer -->
-    <footer class="text-center text-gray-500 py-6">
-      © 2025 PlaniFy. All rights reserved.
-    </footer>
+      <!-- Right: Image -->
+      <div class="flex-1 flex items-center justify-center">
+        <img
+          src="../assets/ccss.png"
+          alt="UCR Building"
+          class="rounded-2xl object-cover w-full h-72 md:h-full"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
