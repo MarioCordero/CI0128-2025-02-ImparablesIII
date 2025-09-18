@@ -1,7 +1,7 @@
-
 <template>
   <SignUpEmployer />
 </template>
+
 <script>
 import SignUpEmployer from './components/SignUpEmployer.vue';
 
