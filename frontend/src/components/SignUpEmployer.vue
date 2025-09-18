@@ -1,9 +1,11 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-[#dbeafe]">
-    <div class="bg-[#eaf4fa] rounded-[40px] shadow-2xl p-10 w-full max-w-2xl flex flex-col items-center">
-      <h1 class="text-5xl font-black mb-6 mt-2 text-black tracking-wide">Registro de Empleador</h1>
+    <div class="bg-[#eaf4fa] rounded-[40px] shadow-2xl p-10 w-full max-w-4xl flex flex-col items-center">
+      <h1 class="text-5xl font-black mb-8 mt-2 text-black tracking-wide text-center">
+        Registro de Empleador
+      </h1>
 
-      <form @submit.prevent="submitForm" class="w-full flex flex-col gap-6">
+      <form @submit.prevent="submitForm" class="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Nombre -->
         <div>
           <label class="block mb-1 font-medium text-gray-700">Nombre*</label>
@@ -100,8 +102,8 @@
           <span v-if="errors.fechaNacimiento" class="text-red-500 text-sm mt-1">{{ errors.fechaNacimiento }}</span>
         </div>
 
-        <!-- Password -->
-        <div>
+        <!-- Password (spans both columns) -->
+        <div class="md:col-span-2">
           <label class="block mb-1 font-medium text-gray-700">Contraseña*</label>
           <div class="flex items-center bg-white rounded-full shadow-inner px-4 py-2">
             <input
@@ -126,8 +128,8 @@
           </ul>
         </div>
 
-        <!-- Confirm Password -->
-        <div>
+        <!-- Confirm Password (spans both columns) -->
+        <div class="md:col-span-2">
           <label class="block mb-1 font-medium text-gray-700">Confirmar Contraseña*</label>
           <input
             :type="showPassword ? 'text' : 'password'"
@@ -140,16 +142,18 @@
         </div>
 
         <!-- Botón registro -->
-        <button
-          type="submit"
-          class="mt-4 bg-[#2d384b] text-white text-xl font-medium rounded-full py-3 shadow-lg hover:bg-[#1e293b] transition-all"
-        >
-          Registrarse
-        </button>
+        <div class="md:col-span-2 flex justify-center">
+          <button
+            type="submit"
+            class="mt-4 bg-[#2d384b] text-white text-xl font-medium rounded-full py-3 px-12 shadow-lg hover:bg-[#1e293b] transition-all"
+          >
+            Registrarse
+          </button>
+        </div>
       </form>
 
       <!-- Verificación de correo -->
-      <div v-if="showVerification" class="mt-8 text-center">
+      <div v-if="showVerification" class="mt-10 text-center md:col-span-2">
         <h3 class="text-xl font-semibold mb-2">Verifica tu correo electrónico</h3>
         <p class="text-gray-700 mb-4">Ingresa el código de 6 dígitos enviado a tu correo:</p>
         <input
@@ -168,6 +172,7 @@
     </div>
   </div>
 </template>
+
 
 
 <script>
