@@ -1,73 +1,174 @@
 <template>
-  <div class="signup-employer">
-    <h2>Registro de Empleador</h2>
-    <form @submit.prevent="submitForm">
-      <div>
-        <label>Nombre*</label>
-        <input v-model="form.nombre" :class="{ invalid: errors.nombre }" required />
-        <span v-if="errors.nombre">{{ errors.nombre }}</span>
+  <div class="min-h-screen flex items-center justify-center bg-[#dbeafe]">
+    <div class="bg-[#eaf4fa] rounded-[40px] shadow-2xl p-10 w-full max-w-2xl flex flex-col items-center">
+      <h1 class="text-5xl font-black mb-6 mt-2 text-black tracking-wide">Registro de Empleador</h1>
+
+      <form @submit.prevent="submitForm" class="w-full flex flex-col gap-6">
+        <!-- Nombre -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Nombre*</label>
+          <input
+            v-model="form.nombre"
+            required
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 placeholder-gray-400"
+            placeholder="Ingresa tu nombre"
+          />
+          <span v-if="errors.nombre" class="text-red-500 text-sm mt-1">{{ errors.nombre }}</span>
+        </div>
+
+        <!-- Primer Apellido -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Primer Apellido*</label>
+          <input
+            v-model="form.primerApellido"
+            required
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 placeholder-gray-400"
+            placeholder="Ingresa tu primer apellido"
+          />
+          <span v-if="errors.primerApellido" class="text-red-500 text-sm mt-1">{{ errors.primerApellido }}</span>
+        </div>
+
+        <!-- Segundo Apellido -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Segundo Apellido (opcional)</label>
+          <input
+            v-model="form.segundoApellido"
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 placeholder-gray-400"
+            placeholder="Ingresa tu segundo apellido"
+          />
+          <span v-if="errors.segundoApellido" class="text-red-500 text-sm mt-1">{{ errors.segundoApellido }}</span>
+        </div>
+
+        <!-- Cédula -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Cédula*</label>
+          <input
+            v-model="form.cedula"
+            required
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 placeholder-gray-400"
+            placeholder="Ej: 101230456"
+          />
+          <span v-if="errors.cedula" class="text-red-500 text-sm mt-1">{{ errors.cedula }}</span>
+        </div>
+
+        <!-- Correo -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Correo electrónico*</label>
+          <input
+            v-model="form.email"
+            type="email"
+            required
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 placeholder-gray-400"
+            placeholder="ejemplo@email.com"
+          />
+          <span v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</span>
+        </div>
+
+        <!-- Teléfono -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Número de teléfono*</label>
+          <input
+            v-model="form.telefono"
+            required
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 placeholder-gray-400"
+            placeholder="+506XXXXXXXX"
+          />
+          <span v-if="errors.telefono" class="text-red-500 text-sm mt-1">{{ errors.telefono }}</span>
+        </div>
+
+        <!-- Username -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Nombre de usuario*</label>
+          <input
+            v-model="form.username"
+            required
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 placeholder-gray-400"
+            placeholder="Elige un usuario"
+          />
+          <span v-if="errors.username" class="text-red-500 text-sm mt-1">{{ errors.username }}</span>
+        </div>
+
+        <!-- Fecha de nacimiento -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Fecha de nacimiento*</label>
+          <input
+            type="date"
+            v-model="form.fechaNacimiento"
+            required
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700"
+          />
+          <span v-if="errors.fechaNacimiento" class="text-red-500 text-sm mt-1">{{ errors.fechaNacimiento }}</span>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Contraseña*</label>
+          <div class="flex items-center bg-white rounded-full shadow-inner px-4 py-2">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              v-model="form.password"
+              required
+              class="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400"
+              placeholder="********"
+            />
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="text-gray-500 text-sm"
+            >
+              {{ showPassword ? 'Ocultar' : 'Ver' }}
+            </button>
+          </div>
+          <span v-if="errors.password" class="text-red-500 text-sm mt-1">{{ errors.password }}</span>
+          <ul class="text-xs text-gray-600 mt-1 ml-2 list-disc list-inside">
+            <li>Mínimo 8 y máximo 32 caracteres</li>
+            <li>Al menos una mayúscula, una minúscula, un número y un carácter especial</li>
+          </ul>
+        </div>
+
+        <!-- Confirm Password -->
+        <div>
+          <label class="block mb-1 font-medium text-gray-700">Confirmar Contraseña*</label>
+          <input
+            :type="showPassword ? 'text' : 'password'"
+            v-model="form.confirmPassword"
+            required
+            class="w-full bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 placeholder-gray-400"
+            placeholder="Repite tu contraseña"
+          />
+          <span v-if="errors.confirmPassword" class="text-red-500 text-sm mt-1">{{ errors.confirmPassword }}</span>
+        </div>
+
+        <!-- Botón registro -->
+        <button
+          type="submit"
+          class="mt-4 bg-[#2d384b] text-white text-xl font-medium rounded-full py-3 shadow-lg hover:bg-[#1e293b] transition-all"
+        >
+          Registrarse
+        </button>
+      </form>
+
+      <!-- Verificación de correo -->
+      <div v-if="showVerification" class="mt-8 text-center">
+        <h3 class="text-xl font-semibold mb-2">Verifica tu correo electrónico</h3>
+        <p class="text-gray-700 mb-4">Ingresa el código de 6 dígitos enviado a tu correo:</p>
+        <input
+          v-model="verificationCode"
+          maxlength="6"
+          class="bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 text-center tracking-widest"
+        />
+        <button
+          @click="verifyCode"
+          class="mt-4 bg-[#2d384b] text-white rounded-full px-6 py-2 shadow-lg hover:bg-[#1e293b] transition-all"
+        >
+          Verificar
+        </button>
+        <span v-if="verificationError" class="block text-red-500 text-sm mt-2">{{ verificationError }}</span>
       </div>
-      <div>
-        <label>Primer Apellido*</label>
-        <input v-model="form.primerApellido" :class="{ invalid: errors.primerApellido }" required />
-        <span v-if="errors.primerApellido">{{ errors.primerApellido }}</span>
-      </div>
-      <div>
-        <label>Segundo Apellido (opcional)</label>
-        <input v-model="form.segundoApellido" :class="{ invalid: errors.segundoApellido }" />
-        <span v-if="errors.segundoApellido">{{ errors.segundoApellido }}</span>
-      </div>
-      <div>
-        <label>Cédula*</label>
-        <input v-model="form.cedula" :class="{ invalid: errors.cedula }" required />
-        <span v-if="errors.cedula">{{ errors.cedula }}</span>
-      </div>
-      <div>
-        <label>Correo electrónico*</label>
-        <input v-model="form.email" :class="{ invalid: errors.email }" required />
-        <span v-if="errors.email">{{ errors.email }}</span>
-      </div>
-      <div>
-        <label>Número de teléfono*</label>
-        <input v-model="form.telefono" :class="{ invalid: errors.telefono }" required />
-        <span v-if="errors.telefono">{{ errors.telefono }}</span>
-      </div>
-      <div>
-        <label>Nombre de usuario*</label>
-        <input v-model="form.username" :class="{ invalid: errors.username }" required />
-        <span v-if="errors.username">{{ errors.username }}</span>
-      </div>
-      <div>
-        <label>Fecha de nacimiento*</label>
-        <input type="date" v-model="form.fechaNacimiento" :class="{ invalid: errors.fechaNacimiento }" required />
-        <span v-if="errors.fechaNacimiento">{{ errors.fechaNacimiento }}</span>
-      </div>
-      <div>
-        <label>Contraseña*</label>
-        <input :type="showPassword ? 'text' : 'password'" v-model="form.password" :class="{ invalid: errors.password }" required />
-        <button type="button" @click="showPassword = !showPassword">{{ showPassword ? 'Ocultar' : 'Ver' }}</button>
-        <span v-if="errors.password">{{ errors.password }}</span>
-        <ul>
-          <li>Mínimo 8 y máximo 32 caracteres</li>
-          <li>Al menos una mayúscula, una minúscula, un número y un carácter especial (#@$_&()*:;!?)</li>
-        </ul>
-      </div>
-      <div>
-        <label>Confirmar Contraseña*</label>
-        <input :type="showPassword ? 'text' : 'password'" v-model="form.confirmPassword" :class="{ invalid: errors.confirmPassword }" required />
-        <span v-if="errors.confirmPassword">{{ errors.confirmPassword }}</span>
-      </div>
-      <button type="submit">Registrarse</button>
-    </form>
-    <div v-if="showVerification">
-      <h3>Verifica tu correo electrónico</h3>
-      <p>Ingresa el código de 6 dígitos enviado a tu correo:</p>
-      <input v-model="verificationCode" maxlength="6" />
-      <button @click="verifyCode">Verificar</button>
-      <span v-if="verificationError">{{ verificationError }}</span>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
