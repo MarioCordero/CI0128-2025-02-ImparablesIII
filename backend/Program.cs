@@ -1,3 +1,4 @@
+using backend.Services;
 using backend.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,17 +10,23 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<OrderRepository>(); // TEST
 
 
-builder.Services.AddHttpClient<ExternalApiService>(); // Agrega esto
+builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
 
 
 var app = builder.Build();
 
+// DEVELOP ENABLED
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
+
+// PRODUCTION ENABLED
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
