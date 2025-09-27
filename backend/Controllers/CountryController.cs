@@ -1,26 +1,24 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using backend_lab_c28730.Models;
-using backend_lab_c28730.Services;
+using backend.Repositories;
 
-namespace backend_lab_c28730.Controllers
+namespace backend.Controllers
 {
-  [Route("api/[controller]")]
-  [ApiController]
-  public class CountryController : ControllerBase
-  {
-    private readonly CountryService countryService;
-
-    public CountryController()
+    [ApiController]
+    [Route("api/[controller]")]
+    public class OrderController : ControllerBase
     {
-      countryService = new CountryService();
-    }
+        private readonly OrderRepository _orderRepository;
 
-    [HttpGet]
-    public List<CountryModel> Get()
-    {
-      var countries = countryService.GetCountries();
-      return countries;
+        public OrderController(OrderRepository orderRepository)
+        {
+            _orderRepository = orderRepository;
+        }
+
+        [HttpGet("{orderId}/details")]
+        public async Task<IActionResult> GetOrderDetails(int orderId)
+        {
+            var details = await _orderRepository.GetOrderDetailsAsync(orderId);
+            return Ok(details);
+        }
     }
-  }
 }
