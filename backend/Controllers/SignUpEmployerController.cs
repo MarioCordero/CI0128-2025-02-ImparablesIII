@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using backend.Services;
 
 namespace backend_lab_c28730.Controllers
 {
@@ -6,6 +7,15 @@ namespace backend_lab_c28730.Controllers
     [ApiController]
     public class SignUpEmployerController : ControllerBase
     {
+        private readonly IEmployerService _employerService;
+        private readonly ILogger<SignUpEmployerController> _logger;
+
+        public SignUpEmployerController(IEmployerService employerService, ILogger<SignUpEmployerController> logger)
+        {
+            _employerService = employerService;
+            _logger = logger;
+        }
+
         // GET endpoint (keep it for testing)
         [HttpGet]
         public string Get()
@@ -15,12 +25,53 @@ namespace backend_lab_c28730.Controllers
 
         // POST endpoint to receive form data
         [HttpPost]
-        public IActionResult RegisterEmployer([FromBody] SignUpEmployerDto form)
+        public async Task<IActionResult> RegisterEmployer([FromBody] SignUpEmployerDto form)
         {
-            // TODO: Add validation, save to database, send verification email, etc.
+            try
+            {
+                var result = await _employerService.RegisterEmployerAsync(form);
 
-            // For now, just return OK with the received data
-            return Ok(new { message = "Data received successfully", data = form });
+                if (result.IsSuccess)
+                {
+                    // Return success without sensitive data
+                    return Ok(new 
+                    { 
+                        message = result.Message,
+                        employer = new
+                        {
+                            id = result.Data!.Id,
+                            username = result.Data.Username,
+                            email = result.Data.Email,
+                            nombre = result.Data.Nombre,
+                            createdAt = result.Data.CreatedAt
+                        }
+                    });
+                }
+                else
+                {
+                    return BadRequest(new { message = result.Message, errors = result.Errors });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in RegisterEmployer endpoint");
+                return StatusCode(500, new { message = "An internal error occurred" });
+            }
+        }
+
+        // Additional endpoints for validation
+        [HttpGet("check-username/{username}")]
+        public async Task<IActionResult> CheckUsername(string username)
+        {
+            var isAvailable = await _employerService.IsUsernameAvailableAsync(username);
+            return Ok(new { username, isAvailable });
+        }
+
+        [HttpGet("check-email/{email}")]
+        public async Task<IActionResult> CheckEmail(string email)
+        {
+            var isAvailable = await _employerService.IsEmailAvailableAsync(email);
+            return Ok(new { email, isAvailable });
         }
     }
 
