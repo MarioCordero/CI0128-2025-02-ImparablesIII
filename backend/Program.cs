@@ -21,6 +21,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<OrderRepository>(); // TEST
 
+// Register the EmployerService
+builder.Services.AddScoped<backend.Services.IEmployerService, backend.Services.EmployerService>();
 
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
 
