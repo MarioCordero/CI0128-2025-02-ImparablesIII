@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../buildMultiTargeting/backend-lab-c28730.props" />
-</Project>
