@@ -8,6 +8,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<OrderRepository>(); // TEST
 
+
+builder.Services.AddHttpClient<ExternalApiService>(); // Agrega esto
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
