@@ -7,10 +7,12 @@ import './assets/tailwind.css'
 // Componets on vue
 import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
+import EmployeeList from './components/EmployeeList.vue'
 
 const routes = [
   { path: '/', component: LandingPage },
-  { path: '/login', component: Login }
+  { path: '/login', component: Login },
+  { path: '/employees', component: EmployeeList }
 ]
 
 const router = createRouter({
