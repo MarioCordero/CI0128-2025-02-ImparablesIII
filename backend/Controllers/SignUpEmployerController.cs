@@ -33,18 +33,11 @@ namespace backend_lab_c28730.Controllers
 
                 if (result.IsSuccess)
                 {
-                    // Return success without sensitive data
+                    // Return success with the response DTO
                     return Ok(new 
                     { 
                         message = result.Message,
-                        employer = new
-                        {
-                            id = result.Data!.Id,
-                            username = result.Data.Username,
-                            email = result.Data.Email,
-                            nombre = result.Data.Nombre,
-                            createdAt = result.Data.CreatedAt
-                        }
+                        employer = result.Data
                     });
                 }
                 else
