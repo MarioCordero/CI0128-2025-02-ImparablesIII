@@ -1,10 +1,20 @@
 using backend.Services;
 using backend.Repositories;
+using backend_lab_c28730.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Load database configuration
+builder.Configuration.AddJsonFile("dbconfig.json", optional: true);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
+
+// Add Entity Framework
+builder.Services.AddDbContext<PlaniFyDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PlaniFyDatabase")));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
