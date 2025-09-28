@@ -1,5 +1,8 @@
 using backend.Models;
 using backend.DTOs;
+using backend_lab_c28730.Data;
+using backend_lab_c28730.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
 namespace backend.Services
@@ -9,16 +12,20 @@ namespace backend.Services
         Task<EmployeeListResponseDto> GetEmployeeListAsync(int employerId, EmployeeFilterDto filter);
         Task<Employee?> GetEmployeeByIdAsync(int employeeId, int employerId);
         Task<bool> AddSampleEmployeesAsync(int employerId);
+        Task<List<Empleado>> GetAllEmpleadosAsync();
+        Task<Empleado?> GetEmpleadoByIdAsync(int idPersona);
     }
 
     public class EmployeeService : IEmployeeService
     {
         private readonly List<Employee> _employees; // In-memory storage for demo
         private readonly ILogger<EmployeeService> _logger;
+        private readonly PlaniFyDbContext _context;
 
-        public EmployeeService(ILogger<EmployeeService> logger)
+        public EmployeeService(ILogger<EmployeeService> logger, PlaniFyDbContext context)
         {
             _logger = logger;
+            _context = context;
             _employees = new List<Employee>();
             
             // Add some sample data for testing
@@ -204,6 +211,45 @@ namespace backend.Services
         private int GenerateId()
         {
             return _employees.Any() ? _employees.Max(e => e.Id) + 1 : 1;
+        }
+
+        // Methods to query PlaniFy.Empleado table
+        public async Task<List<Empleado>> GetAllEmpleadosAsync()
+        {
+            try
+            {
+                var empleados = await _context.Empleados
+                    .Include(e => e.Persona)
+                    .Include(e => e.Empresa)
+                    .ToListAsync();
+
+                _logger.LogInformation("Retrieved {Count} empleados from PlaniFy.Empleado table", empleados.Count);
+                return empleados;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving empleados from database");
+                throw;
+            }
+        }
+
+        public async Task<Empleado?> GetEmpleadoByIdAsync(int idPersona)
+        {
+            try
+            {
+                var empleado = await _context.Empleados
+                    .Include(e => e.Persona)
+                    .Include(e => e.Empresa)
+                    .FirstOrDefaultAsync(e => e.idPersona == idPersona);
+
+                _logger.LogInformation("Retrieved empleado with ID {IdPersona}", idPersona);
+                return empleado;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving empleado with ID {IdPersona}", idPersona);
+                throw;
+            }
         }
     }
 }
