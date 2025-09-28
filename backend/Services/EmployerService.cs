@@ -1,5 +1,8 @@
 using backend.Models;
 using backend_lab_c28730.Controllers;
+using backend_lab_c28730.Data;
+using backend_lab_c28730.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,7 +10,7 @@ namespace backend.Services
 {
     public interface IEmployerService
     {
-        Task<ServiceResult<Employer>> RegisterEmployerAsync(SignUpEmployerDto employerDto);
+        Task<ServiceResult<EmployerResponseDto>> RegisterEmployerAsync(SignUpEmployerDto employerDto);
         Task<bool> IsUsernameAvailableAsync(string username);
         Task<bool> IsEmailAvailableAsync(string email);
         Task<bool> IsCedulaAvailableAsync(string cedula);
@@ -15,16 +18,16 @@ namespace backend.Services
 
     public class EmployerService : IEmployerService
     {
-        private readonly List<Employer> _employers; // In-memory storage for now
+        private readonly PlaniFyDbContext _context;
         private readonly ILogger<EmployerService> _logger;
 
-        public EmployerService(ILogger<EmployerService> logger)
+        public EmployerService(PlaniFyDbContext context, ILogger<EmployerService> logger)
         {
+            _context = context;
             _logger = logger;
-            _employers = new List<Employer>(); // This would be replaced with a database context
         }
 
-        public async Task<ServiceResult<Employer>> RegisterEmployerAsync(SignUpEmployerDto employerDto)
+        public async Task<ServiceResult<EmployerResponseDto>> RegisterEmployerAsync(SignUpEmployerDto employerDto)
         {
             try
             {
@@ -32,72 +35,78 @@ namespace backend.Services
                 var validationResult = await ValidateEmployerDataAsync(employerDto);
                 if (!validationResult.IsSuccess)
                 {
-                    return validationResult;
+                    return ServiceResult<EmployerResponseDto>.Failure(validationResult.Message, validationResult.Errors);
                 }
 
-                // Check for duplicates
-                if (!await IsUsernameAvailableAsync(employerDto.Username))
-                {
-                    return ServiceResult<Employer>.Failure("Username already exists");
-                }
-
+                // Check for duplicates (using email as unique identifier)
                 if (!await IsEmailAvailableAsync(employerDto.Email))
                 {
-                    return ServiceResult<Employer>.Failure("Email already exists");
+                    return ServiceResult<EmployerResponseDto>.Failure("Email already exists");
                 }
 
                 if (!await IsCedulaAvailableAsync(employerDto.Cedula))
                 {
-                    return ServiceResult<Employer>.Failure("Cedula already exists");
+                    return ServiceResult<EmployerResponseDto>.Failure("Cedula already exists");
                 }
 
-                // Create new employer
-                var employer = new Employer
+                // Create ONLY the Persona record
+                var persona = new Persona
                 {
-                    Id = _employers.Count + 1, // Simple ID generation for demo
+                    Correo = employerDto.Email,
                     Nombre = employerDto.Nombre,
-                    PrimerApellido = employerDto.PrimerApellido,
-                    SegundoApellido = employerDto.SegundoApellido,
-                    Cedula = employerDto.Cedula,
-                    Email = employerDto.Email,
-                    Telefono = employerDto.Telefono,
-                    Username = employerDto.Username,
+                    SegundoNombre = null, // Not used in current DTO
+                    Apellidos = !string.IsNullOrEmpty(employerDto.SegundoApellido) 
+                        ? $"{employerDto.PrimerApellido} {employerDto.SegundoApellido}" 
+                        : employerDto.PrimerApellido,
                     FechaNacimiento = employerDto.FechaNacimiento,
-                    PasswordHash = HashPassword(employerDto.Password),
-                    EmailVerificationToken = GenerateVerificationToken(),
+                    Cedula = employerDto.Cedula,
+                    Rol = "Empleado",
+                    Telefono = int.TryParse(employerDto.Telefono, out var phone) ? phone : null,
+                    idDireccion = null
+                };
+
+                _context.Personas.Add(persona);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("New persona registered with ID: {PersonaId}", persona.Id);
+
+                var responseDto = new EmployerResponseDto
+                {
+                    Id = persona.Id,
+                    Username = employerDto.Email, // Use email as username
+                    Email = persona.Correo,
+                    Nombre = persona.NombreCompleto,
                     CreatedAt = DateTime.UtcNow
                 };
 
-                // Save to "database" (in-memory list for now)
-                _employers.Add(employer);
-
-                _logger.LogInformation("New employer registered: {Username}", employer.Username);
-
-                return ServiceResult<Employer>.Success(employer, "Employer registered successfully");
+                return ServiceResult<EmployerResponseDto>.Success(responseDto, "Person registered successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering employer");
-                return ServiceResult<Employer>.Failure("An error occurred while registering the employer");
+                _logger.LogError(ex, "Error registering person: {Error}", ex.Message);
+                return ServiceResult<EmployerResponseDto>.Failure("An error occurred while registering the person");
             }
         }
 
         public async Task<bool> IsUsernameAvailableAsync(string username)
         {
-            return await Task.FromResult(!_employers.Any(e => e.Username.Equals(username, StringComparison.OrdinalIgnoreCase)));
+            // Since we're only using Persona table and email as identifier
+            // We'll check email availability instead using ToLower for case-insensitive comparison
+            return await IsEmailAvailableAsync(username);
         }
 
         public async Task<bool> IsEmailAvailableAsync(string email)
         {
-            return await Task.FromResult(!_employers.Any(e => e.Email.Equals(email, StringComparison.OrdinalIgnoreCase)));
+            // Use EF.Functions.Like or simple string comparison for database translation
+            return !await _context.Personas.AnyAsync(p => p.Correo.ToLower() == email.ToLower());
         }
 
         public async Task<bool> IsCedulaAvailableAsync(string cedula)
         {
-            return await Task.FromResult(!_employers.Any(e => e.Cedula.Equals(cedula)));
+            return !await _context.Personas.AnyAsync(p => p.Cedula == cedula);
         }
 
-        private async Task<ServiceResult<Employer>> ValidateEmployerDataAsync(SignUpEmployerDto employerDto)
+        private async Task<ServiceResult<EmployerResponseDto>> ValidateEmployerDataAsync(SignUpEmployerDto employerDto)
         {
             var errors = new List<string>();
 
@@ -110,30 +119,23 @@ namespace backend.Services
             if (string.IsNullOrWhiteSpace(employerDto.Cedula))
                 errors.Add("Cedula is required");
 
+            if (employerDto.Cedula.Length != 9)
+                errors.Add("Cedula must be exactly 9 characters");
+
             if (string.IsNullOrWhiteSpace(employerDto.Email) || !IsValidEmail(employerDto.Email))
                 errors.Add("Valid email is required");
-
-            if (string.IsNullOrWhiteSpace(employerDto.Username))
-                errors.Add("Username is required");
-
-            if (string.IsNullOrWhiteSpace(employerDto.Password))
-                errors.Add("Password is required");
-
-            if (employerDto.Password != employerDto.ConfirmPassword)
-                errors.Add("Passwords do not match");
-
-            if (employerDto.Password.Length < 6)
-                errors.Add("Password must be at least 6 characters long");
 
             if (employerDto.FechaNacimiento > DateTime.Now.AddYears(-18))
                 errors.Add("Must be at least 18 years old");
 
+            // Note: Removed password validation since we're only saving to Persona table
+
             if (errors.Any())
             {
-                return ServiceResult<Employer>.Failure(string.Join("; ", errors));
+                return ServiceResult<EmployerResponseDto>.Failure("Validation failed", errors);
             }
 
-            return ServiceResult<Employer>.Success(null!, "Validation passed");
+            return ServiceResult<EmployerResponseDto>.Success(null!, "Validation passed");
         }
 
         private bool IsValidEmail(string email)
@@ -147,18 +149,6 @@ namespace backend.Services
             {
                 return false;
             }
-        }
-
-        private string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password + "salt")); // Simple salt for demo
-            return Convert.ToBase64String(hashedBytes);
-        }
-
-        private string GenerateVerificationToken()
-        {
-            return Guid.NewGuid().ToString();
         }
     }
 
@@ -184,5 +174,15 @@ namespace backend.Services
                 Errors = errors ?? new List<string>() 
             };
         }
+    }
+
+    // Response DTO for returning employer data without sensitive information
+    public class EmployerResponseDto
+    {
+        public int Id { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
     }
 }
