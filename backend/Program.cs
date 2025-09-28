@@ -1,6 +1,12 @@
 using backend.Services;
 using backend.Repositories;
+using backend_lab_c28730.Models;
+using backend_lab_c28730.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Email Settings from external configuration file
+builder.Configuration.AddJsonFile("emailconfig.json", optional: false, reloadOnChange: true);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -20,7 +26,11 @@ builder.Services.AddCors(options =>
 });
 // builder.Services.AddScoped<OrderRepository>(); // TEST - Repository not found
 builder.Services.AddScoped<EmployeeRepository>(); // Employee registration repository
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
+// Register services
+builder.Services.AddScoped<OrderRepository>(); // TEST
+builder.Services.AddScoped<IEmailService, EmailService>(); // Email service
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
 
 
