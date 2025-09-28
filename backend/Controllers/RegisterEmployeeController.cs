@@ -56,8 +56,9 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while registering employee");
-                return StatusCode(500, new { message = "Error interno del servidor. Intente nuevamente." });
+                _logger.LogError(ex, "Error occurred while registering employee: {Message}", ex.Message);
+                _logger.LogError(ex, "Stack trace: {StackTrace}", ex.StackTrace);
+                return StatusCode(500, new { message = $"Error interno del servidor: {ex.Message}" });
             }
         }
 
@@ -88,6 +89,22 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "Error occurred while validating email");
                 return StatusCode(500, new { message = "Error interno del servidor." });
+            }
+        }
+
+        [HttpGet("test-connection")]
+        public async Task<IActionResult> TestConnection()
+        {
+            try
+            {
+                // Simple test to verify database connection
+                var result = await _employeeRepository.TestConnectionAsync();
+                return Ok(new { message = "Conexión a la base de datos exitosa", result = result });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Database connection test failed: {Message}", ex.Message);
+                return StatusCode(500, new { message = $"Error de conexión a la base de datos: {ex.Message}" });
             }
         }
     }
