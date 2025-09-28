@@ -57,9 +57,9 @@
               ]"
               @click="goToTab(2)"
             >
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"/>
-              </svg>
+            <svg width="24" height="24" stroke-width="2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7H16M8 7V3.6C8 3.26863 8.26863 3 8.6 3H15.4C15.7314 3 16 3.26863 16 3.6V7M8 7H16" stroke="white" stroke-width="2"/>
+            </svg>
             </div>
             <div 
               :class="[
@@ -109,6 +109,17 @@
                   v-model="formData.telefono"
                   type="tel"
                   placeholder="Teléfono"
+                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  required
+                />
+              </div>
+
+              <!-- Email Field -->
+              <div class="relative">
+                <input
+                  v-model="formData.correo"
+                  type="email"
+                  placeholder="Correo Electrónico"
                   class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
@@ -351,6 +362,7 @@ export default {
         fechaNacimiento: '',
         cedula: '',
         telefono: '',
+        correo: '',
         
         // Address Information
         provincia: '',
@@ -412,7 +424,6 @@ export default {
         const employeeData = {
           ...this.formData,
           cedula: this.formData.cedula.replace(/-/g, ''), // Remove dashes from cedula
-          correo: this.formData.correo || `${this.formData.cedula.replace(/-/g, '')}@planify.com`, // Generate email if not provided
           fechaNacimiento: new Date(this.formData.fechaNacimiento).toISOString(),
           numeroCuentaIban: this.formData.numeroCuentaIban
         };
@@ -444,11 +455,12 @@ export default {
       // Basic validation
       if (!this.formData.primerNombre || !this.formData.primerApellido || 
           !this.formData.fechaNacimiento || !this.formData.cedula || 
-          !this.formData.telefono || !this.formData.provincia || 
-          !this.formData.canton || !this.formData.distrito || 
-          !this.formData.direccionParticular || !this.formData.departamento || 
-          !this.formData.tipoContrato || !this.formData.puesto || 
-          !this.formData.salario || !this.formData.numeroCuentaIban) {
+          !this.formData.telefono || !this.formData.correo || 
+          !this.formData.provincia || !this.formData.canton || 
+          !this.formData.distrito || !this.formData.direccionParticular || 
+          !this.formData.departamento || !this.formData.tipoContrato || 
+          !this.formData.puesto || !this.formData.salario || 
+          !this.formData.numeroCuentaIban) {
         alert('Por favor complete todos los campos requeridos.');
         return false;
       }
@@ -462,6 +474,7 @@ export default {
         fechaNacimiento: '',
         cedula: '',
         telefono: '',
+        correo: '',
         provincia: '',
         canton: '',
         distrito: '',
