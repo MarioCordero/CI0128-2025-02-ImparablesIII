@@ -1,4 +1,4 @@
-namespace backend_lab_c28730.Services
+namespace backend.Services
 {
     /// <summary>
     /// HTML email templates that match the EmployeeList component styling
@@ -243,6 +243,49 @@ namespace backend_lab_c28730.Services
                 </div>";
 
             return GetBaseTemplate($"Notificación de Empleado - {employeeName}", content);
+        }
+
+        /// <summary>
+        /// Password setup email template for new employees
+        /// </summary>
+        public static string GetPasswordSetupTemplate(string employeeName, string setupUrl)
+        {
+            var content = $@"
+                <div class=""greeting"">¡Bienvenido a Imparables, {employeeName}!</div>
+                <div class=""message"">
+                    Tu registro como empleado ha sido completado exitosamente. Para acceder a la plataforma, 
+                    necesitas configurar tu contraseña.
+                </div>
+                
+                <div class=""highlight-box"">
+                    <h3 style=""margin-top: 0; color: #2d384b;"">Configura tu contraseña</h3>
+                    <p style=""color: #4b5563; margin: 16px 0;"">
+                        Haz clic en el botón de abajo para configurar tu contraseña y activar tu cuenta.
+                    </p>
+                    <div style=""text-align: center;"">
+                        <a href=""{setupUrl}"" class=""button"">Configurar Contraseña</a>
+                    </div>
+                    <p style=""color: #6b7280; font-size: 14px; margin-top: 16px; margin-bottom: 0;"">
+                        Este enlace expira en 30 minutos por seguridad
+                    </p>
+                </div>
+                
+                <div class=""message"">
+                    <strong>Instrucciones:</strong>
+                    <ol style=""color: #4b5563; padding-left: 20px;"">
+                        <li>Haz clic en el botón de arriba</li>
+                        <li>Crea una contraseña segura (8-16 caracteres)</li>
+                        <li>Confirma tu contraseña</li>
+                        <li>¡Ya podrás acceder a la plataforma!</li>
+                    </ol>
+                </div>
+                
+                <div class=""message"" style=""background-color: #fef3c7; border-radius: 12px; padding: 16px; border-left: 4px solid #f59e0b;"">
+                    <strong>⚠️ Importante:</strong> Si no solicitaste este registro, 
+                    contacta inmediatamente con el administrador del sistema.
+                </div>";
+
+            return GetBaseTemplate("Configuración de Contraseña - Imparables", content);
         }
     }
 }
