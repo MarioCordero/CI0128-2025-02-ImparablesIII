@@ -83,6 +83,9 @@
             <div class="space-y-6">
               <!-- First Name Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Primer Nombre</p>
+                </div>
                 <input
                   v-model="formData.primerNombre"
                   type="text"
@@ -94,6 +97,9 @@
 
               
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Apellidos</p>
+                </div>
                 <input
                   v-model="formData.primerApellido"
                   type="text"
@@ -105,6 +111,9 @@
 
               <!-- Phone Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Teléfono</p>
+                </div>
                 <input
                   v-model="formData.telefono"
                   type="tel"
@@ -116,6 +125,9 @@
 
               <!-- Email Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Correo Electrónico</p>
+                </div>
                 <input
                   v-model="formData.correo"
                   type="email"
@@ -129,6 +141,9 @@
             <!-- Right Column -->
             <div class="space-y-6">
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Segundo Nombre</p>
+                </div>
                 <input
                   v-model="formData.segundoNombre"
                   type="text"
@@ -139,6 +154,9 @@
 
               <!-- Date of Birth Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Fecha de Nacimiento</p>
+                </div>
                 <input
                   v-model="formData.fechaNacimiento"
                   type="date"
@@ -150,6 +168,9 @@
 
               <!-- ID Card Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Cédula</p>
+                </div>
                 <input
                   v-model="formData.cedula"
                   type="text"
@@ -171,6 +192,9 @@
             <div class="space-y-6">
               <!-- Province Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Provincia</p>
+                </div>
                 <select
                   v-model="formData.provincia"
                   class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer"
@@ -191,6 +215,9 @@
 
               <!-- Canton Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Cantón</p>
+                </div>
                 <input
                   v-model="formData.canton"
                   type="text"
@@ -205,6 +232,9 @@
             <div class="space-y-6">
               <!-- District Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Distrito</p>
+                </div>
                 <input
                   v-model="formData.distrito"
                   type="text"
@@ -216,6 +246,9 @@
 
               <!-- Address Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Dirección Particular</p>
+                </div>
                 <input
                   v-model="formData.direccionParticular"
                   type="text"
@@ -235,6 +268,9 @@
             <div class="space-y-6">
               <!-- Department Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Departamento</p>
+                </div>
                 <input
                   v-model="formData.departamento"
                   type="text"
@@ -246,7 +282,10 @@
 
               <!-- Contract Type Field -->
               <div class="relative">
-                <select
+                <div class="space-x-2 ml-2">
+                  <p>Tipo de Contrato</p>
+                </div>
+                  <select
                   v-model="formData.tipoContrato"
                   class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer"
                   required
@@ -266,6 +305,9 @@
 
               <!-- Position Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Puesto</p>
+                </div>
                 <input
                   v-model="formData.puesto"
                   type="text"
@@ -280,10 +322,14 @@
             <div class="space-y-6">
               <!-- Salary Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Salario</p>
+                </div>
                 <input
-                  v-model="formData.salario"
-                  type="number"
-                  placeholder="Salario"
+                  v-model="formattedSalario"
+                  type="text"
+                  placeholder="₡0.000"
+                  @input="formatSalario"
                   class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
@@ -291,6 +337,9 @@
 
               <!-- IBAN Account Number Field -->
               <div class="relative">
+                <div class="space-x-2 ml-2">
+                  <p>Número de Cuenta IBAN</p>
+                </div>
                 <input
                   v-model="formData.numeroCuentaIban"
                   type="text"
@@ -354,6 +403,7 @@ export default {
   data() {
     return {
       currentTab: 0,
+      formattedSalario: '',
       formData: {
         // Personal Information
         primerNombre: '',
@@ -412,6 +462,22 @@ export default {
         }
       }
       this.formData.cedula = value
+    },
+    formatSalario(event) {
+      let value = event.target.value.replace(/[^\d]/g, '') // Remove all non-digits
+      
+      if (value === '') {
+        this.formattedSalario = ''
+        this.formData.salario = ''
+        return
+      }
+      
+      // Convert to number and format with colones
+      const number = parseInt(value)
+      this.formData.salario = number
+      
+      // Format with dots as thousands separators
+      this.formattedSalario = '₡' + number.toLocaleString('es-CR')
     },
     async handleSubmit() {
       try {
@@ -485,6 +551,7 @@ export default {
         salario: '',
         numeroCuentaIban: ''
       };
+      this.formattedSalario = '';
       this.currentTab = 0;
     },
   },
