@@ -1,7 +1,6 @@
 using backend.Services;
 using backend.Repositories;
-using backend_lab_c28730.Models;
-using backend_lab_c28730.Services;
+using backend.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,13 +23,14 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-// builder.Services.AddScoped<OrderRepository>(); // TEST - Repository not found
+
 builder.Services.AddScoped<EmployeeRepository>(); // Employee registration repository
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Register services
-builder.Services.AddScoped<OrderRepository>(); // TEST
 builder.Services.AddScoped<IEmailService, EmailService>(); // Email service
+builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>(); // Password setup service
+builder.Services.AddMemoryCache(); // Memory cache for password tokens
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
 
 

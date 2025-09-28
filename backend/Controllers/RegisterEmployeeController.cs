@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Models;
 using backend.Repositories;
+using backend.Services;
+using backend.DTOs;
 using System.ComponentModel.DataAnnotations;
 
 namespace backend.Controllers
@@ -11,11 +13,22 @@ namespace backend.Controllers
     {
         private readonly EmployeeRepository _employeeRepository;
         private readonly ILogger<RegisterEmployeeController> _logger;
+        private readonly IEmailService _emailService;
+        private readonly IPasswordSetupService _passwordSetupService;
+        private readonly IConfiguration _configuration;
 
-        public RegisterEmployeeController(EmployeeRepository employeeRepository, ILogger<RegisterEmployeeController> logger)
+        public RegisterEmployeeController(
+            EmployeeRepository employeeRepository, 
+            ILogger<RegisterEmployeeController> logger,
+            IEmailService emailService,
+            IPasswordSetupService passwordSetupService,
+            IConfiguration configuration)
         {
             _employeeRepository = employeeRepository;
             _logger = logger;
+            _emailService = emailService;
+            _passwordSetupService = passwordSetupService;
+            _configuration = configuration;
         }
 
         [HttpPost]
@@ -48,9 +61,15 @@ namespace backend.Controllers
 
                 _logger.LogInformation($"Employee registered successfully with ID: {employeeId}");
 
+                // Generate password setup token
+                var token = await _passwordSetupService.GeneratePasswordSetupTokenAsync(employeeId, employeeDto.Correo);
+
+                // Send password setup email
+                await SendPasswordSetupEmailAsync(employeeDto.PrimerNombre, employeeDto.Correo, token);
+
                 return Ok(new 
                 { 
-                    message = "Empleado registrado exitosamente.", 
+                    message = "Empleado registrado exitosamente. Se ha enviado un correo para configurar la contraseña.", 
                     employeeId = employeeId 
                 });
             }
@@ -105,6 +124,42 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "Database connection test failed: {Message}", ex.Message);
                 return StatusCode(500, new { message = $"Error de conexión a la base de datos: {ex.Message}" });
+            }
+        }
+
+        private async Task SendPasswordSetupEmailAsync(string employeeName, string email, string token)
+        {
+            try
+            {
+                // Get frontend URL from configuration
+                var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:8080";
+                var setupUrl = $"{frontendUrl}/password-setup?token={token}";
+
+                // Generate email content
+                var emailBody = EmailTemplates.GetPasswordSetupTemplate(employeeName, setupUrl);
+
+                var emailDto = new SendEmailDto
+                {
+                    ReceiverEmail = email,
+                    Subject = "Configuración de Contraseña - Imparables",
+                    Body = emailBody,
+                    IsHtml = true
+                };
+
+                var result = await _emailService.SendEmailAsync(emailDto);
+                
+                if (result.Success)
+                {
+                    _logger.LogInformation($"Password setup email sent successfully to {email}");
+                }
+                else
+                {
+                    _logger.LogError($"Failed to send password setup email to {email}: {result.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending password setup email to {email}", email);
             }
         }
     }
