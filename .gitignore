@@ -6,3 +6,7 @@ backend/obj/
 # Email configuration with sensitive credentials
 backend/emailconfig.json
 backend/server.log
+
+# System-specific installation files
+dotnet-install.sh
+packages-microsoft-prod.deb
