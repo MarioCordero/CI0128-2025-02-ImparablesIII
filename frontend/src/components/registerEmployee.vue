@@ -241,9 +241,9 @@
                   required
                 >
                   <option value="" disabled selected>Tipo de Contrato</option>
-                  <option value="tiempo_completo">Tiempo Completo</option>
-                  <option value="medio_tiempo">Medio Tiempo</option>
-                  <option value="servicios_profesionales">Servicios Profesionales</option>
+                  <option value="Tiempo Completo">Tiempo Completo</option>
+                  <option value="Medio Tiempo">Medio Tiempo</option>
+                  <option value="Servicios Profesionales">Servicios Profesionales</option>
                 </select>
                 <!-- Custom dropdown arrow -->
                 <div class="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none">

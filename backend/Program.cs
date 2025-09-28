@@ -7,8 +7,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<OrderRepository>(); // TEST
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowVueFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:8080", "http://localhost:3000", "http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+// builder.Services.AddScoped<OrderRepository>(); // TEST - Repository not found
+builder.Services.AddScoped<EmployeeRepository>(); // Employee registration repository
 
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
 
@@ -29,6 +40,9 @@ app.UseSwaggerUI();
 
 
 app.UseHttpsRedirection();
+
+// Use CORS
+app.UseCors("AllowVueFrontend");
 
 var summaries = new[]
 {
