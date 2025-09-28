@@ -54,17 +54,6 @@
           </div>
         </div>
 
-        <!-- Add Sample Data Button -->
-        <div class="text-center mb-6">
-          <button
-            @click="addSampleData"
-            :disabled="loading"
-            class="bg-[#2d384b] text-white font-medium rounded-full py-3 px-8 shadow-lg hover:bg-[#1e293b] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ loading ? 'Cargando...' : 'Agregar Datos de Prueba' }}
-          </button>
-        </div>
-
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-12">
           <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-[#2d384b]"></div>
@@ -193,12 +182,6 @@ export default {
   },
   async mounted() {
     await this.loadEmployees()
-    
-    // If no employees found, automatically add sample data
-    if (!this.employeeData.hasEmployees && !this.loading && !this.error) {
-      console.log('No employees found, adding sample data...')
-      await this.addSampleData()
-    }
   },
   methods: {
     async loadEmployees() {
@@ -206,22 +189,33 @@ export default {
       this.error = null
       
       try {
-        const params = new URLSearchParams()
+        // Call the PlaniFy database endpoint instead of the in-memory one
+        const url = `http://localhost:5011/api/Employee/planify/all`
         
-        if (this.searchTerm) params.append('searchTerm', this.searchTerm)
-        if (this.statusFilter) params.append('estadoFilter', this.statusFilter)
-        if (this.sortBy) params.append('sortBy', this.sortBy)
-        params.append('sortDirection', 'asc')
-        
-        const queryString = params.toString()
-        const url = `http://localhost:5011/api/Employee/list/${this.employerId}${queryString ? '?' + queryString : ''}`
-        
-        console.log('Loading employees from:', url)
+        console.log('Loading employees from PlaniFy database:', url)
         
         const response = await axios.get(url)
-        this.employeeData = response.data
         
-        console.log('Employees loaded:', this.employeeData)
+        // Transform the response to match the expected format
+        const transformedData = {
+          employees: response.data.empleados.map(emp => ({
+            id: emp.idPersona,
+            nombreCompleto: emp.persona.nombreCompleto,
+            email: emp.persona.correo,
+            celular: emp.persona.telefono ? emp.persona.telefono.toString() : 'N/A',
+            puesto: emp.puesto,
+            salario: emp.salario,
+            estado: 'Activa', // Default since PlaniFy doesn't have status field
+            fechaContratacion: emp.fechaContratacion
+          })),
+          totalCount: response.data.totalCount,
+          message: response.data.message,
+          hasEmployees: response.data.totalCount > 0
+        }
+        
+        this.employeeData = transformedData
+        
+        console.log('Employees loaded from PlaniFy:', this.employeeData)
       } catch (error) {
         console.error('Error loading employees:', error)
         
@@ -256,36 +250,6 @@ export default {
     
     async sortEmployees() {
       await this.loadEmployees()
-    },
-    
-    async addSampleData() {
-      this.loading = true
-      this.error = null
-      
-      try {
-        console.log('Adding sample employees...')
-        const response = await axios.post(`http://localhost:5011/api/Employee/add-sample-data/${this.employerId}`)
-        console.log('Sample data response:', response.data)
-        
-        // Reload employees after adding sample data
-        await this.loadEmployees()
-        
-        // Show success message briefly
-        if (this.employeeData.hasEmployees) {
-          console.log('Sample employees added successfully!')
-        }
-      } catch (error) {
-        console.error('Error adding sample data:', error)
-        if (error.response) {
-          this.error = error.response.data?.message || 'Error al agregar datos de prueba'
-        } else if (error.request) {
-          this.error = 'No se pudo conectar con el servidor. Verifica que el backend esté funcionando.'
-        } else {
-          this.error = 'Error al agregar datos de prueba'
-        }
-      } finally {
-        this.loading = false
-      }
     },
     
     getInitials(name) {
