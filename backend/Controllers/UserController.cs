@@ -1,8 +1,8 @@
-using backend_lab_c28730.Extensions;
-using backend_lab_c28730.Services;
+using backend.Extensions;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace backend_lab_c28730.Controllers
+namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
