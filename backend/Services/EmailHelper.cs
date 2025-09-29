@@ -1,10 +1,10 @@
-using backend_lab_c28730.DTOs;
-using backend_lab_c28730.Models;
+using backend.DTOs;
+using backend.Models;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace backend_lab_c28730.Services
+namespace backend.Services
 {
     /// <summary>
     /// Static helper class for sending emails directly without going through the API
