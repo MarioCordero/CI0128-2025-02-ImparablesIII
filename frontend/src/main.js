@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import './assets/neumorphismGlobal.css'
+
 
 // Tailwind CSS
 import './assets/tailwind.css'
