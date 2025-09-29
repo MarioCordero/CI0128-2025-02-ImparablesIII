@@ -12,17 +12,20 @@ namespace backend.Services
         private readonly ILogger<PasswordSetupService> _logger;
         private readonly EmployeeRepository _employeeRepository;
         private readonly IPasswordRepository _passwordRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
 
         public PasswordSetupService(
             IMemoryCache cache, 
             ILogger<PasswordSetupService> logger,
             EmployeeRepository employeeRepository,
-            IPasswordRepository passwordRepository)
+            IPasswordRepository passwordRepository,
+            IUsuarioRepository usuarioRepository)
         {
             _cache = cache;
             _logger = logger;
             _employeeRepository = employeeRepository;
             _passwordRepository = passwordRepository;
+            _usuarioRepository = usuarioRepository;
         }
 
         public Task<string> GeneratePasswordSetupTokenAsync(int personaId, string email)
@@ -93,7 +96,7 @@ namespace backend.Services
                 var plainPassword = request.Password;
 
                 // Create user in database
-                var userCreated = await _passwordRepository.CreateUserAsync(personaId, plainPassword, "Empleado");
+                var userCreated = await _usuarioRepository.CreateUserAsync(personaId, plainPassword, "Empleado");
 
                 var updateEmployePassword = await _passwordRepository.UpdateEmployeePasswordAsync(personaId, plainPassword);
                 
