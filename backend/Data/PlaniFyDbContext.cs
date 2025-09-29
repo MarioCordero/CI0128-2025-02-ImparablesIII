@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using backend_lab_c28730.Models;
+using backend_lab.Models;
 
-namespace backend_lab_c28730.Data
+namespace backend_lab.Data
 {
     public class PlaniFyDbContext : DbContext
     {
