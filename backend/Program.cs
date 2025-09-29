@@ -1,6 +1,7 @@
 using backend.Services;
 using backend.Repositories;
 using backend.Models;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,10 +9,46 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("emailconfig.json", optional: false, reloadOnChange: true);
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Configure Swagger with Bearer Token Authentication
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Asociación Solidarista API",
+        Version = "v1",
+        Description = "API for calculating solidarist association contributions"
+    });
+
+    // Configure Bearer Authentication for Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+
+    // RESTAURAR ESTO - es necesario para que aparezca el botón Authorize
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -24,63 +61,32 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddScoped<EmployeeRepository>(); // Employee registration repository
-builder.Services.AddScoped<IPasswordRepository, PasswordRepository>(); // Password operations repository
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>(); // User operations repository
+// Register repositories
+builder.Services.AddScoped<EmployeeRepository>();
+builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+// Configure email settings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Register services
-builder.Services.AddScoped<IEmailService, EmailService>(); // Email service
-builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>(); // Password setup service
-builder.Services.AddMemoryCache(); // Memory cache for password tokens
-builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
-
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<AsociacionSolidaristaApiService>();
 
 var app = builder.Build();
 
-// DEVELOP ENABLED
-// Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
-
-// PRODUCTION ENABLED
+// Configure the HTTP request pipeline
 app.UseSwagger();
-app.UseSwaggerUI();
-
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Asociación Solidarista API v1");
+    c.RoutePrefix = string.Empty;
+});
 
 app.UseHttpsRedirection();
-
-// Use CORS
 app.UseCors("AllowVueFrontend");
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
 app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
