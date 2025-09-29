@@ -9,7 +9,7 @@ namespace backend_lab.Repositories {
     private readonly string _connectionString;
     public CountryRepository() {
       var builder = WebApplication.CreateBuilder();
-      _connectionString = builder.Configuration.GetConnectionString("CountryContext");
+      _connectionString = builder.Configuration.GetConnectionString("CountryContext") ?? string.Empty;
     }
     public List<CountryModel> GetCountries() {
       using var connection = new SqlConnection(_connectionString);

@@ -11,7 +11,7 @@ namespace backend.Repositories
 
         public OrderRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("CountryContext");
+            _connectionString = configuration.GetConnectionString("CountryContext") ?? string.Empty;
         }
 
         public async Task<IEnumerable<OrderDetailDto>> GetOrderDetailsAsync(int orderId)
