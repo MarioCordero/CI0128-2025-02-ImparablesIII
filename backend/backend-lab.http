@@ -1,6 +1,73 @@
 @backend_lab_HostAddress = http://localhost:5011
 
+### Weather Forecast (Default endpoint)
 GET {{backend_lab_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### Employee API - Get all employees from PlaniFy database
+GET {{backend_lab_HostAddress}}/api/Employee/planify/all
+Accept: application/json
+
+###
+
+### Employee API - Get specific employee by ID from PlaniFy database
+GET {{backend_lab_HostAddress}}/api/Employee/planify/9
+Accept: application/json
+
+###
+
+### Employee API - Get specific employee by ID from PlaniFy database (another ID)
+GET {{backend_lab_HostAddress}}/api/Employee/planify/12
+Accept: application/json
+
+###
+
+### Employee API - Get employee list with filters (in-memory sample data)
+GET {{backend_lab_HostAddress}}/api/Employee/list/1?searchTerm=&estadoFilter=&sortBy=nombre&sortDirection=asc
+Accept: application/json
+
+###
+
+### Employee API - Get employee list with search filter
+GET {{backend_lab_HostAddress}}/api/Employee/list/1?searchTerm=maria&estadoFilter=&sortBy=nombre&sortDirection=asc
+Accept: application/json
+
+###
+
+### Employee API - Get employee list with status filter
+GET {{backend_lab_HostAddress}}/api/Employee/list/1?searchTerm=&estadoFilter=Activa&sortBy=salario&sortDirection=desc
+Accept: application/json
+
+###
+
+### Employee API - Get specific employee details (in-memory)
+GET {{backend_lab_HostAddress}}/api/Employee/1/employer/1
+Accept: application/json
+
+###
+
+### Employee API - Get employee status options
+GET {{backend_lab_HostAddress}}/api/Employee/status-options
+Accept: application/json
+
+###
+
+### Employee API - Add sample employees for testing
+POST {{backend_lab_HostAddress}}/api/Employee/add-sample-data/1
+Accept: application/json
+
+###
+
+### Country API - Get all countries
+GET {{backend_lab_HostAddress}}/api/Country
+Accept: application/json
+
+###
+
+### AsociacionSolidarista API - Get employee data
+GET {{backend_lab_HostAddress}}/api/AsociacionSolidarista/employee/901140575
 Accept: application/json
 
 ###
