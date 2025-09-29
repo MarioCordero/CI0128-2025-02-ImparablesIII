@@ -1,4 +1,4 @@
-namespace backend_lab_c28730.Models;
+namespace backend_lab.Models;
 
 public class CountryModel
 {
