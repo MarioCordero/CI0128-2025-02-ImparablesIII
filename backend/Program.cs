@@ -1,15 +1,38 @@
 using backend.Services;
 using backend.Repositories;
+using backend.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Email Settings from external configuration file
+builder.Configuration.AddJsonFile("emailconfig.json", optional: false, reloadOnChange: true);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<OrderRepository>(); // TEST
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowVueFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:8080", "http://localhost:3000", "http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
+builder.Services.AddScoped<EmployeeRepository>(); // Employee registration repository
+builder.Services.AddScoped<IPasswordRepository, PasswordRepository>(); // Password operations repository
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>(); // User operations repository
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
+// Register services
+builder.Services.AddScoped<IEmailService, EmailService>(); // Email service
+builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>(); // Password setup service
+builder.Services.AddMemoryCache(); // Memory cache for password tokens
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
 
 
@@ -29,6 +52,9 @@ app.UseSwaggerUI();
 
 
 app.UseHttpsRedirection();
+
+// Use CORS
+app.UseCors("AllowVueFrontend");
 
 var summaries = new[]
 {

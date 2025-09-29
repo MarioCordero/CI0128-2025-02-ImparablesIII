@@ -2,3 +2,11 @@ backend/obj/Debug/net8.0/backend-lab-c28730.AssemblyInfo.cs
 backend/obj/Debug/net8.0/backend-lab-c28730.AssemblyInfoInputs.cache
 backend/bin/
 backend/obj/
+
+# Email configuration with sensitive credentials
+backend/emailconfig.json
+backend/server.log
+
+# System-specific installation files
+dotnet-install.sh
+packages-microsoft-prod.deb
