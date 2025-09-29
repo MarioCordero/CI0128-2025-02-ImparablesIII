@@ -90,9 +90,13 @@
                   v-model="formData.primerNombre"
                   type="text"
                   placeholder="Primer Nombre"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.primerNombre ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.primerNombre" class="text-red-500 text-sm mt-1 ml-2">{{ errors.primerNombre }}</p>
               </div>
 
               
@@ -104,9 +108,13 @@
                   v-model="formData.primerApellido"
                   type="text"
                   placeholder="Apellidos"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.primerApellido ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.primerApellido" class="text-red-500 text-sm mt-1 ml-2">{{ errors.primerApellido }}</p>
               </div>
 
               <!-- Phone Field -->
@@ -117,10 +125,15 @@
                 <input
                   v-model="formData.telefono"
                   type="tel"
-                  placeholder="Teléfono"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  placeholder="#### ####"
+                  @input="formatTelefono"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.telefono ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.telefono" class="text-red-500 text-sm mt-1 ml-2">{{ errors.telefono }}</p>
               </div>
 
               <!-- Email Field -->
@@ -132,9 +145,13 @@
                   v-model="formData.correo"
                   type="email"
                   placeholder="Correo Electrónico"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.correo ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.correo" class="text-red-500 text-sm mt-1 ml-2">{{ errors.correo }}</p>
               </div>
             </div>
 
@@ -161,9 +178,13 @@
                   v-model="formData.fechaNacimiento"
                   type="date"
                   placeholder="Fecha de nacimiento"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.fechaNacimiento ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.fechaNacimiento" class="text-red-500 text-sm mt-1 ml-2">{{ errors.fechaNacimiento }}</p>
               </div>
 
               <!-- ID Card Field -->
@@ -175,10 +196,14 @@
                   v-model="formData.cedula"
                   type="text"
                   placeholder="Cédula (#-####-####)"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.cedula ? 'ring-2 ring-red-500' : ''
+                  ]"
                   @input="formatCedula"
                   required
                 />
+                <p v-if="errors.cedula" class="text-red-500 text-sm mt-1 ml-2">{{ errors.cedula }}</p>
               </div>
 
             </div>
@@ -197,7 +222,10 @@
                 </div>
                 <select
                   v-model="formData.provincia"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer',
+                    errors.provincia ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 >
                   <option value="" disabled selected>Provincia</option>
@@ -211,6 +239,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                   </svg>
                 </div>
+                <p v-if="errors.provincia" class="text-red-500 text-sm mt-1 ml-2">{{ errors.provincia }}</p>
               </div>
 
               <!-- Canton Field -->
@@ -222,9 +251,13 @@
                   v-model="formData.canton"
                   type="text"
                   placeholder="Cantón"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.canton ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.canton" class="text-red-500 text-sm mt-1 ml-2">{{ errors.canton }}</p>
               </div>
             </div>
 
@@ -239,9 +272,13 @@
                   v-model="formData.distrito"
                   type="text"
                   placeholder="Distrito"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.distrito ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.distrito" class="text-red-500 text-sm mt-1 ml-2">{{ errors.distrito }}</p>
               </div>
 
               <!-- Address Field -->
@@ -253,9 +290,13 @@
                   v-model="formData.direccionParticular"
                   type="text"
                   placeholder="Dirección Particular"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.direccionParticular ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.direccionParticular" class="text-red-500 text-sm mt-1 ml-2">{{ errors.direccionParticular }}</p>
               </div>
             </div>
           </div>
@@ -275,9 +316,13 @@
                   v-model="formData.departamento"
                   type="text"
                   placeholder="Departamento"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.departamento ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.departamento" class="text-red-500 text-sm mt-1 ml-2">{{ errors.departamento }}</p>
               </div>
 
               <!-- Contract Type Field -->
@@ -287,7 +332,10 @@
                 </div>
                   <select
                   v-model="formData.tipoContrato"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer',
+                    errors.tipoContrato ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 >
                   <option value="" disabled selected>Tipo de Contrato</option>
@@ -301,6 +349,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                   </svg>
                 </div>
+                <p v-if="errors.tipoContrato" class="text-red-500 text-sm mt-1 ml-2">{{ errors.tipoContrato }}</p>
               </div>
 
               <!-- Position Field -->
@@ -312,9 +361,13 @@
                   v-model="formData.puesto"
                   type="text"
                   placeholder="Puesto"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.puesto ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.puesto" class="text-red-500 text-sm mt-1 ml-2">{{ errors.puesto }}</p>
               </div>
             </div>
 
@@ -330,9 +383,13 @@
                   type="text"
                   placeholder="₡0.000"
                   @input="formatSalario"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.salario ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.salario" class="text-red-500 text-sm mt-1 ml-2">{{ errors.salario }}</p>
               </div>
 
               <!-- IBAN Account Number Field -->
@@ -344,9 +401,13 @@
                   v-model="formData.numeroCuentaIban"
                   type="text"
                   placeholder="Número de Cuenta IBAN"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  :class="[
+                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                    errors.numeroCuentaIban ? 'ring-2 ring-red-500' : ''
+                  ]"
                   required
                 />
+                <p v-if="errors.numeroCuentaIban" class="text-red-500 text-sm mt-1 ml-2">{{ errors.numeroCuentaIban }}</p>
               </div>
             </div>
           </div>
@@ -404,6 +465,7 @@ export default {
     return {
       currentTab: 0,
       formattedSalario: '',
+      errors: {},
       formData: {
         // Personal Information
         primerNombre: '',
@@ -440,8 +502,16 @@ export default {
   },
   methods: {
     goToTab(tabIndex) {
+      // Validate current tab before proceeding
+      if (tabIndex > this.currentTab) {
+        if (!this.validateCurrentTab()) {
+          return;
+        }
+      }
+
       if (tabIndex >= 0 && tabIndex <= 2) {
-        this.currentTab = tabIndex
+        this.currentTab = tabIndex;
+        this.clearErrors();
       }
     },
     getCurrentTabTitle() {
@@ -453,35 +523,220 @@ export default {
       return titles[this.currentTab]
     },
     formatCedula(event) {
-      let value = event.target.value.replace(/\D/g, '') // Remove non-digits
+      let value = event.target.value.replace(/\D/g, '');
       if (value.length > 1) {
         if (value.length <= 5) {
-          value = value.slice(0, 1) + '-' + value.slice(1)
+          value = value.slice(0, 1) + '-' + value.slice(1);
         } else {
-          value = value.slice(0, 1) + '-' + value.slice(1, 5) + '-' + value.slice(5, 9)
+          value = value.slice(0, 1) + '-' + value.slice(1, 5) + '-' + value.slice(5, 9);
         }
       }
-      this.formData.cedula = value
+      this.formData.cedula = value;
+    },
+    formatTelefono(event) {
+      let value = event.target.value.replace(/\D/g, '');
+      if (value.length > 4) {
+        value = value.slice(0, 4) + ' ' + value.slice(4, 8);
+      }
+      this.formData.telefono = value;
     },
     formatSalario(event) {
-      let value = event.target.value.replace(/[^\d]/g, '') // Remove all non-digits
-      
+      let value = event.target.value.replace(/[^\d]/g, ''); 
+
       if (value === '') {
-        this.formattedSalario = ''
-        this.formData.salario = ''
+        this.formattedSalario = '';
+        this.formData.salario = '';
         return
       }
       
-      // Convert to number and format with colones
-      const number = parseInt(value)
-      this.formData.salario = number
+      const number = parseInt(value);
+      this.formData.salario = number;
       
-      // Format with dots as thousands separators
-      this.formattedSalario = '₡' + number.toLocaleString('es-CR')
+      this.formattedSalario = '₡' + number.toLocaleString('es-CR');
+    },
+    validateCurrentTab() {
+      this.clearErrors();
+      let isValid = true;
+
+      switch (this.currentTab) {
+        case 0: 
+          isValid = this.validatePersonalInfo();
+          break;
+        case 1: 
+          isValid = this.validateAddressInfo();
+          break;
+        case 2: 
+          isValid = this.validateEmploymentInfo();
+          break;
+      }
+
+      return isValid;
+    },
+    validatePersonalInfo() {
+      let isValid = true;
+
+      if (!this.formData.primerNombre || this.formData.primerNombre.trim().length === 0) {
+        this.errors.primerNombre = 'El primer nombre es requerido';
+        isValid = false;
+      } else if (this.formData.primerNombre.length > 20) {
+        this.errors.primerNombre = 'El primer nombre no puede exceder 20 caracteres';
+        isValid = false;
+      }
+     
+      if (!this.formData.primerApellido || this.formData.primerApellido.trim().length === 0) {
+        this.errors.primerApellido = 'El primer apellido es requerido';
+        isValid = false;
+      } else if (this.formData.primerApellido.length > 20) {
+        this.errors.primerApellido = 'El primer apellido no puede exceder 20 caracteres';
+        isValid = false;
+      }
+     
+      if (!this.formData.fechaNacimiento) {
+        this.errors.fechaNacimiento = 'La fecha de nacimiento es requerida';
+        isValid = false;
+      } else {
+        const today = new Date();
+        const birthDate = new Date(this.formData.fechaNacimiento);
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        
+        if (age < 18 || (age === 18 && monthDiff < 0) || (age === 18 && monthDiff === 0 && dayDiff < 0)) {
+          this.errors.fechaNacimiento = 'El empleado debe tener al menos 18 años';
+          isValid = false;
+        } else if (age > 99 || (age === 99 && monthDiff < 0) || (age === 99 && monthDiff === 0 && dayDiff < 0)) {
+          this.errors.fechaNacimiento = 'El empleado debe tener menos de 99 años';
+          isValid = false;
+        }
+      }
+
+      if (!this.formData.cedula || this.formData.cedula.trim().length === 0) {
+        this.errors.cedula = 'La cédula es requerida';
+        isValid = false;
+      } else {
+        const cedulaDigits = this.formData.cedula.replace(/-/g, '');
+        if (cedulaDigits.length !== 9) {
+          this.errors.cedula = 'La cédula debe tener 9 dígitos';
+          isValid = false;
+        }
+      }
+
+      if (!this.formData.telefono || this.formData.telefono.trim().length === 0) {
+        this.errors.telefono = 'El teléfono es requerido';
+        isValid = false;
+      } else {
+        const phoneDigits = this.formData.telefono.replace(/\s/g, '');
+        if (phoneDigits.length !== 8) {
+          this.errors.telefono = 'El teléfono debe tener 8 dígitos (#### ####)';
+          isValid = false;
+        }
+      }
+
+      if (!this.formData.correo || this.formData.correo.trim().length === 0) {
+        this.errors.correo = 'El correo electrónico es requerido';
+        isValid = false;
+      } else if (this.formData.correo.length > 50) {
+        this.errors.correo = 'El correo no puede exceder 50 caracteres';
+        isValid = false;
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(this.formData.correo)) {
+          this.errors.correo = 'Formato de correo electrónico inválido';
+          isValid = false;
+        }
+      }
+
+      return isValid;
+    },
+    validateAddressInfo() {
+      let isValid = true;
+
+      if (!this.formData.provincia || this.formData.provincia.trim().length === 0) {
+        this.errors.provincia = 'La provincia es requerida';
+        isValid = false;
+      } else if (this.formData.provincia.length > 12) {
+        this.errors.provincia = 'La provincia no puede exceder 12 caracteres';
+        isValid = false;
+      }
+
+      if (!this.formData.canton || this.formData.canton.trim().length === 0) {
+        this.errors.canton = 'El cantón es requerido';
+        isValid = false;
+      } else if (this.formData.canton.length > 30) {
+        this.errors.canton = 'El cantón no puede exceder 30 caracteres';
+        isValid = false;
+      }
+
+     
+      if (!this.formData.distrito || this.formData.distrito.trim().length === 0) {
+        this.errors.distrito = 'El distrito es requerido';
+        isValid = false;
+      } else if (this.formData.distrito.length > 30) {
+        this.errors.distrito = 'El distrito no puede exceder 30 caracteres';
+        isValid = false;
+      }
+
+      if (!this.formData.direccionParticular || this.formData.direccionParticular.trim().length === 0) {
+        this.errors.direccionParticular = 'La dirección particular es requerida';
+        isValid = false;
+      } else if (this.formData.direccionParticular.length > 150) {
+        this.errors.direccionParticular = 'La dirección no puede exceder 150 caracteres';
+        isValid = false;
+      }
+
+      return isValid;
+    },
+    validateEmploymentInfo() {
+      let isValid = true;
+
+      if (!this.formData.departamento || this.formData.departamento.trim().length === 0) {
+        this.errors.departamento = 'El departamento es requerido';
+        isValid = false;
+      } else if (this.formData.departamento.length > 20) {
+        this.errors.departamento = 'El departamento no puede exceder 20 caracteres';
+        isValid = false;
+      }
+
+      if (!this.formData.tipoContrato || this.formData.tipoContrato.trim().length === 0) {
+        this.errors.tipoContrato = 'El tipo de contrato es requerido';
+        isValid = false;
+      } else if (this.formData.tipoContrato.length > 20) {
+        this.errors.tipoContrato = 'El tipo de contrato no puede exceder 20 caracteres';
+        isValid = false;
+      }
+
+      if (!this.formData.puesto || this.formData.puesto.trim().length === 0) {
+        this.errors.puesto = 'El puesto es requerido';
+        isValid = false;
+      } else if (this.formData.puesto.length > 20) {
+        this.errors.puesto = 'El puesto no puede exceder 20 caracteres';
+        isValid = false;
+      }
+
+      if (!this.formData.salario || this.formData.salario === '') {
+        this.errors.salario = 'El salario es requerido';
+        isValid = false;
+      } else if (this.formData.salario < 0) {
+        this.errors.salario = 'El salario debe ser un valor positivo';
+        isValid = false;
+      }
+
+      if (!this.formData.numeroCuentaIban || this.formData.numeroCuentaIban.trim().length === 0) {
+        this.errors.numeroCuentaIban = 'El número de cuenta IBAN es requerido';
+        isValid = false;
+      } else if (this.formData.numeroCuentaIban.length > 30) {
+        this.errors.numeroCuentaIban = 'El número de cuenta no puede exceder 30 caracteres';
+        isValid = false;
+      }
+
+      return isValid;
+    },
+    clearErrors() {
+      this.errors = {};
     },
     async handleSubmit() {
       try {
-        // Validate required fields
+
         if (!this.validateForm()) {
           return;
         }
@@ -518,19 +773,11 @@ export default {
       }
     },
     validateForm() {
-      // Basic validation
-      if (!this.formData.primerNombre || !this.formData.primerApellido || 
-          !this.formData.fechaNacimiento || !this.formData.cedula || 
-          !this.formData.telefono || !this.formData.correo || 
-          !this.formData.provincia || !this.formData.canton || 
-          !this.formData.distrito || !this.formData.direccionParticular || 
-          !this.formData.departamento || !this.formData.tipoContrato || 
-          !this.formData.puesto || !this.formData.salario || 
-          !this.formData.numeroCuentaIban) {
-        alert('Por favor complete todos los campos requeridos.');
-        return false;
-      }
-      return true;
+      const personalValid = this.validatePersonalInfo();
+      const addressValid = this.validateAddressInfo();
+      const employmentValid = this.validateEmploymentInfo();
+      
+      return personalValid && addressValid && employmentValid;
     },
     resetForm() {
       this.formData = {
@@ -553,6 +800,7 @@ export default {
       };
       this.formattedSalario = '';
       this.currentTab = 0;
+      this.clearErrors();
     },
   },
 };
