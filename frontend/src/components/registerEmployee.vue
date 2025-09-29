@@ -745,6 +745,7 @@ export default {
         const employeeData = {
           ...this.formData,
           cedula: this.formData.cedula.replace(/-/g, ''), // Remove dashes from cedula
+          telefono: this.formData.telefono.replace(/\s/g, ''), // Remove spaces from phone
           fechaNacimiento: new Date(this.formData.fechaNacimiento).toISOString(),
           numeroCuentaIban: this.formData.numeroCuentaIban
         };
@@ -764,6 +765,8 @@ export default {
         if (response.ok) {
           alert('Empleado registrado exitosamente!');
           this.resetForm();
+
+          this.$router.push('/employer-menu');
         } else {
           alert(`Error: ${result.message || 'Error al registrar el empleado'}`);
         }
