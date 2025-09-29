@@ -18,6 +18,12 @@ namespace backend_lab.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configure schema for all entities
+            modelBuilder.Entity<Persona>().ToTable("Persona", "PlaniFy");
+            modelBuilder.Entity<Empleado>().ToTable("Empleado", "PlaniFy");
+            modelBuilder.Entity<Empresa>().ToTable("Empresa", "PlaniFy");
+            modelBuilder.Entity<Direccion>().ToTable("Direccion", "PlaniFy");
+
             // Configure the relationship between Persona and Empleado
             modelBuilder.Entity<Empleado>()
                 .HasOne(e => e.Persona)
