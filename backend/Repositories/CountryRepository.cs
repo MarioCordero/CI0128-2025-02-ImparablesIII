@@ -1,10 +1,10 @@
-using backend_lab_c28730.Models;
+using backend_lab.Models;
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
-namespace backend_lab_c28730.Repositories {
+namespace backend_lab.Repositories {
   public class CountryRepository {
     private readonly string _connectionString;
     public CountryRepository() {
