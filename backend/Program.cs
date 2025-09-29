@@ -25,6 +25,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<EmployeeRepository>(); // Employee registration repository
+builder.Services.AddScoped<IPasswordRepository, PasswordRepository>(); // Password operations repository
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Register services
