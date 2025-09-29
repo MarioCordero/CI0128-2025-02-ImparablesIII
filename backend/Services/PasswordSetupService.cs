@@ -11,18 +11,18 @@ namespace backend.Services
         private readonly IMemoryCache _cache;
         private readonly ILogger<PasswordSetupService> _logger;
         private readonly EmployeeRepository _employeeRepository;
-        private readonly string _connectionString;
+        private readonly IPasswordRepository _passwordRepository;
 
         public PasswordSetupService(
             IMemoryCache cache, 
             ILogger<PasswordSetupService> logger,
             EmployeeRepository employeeRepository,
-            IConfiguration configuration)
+            IPasswordRepository passwordRepository)
         {
             _cache = cache;
             _logger = logger;
             _employeeRepository = employeeRepository;
-            _connectionString = configuration.GetConnectionString("CountryContext") ?? throw new ArgumentNullException("Connection string not found");
+            _passwordRepository = passwordRepository;
         }
 
         public Task<string> GeneratePasswordSetupTokenAsync(int personaId, string email)
@@ -93,7 +93,9 @@ namespace backend.Services
                 var plainPassword = request.Password;
 
                 // Create user in database
-                var userCreated = await CreateUserAsync(personaId, plainPassword, "Empleado");
+                var userCreated = await _passwordRepository.CreateUserAsync(personaId, plainPassword, "Empleado");
+
+                var updateEmployePassword = await _passwordRepository.UpdateEmployeePasswordAsync(personaId, plainPassword);
                 
                 if (!userCreated)
                 {
@@ -126,31 +128,6 @@ namespace backend.Services
             }
         }
 
-        public async Task<bool> CreateUserAsync(int personaId, string password, string tipoUsuario = "Empleado")
-        {
-            try
-            {
-                using var connection = new Microsoft.Data.SqlClient.SqlConnection(_connectionString);
-                await connection.OpenAsync();
-
-                var query = @"
-                    INSERT INTO PlaniFy.Usuario (idPersona, TipoUsuario, Contrasena)
-                    VALUES (@idPersona, @tipoUsuario, @contrasena)";
-
-                using var command = new Microsoft.Data.SqlClient.SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@idPersona", personaId);
-                command.Parameters.AddWithValue("@tipoUsuario", tipoUsuario);
-                command.Parameters.AddWithValue("@contrasena", password);
-
-                var result = await command.ExecuteNonQueryAsync();
-                return result > 0;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating user for persona {personaId}", personaId);
-                return false;
-            }
-        }
 
     }
 }
