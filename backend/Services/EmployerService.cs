@@ -1,7 +1,7 @@
 using backend.Models;
-using backend_lab_c28730.Controllers;
-using backend_lab_c28730.Data;
-using backend_lab_c28730.Models;
+using backend_lab.Controllers;
+using backend_lab.Data;
+using backend_lab.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
