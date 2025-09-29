@@ -106,7 +106,7 @@ namespace backend.Services
             return !await _context.Personas.AnyAsync(p => p.Cedula == cedula);
         }
 
-        private async Task<ServiceResult<EmployerResponseDto>> ValidateEmployerDataAsync(SignUpEmployerDto employerDto)
+        private Task<ServiceResult<EmployerResponseDto>> ValidateEmployerDataAsync(SignUpEmployerDto employerDto)
         {
             var errors = new List<string>();
 
@@ -132,10 +132,10 @@ namespace backend.Services
 
             if (errors.Any())
             {
-                return ServiceResult<EmployerResponseDto>.Failure("Validation failed", errors);
+                return Task.FromResult(ServiceResult<EmployerResponseDto>.Failure("Validation failed", errors));
             }
 
-            return ServiceResult<EmployerResponseDto>.Success(null!, "Validation passed");
+            return Task.FromResult(ServiceResult<EmployerResponseDto>.Success(null!, "Validation passed"));
         }
 
         private bool IsValidEmail(string email)
