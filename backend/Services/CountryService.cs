@@ -1,7 +1,7 @@
-using backend_lab_c28730.Models;
-using backend_lab_c28730.Repositories;
+using backend_lab.Models;
+using backend_lab.Repositories;
 
-namespace backend_lab_c28730.Services
+namespace backend_lab.Services
 {
   public class CountryService
   {

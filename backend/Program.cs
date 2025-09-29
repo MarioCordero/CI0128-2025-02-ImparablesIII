@@ -1,7 +1,7 @@
 using backend.Services;
 using backend.Repositories;
-using backend_lab_c28730.Models;
-using backend_lab_c28730.Services;
+using backend_lab.Models;
+using backend_lab.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

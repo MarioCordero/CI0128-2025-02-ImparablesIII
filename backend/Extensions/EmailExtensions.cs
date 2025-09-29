@@ -1,9 +1,9 @@
-using backend_lab_c28730.DTOs;
-using backend_lab_c28730.Models;
-using backend_lab_c28730.Services;
+using backend_lab.DTOs;
+using backend_lab.Models;
+using backend_lab.Services;
 using Microsoft.Extensions.Configuration;
 
-namespace backend_lab_c28730.Extensions
+namespace backend_lab.Extensions
 {
     /// <summary>
     /// Extension methods for easy email sending throughout the application

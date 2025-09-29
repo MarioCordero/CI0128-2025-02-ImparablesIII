@@ -1,4 +1,4 @@
-namespace backend_lab_c28730.Services
+namespace backend_lab.Services
 {
     /// <summary>
     /// HTML email templates that match the EmployeeList component styling
