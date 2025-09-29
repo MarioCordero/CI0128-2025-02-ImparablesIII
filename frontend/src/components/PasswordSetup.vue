@@ -49,9 +49,28 @@
               </button>
             </div>
             <p v-if="errors.password" class="mt-1 text-sm text-red-600">{{ errors.password }}</p>
-            <p class="mt-1 text-xs text-gray-500">
-              La contraseña debe tener entre 8 y 16 caracteres
-            </p>
+            
+            <!-- Password Requirements -->
+            <div class="mt-2 text-xs text-gray-600">
+              <p class="font-medium mb-1">La contraseña debe contener:</p>
+              <ul class="space-y-1">
+                <li :class="passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-500'">
+                  ✓ Al menos una letra mayúscula
+                </li>
+                <li :class="passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-500'">
+                  ✓ Al menos una letra minúscula
+                </li>
+                <li :class="passwordRequirements.number ? 'text-green-600' : 'text-gray-500'">
+                  ✓ Al menos un número
+                </li>
+                <li :class="passwordRequirements.special ? 'text-green-600' : 'text-gray-500'">
+                  ✓ Al menos un carácter especial (#@$_&()*:;!?)
+                </li>
+                <li :class="passwordRequirements.length ? 'text-green-600' : 'text-gray-500'">
+                  ✓ Entre 8 y 16 caracteres
+                </li>
+              </ul>
+            </div>
           </div>
 
           <!-- Confirm Password Field -->
@@ -161,6 +180,18 @@ export default {
       token: ''
     }
   },
+  computed: {
+    passwordRequirements() {
+      const password = this.formData.password || '';
+      return {
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[#@$_&()*:;!?]/.test(password),
+        length: password.length >= 8 && password.length <= 16
+      };
+    }
+  },
   mounted() {
     // Get token from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -179,9 +210,25 @@ export default {
       if (!this.formData.password) {
         this.errors.password = 'La contraseña es requerida';
         isValid = false;
-      } else if (this.formData.password.length < 8 || this.formData.password.length > 16) {
-        this.errors.password = 'La contraseña debe tener entre 8 y 16 caracteres';
-        isValid = false;
+      } else {
+        const requirements = this.passwordRequirements;
+        
+        if (!requirements.length) {
+          this.errors.password = 'La contraseña debe tener entre 8 y 16 caracteres';
+          isValid = false;
+        } else if (!requirements.uppercase) {
+          this.errors.password = 'La contraseña debe contener al menos una letra mayúscula';
+          isValid = false;
+        } else if (!requirements.lowercase) {
+          this.errors.password = 'La contraseña debe contener al menos una letra minúscula';
+          isValid = false;
+        } else if (!requirements.number) {
+          this.errors.password = 'La contraseña debe contener al menos un número';
+          isValid = false;
+        } else if (!requirements.special) {
+          this.errors.password = 'La contraseña debe contener al menos un carácter especial (#@$_&()*:;!?)';
+          isValid = false;
+        }
       }
 
       // Validate confirm password
