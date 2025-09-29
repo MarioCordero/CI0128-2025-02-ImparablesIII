@@ -22,7 +22,7 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex items-center justify-center px-6 py-12">
-      <div class="max-w-7xl w-full flex flex-col lg:flex-row items-center gap-12">
+      <div class="max-w-7xl w-full flex flex-col lg:flex-row items-center justify-between gap-12">
         <!-- Left: Content -->
         <div class="flex-1 max-w-xl">
           <div class="flex items-center mb-6">
