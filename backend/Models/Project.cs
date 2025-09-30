@@ -1,38 +1,33 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend_lab_c28730.Models
+namespace backend.Models
 {
-    public class Company
+    public class Project
     {
         public int Id { get; set; }
         
         [Required]
-        [StringLength(80, MinimumLength = 1)]
-        public string CompanyName { get; set; } = string.Empty;
+        [StringLength(20, MinimumLength = 1)]
+        public string Nombre { get; set; } = string.Empty;
         
         [Required]
-        [StringLength(9, MinimumLength = 9)]
-        public string LegalId { get; set; } = string.Empty; // Cédula jurídica (9 digits)
+        public int CedulaJuridica { get; set; }
         
         [Required]
         [EmailAddress]
+        [StringLength(50)]
         public string Email { get; set; } = string.Empty;
         
-        [StringLength(200)]
-        public string? Address { get; set; }
+        [Required]
+        [StringLength(20)]
+        public string PeriodoPago { get; set; } = string.Empty; // "Mensual" or "Quincenal"
         
-        public string? Phone { get; set; }
+        public int? Telefono { get; set; }
         
         [Required]
-        public int MaxBenefits { get; set; }
-        
-        [Required]
-        public string PaymentPeriod { get; set; } = string.Empty; // "quincenal" or "mensual"
-        
-        public int EmployerId { get; set; } // Foreign key to the employer who created this company
+        public int IdDireccion { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }
