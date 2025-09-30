@@ -2,6 +2,7 @@ using backend.Services;
 using backend.Repositories;
 using backend.Models;
 using Microsoft.OpenApi.Models;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -13,88 +13,93 @@ namespace backend.Services
             _projectRepository = projectRepository;
         }
 
-        public async Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
+        public async Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto)
         {
             // Validate unique constraints
-            if (await _projectRepository.ExistsByNameAsync(createProjectDto.ProjectName))
+            if (await _projectRepository.ExistsByNameAsync(createProjectDto.Nombre))
             {
-                throw new ArgumentException("Ya existe un proyecto con este nombre");
-            }
-
-            if (await _projectRepository.ExistsByDescriptionAsync(createProjectDto.Description))
-            {
-                throw new ArgumentException("Ya existe un proyecto con esta descripción");
+                throw new ArgumentException("Ya existe una empresa con este nombre");
             }
 
             if (await _projectRepository.ExistsByEmailAsync(createProjectDto.Email))
             {
-                throw new ArgumentException("Ya existe un proyecto con este correo electrónico");
+                throw new ArgumentException("Ya existe una empresa con este correo electrónico");
             }
+
+            if (await _projectRepository.ExistsByCedulaJuridicaAsync(createProjectDto.CedulaJuridica))
+            {
+                throw new ArgumentException("Ya existe una empresa con esta cédula jurídica");
+            }
+
+            // Create address first
+            int direccionId = await _projectRepository.CreateDireccionAsync(
+                createProjectDto.Provincia,
+                createProjectDto.Canton,
+                createProjectDto.Distrito,
+                createProjectDto.DireccionParticular
+            );
 
             // Create project entity
             var project = new Project
             {
-                ProjectName = createProjectDto.ProjectName.Trim(),
-                Description = createProjectDto.Description.Trim(),
+                Nombre = createProjectDto.Nombre.Trim(),
+                CedulaJuridica = createProjectDto.CedulaJuridica,
                 Email = createProjectDto.Email.Trim().ToLowerInvariant(),
-                Address = createProjectDto.Address?.Trim(),
-                Phone = createProjectDto.Phone?.Trim(),
-                MaxBenefits = createProjectDto.MaxBenefits,
-                PaymentPeriod = createProjectDto.PaymentPeriod,
-                EmployerId = employerId,
+                PeriodoPago = createProjectDto.PeriodoPago,
+                Telefono = createProjectDto.Telefono,
+                IdDireccion = direccionId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
 
-            var createdCompany = await _companyRepository.CreateAsync(company);
+            var createdProject = await _projectRepository.CreateAsync(project);
+            var direccion = await _projectRepository.GetDireccionByIdAsync(direccionId);
 
-            return new CompanyResponseDto
+            return new ProjectResponseDto
             {
-                Id = createdCompany.Id,
-                CompanyName = createdCompany.CompanyName,
-                LegalId = createdCompany.LegalId,
-                Email = createdCompany.Email,
-                Address = createdCompany.Address,
-                Phone = createdCompany.Phone,
-                MaxBenefits = createdCompany.MaxBenefits,
-                PaymentPeriod = createdCompany.PaymentPeriod,
-                CreatedAt = createdCompany.CreatedAt
+                Id = createdProject.Id,
+                Nombre = createdProject.Nombre,
+                CedulaJuridica = createdProject.CedulaJuridica,
+                Email = createdProject.Email,
+                PeriodoPago = createdProject.PeriodoPago,
+                Telefono = createdProject.Telefono,
+                IdDireccion = createdProject.IdDireccion,
+                Direccion = direccion,
+                CreatedAt = createdProject.CreatedAt
             };
         }
 
-        public async Task<List<ProjectListDto>> GetProjectsByEmployerAsync(int employerId)
+        public async Task<List<ProjectListDto>> GetAllProjectsAsync()
         {
-            var projects = await _projectRepository.GetByEmployerIdAsync(employerId);
+            var projects = await _projectRepository.GetAllAsync();
 
             return projects.Select(p => new ProjectListDto
             {
                 Id = p.Id,
-                ProjectName = p.ProjectName,
-                Description = p.Description,
+                Nombre = p.Nombre,
+                CedulaJuridica = p.CedulaJuridica,
                 Email = p.Email,
+                PeriodoPago = p.PeriodoPago,
                 CreatedAt = p.CreatedAt
             }).ToList();
         }
 
         public async Task<ProjectResponseDto?> GetProjectByIdAsync(int id)
         {
-            var project = await _projectRepository.GetByIdAsync(id);
+            return await _projectRepository.GetProjectWithDireccionAsync(id);
+        }
 
-            if (project == null)
-                return null;
+        // Métodos para compatibilidad
+        public async Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
+        {
+            // Ignora el employerId ya que no está en tu esquema
+            return await CreateProjectAsync(createProjectDto);
+        }
 
-            return new ProjectResponseDto
-            {
-                Id = project.Id,
-                ProjectName = project.ProjectName,
-                Description = project.Description,
-                Email = project.Email,
-                Address = project.Address,
-                Phone = project.Phone,
-                MaxBenefits = project.MaxBenefits,
-                PaymentPeriod = project.PaymentPeriod,
-                CreatedAt = project.CreatedAt
-            };
+        public async Task<List<ProjectListDto>> GetProjectsByEmployerAsync(int employerId)
+        {
+            // Devuelve todos los proyectos ya que no hay relación con empleador
+            return await GetAllProjectsAsync();
         }
     }
 }

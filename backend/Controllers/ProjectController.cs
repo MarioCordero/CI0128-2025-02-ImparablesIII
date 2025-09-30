@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using backend.DTOs;
 using backend.Services;
 
@@ -8,7 +6,6 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ProjectController : ControllerBase
     {
         private readonly IProjectService _projectService;
@@ -28,14 +25,7 @@ namespace backend.Controllers
                     return BadRequest(ModelState);
                 }
 
-                // Get employer ID from JWT token
-                var employerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (employerIdClaim == null || !int.TryParse(employerIdClaim.Value, out var employerId))
-                {
-                    return Unauthorized("ID de empleador no válido");
-                }
-
-                var project = await _projectService.CreateProjectAsync(createProjectDto, employerId);
+                var project = await _projectService.CreateProjectAsync(createProjectDto);
                 return CreatedAtAction(nameof(GetProject), new { id = project.Id }, project);
             }
             catch (ArgumentException ex)
@@ -44,33 +34,26 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error interno del servidor" });
+                return StatusCode(500, new { message = "Error interno del servidor", details = ex.Message });
             }
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CompanyListDto>>> GetEmployerCompanies()
+        public async Task<ActionResult<List<ProjectListDto>>> GetAllProjects()
         {
             try
             {
-                // Get employer ID from JWT token
-                var employerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (employerIdClaim == null || !int.TryParse(employerIdClaim.Value, out var employerId))
-                {
-                    return Unauthorized("ID de empleador no válido");
-                }
-
-                var projects = await _projectService.GetProjectsByEmployerAsync(employerId);
+                var projects = await _projectService.GetAllProjectsAsync();
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error interno del servidor" });
+                return StatusCode(500, new { message = "Error interno del servidor", details = ex.Message });
             }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CompanyResponseDto>> GetCompany(int id)
+        public async Task<ActionResult<ProjectResponseDto>> GetProject(int id)
         {
             try
             {
@@ -78,14 +61,14 @@ namespace backend.Controllers
 
                 if (project == null)
                 {
-                    return NotFound(new { message = "Proyecto no encontrado" });
+                    return NotFound(new { message = "Empresa no encontrada" });
                 }
 
                 return Ok(project);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error interno del servidor" });
+                return StatusCode(500, new { message = "Error interno del servidor", details = ex.Message });
             }
         }
     }
