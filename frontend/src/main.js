@@ -16,12 +16,14 @@ import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
 import RegisterEmployee from './components/registerEmployee.vue'
 import PasswordSetup from './components/PasswordSetup.vue'
+import CreateProject from './components/CreateProject.vue'
 
 const routes = [
   { path: '/', component: LandingPage },
   { path: '/login', component: Login },
   { path: '/register', component: RegisterEmployee },
-  { path: '/password-setup', component: PasswordSetup }
+  { path: '/password-setup', component: PasswordSetup },
+  { path: '/create-project', component: CreateProject }
 ]
 
 const router = createRouter({
