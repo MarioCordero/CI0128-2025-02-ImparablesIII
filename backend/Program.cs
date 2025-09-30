@@ -34,6 +34,7 @@ builder.Services.AddScoped<IEmailService, EmailService>(); // Email service
 builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>(); // Password setup service
 builder.Services.AddMemoryCache(); // Memory cache for password tokens
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>(); // Business operations repository
 
 
 var app = builder.Build();
