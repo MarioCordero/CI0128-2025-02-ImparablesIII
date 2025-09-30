@@ -9,7 +9,7 @@ namespace backend.Repositories
 
         public PasswordRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("CountryContext") ?? throw new ArgumentNullException("Connection string not found");
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
 
 
