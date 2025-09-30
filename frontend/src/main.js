@@ -2,8 +2,15 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
+// Montserrat font styles
+import './assets/montserratFont.css'
+
+// Neumorphism global styles
+import './assets/neumorphismGlobal.css'
+
 // Tailwind CSS
 import './assets/tailwind.css'
+
 // Componets on vue
 import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
