@@ -17,6 +17,7 @@ import Login from './components/LoginPage.vue'
 import RegisterEmployee from './components/registerEmployee.vue'
 import PasswordSetup from './components/PasswordSetup.vue'
 import SuperAdminMenu from './components/SuperAdminMenu.vue'
+import CreateProject from './components/CreateProject.vue'
 
 const routes = [
   { path: '/', component: LandingPage },
@@ -24,6 +25,7 @@ const routes = [
   { path: '/register', component: RegisterEmployee },
   { path: '/password-setup', component: PasswordSetup },
   { path: '/superadmin', component: SuperAdminMenu }
+  { path: '/create-project', component: CreateProject }
 ]
 
 const router = createRouter({

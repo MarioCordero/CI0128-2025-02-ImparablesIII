@@ -2,6 +2,7 @@ using backend.Services;
 using backend.Repositories;
 using backend.Models;
 using Microsoft.OpenApi.Models;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +75,10 @@ builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>(); // Pa
 builder.Services.AddMemoryCache(); // Memory cache for password tokens
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>(); // Business operations repository
+
+// Register project services and repositories
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 
 // Register login service
 builder.Services.AddScoped<ILoginService, LoginService>();
