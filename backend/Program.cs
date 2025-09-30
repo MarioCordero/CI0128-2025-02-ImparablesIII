@@ -33,7 +33,6 @@ builder.Services.AddSwaggerGen(c =>
         BearerFormat = "JWT"
     });
 
-    // RESTAURAR ESTO - es necesario para que aparezca el botón Authorize
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
         {
@@ -74,6 +73,9 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>();
+
+// Register login service
+builder.Services.AddScoped<ILoginService, LoginService>();
 
 var app = builder.Build();
 
