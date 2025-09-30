@@ -74,6 +74,10 @@ builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<AsociacionSolidaristaApiService>();
 
+// Register project services and repositories
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+
 // Register login service
 builder.Services.AddScoped<ILoginService, LoginService>();
 
