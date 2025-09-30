@@ -10,7 +10,7 @@ namespace backend.Models
     /// </summary>
     public class AporteSolidarista
     {
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         public decimal Amount { get; set; }
     }
 
