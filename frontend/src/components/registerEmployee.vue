@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#dbeafe] p-4">
-    <div class="bg-[#eaf4fa] rounded-[40px] shadow-2xl p-12 w-full max-w-4xl">
+  <div class="min-h-screen flex items-center justify-center bg-[#E9F7FF] p-4">
+    <div class="bg-[#E9F7FF] rounded-[40px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] p-12 w-full max-w-4xl">
       <!-- Step Navigation -->
       <div class="flex justify-center items-center mb-8">
         <div class="flex items-center space-x-8">
           <!-- Personal Info Step -->
           <div class="flex flex-col items-center">
             <div 
-              :class="[
-                'w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all cursor-pointer',
+              :class=" [
+                'w-12 h-12 rounded-full flex items-center justify-center shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] transition-all cursor-pointer',
                 currentTab === 0 ? 'bg-[#87ceeb]' : 'bg-gray-300'
               ]"
               @click="goToTab(0)"
@@ -19,18 +19,17 @@
               </svg>
             </div>
             <div 
-              :class="[
-                'w-8 h-1 rounded-full mt-2',
+              :class=" [
+                'w-8 h-1 rounded-full mt-2 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]',
                 currentTab === 0 ? 'bg-[#87ceeb]' : 'bg-gray-300'
               ]"
             ></div>
           </div>
-
           <!-- Address Step -->
           <div class="flex flex-col items-center">
             <div 
-              :class="[
-                'w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all cursor-pointer',
+              :class=" [
+                'w-12 h-12 rounded-full flex items-center justify-center shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] transition-all cursor-pointer',
                 currentTab === 1 ? 'bg-[#87ceeb]' : 'bg-gray-300'
               ]"
               @click="goToTab(1)"
@@ -41,18 +40,17 @@
               </svg>
             </div>
             <div 
-              :class="[
-                'w-8 h-1 rounded-full mt-2',
+              :class=" [
+                'w-8 h-1 rounded-full mt-2 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]',
                 currentTab === 1 ? 'bg-[#87ceeb]' : 'bg-gray-300'
               ]"
             ></div>
           </div>
-
           <!-- Employment Step -->
           <div class="flex flex-col items-center">
             <div 
-              :class="[
-                'w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all cursor-pointer',
+              :class=" [
+                'w-12 h-12 rounded-full flex items-center justify-center shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] transition-all cursor-pointer',
                 currentTab === 2 ? 'bg-[#87ceeb]' : 'bg-gray-300'
               ]"
               @click="goToTab(2)"
@@ -62,18 +60,16 @@
             </svg>
             </div>
             <div 
-              :class="[
-                'w-8 h-1 rounded-full mt-2',
+              :class=" [
+                'w-8 h-1 rounded-full mt-2 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]',
                 currentTab === 2 ? 'bg-[#87ceeb]' : 'bg-gray-300'
               ]"
             ></div>
           </div>
         </div>
       </div>
-
       <!-- Title -->
-      <h2 class="text-2xl font-semibold text-gray-700 text-center mb-8">{{ getCurrentTabTitle() }}</h2>
-
+      <h2 class="text-2xl font-semibold text-gray-700 text-center mb-8 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] rounded-[12px] bg-[#E9F7FF] py-2 px-4">{{ getCurrentTabTitle() }}</h2>
       <!-- Form -->
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Tab 1: Personal Information -->
@@ -90,16 +86,12 @@
                   v-model="formData.primerNombre"
                   type="text"
                   placeholder="Primer Nombre"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.primerNombre ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.primerNombre" class="text-red-500 text-sm mt-1 ml-2">{{ errors.primerNombre }}</p>
               </div>
-
-              
+              <!-- Apellidos Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
                   <p>Apellidos</p>
@@ -108,15 +100,11 @@
                   v-model="formData.primerApellido"
                   type="text"
                   placeholder="Apellidos"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.primerApellido ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.primerApellido" class="text-red-500 text-sm mt-1 ml-2">{{ errors.primerApellido }}</p>
               </div>
-
               <!-- Phone Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -127,15 +115,11 @@
                   type="tel"
                   placeholder="#### ####"
                   @input="formatTelefono"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.telefono ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.telefono" class="text-red-500 text-sm mt-1 ml-2">{{ errors.telefono }}</p>
               </div>
-
               <!-- Email Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -145,16 +129,12 @@
                   v-model="formData.correo"
                   type="email"
                   placeholder="Correo Electrónico"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.correo ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.correo" class="text-red-500 text-sm mt-1 ml-2">{{ errors.correo }}</p>
               </div>
             </div>
-
             <!-- Right Column -->
             <div class="space-y-6">
               <div class="relative">
@@ -165,10 +145,9 @@
                   v-model="formData.segundoNombre"
                   type="text"
                   placeholder="Segundo Nombre"
-                  class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                 />
               </div>
-
               <!-- Date of Birth Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -178,15 +157,11 @@
                   v-model="formData.fechaNacimiento"
                   type="date"
                   placeholder="Fecha de nacimiento"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.fechaNacimiento ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.fechaNacimiento" class="text-red-500 text-sm mt-1 ml-2">{{ errors.fechaNacimiento }}</p>
               </div>
-
               <!-- ID Card Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -196,20 +171,15 @@
                   v-model="formData.cedula"
                   type="text"
                   placeholder="Cédula (#-####-####)"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.cedula ? 'ring-2 ring-red-500' : ''
-                  ]"
                   @input="formatCedula"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.cedula" class="text-red-500 text-sm mt-1 ml-2">{{ errors.cedula }}</p>
               </div>
-
             </div>
           </div>
         </div>
-
         <!-- Tab 2: Address Information -->
         <div v-if="currentTab === 1" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -222,10 +192,7 @@
                 </div>
                 <select
                   v-model="formData.provincia"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer',
-                    errors.provincia ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer"
                   required
                 >
                   <option value="" disabled selected>Provincia</option>
@@ -233,7 +200,6 @@
                     {{ provincia }}
                   </option>
                 </select>
-                <!-- Custom dropdown arrow -->
                 <div class="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none">
                   <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -241,7 +207,6 @@
                 </div>
                 <p v-if="errors.provincia" class="text-red-500 text-sm mt-1 ml-2">{{ errors.provincia }}</p>
               </div>
-
               <!-- Canton Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -251,16 +216,12 @@
                   v-model="formData.canton"
                   type="text"
                   placeholder="Cantón"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.canton ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.canton" class="text-red-500 text-sm mt-1 ml-2">{{ errors.canton }}</p>
               </div>
             </div>
-
             <!-- Right Column -->
             <div class="space-y-6">
               <!-- District Field -->
@@ -272,15 +233,11 @@
                   v-model="formData.distrito"
                   type="text"
                   placeholder="Distrito"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.distrito ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.distrito" class="text-red-500 text-sm mt-1 ml-2">{{ errors.distrito }}</p>
               </div>
-
               <!-- Address Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -290,10 +247,7 @@
                   v-model="formData.direccionParticular"
                   type="text"
                   placeholder="Dirección Particular"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.direccionParticular ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.direccionParticular" class="text-red-500 text-sm mt-1 ml-2">{{ errors.direccionParticular }}</p>
@@ -301,7 +255,6 @@
             </div>
           </div>
         </div>
-
         <!-- Tab 3: Employment Information -->
         <div v-if="currentTab === 2" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -316,15 +269,11 @@
                   v-model="formData.departamento"
                   type="text"
                   placeholder="Departamento"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.departamento ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.departamento" class="text-red-500 text-sm mt-1 ml-2">{{ errors.departamento }}</p>
               </div>
-
               <!-- Contract Type Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -332,10 +281,7 @@
                 </div>
                   <select
                   v-model="formData.tipoContrato"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer',
-                    errors.tipoContrato ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer"
                   required
                 >
                   <option value="" disabled selected>Tipo de Contrato</option>
@@ -343,7 +289,6 @@
                   <option value="Medio Tiempo">Medio Tiempo</option>
                   <option value="Servicios Profesionales">Servicios Profesionales</option>
                 </select>
-                <!-- Custom dropdown arrow -->
                 <div class="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none">
                   <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -351,7 +296,6 @@
                 </div>
                 <p v-if="errors.tipoContrato" class="text-red-500 text-sm mt-1 ml-2">{{ errors.tipoContrato }}</p>
               </div>
-
               <!-- Position Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -361,16 +305,12 @@
                   v-model="formData.puesto"
                   type="text"
                   placeholder="Puesto"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.puesto ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.puesto" class="text-red-500 text-sm mt-1 ml-2">{{ errors.puesto }}</p>
               </div>
             </div>
-
             <!-- Right Column -->
             <div class="space-y-6">
               <!-- Salary Field -->
@@ -383,15 +323,11 @@
                   type="text"
                   placeholder="₡0.000"
                   @input="formatSalario"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.salario ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.salario" class="text-red-500 text-sm mt-1 ml-2">{{ errors.salario }}</p>
               </div>
-
               <!-- IBAN Account Number Field -->
               <div class="relative">
                 <div class="space-x-2 ml-2">
@@ -401,10 +337,7 @@
                   v-model="formData.numeroCuentaIban"
                   type="text"
                   placeholder="Número de Cuenta IBAN"
-                  :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
-                    errors.numeroCuentaIban ? 'ring-2 ring-red-500' : ''
-                  ]"
+                  class="w-full bg-[#E9F7FF] rounded-[12px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
                   required
                 />
                 <p v-if="errors.numeroCuentaIban" class="text-red-500 text-sm mt-1 ml-2">{{ errors.numeroCuentaIban }}</p>
@@ -412,7 +345,6 @@
             </div>
           </div>
         </div>
-
         <!-- Navigation Buttons -->
         <div class="flex justify-between mt-8">
           <!-- Previous Button -->
@@ -420,21 +352,20 @@
             v-if="currentTab > 0"
             type="button"
             @click="goToTab(currentTab - 1)"
-            class="bg-[#eaf4fa] rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 text-gray-700 font-medium"
+              class="custom-button px-4 py-2 bg-[#E9F7FF] rounded-[12px] shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] hover:bg-blue-100 transition flex items-center space-x-2 font-medium text-gray-700"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
             </svg>
             <span>Anterior</span>
           </button>
-
           <!-- Next/Submit Button -->
           <div class="ml-auto">
             <button
               v-if="currentTab < 2"
               type="button"
               @click="goToTab(currentTab + 1)"
-              class="bg-[#eaf4fa] rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 text-gray-700 font-medium"
+              class="custom-button px-4 py-2 bg-[#E9F7FF] rounded-[12px] shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] hover:bg-blue-100 transition flex items-center space-x-2 font-medium text-gray-700"
             >
               <span>Siguiente</span>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -444,7 +375,7 @@
             <button
               v-else
               type="submit"
-              class="bg-[#87ceeb] rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 text-white font-medium"
+              class="custom-button px-4 py-2 bg-[#E9F7FF] rounded-[12px] shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] hover:bg-blue-100 transition flex items-center space-x-2 font-medium text-gray-700"
             >
               <span>Registrar</span>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -826,5 +757,10 @@ export default {
 /* Custom focus styles for neumorphic inputs */
 input:focus, select:focus {
   box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.8), 0 0 0 2px #87ceeb;
+}
+
+/* Custom button styles */
+.custom-button {
+  @apply bg-[#E9F7FF] rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all;
 }
 </style>

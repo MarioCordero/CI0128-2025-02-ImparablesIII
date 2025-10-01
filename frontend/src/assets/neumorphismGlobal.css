@@ -82,7 +82,7 @@
 
 /* Card/Container */
 .neumorphism-card {
-  background: #e2e8f0;
+  background: #E9F7FF;
   border-radius: 20px;
   box-shadow: 
     12px 12px 24px rgba(0, 0, 0, 0.1),
@@ -92,7 +92,7 @@
 
 /* Input Fields */
 .neumorphism-input {
-  background: #e2e8f0;
+  background: #E9F7FF;
   border-radius: 12px;
   box-shadow: 
     inset 4px 4px 8px rgba(0, 0, 0, 0.1),
@@ -108,3 +108,22 @@
     inset 6px 6px 12px rgba(0, 0, 0, 0.15),
     inset -6px -6px 12px rgba(255, 255, 255, 0.9);
 }
+
+
+.custom-button {
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+  border-radius: 12px;   /* rounded-[12px] */
+  transition: all 0.3s ease;
+  font-weight: 500;      /* font-medium */
+  background: #E9F7FF;
+  box-shadow:
+    4px 4px 8px #d1e3ee,
+    -4px -4px 8px #ffffff;
+  border: none;
+}
+
+.custom-button:hover {
+  background: #ebf8ff;
+}
+
+
