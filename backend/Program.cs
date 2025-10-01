@@ -1,6 +1,5 @@
 using backend.Services;
 using backend.Repositories;
-using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -8,29 +7,12 @@ using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load database configuration
-builder.Configuration.AddJsonFile("dbconfig.json", optional: true);
-
 // Configure Email Settings from external configuration file
 builder.Configuration.AddJsonFile("emailconfig.json", optional: false, reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Add Entity Framework
-builder.Services.AddDbContext<PlaniFyDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("PlaniFyDatabase")));
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowVueApp",
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:7030")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -82,10 +64,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Register repositories
+// Register common repositories
+builder.Services.AddScoped<IDireccionRepository, DireccionRepository>();
+builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+// Register specific repositories
 builder.Services.AddScoped<EmployeeRepository>();
 builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
 
 // Configure email settings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
