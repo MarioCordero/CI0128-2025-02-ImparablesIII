@@ -1,28 +1,23 @@
-using backend.Models;
-using backend.Controllers;
-using backend.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
+using backend.DTOs;
+using backend.Repositories;
 
 namespace backend.Services
 {
     public interface IEmployerService
     {
         Task<ServiceResult<EmployerResponseDto>> RegisterEmployerAsync(SignUpEmployerDto employerDto);
-        Task<bool> IsUsernameAvailableAsync(string username);
         Task<bool> IsEmailAvailableAsync(string email);
         Task<bool> IsCedulaAvailableAsync(string cedula);
     }
 
     public class EmployerService : IEmployerService
     {
-        private readonly PlaniFyDbContext _context;
+        private readonly IEmployerRepository _employerRepository;
         private readonly ILogger<EmployerService> _logger;
 
-        public EmployerService(PlaniFyDbContext context, ILogger<EmployerService> logger)
+        public EmployerService(IEmployerRepository employerRepository, ILogger<EmployerService> logger)
         {
-            _context = context;
+            _employerRepository = employerRepository;
             _logger = logger;
         }
 
@@ -37,72 +32,89 @@ namespace backend.Services
                     return ServiceResult<EmployerResponseDto>.Failure(validationResult.Message, validationResult.Errors);
                 }
 
-                // Check for duplicates (using email as unique identifier)
-                if (!await IsEmailAvailableAsync(employerDto.Email))
+                // Check for duplicates
+                if (!await _employerRepository.IsEmailAvailableAsync(employerDto.Email))
                 {
                     return ServiceResult<EmployerResponseDto>.Failure("Email already exists");
                 }
 
-                if (!await IsCedulaAvailableAsync(employerDto.Cedula))
+                if (!await _employerRepository.IsCedulaAvailableAsync(employerDto.Cedula))
                 {
                     return ServiceResult<EmployerResponseDto>.Failure("Cedula already exists");
                 }
 
-                // Create ONLY the Persona record
-                var persona = new Persona
+                // 1. Create Direccion record first
+                var direccionId = await _employerRepository.CreateDireccionAsync(
+                    employerDto.Provincia,
+                    employerDto.Canton,
+                    employerDto.Distrito,
+                    employerDto.DireccionParticular
+                );
+
+                if (direccionId == -1)
                 {
-                    Correo = employerDto.Email,
-                    Nombre = employerDto.Nombre,
-                    SegundoNombre = null, // Not used in current DTO
-                    Apellidos = !string.IsNullOrEmpty(employerDto.SegundoApellido) 
-                        ? $"{employerDto.PrimerApellido} {employerDto.SegundoApellido}" 
-                        : employerDto.PrimerApellido,
-                    FechaNacimiento = employerDto.FechaNacimiento,
-                    Cedula = employerDto.Cedula,
-                    Rol = "Empleado",
-                    Telefono = int.TryParse(employerDto.Telefono, out var phone) ? phone : null,
-                    IdDireccion = null
-                };
+                    return ServiceResult<EmployerResponseDto>.Failure("Failed to create address");
+                }
 
-                _context.Personas.Add(persona);
-                await _context.SaveChangesAsync();
+                // 2. Create Persona record
+                var apellidos = !string.IsNullOrEmpty(employerDto.SegundoApellido) 
+                    ? $"{employerDto.PrimerApellido} {employerDto.SegundoApellido}" 
+                    : employerDto.PrimerApellido;
 
-                _logger.LogInformation("New persona registered with ID: {PersonaId}", persona.Id);
+                var personaId = await _employerRepository.CreatePersonaAsync(
+                    employerDto.Email,
+                    employerDto.Nombre,
+                    apellidos,
+                    employerDto.FechaNacimiento,
+                    employerDto.Cedula,
+                    "Empleador", // Set as Empleador
+                    employerDto.Telefono,
+                    direccionId
+                );
 
-                var responseDto = new EmployerResponseDto
+                if (personaId == -1)
                 {
-                    Id = persona.Id,
-                    Username = employerDto.Email, // Use email as username
-                    Email = persona.Correo,
-                    Nombre = $"{persona.Nombre} {persona.Apellidos}",
-                    CreatedAt = DateTime.UtcNow
-                };
+                    return ServiceResult<EmployerResponseDto>.Failure("Failed to create person record");
+                }
 
-                return ServiceResult<EmployerResponseDto>.Success(responseDto, "Person registered successfully");
+                // 3. Create Usuario record
+                var usuarioCreated = await _employerRepository.CreateUsuarioAsync(
+                    personaId,
+                    employerDto.Password,
+                    "Empleador" // Set as Empleador
+                );
+
+                if (!usuarioCreated)
+                {
+                    return ServiceResult<EmployerResponseDto>.Failure("Failed to create user record");
+                }
+
+                _logger.LogInformation("New employer registered with Persona ID: {PersonaId}", personaId);
+
+                // 4. Get the created employer data
+                var responseDto = await _employerRepository.GetEmployerByIdAsync(personaId);
+                if (responseDto == null)
+                {
+                    return ServiceResult<EmployerResponseDto>.Failure("Failed to retrieve created employer data");
+                }
+
+                return ServiceResult<EmployerResponseDto>.Success(responseDto, "Employer registered successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering person: {Error}", ex.Message);
-                return ServiceResult<EmployerResponseDto>.Failure("An error occurred while registering the person");
+                _logger.LogError(ex, "Error registering employer: {Error}", ex.Message);
+                return ServiceResult<EmployerResponseDto>.Failure("An error occurred while registering the employer");
             }
-        }
-
-        public async Task<bool> IsUsernameAvailableAsync(string username)
-        {
-            // Since we're only using Persona table and email as identifier
-            // We'll check email availability instead using ToLower for case-insensitive comparison
-            return await IsEmailAvailableAsync(username);
         }
 
         public async Task<bool> IsEmailAvailableAsync(string email)
         {
-            // Use EF.Functions.Like or simple string comparison for database translation
-            return !await _context.Personas.AnyAsync(p => p.Correo.ToLower() == email.ToLower());
+            return await _employerRepository.IsEmailAvailableAsync(email);
         }
 
         public async Task<bool> IsCedulaAvailableAsync(string cedula)
         {
-            return !await _context.Personas.AnyAsync(p => p.Cedula == cedula);
+            return await _employerRepository.IsCedulaAvailableAsync(cedula);
         }
 
         private Task<ServiceResult<EmployerResponseDto>> ValidateEmployerDataAsync(SignUpEmployerDto employerDto)
@@ -127,7 +139,23 @@ namespace backend.Services
             if (employerDto.FechaNacimiento > DateTime.Now.AddYears(-18))
                 errors.Add("Must be at least 18 years old");
 
-            // Note: Removed password validation since we're only saving to Persona table
+            if (string.IsNullOrWhiteSpace(employerDto.Password))
+                errors.Add("Password is required");
+
+            if (employerDto.Password.Length < 8)
+                errors.Add("Password must be at least 8 characters");
+
+            if (employerDto.Password != employerDto.ConfirmPassword)
+                errors.Add("Passwords do not match");
+
+            if (string.IsNullOrWhiteSpace(employerDto.Provincia))
+                errors.Add("Provincia is required");
+
+            if (string.IsNullOrWhiteSpace(employerDto.Canton))
+                errors.Add("Canton is required");
+
+            if (string.IsNullOrWhiteSpace(employerDto.Distrito))
+                errors.Add("Distrito is required");
 
             if (errors.Any())
             {
@@ -175,13 +203,4 @@ namespace backend.Services
         }
     }
 
-    // Response DTO for returning employer data without sensitive information
-    public class EmployerResponseDto
-    {
-        public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Nombre { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
-    }
 }

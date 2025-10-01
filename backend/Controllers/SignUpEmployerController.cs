@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using backend.Services;
+using backend.DTOs;
 
 namespace backend.Controllers
 {
@@ -53,33 +54,18 @@ namespace backend.Controllers
         }
 
         // Additional endpoints for validation
-        [HttpGet("check-username/{username}")]
-        public async Task<IActionResult> CheckUsername(string username)
-        {
-            var isAvailable = await _employerService.IsUsernameAvailableAsync(username);
-            return Ok(new { username, isAvailable });
-        }
-
         [HttpGet("check-email/{email}")]
         public async Task<IActionResult> CheckEmail(string email)
         {
             var isAvailable = await _employerService.IsEmailAvailableAsync(email);
             return Ok(new { email, isAvailable });
         }
-    }
 
-    // DTO class for receiving form data
-    public class SignUpEmployerDto
-    {
-        public string Nombre { get; set; } = string.Empty;
-        public string PrimerApellido { get; set; } = string.Empty;
-        public string? SegundoApellido { get; set; }
-        public string Cedula { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Telefono { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
-        public DateTime FechaNacimiento { get; set; }
-        public string Password { get; set; } = string.Empty;
-        public string ConfirmPassword { get; set; } = string.Empty;
+        [HttpGet("check-cedula/{cedula}")]
+        public async Task<IActionResult> CheckCedula(string cedula)
+        {
+            var isAvailable = await _employerService.IsCedulaAvailableAsync(cedula);
+            return Ok(new { cedula, isAvailable });
+        }
     }
 }
