@@ -24,7 +24,11 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: RegisterEmployee },
   { path: '/password-setup', component: PasswordSetup },
-  { path: '/superadmin', component: SuperAdminMenu }
+  { 
+    path: '/superadmin', 
+    component: SuperAdminMenu,
+    meta: { requiresAuth: true, requiresRole: 'Administrador' }
+  },
   { path: '/create-project', component: CreateProject }
 ]
 
@@ -33,4 +37,43 @@ const router = createRouter({
   routes
 })
 
-createApp(App).use(router).mount('#app')
+// Navigation guard to protect routes
+router.beforeEach((to, from, next) => {
+  // Check if the route requires authentication
+  if (to.meta.requiresAuth) {
+    // Get user data from localStorage
+    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    // Check if user is authenticated
+    if (!userData || !token) {
+      // Redirect to login page
+      next('/login');
+      return;
+    }
+    
+    try {
+      const user = JSON.parse(userData);
+      
+      // Check if user has the required role
+      if (to.meta.requiresRole && user.tipoUsuario !== to.meta.requiresRole) {
+        // Redirect to home page if user doesn't have required role
+        next('/');
+        return;
+      }
+      
+      // User is authenticated and has required role
+      next();
+    } catch (error) {
+      // Invalid user data, redirect to login
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      next('/login');
+    }
+  } else {
+    // Route doesn't require authentication
+    next();
+  }
+})
+
+createApp(App).use(router).mount('#app');
