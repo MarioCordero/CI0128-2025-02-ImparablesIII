@@ -1,19 +1,19 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Dapper;
 
 namespace backend.Repositories
 {
-    public class PasswordRepository : IPasswordRepository
+    public class DireccionRepository : IDireccionRepository
     {
         private readonly string _connectionString;
 
-        public PasswordRepository(IConfiguration configuration)
+        public DireccionRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
 
-
-        public async Task<bool> UpdateEmployeePasswordAsync(int personaId, string password)
+        public async Task<int> CreateDireccionAsync(string provincia, string canton, string distrito, string? direccionParticular)
         {
             try
             {
@@ -21,21 +21,25 @@ namespace backend.Repositories
                 await connection.OpenAsync();
 
                 var query = @"
-                    UPDATE PlaniFy.Empleado SET Contrasena = @contrasena WHERE idPersona = @idPersona";
+                    INSERT INTO PlaniFy.Direccion (Provincia, Canton, Distrito, DireccionParticular)
+                    OUTPUT INSERTED.Id
+                    VALUES (@Provincia, @Canton, @Distrito, @DireccionParticular)";
 
-                using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@idPersona", personaId);
-                command.Parameters.AddWithValue("@contrasena", password);
+                var parameters = new
+                {
+                    Provincia = provincia,
+                    Canton = canton,
+                    Distrito = distrito,
+                    DireccionParticular = direccionParticular
+                };
 
-                var result = await command.ExecuteNonQueryAsync();
-                return result > 0;
+                return await connection.QuerySingleAsync<int>(query, parameters);
             }
             catch (Exception)
             {
-                return false;
+                return -1;
             }
         }
-
 
         public async Task<bool> TestConnectionAsync()
         {
