@@ -1,21 +1,26 @@
 using backend.DTOs;
-public interface ICompanyRepository
-{
-    Task<List<Company>> GetByEmployerIdAsync(int employerId);
-    Task<decimal> GetProfitabilityAsync(int companyId, DateTime date);
-}
+using backend.Models;
 
-public interface IEmployeeRepository
+namespace backend.Repositories
 {
-    Task<int> CountActiveByCompanyAsync(int companyId);
-}
+    public interface ICompanyRepository
+    {
+        Task<List<Project>> GetByEmployerIdAsync(int employerId);
+        Task<decimal> GetProfitabilityAsync(int companyId, DateTime date);
+    }
 
-public interface INotificationRepository
-{
-    Task<List<NotificationDto>> GetByCompanyAsync(int companyId);
-}
+    public interface IEmployeeRepository
+    {
+        Task<int> CountActiveByCompanyAsync(int companyId);
+    }
 
-public interface IPayrollRepository
-{
-    Task<decimal> GetMonthlyTotalAsync(int companyId);
+    public interface INotificationRepository
+    {
+        Task<List<NotificationDto>> GetByCompanyAsync(int companyId);
+    }
+
+    public interface IPayrollRepository
+    {
+        Task<decimal> GetMonthlyTotalAsync(int companyId);
+    }
 }

@@ -13,6 +13,9 @@ namespace backend.DTOs
         [Range(100000000, 999999999, ErrorMessage = "La cédula jurídica debe tener exactamente 9 dígitos")]
         public int CedulaJuridica { get; set; }
 
+        // Agregar esta propiedad
+        public string LegalId => CedulaJuridica.ToString();
+
         [Required(ErrorMessage = "El correo electrónico es obligatorio")]
         [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
         [StringLength(50, ErrorMessage = "El correo no puede exceder los 50 caracteres")]
@@ -28,7 +31,7 @@ namespace backend.DTOs
 
         // Address fields
         [Required(ErrorMessage = "La provincia es obligatoria")]
-        [RegularExpression(@"^(San José|Alajuela|Cartago|Heredia|Guanacaste|Puntarenas|Limón)$", 
+        [RegularExpression(@"^(San José|Alajuela|Cartago|Heredia|Guanacaste|Puntarenas|Limón)$",
             ErrorMessage = "La provincia debe ser una de las 7 provincias de Costa Rica")]
         [StringLength(12)]
         public string Provincia { get; set; } = string.Empty;
@@ -41,6 +44,26 @@ namespace backend.DTOs
 
         [StringLength(150, ErrorMessage = "La dirección particular no puede exceder los 150 caracteres")]
         public string? DireccionParticular { get; set; }
+    }
+
+    public class UpdateProjectDto
+    {
+        [Required(ErrorMessage = "El nombre de la empresa es obligatorio")]
+        [StringLength(20, MinimumLength = 1, ErrorMessage = "El nombre debe tener entre 1 y 20 caracteres")]
+        public string Nombre { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
+        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
+        [StringLength(50, ErrorMessage = "El correo no puede exceder los 50 caracteres")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El período de pago es obligatorio")]
+        [RegularExpression(@"^(Mensual|Quincenal)$", ErrorMessage = "El período de pago debe ser 'Mensual' o 'Quincenal'")]
+        [StringLength(20)]
+        public string PeriodoPago { get; set; } = string.Empty;
+
+        [Range(10000000, 99999999, ErrorMessage = "El teléfono debe tener 8 dígitos")]
+        public int? Telefono { get; set; }
     }
 
     public class ProjectResponseDto

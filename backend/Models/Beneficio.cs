@@ -19,7 +19,7 @@ namespace backend.Models
         [MaxLength(20)]
         public string Tipo { get; set; } = string.Empty;
         
-        // Navigation property
-        public Empresa? Empresa { get; set; }
+        // Navigation property - cambiar de Empresa a Project
+        public Project? Project { get; set; }
     }
 }
