@@ -8,11 +8,16 @@ namespace backend.Repositories
     public class EmployeeRepository
     {
         private readonly string _connectionString;
+        private readonly IDireccionRepository _direccionRepository;
+        private readonly IPersonaRepository _personaRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public EmployeeRepository()
+        public EmployeeRepository(IConfiguration configuration, IDireccionRepository direccionRepository, IPersonaRepository personaRepository, IUsuarioRepository usuarioRepository)
         {
-            var builder = WebApplication.CreateBuilder();
-            _connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            _direccionRepository = direccionRepository;
+            _personaRepository = personaRepository;
+            _usuarioRepository = usuarioRepository;
         }
 
         public async Task<int> RegisterEmployeeAsync(RegisterEmployeeDto employeeDto)
@@ -24,11 +29,30 @@ namespace backend.Repositories
 
             try
             {
-                // First, insert the address
-                var direccionId = await InsertDireccionAsync(connection, transaction, employeeDto);
+                // First, insert the address using common repository
+                var direccionId = await _direccionRepository.CreateDireccionAsync(
+                    employeeDto.Provincia, 
+                    employeeDto.Canton, 
+                    employeeDto.Distrito, 
+                    employeeDto.DireccionParticular);
                 
-                // Then, insert the person
-                var personaId = await InsertPersonaAsync(connection, transaction, employeeDto, direccionId);
+                if (direccionId == -1)
+                    throw new Exception("Failed to create address");
+                
+                // Then, insert the person using common repository
+                var personaId = await _personaRepository.CreatePersonaAsync(
+                    employeeDto.Correo,
+                    employeeDto.PrimerNombre,
+                    employeeDto.SegundoNombre,
+                    employeeDto.PrimerApellido,
+                    employeeDto.FechaNacimiento,
+                    employeeDto.Cedula,
+                    "Empleado", // Default role for employees
+                    employeeDto.Telefono,
+                    direccionId);
+                
+                if (personaId == -1)
+                    throw new Exception("Failed to create person");
                 
                 // Finally, insert the employee
                 await InsertEmpleadoAsync(connection, transaction, employeeDto, personaId);
@@ -43,46 +67,6 @@ namespace backend.Repositories
             }
         }
 
-        private async Task<int> InsertDireccionAsync(SqlConnection connection, SqlTransaction transaction, RegisterEmployeeDto employeeDto)
-        {
-            var query = @"
-                INSERT INTO PlaniFy.Direccion (Provincia, Canton, Distrito, DireccionParticular)
-                OUTPUT INSERTED.id
-                VALUES (@Provincia, @Canton, @Distrito, @DireccionParticular)";
-
-            var parameters = new
-            {
-                Provincia = employeeDto.Provincia,
-                Canton = employeeDto.Canton,
-                Distrito = employeeDto.Distrito,
-                DireccionParticular = employeeDto.DireccionParticular
-            };
-
-            return await connection.QuerySingleAsync<int>(query, parameters, transaction);
-        }
-
-        private async Task<int> InsertPersonaAsync(SqlConnection connection, SqlTransaction transaction, RegisterEmployeeDto employeeDto, int direccionId)
-        {
-            var query = @"
-                INSERT INTO PlaniFy.Persona (Correo, Nombre, SegundoNombre, Apellidos, FechaNacimiento, Cedula, Rol, Telefono, idDireccion)
-                OUTPUT INSERTED.Id
-                VALUES (@Correo, @Nombre, @SegundoNombre, @Apellidos, @FechaNacimiento, @Cedula, @Rol, @Telefono, @IdDireccion)";
-
-            var parameters = new
-            {
-                Correo = employeeDto.Correo,
-                Nombre = employeeDto.PrimerNombre,
-                SegundoNombre = employeeDto.SegundoNombre,
-                Apellidos = employeeDto.PrimerApellido,
-                FechaNacimiento = employeeDto.FechaNacimiento,
-                Cedula = employeeDto.Cedula,
-                Rol = "Empleado", // Default role for employees
-                Telefono = employeeDto.Telefono,
-                IdDireccion = direccionId
-            };
-
-            return await connection.QuerySingleAsync<int>(query, parameters, transaction);
-        }
 
         private async Task InsertEmpleadoAsync(SqlConnection connection, SqlTransaction transaction, RegisterEmployeeDto employeeDto, int personaId)
         {
@@ -109,22 +93,12 @@ namespace backend.Repositories
 
         public async Task<bool> ValidateCedulaExistsAsync(string cedula)
         {
-            using var connection = new SqlConnection(_connectionString);
-            
-            var query = "SELECT COUNT(1) FROM PlaniFy.Persona WHERE Cedula = @Cedula";
-            var count = await connection.QuerySingleAsync<int>(query, new { Cedula = cedula });
-            
-            return count > 0;
+            return !await _personaRepository.IsCedulaAvailableAsync(cedula);
         }
 
         public async Task<bool> ValidateEmailExistsAsync(string email)
         {
-            using var connection = new SqlConnection(_connectionString);
-            
-            var query = "SELECT COUNT(1) FROM PlaniFy.Persona WHERE Correo = @Correo";
-            var count = await connection.QuerySingleAsync<int>(query, new { Correo = email });
-            
-            return count > 0;
+            return !await _personaRepository.IsEmailAvailableAsync(email);
         }
 
         public async Task<bool> TestConnectionAsync()
