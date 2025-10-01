@@ -1,4 +1,4 @@
-/*
+using backend.DTOs;
 public interface ICompanyRepository
 {
     Task<List<Company>> GetByEmployerIdAsync(int employerId);
@@ -19,4 +19,3 @@ public interface IPayrollRepository
 {
     Task<decimal> GetMonthlyTotalAsync(int companyId);
 }
-*/

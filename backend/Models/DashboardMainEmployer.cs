@@ -1,4 +1,4 @@
-/*
+
 public class Employer
 {
     public int Id { get; set; }
@@ -53,4 +53,3 @@ public class Payroll
     public int CompanyId { get; set; }
     public Company Company { get; set; }
 }
-*/

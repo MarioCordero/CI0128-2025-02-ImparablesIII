@@ -1,4 +1,4 @@
-/*
+using backend.DTOs;
 public interface IDashboardMainEmployerService
 {
     Task<DashboardMainEmployerDto> GetDashboardAsync(int employerId);
@@ -52,4 +52,3 @@ public class DashboardMainEmployerService : IDashboardMainEmployerService
         return dto;
     }
 }
-*/
