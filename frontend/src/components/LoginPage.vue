@@ -64,7 +64,7 @@
       </form>
       <div class="mt-8 text-center text-sm text-gray-700">
         ¿No tienes una cuenta?
-        <router-link to="/register" class="text-blue-700 font-semibold hover:underline ml-1">Registrarse</router-link>
+        <router-link to="/signup-employer" class="text-blue-700 font-semibold hover:underline ml-1">Registrarse</router-link>
       </div>
     </div>
   </div>

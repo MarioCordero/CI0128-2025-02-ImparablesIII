@@ -18,6 +18,7 @@ import RegisterEmployee from './components/registerEmployee.vue'
 import PasswordSetup from './components/PasswordSetup.vue'
 import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import CreateProject from './components/CreateProject.vue'
+import SignUpEmployer from './components/SignUpEmployer.vue'
 
 const routes = [
   { path: '/', component: LandingPage },
@@ -29,7 +30,8 @@ const routes = [
     component: SuperAdminMenu,
     meta: { requiresAuth: true, requiresRole: 'Administrador' }
   },
-  { path: '/create-project', component: CreateProject }
+  { path: '/create-project', component: CreateProject },
+  { path: '/signup-employer', component: SignUpEmployer }
 ]
 
 const router = createRouter({
