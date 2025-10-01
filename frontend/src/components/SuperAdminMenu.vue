@@ -9,17 +9,31 @@
             <div>
               <h1 class="text-4xl font-black text-black tracking-wide">PlaniFy</h1>
               <h2 class="text-xl font-medium text-gray-700">Panel de Super Administrador</h2>
+              <div v-if="user" class="text-sm text-gray-600 mt-1">
+                Bienvenido, {{ user.Nombre }} {{ user.Apellidos }}
+              </div>
             </div>
           </div>
-          <button
-            @click="goBack"
-            class="bg-[#87ceeb] text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center space-x-2"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            <span>Volver</span>
-          </button>
+          <div class="flex items-center space-x-3">
+            <button
+              @click="goBack"
+              class="bg-[#87ceeb] text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center space-x-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+              <span>Volver</span>
+            </button>
+            <button
+              @click="logout"
+              class="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center space-x-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -177,56 +191,92 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-// Reactive data
-const empresas = ref([])
-const loading = ref(true)
-const error = ref(null)
-const expandedEmpresas = ref(new Set())
-
-// Methods
-const goBack = () => {
-  router.push('/')
-}
-
-const toggleBenefits = (empresaId) => {
-  if (expandedEmpresas.value.has(empresaId)) {
-    expandedEmpresas.value.delete(empresaId)
-  } else {
-    expandedEmpresas.value.add(empresaId)
-  }
-}
-
-const fetchEmpresas = async () => {
-  try {
-    loading.value = true
-    error.value = null
-    
-    const response = await fetch('http://localhost:5011/api/Empresa')
-    
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`)
+<script>
+export default {
+  name: 'SuperAdminMenu',
+  data() {
+    return {
+      empresas: [],
+      loading: true,
+      error: null,
+      expandedEmpresas: new Set(),
+      user: null
     }
-    
-    const data = await response.json()
-    empresas.value = data
-  } catch (err) {
-    console.error('Error fetching empresas:', err)
-    error.value = 'Error al cargar las empresas. Por favor, intente nuevamente.'
-  } finally {
-    loading.value = false
-  }
-}
+  },
+  mounted() {
+    // Check authentication first
+    if (this.checkAuthentication()) {
+      this.fetchEmpresas();
+    }
+  },
+  methods: {
+    checkAuthentication() {
+      const userData = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
 
-// Lifecycle
-onMounted(() => {
-  fetchEmpresas()
-})
+      console.log('User data:', userData);
+      console.log('Token:', token);
+      
+      if (!userData || !token) {
+        this.$router.push('/login');
+        return false;
+      }
+      
+      try {
+        this.user = JSON.parse(userData);
+        
+        // Double-check user role
+        if (this.user.tipoUsuario !== 'Administrador') {
+          this.$router.push('/');
+          return false;
+        }
+        
+        return true;
+      } catch (error) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        this.$router.push('/login');
+        return false;
+      }
+    },
+    goBack() {
+      this.$router.push('/');
+    },
+    logout() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      this.$router.push('/login');
+    },
+    toggleBenefits(empresaId) {
+      if (this.expandedEmpresas.has(empresaId)) {
+        this.expandedEmpresas.delete(empresaId);
+      } else {
+        this.expandedEmpresas.add(empresaId);
+      }
+    },
+    async fetchEmpresas() {
+      try {
+        this.loading = true;
+        this.error = null;
+        
+        const response = await fetch('http://localhost:5011/api/Empresa');
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json(); 
+        this.empresas = data;
+      } catch (err) {
+        console.error('Error fetching empresas:', err);
+        this.error = 'Error al cargar las empresas. Por favor, intente nuevamente.';
+      } finally {
+        this.loading = false;
+      }
+    }
+  },
+  
+}
 </script>
 
 <style scoped>
