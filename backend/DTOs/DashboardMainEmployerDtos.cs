@@ -1,4 +1,4 @@
-/*
+
 namespace backend.DTOs
 { 
     public class DashboardMainEmployerDto
@@ -30,4 +30,3 @@ namespace backend.DTOs
         public string Type { get; set; } // "alert", "info", "success"
     }
 }
-*/
