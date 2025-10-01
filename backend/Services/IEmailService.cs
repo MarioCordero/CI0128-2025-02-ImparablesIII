@@ -1,6 +1,6 @@
-using backend_lab.DTOs;
+using backend.DTOs;
 
-namespace backend_lab.Services
+namespace backend.Services
 {
     public interface IEmailService
     {

@@ -1,10 +1,10 @@
-using backend_lab.DTOs;
-using backend_lab.Models;
+using backend.DTOs;
+using backend.Models;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace backend_lab.Services
+namespace backend.Services
 {
     public class EmailService : IEmailService
     {

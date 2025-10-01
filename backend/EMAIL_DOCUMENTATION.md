@@ -30,8 +30,8 @@ Use direct method calls within your C# code for better performance and integrati
 
 #### Option A: Using EmailHelper (Static Methods)
 ```csharp
-using backend_lab.Services;
-using backend_lab.Models;
+using backend.Services;
+using backend.Models;
 
 // Simple send (returns bool)
 var emailSettings = GetEmailSettingsFromConfiguration();
@@ -53,7 +53,7 @@ var result = await EmailHelper.SendEmailWithResponseAsync(
 
 #### Option B: Using Extension Methods (Recommended)
 ```csharp
-using backend_lab.Extensions;
+using backend.Extensions;
 
 // In any controller or service with IServiceProvider access
 public class MyController : ControllerBase

@@ -1,4 +1,4 @@
-namespace backend_lab.Models
+namespace backend.Models
 {
     public class EmailSettings
     {

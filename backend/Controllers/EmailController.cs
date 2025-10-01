@@ -1,8 +1,8 @@
-using backend_lab.DTOs;
-using backend_lab.Services;
+using backend.DTOs;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace backend_lab.Controllers
+namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

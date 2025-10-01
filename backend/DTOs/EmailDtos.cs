@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend_lab.DTOs
+namespace backend.DTOs
 {
     public class SendEmailDto
     {
