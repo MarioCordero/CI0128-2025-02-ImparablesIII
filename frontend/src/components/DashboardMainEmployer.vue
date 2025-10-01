@@ -13,9 +13,9 @@
       <div class="flex justify-center">
             <select class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] min-w-[459px] min-h-[40px] rounded-[4px] px-3 py-1">
                 <option default>Seleccionar empresa</option>
-                <option>Imparables III</option>
-                <option>Patitos</option>
-                <option>Jack's Store</option>
+                <option v-for="company in companies" :key="company.Id" :value="company.Id">
+                  {{ company.Name }}
+                </option>
             </select>
       </div>
       <!-- Columna 3: Botones alineados a la derecha -->
@@ -48,21 +48,48 @@
                         <p class="text-gray-700 text-[16px] m-0">Observa las ganancias de tus proyectos.</p>
                     </div>
                     
-                    <!-- Placeholder para feature futuro -->
-                    <div class="w-[696px] h-[334px] flex flex-col items-center justify-center space-y-4 border-2 border-dashed border-gray-300 rounded-lg">
-                        <div class="text-center">
-                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
-                                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <h3 class="text-lg font-semibold text-gray-600 mb-2">Análisis de Rentabilidad</h3>
-                            <p class="text-gray-500 text-sm max-w-xs mx-auto">
-                                Esta funcionalidad estará disponible próximamente. 
-                                Podrás visualizar gráficos detallados y análisis comparativo de rentabilidad.
-                            </p>
+                    
+                    <div>
+                        <!-- Resumen card -->
+                        <div class="w-[696px] h-[54px] flex items-center justify-between p-0 mb-[14px]">
+                            <div class="flex flex-col">
+                                <p class="font-bold text-[20px] m-0 whitespace-nowrap">Rentabilidad Total</p>
+                                <p class="text-gray-700 text-[16px] m-0">{{ companies.length }} empresas</p>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="bg-green-500 text-white rounded px-3 py-1 font-bold text-base block w-fit shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
+                                    {{ companies.length > 0 ? (companies.reduce((sum, c) => sum + c.CurrentProfitability, 0) / companies.length).toFixed(1) : 0 }}%
+                                </span>
+                                <span class="text-green-600 text-xs block">
+                                    {{ companies.length > 0 ? getProfitabilityChange(
+                                        companies.reduce((sum, c) => sum + c.CurrentProfitability, 0) / companies.length,
+                                        companies.reduce((sum, c) => sum + c.LastMonthProfitability, 0) / companies.length
+                                      ) : '+0% vs mes ant.' }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
-                            🚧 Próximamente
-                        </div>
+
+                        <ul class="space-y-4">
+                            <li v-for="(company, index) in companies" :key="company.Id" class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-[52px] h-[52px] flex items-center justify-center bg-[#E9F7FF] rounded-[10px] font-bold text-lg shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff]">
+                                        {{ index + 1 }}
+                                    </div>
+                                    <div>
+                                        <span class="font-bold">{{ company.Name }}</span>
+                                        <div class="text-gray-600 text-sm">{{ company.ActiveEmployees }} empleados</div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span :class="`${getProfitabilityColor(company.CurrentProfitability)} text-white rounded px-3 py-1 font-bold text-base shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]`">
+                                        {{ company.CurrentProfitability }}%
+                                    </span>
+                                    <span :class="`${getProfitabilityTextColor(company.CurrentProfitability)} text-xs mt-1`">
+                                        {{ getProfitabilityChange(company.CurrentProfitability, company.LastMonthProfitability) }}
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -105,11 +132,22 @@
             </button>
         </div>
         <div class="w-full h-[10px] my-2 rounded shadow-[2px_2px_6px_#d1e3ee,-2px_-2px_6px_#ffffff] bg-[#E9F7FF]"></div>
-        <div class="space-y-6">
-          <!-- Empresa -->
-          <div>
+        
+        <!-- Loading State -->
+        <div v-if="loading" class="flex justify-center items-center py-8">
+          <div class="text-gray-600">Cargando empresas...</div>
+        </div>
+        
+        <!-- Error State -->
+        <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {{ error }}
+        </div>
+        
+        <!-- Companies List -->
+        <div v-if="!loading" class="space-y-6">
+          <div v-for="company in companies" :key="company.Id">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-bold">Imparables III</h3>
+              <h3 class="text-lg font-bold">{{ company.name }}</h3>
               <select class="rounded px-3 py-1 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
                 <option>Administrar Empresa</option>
                 <option>Detalles Empresa</option>
@@ -131,7 +169,7 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">3-123-456789</p>
+                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.legalId }}</p>
                     <p class="text-[15px] group-hover:text-white transition-colors duration-200">de la empresa</p>
                   </div>
                 </div>
@@ -147,8 +185,8 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">Opcional</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">cuando Mario quiera</p>
+                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.payPeriod }}</p>
+                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">{{ formatPeriodDescription(company.payPeriod) }}</p>
                   </div>
                 </div>
               </div>
@@ -164,183 +202,8 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">4</p>
+                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.activeEmployees }}</p>
                     <p class="text-[15px] group-hover:text-white transition-colors duration-200">en esta empresa</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Nómina Mensual -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Nómina Mensual</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M3 17l6-6 4 4 8-8" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">4000</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">de colones</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Empresa -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-bold">Patitos</h3>
-              <select class="rounded px-3 py-1 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
-                <option>Administrar Empresa</option>
-                <option>Detalles Empresa</option>
-                <option>Gestionar Beneficios</option>
-                <option>Gestionar Empleados</option>
-                <option>Reportes de Planilla</option>
-                <option>Eliminar</option>
-              </select>
-            </div>
-            <div class="grid md:grid-cols-4 gap-4">
-              <!-- Cédula Jurídica -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Cédula Jurídica</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <rect x="3" y="7" width="18" height="10" rx="2" stroke="currentColor"/>
-                      <path d="M7 15h.01M7 11h.01" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">3-456-123456</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">de la empresa</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Período de Pago -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Período de Pago</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor"/>
-                      <path d="M16 3v4M8 3v4" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">Mensual</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">28 de cada mes</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Empleados Activos -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Empleados Activos</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="9" cy="7" r="4" stroke="currentColor"/>
-                      <path d="M17 11a4 4 0 1 0-8 0" stroke="currentColor"/>
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">369</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">en esta empresa</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Nómina Mensual -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Nómina Mensual</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M3 17l6-6 4 4 8-8" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">191.8 M</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">de colones</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Empresa -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-bold">Jack's Store</h3>
-              <select class="rounded px-3 py-1 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
-                <option>Administrar Empresa</option>
-                <option>Detalles Empresa</option>
-                <option>Gestionar Beneficios</option>
-                <option>Gestionar Empleados</option>
-                <option>Reportes de Planilla</option>
-                <option>Eliminar</option>
-              </select>
-            </div>
-            <div class="grid md:grid-cols-4 gap-4">
-              <!-- Cédula Jurídica -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Cédula Jurídica</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <rect x="3" y="7" width="18" height="10" rx="2" stroke="currentColor"/>
-                      <path d="M7 15h.01M7 11h.01" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">3-969-696969</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">de la empresa</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Período de Pago -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Período de Pago</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor"/>
-                      <path d="M16 3v4M8 3v4" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">Quincenal</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">1 y 16 de cada mes</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Empleados Activos -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Empleados Activos</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="9" cy="7" r="4" stroke="currentColor"/>
-                      <path d="M17 11a4 4 0 1 0-8 0" stroke="currentColor"/>
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">2</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">en esta empresa</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Nómina Mensual -->
-              <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[linear-gradient(to_right,#FF0000_4%,#0033FF_74%)] group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Nómina Mensual</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path d="M3 17l6-6 4 4 8-8" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">302.3 M</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">de colones</p>
                   </div>
                 </div>
               </div>
@@ -354,51 +217,109 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import axios from 'axios'
 
-const router = useRouter()
-const user = ref(null)
+// Reactive data
+const companies = ref([])
+const loading = ref(false)
+const error = ref(null)
 
-onMounted(() => {
-  checkAuthentication()
-})
+// API base URL - adjust according to your backend configuration
+const API_BASE_URL = 'http://localhost:5011/api'
 
-const checkAuthentication = () => {
-  const userData = localStorage.getItem('user')
-  const token = localStorage.getItem('token')
-
-  console.log('User data:', userData)
-  console.log('Token:', token)
-  
-  if (!userData || !token) {
-    router.push('/login')
-    return false
-  }
+// Fetch companies data
+const fetchCompanies = async () => {
+  loading.value = true
+  error.value = null
   
   try {
-    user.value = JSON.parse(userData)
+    // Get the employer ID from localStorage or wherever it's stored
+    const employerId = localStorage.getItem('employerId') || '1' // Default to 1 for testing
     
-    // Verificar rol de usuario si es necesario
-    if (user.value.tipoUsuario === 'Administrador') {
-      // Lógica adicional para administradores si es necesaria
-    }
-    
-    return true
-  } catch (error) {
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
-    router.push('/login')
-    return false
+    const response = await axios.get(`${API_BASE_URL}/project/dashboard/${employerId}`)
+    companies.value = response.data || []
+    console.log(companies.value)
+  } catch (err) {
+    console.error('Error fetching companies:', err)
+    error.value = 'Error al cargar las empresas'
+    // Fallback to static data if API fails
+    companies.value = [
+      {
+        Id: 1,
+        Name: 'Imparables III',
+        LegalId: '3-123-456789',
+        ActiveEmployees: 4,
+        PayPeriod: 'Opcional',
+        MonthlyPayroll: 4000,
+        CurrentProfitability: 12,
+        LastMonthProfitability: 19
+      },
+      {
+        Id: 2,
+        Name: 'Patitos',
+        LegalId: '3-456-123456',
+        ActiveEmployees: 369,
+        PayPeriod: 'Mensual',
+        MonthlyPayroll: 191800000,
+        CurrentProfitability: 16,
+        LastMonthProfitability: 16
+      },
+      {
+        Id: 3,
+        Name: "Jack's Store",
+        LegalId: '3-969-696969',
+        ActiveEmployees: 2,
+        PayPeriod: 'Quincenal',
+        MonthlyPayroll: 302300000,
+        CurrentProfitability: 24,
+        LastMonthProfitability: 9
+      }
+    ]
+  } finally {
+    loading.value = false
   }
 }
 
-const navigateToCreateProject = () => {
-  router.push('/create-project')
+
+
+// Format period description
+const formatPeriodDescription = (period) => {
+  switch (period) {
+    case 'Mensual':
+      return '28 de cada mes'
+    case 'Quincenal':
+      return '1 y 16 de cada mes'
+    case 'Opcional':
+      return 'cuando Mario quiera'
+    default:
+      return 'No especificado'
+  }
 }
 
-const logout = () => {
-  localStorage.removeItem('user')
-  localStorage.removeItem('token')
-  router.push('/login')
+// Get profitability color class
+const getProfitabilityColor = (profitability) => {
+  if (profitability >= 20) return 'bg-green-500'
+  if (profitability >= 15) return 'bg-gray-400'
+  return 'bg-red-500'
 }
+
+// Get profitability text color
+const getProfitabilityTextColor = (profitability) => {
+  if (profitability >= 20) return 'text-green-600'
+  if (profitability >= 15) return 'text-gray-600'
+  return 'text-red-600'
+}
+
+// Calculate profitability change
+const getProfitabilityChange = (current, last) => {
+  const change = current - last
+  if (change > 0) return `+${change}% vs mes ant.`
+  if (change < 0) return `${change}% vs mes ant.`
+  return '+0% vs mes ant.'
+}
+
+// Load data on component mount
+onMounted(() => {
+  fetchCompanies();
+})
 </script>
