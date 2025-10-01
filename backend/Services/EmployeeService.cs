@@ -1,7 +1,6 @@
 using backend.Models;
 using backend.DTOs;
-using backend_lab.Data;
-using backend_lab.Models;
+using backend.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 

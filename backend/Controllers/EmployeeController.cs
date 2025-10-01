@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Services;
 using backend.DTOs;
-using backend_lab.Data;
-using backend_lab.Models;
+using backend.Data;
+using backend.Models;
 
 namespace backend.Controllers
 {
