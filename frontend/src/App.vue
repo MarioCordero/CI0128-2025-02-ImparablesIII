@@ -1,15 +1,10 @@
 <template>
-  <SignUpEmployer />
+  <router-view />
 </template>
 
 <script>
-import SignUpEmployer from './components/SignUpEmployer.vue';
-
 export default {
-  name: 'App',
-  components: {
-    SignUpEmployer,
-  }
+  name: 'App'
 };
 </script>
 
