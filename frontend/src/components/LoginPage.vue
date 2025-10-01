@@ -124,7 +124,8 @@ async function handleLogin() {
       // Store user data and token in localStorage
       localStorage.setItem('user', JSON.stringify(data.userData))
       if (data.token) {
-        localStorage.setItem('token', data.token)
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('employerId', data.userData.idPersona);
       }
       
       console.log('Login successful, user data:', data.userData) // Debug log
