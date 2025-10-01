@@ -11,7 +11,7 @@ import './assets/neumorphismGlobal.css'
 // Tailwind CSS
 import './assets/tailwind.css'
 
-// Componets on vue
+// Vue Components
 import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
 import RegisterEmployee from './components/registerEmployee.vue'
@@ -21,6 +21,7 @@ import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import CreateProject from './components/CreateProject.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
 
+// Route definitions
 const routes = [
   { path: '/', component: LandingPage },
   { path: '/login', component: Login },
