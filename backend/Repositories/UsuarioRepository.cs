@@ -12,7 +12,7 @@ namespace backend.Repositories
 
         public UsuarioRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("CountryContext") ?? throw new ArgumentNullException("Connection string not found");
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
 
         public async Task<UserDataDto?> GetUserDataAsync(int idPersona)

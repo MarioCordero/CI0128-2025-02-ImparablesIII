@@ -12,7 +12,7 @@ namespace backend.Repositories
         public EmployeeRepository()
         {
             var builder = WebApplication.CreateBuilder();
-            _connectionString = builder.Configuration.GetConnectionString("CountryContext") ?? throw new InvalidOperationException("Connection string 'CountryContext' not found.");
+            _connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
 
         public async Task<int> RegisterEmployeeAsync(RegisterEmployeeDto employeeDto)

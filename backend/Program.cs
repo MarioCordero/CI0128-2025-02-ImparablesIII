@@ -2,6 +2,7 @@ using backend.Services;
 using backend.Repositories;
 using backend.Models;
 using Microsoft.OpenApi.Models;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,10 +70,15 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Register services
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
-builder.Services.AddMemoryCache();
-builder.Services.AddHttpClient<AsociacionSolidaristaApiService>();
+builder.Services.AddScoped<IEmailService, EmailService>(); // Email service
+builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>(); // Password setup service
+builder.Services.AddMemoryCache(); // Memory cache for password tokens
+builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>(); // Business operations repository
+
+// Register project services and repositories
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 
 // Register login service
 builder.Services.AddScoped<ILoginService, LoginService>();

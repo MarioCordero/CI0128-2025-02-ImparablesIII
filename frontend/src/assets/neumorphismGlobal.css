@@ -52,6 +52,34 @@
     inset -4px -4px 8px rgba(255, 255, 255, 0.9);
 }
 
+/* Red Button */
+.neumorphism-red {
+  background: #e53e3e;
+  color: white;
+  border-radius: 20px;
+  box-shadow: 
+    8px 8px 16px rgba(229, 62, 62, 0.3),
+    -8px -8px 16px rgba(255, 255, 255, 0.1);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-red:hover {
+  background: #c53030;
+  transform: translateY(-2px);
+  box-shadow: 
+    12px 12px 24px rgba(229, 62, 62, 0.4),
+    -12px -12px 24px rgba(255, 255, 255, 0.15);
+}
+
+.neumorphism-red:active {
+  transform: translateY(0);
+  background: #9c1c1c;
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.3),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.1);
+}
+
 /* Card/Container */
 .neumorphism-card {
   background: #e2e8f0;
