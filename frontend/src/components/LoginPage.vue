@@ -129,10 +129,19 @@ async function handleLogin() {
       
       console.log('Login successful, user data:', data.userData) // Debug log
       
-      // Redirect to home page after 1.5 seconds
-      setTimeout(() => {
-        router.push('/') // or whatever route you want to redirect to
-      }, 1500)
+      // Check if user is Administrador and redirect accordingly
+      if (data.userData.tipoUsuario === 'Administrador') {
+        successMessage.value = 'Login exitoso como Super Administrador'
+        // Redirect to superadmin menu after 1.5 seconds
+        setTimeout(() => {
+          router.push('/superadmin')
+        }, 1500)
+      } else {
+        // Redirect to home page for other user types
+        setTimeout(() => {
+          router.push('/')
+        }, 1500)
+      }
     } else {
       errorMessage.value = data.message || 'Error al iniciar sesión'
     }
