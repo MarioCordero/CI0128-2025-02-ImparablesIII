@@ -259,7 +259,7 @@ export default {
         this.loading = true;
         this.error = null;
         
-        const response = await fetch('http://localhost:5011/api/Empresa');
+        const response = await fetch('http://localhost:5011/api/Project');
         
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
