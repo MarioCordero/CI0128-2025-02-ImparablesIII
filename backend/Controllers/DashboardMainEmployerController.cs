@@ -1,6 +1,7 @@
 using backend.DTOs;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -18,12 +19,21 @@ namespace backend.Controllers
         [HttpGet("employer")]
         public async Task<ActionResult<DashboardMainEmployerDto>> GetDashboardMainEmployer()
         {
-            var employerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(employerId))
-                return Unauthorized();
+            var employerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(employerIdClaim) || !int.TryParse(employerIdClaim, out int employerId))
+            {
+                return Unauthorized("Invalid or missing employer ID");
+            }
 
-            var dashboard = await _dashboardMainEmployerService.GetDashboardMainEmployer(employerId);
-            return Ok(dashboard);
+            try
+            {
+                var dashboard = await _dashboardMainEmployerService.GetDashboardDataAsync(employerId);
+                return Ok(dashboard);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error retrieving dashboard data", error = ex.Message });
+            }
         }
     }
 }

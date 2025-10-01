@@ -7,26 +7,30 @@ namespace backend.Models
         public int Id { get; set; }
         
         [Required]
-        [StringLength(20, MinimumLength = 1)]
+        [MaxLength(20)]
         public string Nombre { get; set; } = string.Empty;
         
         [Required]
         public int CedulaJuridica { get; set; }
         
         [Required]
-        [EmailAddress]
-        [StringLength(50)]
+        [MaxLength(50)]
         public string Email { get; set; } = string.Empty;
         
         [Required]
-        [StringLength(20)]
-        public string PeriodoPago { get; set; } = string.Empty; // "Mensual" or "Quincenal"
+        [MaxLength(20)]
+        public string PeriodoPago { get; set; } = string.Empty;
         
         public int? Telefono { get; set; }
         
         [Required]
         public int IdDireccion { get; set; }
         
+        // Navigation properties
+        public Direccion? Direccion { get; set; }
+        public List<Beneficio>? Beneficios { get; set; }
+        
+        // Audit fields
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
