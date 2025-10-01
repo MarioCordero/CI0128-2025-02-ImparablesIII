@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
+  <div class="min-h-screen flex items-center justify-center bg-[#E9F7FF] py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-xl space-y-8 bg-[#E9F7FF] rounded-[32px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] p-10">
       <!-- Header -->
       <div class="text-center">
-        <div class="mx-auto h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center">
+        <div class="mx-auto h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff]">
           <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
           </svg>
         </div>
-        <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+        <h2 class="mt-6 text-3xl font-extrabold text-gray-900 py-2 px-4">
           Configurar Contraseña
         </h2>
         <p class="mt-2 text-sm text-gray-600">
@@ -30,7 +30,7 @@
                 v-model="formData.password"
                 :type="showPassword ? 'text' : 'password'"
                 required
-                class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                class="appearance-none rounded-[12px] block w-full px-4 py-3 border-0 placeholder-gray-500 text-gray-900 bg-[#E9F7FF] shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:shadow-lg transition-all"
                 placeholder="Ingresa tu contraseña"
                 :class="{ 'border-red-500': errors.password }"
               />
@@ -49,7 +49,6 @@
               </button>
             </div>
             <p v-if="errors.password" class="mt-1 text-sm text-red-600">{{ errors.password }}</p>
-            
             <!-- Password Requirements -->
             <div class="mt-2 text-xs text-gray-600">
               <p class="font-medium mb-1">La contraseña debe contener:</p>
@@ -84,7 +83,7 @@
                 v-model="formData.confirmPassword"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 required
-                class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                class="appearance-none rounded-[12px] block w-full px-4 py-3 border-0 placeholder-gray-500 text-gray-900 bg-[#E9F7FF] shadow-[inset_2px_2px_4px_#d1e3ee,inset_-2px_-2px_4px_#ffffff] focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:shadow-lg transition-all"
                 placeholder="Confirma tu contraseña"
                 :class="{ 'border-red-500': errors.confirmPassword }"
               />
@@ -111,7 +110,7 @@
           <button
             type="submit"
             :disabled="isLoading"
-            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="group relative w-full flex justify-center py-3 px-4 rounded-[12px] font-medium text-white bg-indigo-600 shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             <span v-if="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-3">
               <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -124,7 +123,7 @@
         </div>
 
         <!-- Error Message -->
-        <div v-if="errorMessage" class="rounded-lg bg-red-50 p-4">
+        <div v-if="errorMessage" class="rounded-[12px] bg-red-50 p-4 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +137,7 @@
         </div>
 
         <!-- Success Message -->
-        <div v-if="successMessage" class="rounded-lg bg-green-50 p-4">
+        <div v-if="successMessage" class="rounded-[12px] bg-green-50 p-4 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,8 +152,8 @@
       </form>
 
       <!-- Footer -->
-      <div class="text-center">
-        <p class="text-xs text-gray-500">
+      <div class="text-center mt-6">
+        <p class="text-xs text-gray-500 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] rounded-[12px] bg-[#E9F7FF] py-2 px-4">
           ¿Problemas con el enlace? Contacta al administrador del sistema
         </p>
       </div>

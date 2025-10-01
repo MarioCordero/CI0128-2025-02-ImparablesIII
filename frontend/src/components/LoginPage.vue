@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#dbeafe] font-montserrat">
-    <div class="neumorphism-card bg-[#eaf4fa] p-20 w-1/3 flex flex-col">
+  <div class="min-h-screen flex items-center justify-center bg-[#E9F7FF] font-montserrat">
+    <div class="neumorphism-card bg-[#E9F7FF] p-20 w-1/3 flex flex-col">
        <!-- Logo -->
-      <img :src="logo" alt="PlaniFy Logo" class="w-full mb-4" />
+      <p class="text-[90px] font-bold text-center mb-4 text-black">PlaniFy</p>
       <h2 class="text-lg text-center font-light mb-4 text-black">INICIAR SESIÓN</h2>
       
       <!-- Error Message -->
@@ -18,7 +18,7 @@
       <!-- Login Form -->
       <form @submit.prevent="handleLogin" class="w-full flex flex-col gap-5">
         <!-- Email Input -->
-        <div class="flex items-center bg-white rounded-full shadow-inner px-4 py-2">
+        <div class="flex items-center rounded-[12px] px-4 py-2 neumorphism-input">
           <svg class="w-6 h-6 text-gray-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
@@ -31,7 +31,7 @@
           />
         </div>
         <!-- Password Input -->
-        <div class="flex items-center bg-white rounded-full shadow-inner px-4 py-2">
+        <div class="flex items-center rounded-[12px] px-4 py-2 neumorphism-input">
           <svg class="w-6 h-6 text-gray-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
@@ -73,7 +73,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import logo from '@/assets/PlaniFyLogo.svg'
+
 
 const router = useRouter()
 const showPassword = ref(false)

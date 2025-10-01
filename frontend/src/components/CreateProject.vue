@@ -1,23 +1,23 @@
 <!-- filepath: /home/mario/Desktop/UCR/CI0128-2025-02-ImparablesIII/frontend/src/components/CreateProject.vue -->
 <template>
-  <div class="min-h-screen bg-gray-100 py-8 px-4">
-    <div class="max-w-4xl mx-auto">
-      <div class="neumorphism-card p-8">
+  <div class="min-h-screen bg-[#E9F7FF] py-8 px-4 flex items-center justify-center">
+    <div class="w-full max-w-4xl mx-auto">
+      <div class="neumorphism-card bg-[#E9F7FF] rounded-[32px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] p-8">
         <!-- Header -->
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-800 mb-2">Registro de Empresa</h1>
+        <div class="mb-8 text-center">
+          <h1 class="text-3xl font-bold text-gray-800 mb-2 py-2 px-4">Registro de Empresa</h1>
           <p class="text-gray-600">Complete los datos de la empresa. Los campos marcados con * son obligatorios</p>
         </div>
 
         <!-- Loading/Error/Success Messages -->
-        <div v-if="loading" class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+        <div v-if="loading" class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-[12px] shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
           <div class="flex items-center">
             <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
             <span class="text-blue-700 font-medium">Registrando empresa...</span>
           </div>
         </div>
         
-        <div v-if="errorMessage" class="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
+        <div v-if="errorMessage" class="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-[12px] shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
           <div class="flex items-center">
             <svg class="w-5 h-5 text-red-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
@@ -26,7 +26,7 @@
           </div>
         </div>
 
-        <div v-if="successMessage" class="mb-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
+        <div v-if="successMessage" class="mb-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-[12px] shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
           <div class="flex items-center">
             <svg class="w-5 h-5 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -38,7 +38,7 @@
         <form @submit.prevent="handleSubmit" class="space-y-8">
           <!-- Información Básica -->
           <div>
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Información Básica</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 py-2 px-4">Información Básica</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -75,7 +75,7 @@
 
           <!-- Información de Contacto -->
           <div>
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Información de Contacto</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 py-2 px-4">Información de Contacto</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -110,7 +110,7 @@
 
           <!-- Configuración de Pagos -->
           <div>
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Configuración de Pagos</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 py-2 px-4">Configuración de Pagos</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -151,7 +151,7 @@
 
           <!-- Dirección Detallada -->
           <div>
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Dirección</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 py-2 px-4">Dirección</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -202,7 +202,7 @@
             <button
               type="button"
               @click="handleCancel"
-              class="neumorphism-red px-8 py-3 font-medium rounded-lg w-full sm:w-auto transition-all duration-200"
+              class="neumorphism-red px-8 py-3 font-medium rounded-[12px] w-full sm:w-auto transition-all duration-200"
               :disabled="loading"
             >
               <span class="flex items-center justify-center gap-2">
@@ -215,7 +215,7 @@
             
             <button
               type="submit"
-              class="neumorphism-dark px-8 py-3 font-medium rounded-lg w-full sm:w-auto transition-all duration-200"
+              class="neumorphism-dark px-8 py-3 font-medium rounded-[12px] w-full sm:w-auto transition-all duration-200"
               :disabled="loading"
             >
               <span v-if="!loading" class="flex items-center justify-center gap-2">
