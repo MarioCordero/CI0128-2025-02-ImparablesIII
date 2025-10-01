@@ -136,10 +136,21 @@ async function handleLogin() {
         setTimeout(() => {
           router.push('/superadmin')
         }, 1500)
+      } else if (data.userData.tipoUsuario === 'Usuario') {
+        successMessage.value = 'Login exitoso como Usuario'
+      } else if (data.userData.tipoUsuario === 'Empleador') {
+        successMessage.value = 'Login exitoso como Empleador'
+        // Redirect to employer dashboard after 1.5 seconds
+        setTimeout(() => {
+          router.push('/dashboard-main-employer')
+        }, 1500)
       } else {
         // Redirect to home page for other user types
         setTimeout(() => {
           router.push('/')
+          // TODO: Change this to redirect to the employer dashboard
+          // Show success message
+          successMessage.value = 'Login exitoso como Usuario'
         }, 1500)
       }
     } else {
