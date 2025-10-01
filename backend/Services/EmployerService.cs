@@ -13,11 +13,13 @@ namespace backend.Services
     public class EmployerService : IEmployerService
     {
         private readonly IEmployerRepository _employerRepository;
+        private readonly IEmailService _emailService;
         private readonly ILogger<EmployerService> _logger;
 
-        public EmployerService(IEmployerRepository employerRepository, ILogger<EmployerService> logger)
+        public EmployerService(IEmployerRepository employerRepository, IEmailService emailService, ILogger<EmployerService> logger)
         {
             _employerRepository = employerRepository;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -98,6 +100,9 @@ namespace backend.Services
                     return ServiceResult<EmployerResponseDto>.Failure("Failed to retrieve created employer data");
                 }
 
+                // 5. Send welcome email
+                await SendWelcomeEmailAsync(responseDto);
+
                 return ServiceResult<EmployerResponseDto>.Success(responseDto, "Employer registered successfully");
             }
             catch (Exception ex)
@@ -175,6 +180,38 @@ namespace backend.Services
             catch
             {
                 return false;
+            }
+        }
+
+        private async Task SendWelcomeEmailAsync(EmployerResponseDto employer)
+        {
+            try
+            {
+                var fullName = $"{employer.Nombre} {employer.Apellidos}";
+                var emailBody = EmailTemplates.GetWelcomeEmailTemplate(fullName);
+                
+                var emailDto = new SendEmailDto
+                {
+                    ReceiverEmail = employer.Correo,
+                    Subject = "¡Bienvenido a Imparables!",
+                    Body = emailBody,
+                    IsHtml = true
+                };
+
+                var emailResult = await _emailService.SendEmailAsync(emailDto);
+                
+                if (emailResult.Success)
+                {
+                    _logger.LogInformation("Welcome email sent successfully to {Email}", employer.Correo);
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to send welcome email to {Email}: {Message}", employer.Correo, emailResult.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending welcome email to {Email}", employer.Correo);
             }
         }
     }
