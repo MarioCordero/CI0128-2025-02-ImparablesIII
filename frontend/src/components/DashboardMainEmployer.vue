@@ -20,8 +20,7 @@
       </div>
       <!-- Columna 3: Botones alineados a la derecha -->
       <div class="flex justify-end items-center gap-4">
-        <button class="px-4 py-2 bg-[#E9F7FF] rounded-3 shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] hover:bg-blue-100 transition">Configuración</button>
-        <button class="px-4 py-2 bg-[#E9F7FF] rounded-3 shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] hover:bg-blue-100 transition">Cerrar Sesión</button>
+        <button @click="logout" class="px-4 py-2 bg-[#E9F7FF] rounded-3 shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] hover:bg-blue-100 transition">Cerrar Sesión</button>
       </div>
     </header>
     
@@ -36,7 +35,7 @@
 
 
     <!-- Seccion Cartas Medianas -->
-
+          <!-- Seccion Cartas Medianas -->
         <!-- Stats & Notifications -->
         <section class="grid md:grid-cols-2 gap-6 mb-6">
             <!-- Rentabilidad -->
@@ -49,108 +48,25 @@
                         <p class="text-gray-700 text-[16px] m-0">Observa las ganancias de tus proyectos.</p>
                     </div>
                     
-                    
-                    <div>
-                        <!-- Resumen card -->
-                        <div class="w-[696px] h-[54px] flex items-center justify-between p-0 mb-[14px]">
-                            <div class="flex flex-col">
-                                <p class="font-bold text-[20px] m-0 whitespace-nowrap">Rentabilidad Total</p>
-                                <p class="text-gray-700 text-[16px] m-0">3 empresas</p>
-                            </div>
-                            <div class="flex flex-col items-end">
-                                <span class="bg-green-500 text-white rounded px-3 py-1 font-bold text-base block w-fit shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
-                                    17.3%
-                                </span>
-                                <span class="text-green-600 text-xs block">
-                                    +2.6% vs mes ant.
-                                </span>
-                            </div>
+                    <!-- Placeholder para feature futuro -->
+                    <div class="w-[696px] h-[334px] flex flex-col items-center justify-center space-y-4 border-2 border-dashed border-gray-300 rounded-lg">
+                        <div class="text-center">
+                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+                                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-600 mb-2">Análisis de Rentabilidad</h3>
+                            <p class="text-gray-500 text-sm max-w-xs mx-auto">
+                                Esta funcionalidad estará disponible próximamente. 
+                                Podrás visualizar gráficos detallados y análisis comparativo de rentabilidad.
+                            </p>
                         </div>
-
-                        <ul class="space-y-4">
-                            <!-- Jack's Store -->
-                            <li class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-[52px] h-[52px] flex items-center justify-center bg-[#E9F7FF] rounded-[10px] font-bold text-lg shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff]">
-                                        1
-                                    </div>
-                                    <div>
-                                        <span class="font-bold">Jack's Store</span>
-                                        <div class="text-gray-600 text-sm">2 empleados</div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-end">
-                                    <span class="bg-green-500 text-white rounded px-3 py-1 font-bold text-base shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
-                                        24%
-                                    </span>
-                                    <span class="text-green-600 text-xs mt-1">
-                                        +15% vs mes ant.
-                                    </span>
-                                </div>
-                            </li>
-                            <!-- Patitos -->
-                            <li class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-[52px] h-[52px] flex items-center justify-center bg-[#E9F7FF] rounded-[10px] font-bold text-lg shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff]">
-                                        2
-                                    </div>
-                                    <div>
-                                        <span class="font-bold">
-                                            Patitos
-                                        </span>
-                                        <div class="text-gray-600 text-sm">
-                                            369 empleados
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-end">
-                                    <span class="bg-gray-400 text-white rounded px-3 py-1 font-bold text-base shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
-                                        16%
-                                    </span>
-                                    <span class="text-gray-600 text-xs mt-1">
-                                        +0% vs mes ant.
-                                    </span>
-                                </div>
-                            </li>
-                            <!-- Imparables III -->
-                            <li class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-[52px] h-[52px] flex items-center justify-center bg-[#E9F7FF] rounded-[10px] font-bold text-lg shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff]">
-                                        3
-                                    </div>
-                                    <div>
-                                        <span class="font-bold">
-                                            Imparables III
-                                        </span>
-                                        <div class="text-gray-600 text-sm">
-                                            4 empleados
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-end">
-                                    <span class="bg-red-500 text-white rounded px-3 py-1 font-bold text-base shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
-                                        12%
-                                    </span>
-                                    <span class="text-red-600 text-xs mt-1">
-                                        -7% vs mes ant.
-                                    </span>
-                                </div>
-                            </li>
-                        </ul>
+                        <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                            🚧 Próximamente
+                        </div>
                     </div>
-
-                    
-                    <div class="flex justify-end mt-6">
-                        <button class="flex items-center gap-2 bg-[#E9F7FF] shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] px-4 py-2 rounded-3 text-gray-700 hover:bg-blue-100 transition">
-                            Ver Analisis
-                        </button>
-                    </div>
-                    
                 </div>
             </div>
 
-
-            
             <!-- Notificaciones -->
             <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] space-y-[26px] rounded-[14px] p-[30px] w-[756px] h-[470px]">
             
@@ -160,33 +76,31 @@
                     <p class="text-gray-700 text-[16px] m-0">Notificaciones recientes o no atendidas</p>
                 </div>
             
-            <!-- Lista de Notificaciones -->
-                <div class="w-[696px] h-auto p-0">
-                    <ul class="space-y-4 w-[696px] m-0 pl-0 list-none">
-                        <li class="flex justify-between items-center bg-yellow-100 rounded-[14px] shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] px-4 w-auto h-[67px]">
-                            <span>Horas Pendientes</span>
-                            <span class="bg-yellow-500 text-white rounded-full px-2">5</span>
-                        </li>
-                        <li class="flex justify-between items-center bg-blue-100 rounded-[14px] shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] px-4 w-auto h-[67px]">
-                            <span>Beneficios por Aprobar</span>
-                            <span class="bg-blue-500 text-white rounded-full px-2">3</span>
-                        </li>
-                        <li class="flex justify-between items-center bg-red-100 rounded-[14px] shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] px-4 w-auto h-[67px]">
-                            <span>Contrato por vencer</span>
-                            <span class="bg-red-500 text-white rounded-full px-2">1</span>
-                        </li>
-                    </ul>
+                <!-- Placeholder para feature futuro -->
+                <div class="w-[696px] h-[334px] flex flex-col items-center justify-center space-y-4 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div class="text-center">
+                        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+                            <path d="M15 17h5l-5 5v-5zM8.5 14.5A2.5 2.5 0 0011 17h-3a2.5 2.5 0 01-2.5-2.5zM15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                        </svg>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">Centro de Notificaciones</h3>
+                        <p class="text-gray-500 text-sm max-w-xs mx-auto">
+                            Sistema de notificaciones en tiempo real para alertas importantes, 
+                            recordatorios y actualizaciones del sistema.
+                        </p>
+                    </div>
+                    <div class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">
+                        ⏳ En desarrollo
+                    </div>
                 </div>
             </div>
-
-
         </section>
 
     <!-- Seccion Mis Empresas -->
       <section>
         <div class="flex justify-between items-center mb-0 bg-[#E9F7FF]">
             <h2 class="text-xl font-bold">Mis Empresas</h2>
-            <button class="flex items-center gap-2 bg-[#E9F7FF] shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] px-4 py-2 rounded-3 text-gray-700 hover:bg-blue-100 transition">
+            <button @click="navigateToCreateProject" class="flex items-center gap-2 bg-[#E9F7FF] shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] px-4 py-2 rounded-3 text-gray-700 hover:bg-blue-100 transition">
                 Agregar Empresa
             </button>
         </div>
@@ -439,4 +353,52 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const user = ref(null)
+
+onMounted(() => {
+  checkAuthentication()
+})
+
+const checkAuthentication = () => {
+  const userData = localStorage.getItem('user')
+  const token = localStorage.getItem('token')
+
+  console.log('User data:', userData)
+  console.log('Token:', token)
+  
+  if (!userData || !token) {
+    router.push('/login')
+    return false
+  }
+  
+  try {
+    user.value = JSON.parse(userData)
+    
+    // Verificar rol de usuario si es necesario
+    if (user.value.tipoUsuario === 'Administrador') {
+      // Lógica adicional para administradores si es necesaria
+    }
+    
+    return true
+  } catch (error) {
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+    router.push('/login')
+    return false
+  }
+}
+
+const navigateToCreateProject = () => {
+  router.push('/create-project')
+}
+
+const logout = () => {
+  localStorage.removeItem('user')
+  localStorage.removeItem('token')
+  router.push('/login')
+}
 </script>
