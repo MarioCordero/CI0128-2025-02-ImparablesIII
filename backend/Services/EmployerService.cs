@@ -1,7 +1,6 @@
 using backend.Models;
-using backend_lab.Controllers;
-using backend_lab.Data;
-using backend_lab.Models;
+using backend.Controllers;
+using backend.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
