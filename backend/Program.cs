@@ -1,6 +1,7 @@
 using backend.Services;
 using backend.Repositories;
 using backend.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.Data.SqlClient;
 
@@ -11,6 +12,8 @@ builder.Configuration.AddJsonFile("emailconfig.json", optional: false, reloadOnC
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger with Bearer Token Authentication
@@ -61,10 +64,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Register repositories
+// Register common repositories
+builder.Services.AddScoped<IDireccionRepository, DireccionRepository>();
+builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+// Register specific repositories
 builder.Services.AddScoped<EmployeeRepository>();
 builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
 
 // Configure email settings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
@@ -82,6 +90,9 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 
 // Register login service
 builder.Services.AddScoped<ILoginService, LoginService>();
+
+// Register the EmployerService (from your feature branch)
+builder.Services.AddScoped<backend.Services.IEmployerService, backend.Services.EmployerService>();
 
 var app = builder.Build();
 

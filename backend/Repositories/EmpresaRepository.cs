@@ -10,7 +10,7 @@ namespace backend.Repositories
 
     public EmpresaRepository(IConfiguration configuration)
     {
-      _connectionString = configuration.GetConnectionString("CountryContext") 
+      _connectionString = configuration.GetConnectionString("DefaultConnection") 
           ?? throw new ArgumentNullException(nameof(configuration));
     }
 
