@@ -18,26 +18,29 @@ namespace backend.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Note: Navigation properties commented out temporarily for testing
+            // TODO: Add navigation properties to models or remove these configurations
+            
             // Configure the relationship between Persona and Empleado
-            modelBuilder.Entity<Empleado>()
-                .HasOne(e => e.Persona)
-                .WithOne(p => p.Empleado)
-                .HasForeignKey<Empleado>(e => e.idPersona)
-                .OnDelete(DeleteBehavior.Cascade);
+            // modelBuilder.Entity<Empleado>()
+            //     .HasOne(e => e.Persona)
+            //     .WithOne(p => p.Empleado)
+            //     .HasForeignKey<Empleado>(e => e.idPersona)
+            //     .OnDelete(DeleteBehavior.Cascade);
 
             // Configure the relationship between Persona and Direccion
-            modelBuilder.Entity<Persona>()
-                .HasOne(p => p.Direccion)
-                .WithMany(d => d.Personas)
-                .HasForeignKey(p => p.idDireccion)
-                .OnDelete(DeleteBehavior.SetNull);
+            // modelBuilder.Entity<Persona>()
+            //     .HasOne(p => p.Direccion)
+            //     .WithMany(d => d.Personas)
+            //     .HasForeignKey(p => p.idDireccion)
+            //     .OnDelete(DeleteBehavior.SetNull);
 
             // Configure the relationship between Empleado and Empresa
-            modelBuilder.Entity<Empleado>()
-                .HasOne(e => e.Empresa)
-                .WithMany(emp => emp.Empleados)
-                .HasForeignKey(e => e.idEmpresa)
-                .OnDelete(DeleteBehavior.SetNull);
+            // modelBuilder.Entity<Empleado>()
+            //     .HasOne(e => e.Empresa)
+            //     .WithMany(emp => emp.Empleados)
+            //     .HasForeignKey(e => e.idEmpresa)
+            //     .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

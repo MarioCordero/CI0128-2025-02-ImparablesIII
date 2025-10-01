@@ -61,7 +61,7 @@ namespace backend.Services
                     Cedula = employerDto.Cedula,
                     Rol = "Empleado",
                     Telefono = int.TryParse(employerDto.Telefono, out var phone) ? phone : null,
-                    idDireccion = null
+                    IdDireccion = null
                 };
 
                 _context.Personas.Add(persona);
@@ -74,7 +74,7 @@ namespace backend.Services
                     Id = persona.Id,
                     Username = employerDto.Email, // Use email as username
                     Email = persona.Correo,
-                    Nombre = persona.NombreCompleto,
+                    Nombre = $"{persona.Nombre} {persona.Apellidos}",
                     CreatedAt = DateTime.UtcNow
                 };
 
