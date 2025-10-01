@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace backend_lab.Models
+namespace backend.Models
 {
     [Table("Persona", Schema = "PlaniFy")]
     public class Persona
