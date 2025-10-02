@@ -7,10 +7,12 @@ namespace backend.Services
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _projectRepository;
+        private readonly IDireccionRepository _direccionRepository;
 
-        public ProjectService(IProjectRepository projectRepository)
+        public ProjectService(IProjectRepository projectRepository, IDireccionRepository direccionRepository)
         {
             _projectRepository = projectRepository;
+            _direccionRepository = direccionRepository;
         }
 
         public async Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto)
@@ -31,13 +33,18 @@ namespace backend.Services
                 throw new ArgumentException("Ya existe una empresa con esta cédula jurídica");
             }
 
-            // Create address first
-            int direccionId = await _projectRepository.CreateDireccionAsync(
+            // Create address using DireccionRepository
+            int direccionId = await _direccionRepository.CreateDireccionAsync(
                 createProjectDto.Provincia,
                 createProjectDto.Canton,
                 createProjectDto.Distrito,
                 createProjectDto.DireccionParticular
             );
+
+            if (direccionId <= 0)
+            {
+                throw new Exception("Error al crear la dirección");
+            }
 
             // Create project entity
             var project = new Project
@@ -53,7 +60,7 @@ namespace backend.Services
             };
 
             var createdProject = await _projectRepository.CreateAsync(project);
-            var direccion = await _projectRepository.GetDireccionByIdAsync(direccionId);
+            var direccion = await _direccionRepository.GetDireccionByIdAsync(direccionId);
 
             return new ProjectResponseDto
             {

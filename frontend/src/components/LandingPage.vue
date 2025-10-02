@@ -45,7 +45,8 @@
               Iniciar sesión
             </button>
 
-            <button class="neumorphism-light font-semibold px-8 py-3">
+            <button class="neumorphism-light font-semibold px-8 py-3"
+              @click="goToRegister">
               Crear cuenta
             </button>
           </div>
@@ -73,5 +74,9 @@ const router = useRouter()
 
 function goToLogin() {
   router.push('/login')
+}
+
+function goToRegister() {
+  router.push('/signup-employer')
 }
 </script>
