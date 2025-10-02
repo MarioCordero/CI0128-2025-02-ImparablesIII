@@ -12,8 +12,6 @@ builder.Configuration.AddJsonFile("emailconfig.json", optional: false, reloadOnC
 
 // Add services to the container.
 builder.Services.AddControllers();
-
-
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger with Bearer Token Authentication
@@ -21,9 +19,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Asociación Solidarista API",
+        Title = "PlaniFy API",
         Version = "v1",
-        Description = "API for calculating solidarist association contributions"
+        Description = "API for payroll management system"
     });
 
     // Configure Bearer Authentication for Swagger
@@ -64,48 +62,67 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Register common repositories
+// ===================================
+// REPOSITORIES REGISTRATION
+// ===================================
+
+// Core repositories (base entities)
 builder.Services.AddScoped<IDireccionRepository, DireccionRepository>();
 builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
-// Register specific repositories
-builder.Services.AddScoped<EmployeeRepository>();
-builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
-builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
-
-// Configure email settings
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
-// Register services
-builder.Services.AddScoped<IEmailService, EmailService>(); // Email service
-builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>(); // Password setup service
-builder.Services.AddMemoryCache(); // Memory cache for password tokens
-builder.Services.AddHttpClient<AsociacionSolidaristaApiService>(); // Adding the AsociacionSolidaristaApiService to the builder
-builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>(); // Business operations repository
-
-// Register project services and repositories
+// Business repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
+builder.Services.AddScoped<EmployeeRepository>(); // Assuming this doesn't have interface yet
+builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
+
+// ===================================
+// SERVICES REGISTRATION
+// ===================================
+
+// Core services
 builder.Services.AddScoped<IProjectService, ProjectService>();
-
-// Register login service
+builder.Services.AddScoped<IDashboardMainEmployerService, DashboardMainEmployerService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
-
-// Register the EmployerService (from your feature branch)
 builder.Services.AddScoped<backend.Services.IEmployerService, backend.Services.EmployerService>();
+
+// Authentication & Security services
+builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
+
+// Email services
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// External API services
+builder.Services.AddHttpClient<AsociacionSolidaristaApiService>();
+
+// Infrastructure services
+builder.Services.AddMemoryCache(); // Memory cache for password tokens
 
 var app = builder.Build();
 
+// ===================================
+// MIDDLEWARE CONFIGURATION
+// ===================================
+
 // Configure the HTTP request pipeline
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Asociación Solidarista API v1");
-    c.RoutePrefix = string.Empty;
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlaniFy API v1");
+        c.RoutePrefix = string.Empty; // Swagger at root
+    });
+}
 
 app.UseHttpsRedirection();
 app.UseCors("AllowVueFrontend");
+
+app.UseAuthentication(); // Add if you implement JWT authentication
+app.UseAuthorization();  // Add if you implement authorization
+
 app.MapControllers();
 
 app.Run();

@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#dbeafe]">
-    <div class="bg-[#eaf4fa] rounded-[40px] shadow-2xl p-10 w-full max-w-4xl flex flex-col items-center">
-      <h1 class="text-5xl font-black mb-8 mt-2 text-black tracking-wide text-center">
+  <div class="min-h-screen flex items-center justify-center bg-[#E9F7FF]">
+    <div class="bg-[#eaf4fa] rounded-[40px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] p-10 w-full max-w-4xl flex flex-col items-center">
+      <h1 class="text-5xl font-black mb-8 mt-2 text-black tracking-wide text-center py-2 px-4">
         Registro de Empleador
       </h1>
 
@@ -15,14 +15,13 @@
               v-model="form.nombre"
               required
               :class="[
-                'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                 errors.nombre ? 'ring-2 ring-red-500' : ''
               ]"
               placeholder="Ingresa tu nombre"
             />
             <span v-if="errors.nombre" class="text-red-500 text-sm mt-1">{{ errors.nombre }}</span>
           </div>
-
           <!-- Primer Apellido -->
           <div>
             <label class="block mb-1 font-medium text-gray-700">Primer Apellido*</label>
@@ -30,25 +29,23 @@
               v-model="form.primerApellido"
               required
               :class="[
-                'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                 errors.primerApellido ? 'ring-2 ring-red-500' : ''
               ]"
               placeholder="Ingresa tu primer apellido"
             />
             <span v-if="errors.primerApellido" class="text-red-500 text-sm mt-1">{{ errors.primerApellido }}</span>
           </div>
-
           <!-- Segundo Apellido -->
           <div>
             <label class="block mb-1 font-medium text-gray-700">Segundo Apellido (opcional)</label>
             <input
               v-model="form.segundoApellido"
-              class="w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
+              class="w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all"
               placeholder="Ingresa tu segundo apellido"
             />
             <span v-if="errors.segundoApellido" class="text-red-500 text-sm mt-1">{{ errors.segundoApellido }}</span>
           </div>
-
           <!-- Cédula -->
           <div>
             <label class="block mb-1 font-medium text-gray-700">Cédula*</label>
@@ -57,14 +54,13 @@
               required
               @input="formatCedula"
               :class="[
-                'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                 errors.cedula ? 'ring-2 ring-red-500' : ''
               ]"
               placeholder="Cédula (#-####-####)"
             />
             <span v-if="errors.cedula" class="text-red-500 text-sm mt-1">{{ errors.cedula }}</span>
           </div>
-
           <!-- Correo -->
           <div>
             <label class="block mb-1 font-medium text-gray-700">Correo electrónico*</label>
@@ -73,14 +69,13 @@
               type="email"
               required
               :class="[
-                'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                 errors.email ? 'ring-2 ring-red-500' : ''
               ]"
               placeholder="ejemplo@email.com"
             />
             <span v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</span>
           </div>
-
           <!-- Teléfono -->
           <div>
             <label class="block mb-1 font-medium text-gray-700">Número de teléfono*</label>
@@ -90,14 +85,13 @@
               required
               @input="formatTelefono"
               :class="[
-                'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                 errors.telefono ? 'ring-2 ring-red-500' : ''
               ]"
               placeholder="#### ####"
             />
             <span v-if="errors.telefono" class="text-red-500 text-sm mt-1">{{ errors.telefono }}</span>
           </div>
-
           <!-- Fecha de nacimiento -->
           <div>
             <label class="block mb-1 font-medium text-gray-700">Fecha de nacimiento*</label>
@@ -106,7 +100,7 @@
               v-model="form.fechaNacimiento"
               required
               :class="[
-                'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                 errors.fechaNacimiento ? 'ring-2 ring-red-500' : ''
               ]"
             />
@@ -116,7 +110,7 @@
 
         <!-- Address Information Section -->
         <div class="mt-8">
-          <h3 class="text-xl font-semibold text-gray-700 mb-4">Información de Dirección</h3>
+          <h3 class="text-xl font-semibold text-gray-700 mb-4 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] rounded-[12px] bg-[#E9F7FF] py-2 px-4">Información de Dirección</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Provincia -->
             <div class="relative">
@@ -125,7 +119,7 @@
                 v-model="form.provincia"
                 required
                 :class="[
-                  'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer',
+                  'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all appearance-none cursor-pointer',
                   errors.provincia ? 'ring-2 ring-red-500' : ''
                 ]"
               >
@@ -141,7 +135,6 @@
               </div>
               <span v-if="errors.provincia" class="text-red-500 text-sm mt-1">{{ errors.provincia }}</span>
             </div>
-
             <!-- Cantón -->
             <div>
               <label class="block mb-1 font-medium text-gray-700">Cantón*</label>
@@ -149,14 +142,13 @@
                 v-model="form.canton"
                 required
                 :class="[
-                  'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                  'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                   errors.canton ? 'ring-2 ring-red-500' : ''
                 ]"
                 placeholder="Cantón"
               />
               <span v-if="errors.canton" class="text-red-500 text-sm mt-1">{{ errors.canton }}</span>
             </div>
-
             <!-- Distrito -->
             <div>
               <label class="block mb-1 font-medium text-gray-700">Distrito*</label>
@@ -164,14 +156,13 @@
                 v-model="form.distrito"
                 required
                 :class="[
-                  'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                  'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                   errors.distrito ? 'ring-2 ring-red-500' : ''
                 ]"
                 placeholder="Distrito"
               />
               <span v-if="errors.distrito" class="text-red-500 text-sm mt-1">{{ errors.distrito }}</span>
             </div>
-
             <!-- Dirección Particular -->
             <div>
               <label class="block mb-1 font-medium text-gray-700">Dirección Particular*</label>
@@ -179,7 +170,7 @@
                 v-model="form.direccionParticular"
                 required
                 :class="[
-                  'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                  'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                   errors.direccionParticular ? 'ring-2 ring-red-500' : ''
                 ]"
                 placeholder="Dirección Particular"
@@ -191,7 +182,7 @@
 
         <!-- Password Section -->
         <div class="mt-8">
-          <h3 class="text-xl font-semibold text-gray-700 mb-4">Información de Acceso</h3>
+          <h3 class="text-xl font-semibold text-gray-700 mb-4 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] rounded-[12px] bg-[#E9F7FF] py-2 px-4">Información de Acceso</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Password -->
             <div>
@@ -202,7 +193,7 @@
                   v-model="form.password"
                   required
                   :class="[
-                    'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all pr-12',
+                    'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all pr-12',
                     errors.password ? 'ring-2 ring-red-500' : ''
                   ]"
                   placeholder="********"
@@ -221,7 +212,6 @@
                 <li>Máximo 16 caracteres</li>
               </ul>
             </div>
-
             <!-- Confirm Password -->
             <div>
               <label class="block mb-1 font-medium text-gray-700">Confirmar Contraseña*</label>
@@ -230,7 +220,7 @@
                 v-model="form.confirmPassword"
                 required
                 :class="[
-                  'w-full bg-white rounded-2xl px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
+                  'w-full bg-[#E9F7FF] rounded-[16px] px-6 py-4 text-gray-700 placeholder-gray-400 border-0 shadow-inner focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:shadow-lg transition-all',
                   errors.confirmPassword ? 'ring-2 ring-red-500' : ''
                 ]"
                 placeholder="Repite tu contraseña"
@@ -244,7 +234,7 @@
         <div class="flex justify-center mt-8">
           <button
             type="submit"
-            class="bg-[#87ceeb] text-white text-xl font-medium rounded-2xl py-4 px-12 shadow-lg hover:shadow-xl transition-all"
+            class="custom-button text-xl text-gray-700"
           >
             Registrarse
           </button>
@@ -253,12 +243,12 @@
 
       <!-- Verificación de correo -->
       <div v-if="showVerification" class="mt-10 text-center md:col-span-2">
-        <h3 class="text-xl font-semibold mb-2">Verifica tu correo electrónico</h3>
+        <h3 class="text-xl font-semibold mb-2 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] rounded-[12px] bg-[#E9F7FF] py-2 px-4">Verifica tu correo electrónico</h3>
         <p class="text-gray-700 mb-4">Ingresa el código de 6 dígitos enviado a tu correo:</p>
         <input
           v-model="verificationCode"
           maxlength="6"
-          class="bg-white rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 text-center tracking-widest"
+          class="bg-[#E9F7FF] rounded-full shadow-inner px-4 py-2 outline-none text-gray-700 text-center tracking-widest"
         />
         <button
           @click="verifyCode"
