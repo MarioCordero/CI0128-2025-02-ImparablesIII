@@ -1,7 +1,37 @@
 -- ===================================
+-- SCRIPT PARA ELIMINAR LA BASE DE DATOS PLANIFY (IGNORAR)
+-- ===================================
+
+-- Cerrar todas las conexiones activas a la base de datos (si existe)
+IF EXISTS (SELECT name FROM sys.databases WHERE name = 'PlaniFy')
+BEGIN
+    ALTER DATABASE PlaniFy SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE PlaniFy;
+    PRINT 'Base de datos PlaniFy eliminada correctamente.';
+END
+ELSE
+BEGIN
+    PRINT 'La base de datos PlaniFy no existe.';
+END
+GO
+
+-- Verificar que la base de datos fue eliminada
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'PlaniFy')
+BEGIN
+    PRINT 'Confirmado: La base de datos PlaniFy ha sido eliminada.';
+END
+ELSE
+BEGIN
+    PRINT 'Error: La base de datos PlaniFy aún existe.';
+END
+GO
+
+
+-- ===================================
 -- SCRIPT DE BASE DE DATOS PLANIFY
 -- ===================================
 
+-------------------------- PARA USAR EL AZURE DEL PROFE
 -- Crear esquema si no existe
 IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'PlaniFy')
 BEGIN
@@ -9,8 +39,37 @@ BEGIN
 END;
 GO
 
+-------------------------- PARA USAR SQL SERVER LOCAL
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'PlaniFy')
+BEGIN
+    CREATE DATABASE PlaniFy;
+    PRINT 'Base de datos PlaniFy creada correctamente.';
+END
+ELSE
+BEGIN
+    PRINT 'La base de datos PlaniFy ya existe.';
+END
+GO
+
+-- Cambiar a la base de datos PlaniFy
+USE PlaniFy;
+GO
+
+-- Ahora crear el esquema dentro de la base de datos PlaniFy para mas orden
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'PlaniFy')
+BEGIN
+    EXEC('CREATE SCHEMA PlaniFy');
+    PRINT 'Esquema PlaniFy creado correctamente.';
+END
+ELSE
+BEGIN
+    PRINT 'El esquema PlaniFy ya existe.';
+END
+GO
+
+-------------------------- CREACIÓN DE TABLAS
 -- ===================================
--- TABLA Dirección
+-- (1) TABLA Dirección
 -- ===================================
 CREATE TABLE PlaniFy.Direccion (
     id INT IDENTITY PRIMARY KEY NOT NULL,
@@ -32,7 +91,7 @@ CREATE TABLE PlaniFy.Direccion (
 );
 
 -- ===================================
--- TABLA Persona
+-- (2) TABLA Persona
 -- ===================================
 CREATE TABLE PlaniFy.Persona (
     Id INT IDENTITY PRIMARY KEY NOT NULL,
@@ -42,7 +101,7 @@ CREATE TABLE PlaniFy.Persona (
     Apellidos NVARCHAR(20) NOT NULL,
     FechaNacimiento DATE NOT NULL,
     Cedula CHAR(9) NOT NULL,
-    Rol NVARCHAR(20),
+    Rol NVARCHAR(20) NOT NULL,
     Telefono INT,
     idDireccion INT,
     FOREIGN KEY (idDireccion) REFERENCES PlaniFy.Direccion(id),
@@ -50,14 +109,14 @@ CREATE TABLE PlaniFy.Persona (
 );
 
 -- ===================================
--- TABLA Usuario
+-- (3) TABLA Usuario
 -- ===================================
 CREATE TABLE PlaniFy.Usuario (
     idPersona INT PRIMARY KEY NOT NULL,
     TipoUsuario NVARCHAR(20) NOT NULL,
     Contrasena NVARCHAR(16) NOT NULL,
     FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) 
-        ON DELETE CASCADE,
+        ON DELETE CASCADE, -- Si se borra la persona, se borra el usuario
     CONSTRAINT CK_Tipo_Usuario CHECK (
         TipoUsuario IN (
             N'Administrador',
@@ -69,7 +128,7 @@ CREATE TABLE PlaniFy.Usuario (
 );
 
 -- ===================================
--- TABLA Empresa
+-- (4) TABLA Empresa
 -- ===================================
 CREATE TABLE PlaniFy.Empresa (
     Id INT IDENTITY PRIMARY KEY NOT NULL,
@@ -89,7 +148,7 @@ CREATE TABLE PlaniFy.Empresa (
 );
 
 -- ===================================
--- TABLA Empleado
+-- (5) TABLA Empleado
 -- ===================================
 CREATE TABLE PlaniFy.Empleado (
     idPersona INT PRIMARY KEY NOT NULL,
@@ -101,9 +160,9 @@ CREATE TABLE PlaniFy.Empleado (
     Salario INT NOT NULL,
     iban NVARCHAR(30) NOT NULL,
     Contrasena NVARCHAR(16),
-    idEmpresa INT,
-    FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) ON DELETE CASCADE,
-    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE,
+    idEmpresa INT NOT NULL,
+    FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) ON DELETE CASCADE, -- Si se borra la persona, se borra el empleado
+    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE, -- Si se borra la empresa, se borran los empleados
     CONSTRAINT CK_Tipo_Contrato CHECK (
         TipoContrato IN (
             N'Tiempo Completo',
@@ -120,18 +179,19 @@ CREATE TABLE PlaniFy.Empleado (
 );
 
 -- ===================================
--- TABLA EmpleadoEmpresa
+-- (6) TABLA EmpleadoEmpresa
 -- ===================================
 CREATE TABLE PlaniFy.EmpleadoEmpresa (
     idEmpleado INT NOT NULL,
     idEmpresa INT NOT NULL,
     PRIMARY KEY (idEmpleado, idEmpresa),
-    FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona) ON DELETE CASCADE,
-    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE
+    FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona) ON DELETE CASCADE, -- Si se borra el empleado, se borra la relacion
+    -- VIEJO: FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE -- Si se borra la empresa, se borran las relaciones
+    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE NO ACTION -- Cambiar a NO ACTION para evitar ciclo de los ON CASCADE
 );
 
 -- ===================================
--- TABLA Planilla
+-- (7) TABLA Planilla
 -- ===================================
 CREATE TABLE PlaniFy.Planilla (
     id INT IDENTITY PRIMARY KEY,
@@ -144,7 +204,7 @@ CREATE TABLE PlaniFy.Planilla (
 );
 
 -- ===================================
--- TABLA Beneficio
+-- (8) TABLA Beneficio
 -- ===================================
 CREATE TABLE PlaniFy.Beneficio (
     idEmpresa INT NOT NULL,
@@ -157,7 +217,7 @@ CREATE TABLE PlaniFy.Beneficio (
 );
 
 -- ===================================
--- TABLA BeneficioEmpleado
+-- (9) TABLA BeneficioEmpleado
 -- ===================================
 CREATE TABLE PlaniFy.BeneficioEmpleado (
     idEmpleado INT NOT NULL,
@@ -172,35 +232,25 @@ CREATE TABLE PlaniFy.BeneficioEmpleado (
 );
 
 -- ===================================
--- TABLA Deducciones
--- ===================================
-CREATE TABLE PlaniFy.Deducciones (
-    idPlanilla INT,
-    Nombre NVARCHAR(20),
-    Valor INT,
-    idEmpresa INT,
-    Beneficio NVARCHAR(20),
-    PRIMARY KEY (idPlanilla, Nombre),
-    FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id),
-    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id)
-);
-
--- ===================================
--- TABLA HorasTrabajadas
+-- (10) TABLA HorasTrabajadas
 -- ===================================
 CREATE TABLE PlaniFy.HorasTrabajadas (
-    id INT IDENTITY PRIMARY KEY NOT NULL,
+    -- id INT IDENTITY PRIMARY KEY NOT NULL,
+    id INT IDENTITY NOT NULL,
     idEmpleado INT NOT NULL,
     Cantidad INT NOT NULL,
     Detalle NVARCHAR(150) NOT NULL,
     Estado BIT DEFAULT 0,
     idAprobador INT NOT NULL,
     FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona),
-    FOREIGN KEY (idAprobador) REFERENCES PlaniFy.Empleado(idPersona)
+    -- FOREIGN KEY (idAprobador) REFERENCES PlaniFy.Empleado(idPersona) -- SEGUN EL MODELO RELACIONAL EL ID VIENE REFERENCIADO DE PERSONA, NO DE EMPLEADO
+    -- CAMBIOS
+    PRIMARY KEY (id, idEmpleado),
+    FOREIGN KEY (idAprobador) REFERENCES PlaniFy.Persona(Id)
 );
 
 -- ===================================
--- TABLA DetallePlanilla
+-- (11) TABLA DetallePlanilla
 -- ===================================
 CREATE TABLE PlaniFy.DetallePlanilla (
     idEmpleado INT,
@@ -210,6 +260,23 @@ CREATE TABLE PlaniFy.DetallePlanilla (
     PRIMARY KEY (idEmpleado, idPlanilla),
     FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona),
     FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id)
+);
+
+-- ===================================
+-- (12) TABLA Deducciones
+-- ===================================
+CREATE TABLE PlaniFy.Deducciones (
+    idPlanilla INT,
+    Nombre NVARCHAR(20),
+    Valor INT,
+    idEmpresa INT,
+    Beneficio NVARCHAR(20),
+    PRIMARY KEY (idPlanilla, Nombre),
+    FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id),
+    -- FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) -- SEGUN EL MODELO RELACIONAL EL ID VIENE REFERENCIADO DE BENEFICIO, NO DE EMPRESA
+    -- NUEVO
+    FOREIGN KEY (idEmpresa, Beneficio) REFERENCES PlaniFy.Beneficio(idEmpresa, Nombre)
+        ON DELETE SET NULL
 );
 
 -- ===================================
