@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using backend.Models;
-using backend.Services.Interfaces;
+using ExternalAPI.Models;
+using ExternalAPI.Services.Interfaces;
 
-namespace backend.Controllers
+namespace ExternalAPI.Controllers
 {
     [ApiController]
     [Route("api/asociacionsolidarista")]
