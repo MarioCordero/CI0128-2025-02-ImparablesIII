@@ -10,3 +10,7 @@ backend/server.log
 # System-specific installation files
 dotnet-install.sh
 packages-microsoft-prod.deb
+
+# EXTERNAL API
+ExternalAPI/bin/
+ExternalAPI/obj/

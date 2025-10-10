@@ -1,4 +1,4 @@
-namespace backend.Models
+namespace ExternalAPI.Models
 {
     public class AporteSolidarista
     {
