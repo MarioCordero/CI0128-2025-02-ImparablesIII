@@ -1,5 +1,5 @@
 <template>
-  <header class="w-full bg-[#e9f7ff] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] px-12 py-0">
+  <header class="fixed top-0 left-0 w-full z-50 bg-[#e9f7ff] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] px-12 py-0 neumorphism-card">
     <div class="max-w-[1920px] mx-auto flex items-center justify-between h-[95px] gap-[120px]">
       <!-- Logo & Title -->
       <div class="flex items-center w-full">
@@ -51,9 +51,21 @@ function goToLogin() {
 }
 
 function scrollToSection(sectionId) {
-  const el = document.getElementById(sectionId)
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' })
+  if (router.currentRoute.value.path !== '/') {
+    router.push('/').then(() => {
+      // Wait for DOM update
+      setTimeout(() => {
+        const el = document.getElementById(sectionId)
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 300)
+    })
+  } else {
+    const el = document.getElementById(sectionId)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 }
 </script>

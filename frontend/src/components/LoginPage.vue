@@ -1,5 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#E9F7FF] font-montserrat">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-[#E9F7FF] font-montserrat">
+    <HeaderLandingPage />
     <div class="neumorphism-card bg-[#E9F7FF] p-20 w-1/3 flex flex-col">
        <!-- Logo -->
       <p class="text-[90px] font-bold text-center mb-4 text-black">PlaniFy</p>
@@ -73,6 +74,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import HeaderLandingPage from './common/HeaderLandingPage.vue'
 
 
 const router = useRouter()
