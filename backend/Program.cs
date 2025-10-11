@@ -1,5 +1,5 @@
 using backend.Services;
-using backend.Services.Interfaces;
+// using backend.Services.Interfaces;
 using backend.Repositories;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -94,11 +94,6 @@ builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
 // Email services
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
-
-// SOLID Registered Services (API)
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IAporteSolidaristaCalculatorService, AporteSolidaristaCalculatorService>();
-builder.Services.AddHttpClient<IAsociacionSolidaristaApiService, AsociacionSolidaristaApiService>();
 
 // Infrastructure services
 builder.Services.AddMemoryCache(); // Memory cache for password tokens
