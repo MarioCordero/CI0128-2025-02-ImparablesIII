@@ -1,6 +1,6 @@
-using backend.Models;
+using ExternalAPI.Models;
 
-namespace backend.Services.Interfaces
+namespace ExternalAPI.Services.Interfaces
 {
     public interface IAporteSolidaristaCalculatorService
     {

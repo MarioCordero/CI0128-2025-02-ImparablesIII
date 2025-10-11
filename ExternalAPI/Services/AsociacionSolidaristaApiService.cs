@@ -1,8 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using backend.Services.Interfaces;
+using ExternalAPI.Services.Interfaces;
 
-namespace backend.Services
+namespace ExternalAPI.Services
 {
     public class AsociacionSolidaristaApiService : IAsociacionSolidaristaApiService
     {

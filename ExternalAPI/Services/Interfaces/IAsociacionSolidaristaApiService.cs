@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace backend.Services.Interfaces
+namespace ExternalAPI.Services.Interfaces
 {
     public interface IAsociacionSolidaristaApiService
     {

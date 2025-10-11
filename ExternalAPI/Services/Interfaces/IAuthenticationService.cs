@@ -1,4 +1,4 @@
-namespace backend.Services.Interfaces
+namespace ExternalAPI.Services.Interfaces
 {
     public interface IAuthenticationService
     {
