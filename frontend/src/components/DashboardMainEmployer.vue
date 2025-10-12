@@ -142,6 +142,7 @@ onMounted(() => {
       user.value = null
     }
   }
+  fetchCompanies()
 })
 
 const getProfitabilityColor = (profitability) => {
@@ -166,4 +167,19 @@ const getProfitabilityChange = (current, last) => {
 function navigateToCreateProject() {
   router.push('/create-project')
 }
+
+async function fetchCompanies() {
+  loading.value = true
+  error.value = null
+  try {
+    const response = await fetch('http://localhost:5011/api/Project')
+    if (!response.ok) throw new Error('No se pudo cargar las empresas')
+    companies.value = await response.json()
+  } catch (err) {
+    error.value = err.message || 'Error al cargar las empresas'
+  } finally {
+    loading.value = false
+  }
+}
+
 </script>
