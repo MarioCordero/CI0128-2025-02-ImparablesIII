@@ -26,7 +26,11 @@ import DashboardProject from './components/DashboardProject.vue'
 const routes = [
   { path: '/', component: LandingPage },
   { path: '/login', component: Login },
-  { path: '/register-employee', component: RegisterEmployee },
+  {
+    path: '/register-employee/:employerId/:projectId',
+    name: 'RegisterEmployee',
+    component: RegisterEmployee
+  },
   { path: '/password-setup', component: PasswordSetup },
   { path: '/dashboard-main-employer', component: DashboardMainEmployer },
   { path: '/superadmin', component: SuperAdminMenu, meta: { requiresAuth: true, requiresRole: 'Administrador' } },

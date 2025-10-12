@@ -1,15 +1,18 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#E9F7FF] p-4">
+  <div class="min-h-screen bg-[#E9F7FF]">
+    <MainEmployerHeader :companies="companies" />
+    <DashboardProjectSubHeader />
     <div class="bg-[#E9F7FF] rounded-[40px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] p-12 w-full max-w-4xl">
       <!-- Step Navigation -->
       <div class="flex justify-center items-center mb-8">
         <div class="flex items-center space-x-8">
           <!-- Steps (Personal, Address, Employment) -->
+
           <div v-for="(step, idx) in stepTitles" :key="idx" class="flex flex-col items-center">
             <div
               :class="[
                 'w-12 h-12 rounded-full flex items-center justify-center shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] transition-all cursor-pointer',
-                currentTab.value === idx ? 'bg-[#87ceeb]' : 'bg-gray-300'
+                currentTab === idx ? 'bg-[#87ceeb]' : 'bg-gray-300'
               ]"
               @click="goToTab(idx)"
             >
@@ -28,18 +31,18 @@
             <div
               :class="[
                 'w-8 h-1 rounded-full mt-2 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]',
-                currentTab.value === idx ? 'bg-[#87ceeb]' : 'bg-gray-300'
+                currentTab === idx ? 'bg-[#87ceeb]' : 'bg-gray-300'
               ]"
             ></div>
           </div>
         </div>
       </div>
-      <!-- Title -->
-      <h2 class="text-2xl font-semibold text-gray-700 text-center mb-8 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] rounded-[12px] bg-[#E9F7FF] py-2 px-4">{{ stepTitles[currentTab.value] }}</h2>
-      <!-- Form -->
+
+      <h2 class="text-2xl font-semibold text-gray-700 text-center mb-8 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] rounded-[12px] bg-[#E9F7FF] py-2 px-4">{{ stepTitles[currentTab] }}</h2>
+
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Tab 1: Personal Information -->
-        <div v-if="currentTab.value === 0" class="space-y-6">
+        <div v-if="currentTab === 0" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Left Column -->
             <div class="space-y-6">
@@ -84,7 +87,7 @@
           </div>
         </div>
         <!-- Tab 2: Address Information -->
-        <div v-if="currentTab.value === 1" class="space-y-6">
+        <div v-if="currentTab === 1" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-6">
               <div class="relative">
@@ -121,7 +124,7 @@
           </div>
         </div>
         <!-- Tab 3: Employment Information -->
-        <div v-if="currentTab.value === 2" class="space-y-6">
+        <div v-if="currentTab === 2" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-6">
               <div class="relative">
@@ -166,14 +169,14 @@
         </div>
         <!-- Navigation Buttons -->
         <div class="flex justify-between mt-8">
-          <button v-if="currentTab.value > 0" type="button" @click="goToTab(currentTab.value - 1)" class="custom-button px-4 py-2 flex items-center space-x-2 font-medium text-gray-700">
+          <button v-if="currentTab > 0" type="button" @click="goToTab(currentTab - 1)" class="custom-button px-4 py-2 flex items-center space-x-2 font-medium text-gray-700">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
             </svg>
             <span>Anterior</span>
           </button>
           <div class="ml-auto">
-            <button v-if="currentTab.value < 2" type="button" @click="goToTab(currentTab.value + 1)" class="custom-button px-4 py-2 flex items-center space-x-2 font-medium text-gray-700">
+            <button v-if="currentTab < 2" type="button" @click="goToTab(currentTab + 1)" class="custom-button px-4 py-2 flex items-center space-x-2 font-medium text-gray-700">
               <span>Siguiente</span>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -193,14 +196,28 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import MainEmployerHeader from './common/MainEmployerHeader.vue'
+import DashboardProjectSubHeader from './projectDashboard/DashboardProjectSubHeader.vue'
 
 const route = useRoute()
 const router = useRouter()
 
-const employerId = route.state?.employerId
-const project = route.state?.project
+const employerId = route.params.employerId
+const projectId = route.params.projectId
+const project = ref({}) // <-- Now you have a reactive project object
+
+onMounted(async () => {
+  try {
+    const response = await fetch(`http://localhost:5011/api/Project/${projectId}`)
+    if (!response.ok) throw new Error('No se pudo cargar el proyecto')
+    project.value = await response.json()
+    // Now you can use project.value in your form
+  } catch (err) {
+    // Handle error (show message, etc.)
+  }
+})
 
 const currentTab = ref(0)
 const formattedSalario = ref('')
@@ -473,7 +490,7 @@ async function handleSubmit() {
     fechaNacimiento: new Date(formData.fechaNacimiento).toISOString(),
     numeroCuentaIban: formData.numeroCuentaIban,
     employerId,
-    project
+    projectId: project.value.id // TODO
   }
   try {
     const response = await fetch('http://localhost:5011/api/RegisterEmployee', {

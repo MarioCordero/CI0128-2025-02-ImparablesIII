@@ -72,10 +72,10 @@ function addBenefit() {
 
 function addEmployee() {
   router.push({
-    path: '/register-employee',
-    state: {
+    name: 'RegisterEmployee',
+    params: {
       employerId: project.value.id,
-      project: project.value
+      projectId: project.value.id
     }
   })
 }
