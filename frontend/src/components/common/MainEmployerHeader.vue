@@ -3,7 +3,7 @@
     <!-- Logo & Title -->
     <div class="flex items-center">
       <button
-        @click="navigateToHome"
+        @click="navigateToHomeLogged"
         class="focus:outline-none flex items-center"
         aria-label="Ir a inicio"
       >
@@ -24,8 +24,8 @@
         v-model="selectedCompanyId"
       >
         <option disabled value="">Seleccionar empresa</option>
-        <option v-for="company in companies" :key="company.Id" :value="company.Id">
-          {{ company.Name }}
+        <option v-for="company in companies" :key="company.id" :value="company.id">
+          {{ company.nombre }}
         </option>
       </select>
     </div>
@@ -43,22 +43,34 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+// eslint-disable-next-line no-undef
+const props = defineProps({
+  companies: {
+    type: Array,
+    default: () => []
+  }
+})
+
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import '../../assets/neumorphismGlobal.css'
-
-// const props = defineProps({
-//   companies: {
-//     type: Array,
-//     default: () => []
-//   }
-// })
 
 const router = useRouter()
 const selectedCompanyId = ref('')
 
-function navigateToHome() {
-  router.push('/')
+// Watch for changes and navigate
+watch(selectedCompanyId, (newId) => {
+  if (newId) {
+    router.push({
+      name: 'DashboardProject',
+      params: { id: newId },
+      state: { companies: props.companies }
+    })
+  }
+})
+
+function navigateToHomeLogged() {
+  router.push('/dashboard-main-employer')
 }
 
 function logout() {

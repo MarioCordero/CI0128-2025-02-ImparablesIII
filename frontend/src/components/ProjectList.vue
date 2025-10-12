@@ -136,7 +136,6 @@ export default {
         if (!response.ok) throw new Error('No se pudieron cargar las empresas');
         const data = await response.json();
         this.companies = data;
-        console.log(data);
       } catch (err) {
         this.error = err.message || 'Error al cargar las empresas';
       } finally {
