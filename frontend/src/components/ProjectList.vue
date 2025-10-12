@@ -13,9 +13,8 @@
     <!-- Companies List -->
     <div v-else class="space-y-6">
       <div v-for="company in companies" :key="company.id">
-        <!-- TODO   -->
         <div class="flex items-center justify-between mb-2">
-          <h3 class="text-lg font-bold text-black">{{ company.Name }}</h3>
+          <h3 class="text-lg font-bold text-black">{{ company.name }}</h3>
           <button
             class="neumorphism-dark px-4 py-2 rounded text-white hover:bg-blue-700 transition"
             @click="goToDashboard(company.id)"
@@ -36,7 +35,7 @@
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.LegalId }}</p>
+                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.legalId }}</p>
                 <p class="text-[15px] group-hover:text-white transition-colors duration-200">de la empresa</p>
               </div>
             </div>
@@ -52,8 +51,8 @@
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.PayPeriod }}</p>
-                <p class="text-[15px] group-hover:text-white transition-colors duration-200">{{ formatPeriodDescription(company.PayPeriod) }}</p>
+                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.payPeriod }}</p>
+                <p class="text-[15px] group-hover:text-white transition-colors duration-200">{{ formatPeriodDescription(company.payPeriod) }}</p>
               </div>
             </div>
           </div>
@@ -69,11 +68,35 @@
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.ActiveEmployees }}</p>
+                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.activeEmployees }}</p>
                 <p class="text-[15px] group-hover:text-white transition-colors duration-200">en esta empresa</p>
               </div>
             </div>
           </div>
+          <!-- Rentabilidad Actual -->
+          <div class="neumorphism-card rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 group">
+            <div class="w-[303px] h-[128px] flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-2">
+                <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Rentabilidad Actual</p>
+                <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M4 17l6-6 4 4 6-6" stroke="currentColor"/>
+                </svg>
+              </div>
+              <div>
+                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.currentProfitability }}%</p>
+                <p class="text-[15px] group-hover:text-white transition-colors duration-200">del mes actual</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Notifications -->
+        <div v-if="company.notifications && company.notifications.length" class="mt-4">
+          <h4 class="font-semibold text-blue-700 mb-2">Notificaciones</h4>
+          <ul class="list-disc pl-5">
+            <li v-for="(note, idx) in company.notifications" :key="idx" class="text-gray-700">
+              {{ note }}
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -113,6 +136,7 @@ export default {
         if (!response.ok) throw new Error('No se pudieron cargar las empresas');
         const data = await response.json();
         this.companies = data;
+        console.log(data);
       } catch (err) {
         this.error = err.message || 'Error al cargar las empresas';
       } finally {
