@@ -1,14 +1,18 @@
 <template>
   <div class="min-h-screen bg-[#E9F7FF]">
     <MainEmployerHeader :companies="companies" />
+    <DashboardProjectSubHeader />
     <div class="neumorphism-card w-full max-w-5xl p-10 my-20 rounded-[32px] shadow-lg">
       <div class="flex flex-col md:flex-row items-center justify-between mb-8">
         <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Dashboard de Empresa</h1>
         <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="goBack">
           Volver
         </button>
-        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="goBack">
+        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addBenefit">
           Agreagar beneficio
+        </button>
+        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addEmployee">
+          Agreagar empleado
         </button>
       </div>
       <div v-if="loading" class="flex justify-center items-center py-12">
@@ -40,7 +44,6 @@
             </ul>
           </div>
         </div>
-        <!-- You can add more sections here if your API provides more info -->
       </div>
     </div>
   </div>
@@ -50,16 +53,31 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import MainEmployerHeader from './common/MainEmployerHeader.vue'
+import DashboardProjectSubHeader from './projectDashboard/DashboardProjectSubHeader.vue'
 
 const route = useRoute()
 const router = useRouter()
 const project = ref({})
 const loading = ref(true)
 const error = ref(null)
-const companies = ref([]) // Always start empty
+const companies = ref([])
 
 function goBack() {
   router.push('/dashboard-main-employer')
+}
+
+function addBenefit() {
+  router.push('/dashboard-main-employer/benefits/new') // TODO
+}
+
+function addEmployee() {
+  router.push({
+    path: '/register-employee',
+    state: {
+      employerId: project.value.id,
+      project: project.value
+    }
+  })
 }
 
 async function fetchCompanies() {
