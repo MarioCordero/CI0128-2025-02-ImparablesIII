@@ -110,73 +110,7 @@
           {{ error }}
         </div>
         
-        <!-- Companies List -->
-        <div v-if="!loading" class="space-y-6">
-          <div v-for="company in companies" :key="company.Id">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-lg font-bold">{{ company.Name }}</h3>
-              <select class="neumorphism-input rounded px-3 py-1">
-                <option>Administrar Empresa</option>
-                <option>Detalles Empresa</option>
-                <option>Gestionar Beneficios</option>
-                <option>Gestionar Empleados</option>
-                <option>Reportes de Planilla</option>
-                <option>Eliminar</option>
-              </select>
-            </div>
-            <div class="grid md:grid-cols-4 gap-4">
-              <!-- Cédula Jurídica -->
-              <div class="neumorphism-card rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Cédula Jurídica</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <rect x="3" y="7" width="18" height="10" rx="2" stroke="currentColor"/>
-                      <path d="M7 15h.01M7 11h.01" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.LegalId }}</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">de la empresa</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Período de Pago -->
-              <div class="neumorphism-card rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Período de Pago</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor"/>
-                      <path d="M16 3v4M8 3v4" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.PayPeriod }}</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">{{ formatPeriodDescription(company.PayPeriod) }}</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Empleados Activos -->
-              <div class="neumorphism-card rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 group">
-                <div class="w-[303px] h-[128px] flex flex-col justify-between">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Empleados Activos</p>
-                    <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="9" cy="7" r="4" stroke="currentColor"/>
-                      <path d="M17 11a4 4 0 1 0-8 0" stroke="currentColor"/>
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.ActiveEmployees }}</p>
-                    <p class="text-[15px] group-hover:text-white transition-colors duration-200">en esta empresa</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProjectList v-if="!loading && !error" :userId="user?.idPersona" />
       </section>
     </div>
   </div>
@@ -185,9 +119,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+// import axios from 'axios'
 import MainEmployerHeader from './common/MainEmployerHeader.vue'
 import '../assets/neumorphismGlobal.css'
+import ProjectList from './ProjectList.vue'
 
 // Reactive data
 const companies = ref([])
@@ -195,67 +130,7 @@ const loading = ref(false)
 const error = ref(null)
 const router = useRouter()
 
-const API_BASE_URL = 'http://localhost:5011/api'
-
-// Fetch companies data
-const fetchCompanies = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const employerId = localStorage.getItem('employerId') || '1'
-    const response = await axios.get(`${API_BASE_URL}/project/dashboard/${employerId}`)
-    companies.value = response.data || []
-  } catch (err) {
-    error.value = 'Error al cargar las empresas'
-    companies.value = [
-      {
-        Id: 1,
-        Name: 'Imparables III',
-        LegalId: '3-123-456789',
-        ActiveEmployees: 4,
-        PayPeriod: 'Opcional',
-        MonthlyPayroll: 4000,
-        CurrentProfitability: 12,
-        LastMonthProfitability: 19
-      },
-      {
-        Id: 2,
-        Name: 'Patitos',
-        LegalId: '3-456-123456',
-        ActiveEmployees: 369,
-        PayPeriod: 'Mensual',
-        MonthlyPayroll: 191800000,
-        CurrentProfitability: 16,
-        LastMonthProfitability: 16
-      },
-      {
-        Id: 3,
-        Name: "Jack's Store",
-        LegalId: '3-969-696969',
-        ActiveEmployees: 2,
-        PayPeriod: 'Quincenal',
-        MonthlyPayroll: 302300000,
-        CurrentProfitability: 24,
-        LastMonthProfitability: 9
-      }
-    ]
-  } finally {
-    loading.value = false
-  }
-}
-
-const formatPeriodDescription = (period) => {
-  switch (period) {
-    case 'Mensual':
-      return '28 de cada mes'
-    case 'Quincenal':
-      return '1 y 16 de cada mes'
-    case 'Opcional':
-      return 'cuando Mario quiera'
-    default:
-      return 'No especificado'
-  }
-}
+// const API_BASE_URL = 'http://localhost:5011/api'
 
 const user = ref(null)
 onMounted(() => {
@@ -267,7 +142,6 @@ onMounted(() => {
       user.value = null
     }
   }
-  fetchCompanies()
 })
 
 const getProfitabilityColor = (profitability) => {
