@@ -14,23 +14,29 @@ import './assets/tailwind.css'
 // Vue Components
 import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
-import RegisterEmployee from './components/registerEmployee.vue'
+import RegisterEmployee from './components/RegisterEmployee.vue'
 import PasswordSetup from './components/PasswordSetup.vue'
 import DashboardMainEmployer from './components/DashboardMainEmployer.vue'
 import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import CreateProject from './components/CreateProject.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
+import DashboardProject from './components/DashboardProject.vue'
 
 // Route definitions
 const routes = [
   { path: '/', component: LandingPage },
   { path: '/login', component: Login },
-  { path: '/register', component: RegisterEmployee },
+  {
+    path: '/register-employee/:employerId/:projectId',
+    name: 'RegisterEmployee',
+    component: RegisterEmployee
+  },
   { path: '/password-setup', component: PasswordSetup },
   { path: '/dashboard-main-employer', component: DashboardMainEmployer },
   { path: '/superadmin', component: SuperAdminMenu, meta: { requiresAuth: true, requiresRole: 'Administrador' } },
   { path: '/create-project', component: CreateProject },
-  { path: '/signup-employer', component: SignUpEmployer }
+  { path: '/signup-employer', component: SignUpEmployer },
+  { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject },
 ]
 
 const router = createRouter({
