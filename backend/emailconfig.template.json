@@ -1,9 +1,0 @@
-{
-  "EmailSettings": {
-    "SmtpServer": "smtp.gmail.com",
-    "SmtpPort": 465,
-    "SenderEmail": "your-email@gmail.com",
-    "SenderPassword": "your-app-specific-password-here",
-    "SenderName": "Your App Name"
-  }
-}
