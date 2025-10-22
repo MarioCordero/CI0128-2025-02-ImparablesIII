@@ -49,66 +49,117 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+<script>
 import MainEmployerHeader from './common/MainEmployerHeader.vue'
 import DashboardProjectSubHeader from './projectDashboard/DashboardProjectSubHeader.vue'
 
-const route = useRoute()
-const router = useRouter()
-const project = ref({})
-const loading = ref(true)
-const error = ref(null)
-const companies = ref([])
+export default {
+  // 1. Nombre del componente
+  name: 'ProjectDashboard',
 
-function goBack() {
-  router.push('/dashboard-main-employer')
-}
+  // 2. Componentes hijos locales
+  components: {
+    MainEmployerHeader,
+    DashboardProjectSubHeader
+  },
 
-function addBenefit() {
-  router.push('/dashboard-main-employer/benefits/new') // TODO
-}
+  // 3. Directivas locales
+  directives: {},
 
-function addEmployee() {
-  router.push({
-    name: 'RegisterEmployee',
-    params: {
-      employerId: project.value.id,
-      projectId: project.value.id
+  // 4. Props recibidas del padre
+  props: {},
+
+  // 5. Estado reactivo del componente
+  data() {
+    return {
+      project: {},
+      loading: true,
+      error: null,
+      companies: []
     }
-  })
-}
+  },
 
-async function fetchCompanies() {
-  try {
-    const response = await fetch('http://localhost:5011/api/Project')
-    if (!response.ok) throw new Error('No se pudo cargar las empresas')
-    companies.value = await response.json()
-  } catch (err) {
-    // Optionally handle error
-  }
-}
+  // 6. Propiedades derivadas
+  computed: {},
 
-async function fetchProject() {
-  try {
-    loading.value = true
-    error.value = null
-    const id = route.params.id
-    const response = await fetch(`http://localhost:5011/api/Project/${id}`)
-    if (!response.ok) throw new Error('No se pudo cargar el proyecto')
-    const data = await response.json()
-    project.value = data
-    console.log(data)
-  } catch (err) {
-    error.value = err.message || 'Error al cargar el proyecto'
-  } finally {
-    loading.value = false
-  }
-}
+  // 7. Observadores de cambios
+  watch: {},
 
-onMounted(() => {
-  fetchCompanies()
-  fetchProject()
-})
+  // 8. Métodos y lógica ejecutable
+  methods: {
+    goBack() {
+      this.$router.push('/dashboard-main-employer')
+    },
+
+    addBenefit() {
+      this.$router.push('/dashboard-main-employer/benefits/new') // TODO
+    },
+
+    addEmployee() {
+      this.$router.push({
+        name: 'RegisterEmployee',
+        params: {
+          employerId: this.project.id,
+          projectId: this.project.id
+        }
+      })
+    },
+
+    async fetchCompanies() {
+      try {
+        const response = await fetch('http://localhost:5011/api/Project')
+        if (!response.ok) throw new Error('No se pudo cargar las empresas')
+        this.companies = await response.json()
+      } catch (err) {
+        // manejo
+      }
+    },
+
+    async fetchProject() {
+      try {
+        this.loading = true
+        this.error = null
+        const id = this.$route.params.id
+        const response = await fetch(`http://localhost:5011/api/Project/${id}`)
+        if (!response.ok) throw new Error('No se pudo cargar el proyecto')
+        const data = await response.json()
+        this.project = data
+        console.log(data)
+      } catch (err) {
+        this.error = err.message || 'Error al cargar el proyecto'
+      } finally {
+        this.loading = false
+      }
+    }
+  },
+
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {
+    this.fetchCompanies()
+    this.fetchProject()
+  },
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
+
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
+
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
+}
 </script>
