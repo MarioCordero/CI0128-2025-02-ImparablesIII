@@ -7,7 +7,7 @@
         class="focus:outline-none flex items-center"
         aria-label="Ir a inicio"
       >
-        <img src="../../assets/PlaniFy.svg" alt="PlaniFy Logo" class="h-10 w-full mr-4" />
+        <img src="../../assets/PlaniFy.png" alt="PlaniFy Logo" class="h-10 w-full mr-4" />
       </button>
 
       <div>
