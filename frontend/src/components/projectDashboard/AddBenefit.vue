@@ -62,6 +62,7 @@
                 <option value="">Seleccione el tipo de cálculo</option>
                 <option value="Porcentaje">Porcentaje</option>
                 <option value="Monto Fijo">Monto Fijo</option>
+                <option value="API">API</option>
               </select>
               <span v-if="errors.TipoCalculo" class="text-red-500 text-sm mt-1">{{ errors.TipoCalculo }}</span>
             </div>
@@ -145,18 +146,18 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
             v-for="beneficio in beneficios"
-            :key="`${beneficio.idEmpresa}-${beneficio.nombre}`"
+            :key="`${beneficio.companyId}-${beneficio.name}`"
             class="neumorphism-card p-4 rounded-lg hover:shadow-lg transition"
           >
-            <h3 class="font-semibold text-lg text-gray-800">{{ beneficio.nombre }}</h3>
+            <h3 class="font-semibold text-lg text-gray-800">{{ beneficio.name }}</h3>
             <p class="text-sm text-gray-600 mt-1">
-              <span class="font-medium">Tipo:</span> {{ beneficio.tipo }}
+              <span class="font-medium">Tipo:</span> {{ beneficio.type }}
             </p>
             <p class="text-sm text-gray-600">
-              <span class="font-medium">Cálculo:</span> {{ beneficio.tipoCalculo }}
+              <span class="font-medium">Cálculo:</span> {{ beneficio.calculationType }}
             </p>
             <p class="text-sm text-gray-600">
-              <span class="font-medium">Empresa:</span> {{ beneficio.empresaNombre }}
+              <span class="font-medium">Empresa:</span> {{ beneficio.companyName }}
             </p>
           </div>
         </div>
@@ -195,6 +196,19 @@ export default {
       beneficios: [],
       selectedProject: null
     }
+  },
+  computed: {
+    isProjectSelected() {
+      return this.selectedProject !== null
+    },
+    projectDisplayName() {
+      return this.selectedProject ? this.selectedProject.nombre : 'No seleccionado'
+    }
+  },
+  mounted() {
+    this.fetchCompanies()
+    this.fetchBeneficios()
+    this.initializeProject()
   },
   methods: {
     clearErrors() {
@@ -246,16 +260,16 @@ export default {
       this.clearErrors()
 
       try {
-        const response = await fetch('http://localhost:5011/api/Beneficio', {
+        const response = await fetch('http://localhost:5011/api/Benefit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            IdEmpresa: parseInt(this.form.IdEmpresa),
-            Nombre: this.form.Nombre.trim(),
-            TipoCalculo: this.form.TipoCalculo,
-            Tipo: this.form.Tipo
+            CompanyId: parseInt(this.form.IdEmpresa),
+            Name: this.form.Nombre.trim(),
+            CalculationType: this.form.TipoCalculo,
+            Type: this.form.Tipo
           })
         })
 
@@ -298,18 +312,16 @@ export default {
         if (!response.ok) throw new Error('No se pudo cargar las empresas')
         this.companies = await response.json()
       } catch (err) {
-        console.error('Error fetching companies:', err)
         this.errorMessage = 'Error al cargar las empresas'
       }
     },
     async fetchBeneficios() {
       try {
-        const response = await fetch('http://localhost:5011/api/Beneficio')
+        const response = await fetch('http://localhost:5011/api/Benefit')
         if (!response.ok) throw new Error('No se pudo cargar los beneficios')
         this.beneficios = await response.json()
       } catch (err) {
-        console.error('Error fetching benefits:', err)
-        // Don't show error for benefits list as it's not critical
+        this.errorMessage = 'Error al cargar los beneficios'
       }
     },
     goBack() {
@@ -336,33 +348,20 @@ export default {
             await this.fetchBeneficiosByProject(projectId)
           }
         } catch (err) {
-          console.error('Error fetching project:', err)
+          this.errorMessage = 'Error al cargar el proyecto'
         }
       }
     },
     async fetchBeneficiosByProject(projectId) {
       try {
-        const response = await fetch(`http://localhost:5011/api/Beneficio/empresa/${projectId}`)
+        const response = await fetch(`http://localhost:5011/api/Benefit/company/${projectId}`)
         if (response.ok) {
           this.beneficios = await response.json()
         }
       } catch (err) {
-        console.error('Error fetching benefits for project:', err)
+        this.errorMessage = 'Error al cargar los beneficios del proyecto'
       }
     }
-  },
-  computed: {
-    isProjectSelected() {
-      return this.selectedProject !== null
-    },
-    projectDisplayName() {
-      return this.selectedProject ? this.selectedProject.nombre : 'No seleccionado'
-    }
-  },
-  mounted() {
-    this.fetchCompanies()
-    this.fetchBeneficios()
-    this.initializeProject()
   }
 }
 </script>

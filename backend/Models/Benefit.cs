@@ -2,24 +2,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Models
 {
-    public class Beneficio
+    public class Benefit
     {
         [Required]
-        public int IdEmpresa { get; set; }
+        public int CompanyId { get; set; }
         
         [Required]
         [MaxLength(20)]
-        public string Nombre { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         
         [Required]
         [MaxLength(20)]
-        public string TipoCalculo { get; set; } = string.Empty;
+        public string CalculationType { get; set; } = string.Empty;
         
         [Required]
         [MaxLength(20)]
-        public string Tipo { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
         
-        // Navigation property - cambiar de Empresa a Project
+        // Navigation property - change from Empresa to Project
         public Project? Project { get; set; }
     }
 }

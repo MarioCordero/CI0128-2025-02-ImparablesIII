@@ -28,7 +28,7 @@ namespace backend.Models
         
         // Navigation properties
         public Direccion? Direccion { get; set; }
-        public List<Beneficio>? Beneficios { get; set; }
+        public List<Benefit>? Benefits { get; set; }
         
         // Audit fields
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
