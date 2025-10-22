@@ -7,25 +7,24 @@
         class="focus:outline-none flex items-center"
         aria-label="Ir a inicio"
       >
-        <img src="../../assets/PlaniFy.svg" alt="PlaniFy Logo" class="h-10 w-full mr-4" />
+        <img src="../../assets/PlaniFy.png" alt="PlaniFy Logo" class="h-10 w-full mr-4" />
       </button>
-
-      <!-- TODO: ESTO QUE?   -->
       <div>
         <p class="text-2xl font-bold mb-0 whitespace-nowrap">Panel de Empleador</p>
         <p class="text-gray-600 text-base mb-0 whitespace-nowrap">Gestión de Beneficios Corporativos</p>
       </div>
     </div>
 
-    <!-- Company Selector -->
-    <div class="flex justify-center">
+    <!-- Project Selector -->
+    <div class="flex flex-col justify-center items-center">
       <select
         class="bg-[#E9F7FF] neumorphism-input shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] min-w-[300px] min-h-[40px] rounded px-3 py-2 text-gray-700"
-        v-model="selectedCompanyId"
+        v-model="selectedProjectId"
+        @change="onProjectChange"
       >
-        <option disabled value="">Seleccionar empresa</option>
-        <option v-for="company in companies" :key="company.id" :value="company.id">
-          {{ company.nombre }}
+        <option disabled value="">Seleccionar proyecto</option>
+        <option v-for="project in companies" :key="project.id" :value="project.id">
+          {{ project.nombre }}
         </option>
       </select>
     </div>
@@ -42,40 +41,63 @@
   </header>
 </template>
 
-<script setup>
-// eslint-disable-next-line no-undef
-const props = defineProps({
-  companies: {
-    type: Array,
-    default: () => []
-  }
-})
-
-import { ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
 import '../../assets/neumorphismGlobal.css'
 
-const router = useRouter()
-const selectedCompanyId = ref('')
-
-// Watch for changes and navigate
-watch(selectedCompanyId, (newId) => {
-  if (newId) {
-    router.push({
-      name: 'DashboardProject',
-      params: { id: newId },
-      state: { companies: props.companies }
-    })
+export default {
+  name: 'MainEmployerHeader',
+  data() {
+    return {
+      companies: [],
+      selectedProjectId: '',
+    }
+  },
+  async mounted() {
+    await this.fetchCompanies()
+    this.detectCurrentProject()
+  },
+  methods: {
+    async fetchCompanies() {
+      try {
+        const response = await fetch('http://localhost:5011/api/Project')
+        if (response.ok) {
+          this.companies = await response.json()
+        }
+      } catch (error) {
+        this.companies = []
+      }
+    },
+    navigateToHomeLogged() {
+      localStorage.removeItem('selectedProject')
+      this.selectedProjectId = ''
+      this.$router.push('/dashboard-main-employer')
+    },
+    logout() {
+      localStorage.removeItem('user')
+      localStorage.removeItem('token')
+      localStorage.removeItem('selectedProject')
+      this.$router.push('/login')
+    },
+    onProjectChange() {
+      if (this.selectedProjectId) {
+        const selectedProject = this.companies.find(
+          company => company.id == this.selectedProjectId
+        )
+        localStorage.setItem('selectedProject', JSON.stringify(selectedProject))
+        this.$router.push({
+          name: 'DashboardProject',
+          params: { id: this.selectedProjectId }
+        })
+      }
+    },
+    detectCurrentProject() {
+      const selectedProject = JSON.parse(localStorage.getItem('selectedProject'))
+      if (selectedProject) {
+        this.selectedProjectId = selectedProject.id
+      } else {
+        this.selectedProjectId = ''
+      }
+    }
   }
-})
-
-function navigateToHomeLogged() {
-  router.push('/dashboard-main-employer')
-}
-
-function logout() {
-  localStorage.removeItem('user')
-  localStorage.removeItem('token')
-  router.push('/login')
 }
 </script>

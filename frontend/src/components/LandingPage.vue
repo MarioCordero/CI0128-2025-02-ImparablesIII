@@ -8,8 +8,7 @@
         <!-- Left: Title & CTA -->
         <div class="flex-1 max-w-2xl">
           <div class="flex items-center mb-8">
-            <span class="text-7xl mr-6">👥</span>
-            <h1 class="text-7xl font-extrabold text-[#0b0b0b] drop-shadow-lg">PlaniFy</h1>
+            <img src="../assets/PlaniFyLogo.png" alt="PlaniFy Logo" class="w-1/2 mr-4" />
           </div>
           <p class="text-gray-700 text-2xl mb-10 leading-relaxed font-medium">
             Simplifica la gestión de planillas y beneficios empresariales.<br>
