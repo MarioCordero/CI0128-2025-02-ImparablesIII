@@ -71,99 +71,142 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
 import HeaderLandingPage from './common/HeaderLandingPage.vue'
 
+export default {
+  // 1. Nombre del componente
+  name: 'LoginPage',
 
-const router = useRouter()
-const showPassword = ref(false)
-const email = ref('')
-const password = ref('')
-const isLoading = ref(false)
-const errorMessage = ref('')
-const successMessage = ref('')
+  // 2. Componentes hijos locales
+  components: {
+    HeaderLandingPage
+  },
 
-// Get the backend URL from your Program.cs - it should be https://localhost:7xxx
-const API_BASE_URL = 'http://localhost:5011/api'
+  // 3. Directivas locales
+  directives: {},
 
-async function handleLogin() {
-  // Clear previous messages
-  errorMessage.value = ''
-  successMessage.value = ''
+  // 4. Props recibidas del padre
+  props: {},
 
-  // Validation
-  if (!email.value || !password.value) {
-    errorMessage.value = 'Por favor ingrese correo y contraseña'
-    return
-  }
-
-  isLoading.value = true
-
-  try {
-    console.log('Attempting login with:', { email: email.value }) // Debug log
-
-    const response = await fetch(`${API_BASE_URL}/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        correo: email.value,
-        contrasena: password.value
-      })
-    })
-
-    console.log('Response status:', response.status) // Debug log
-
-    const data = await response.json()
-    console.log('Response data:', data) // Debug log
-
-    if (response.ok && data.success) {
-      successMessage.value = data.message || 'Login exitoso'
-      
-      // Store user data and token in localStorage
-      localStorage.setItem('user', JSON.stringify(data.userData))
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('employerId', data.userData.idPersona);
-      }
-      
-      console.log('Login successful, user data:', data.userData) // Debug log
-      
-      // Check if user is Administrador and redirect accordingly
-      if (data.userData.tipoUsuario === 'Administrador') {
-        successMessage.value = 'Login exitoso como Super Administrador'
-        // Redirect to superadmin menu after 1.5 seconds
-        setTimeout(() => {
-          router.push('/superadmin')
-        }, 1500)
-      } else if (data.userData.tipoUsuario === 'Usuario') {
-        successMessage.value = 'Login exitoso como Usuario'
-      } else if (data.userData.tipoUsuario === 'Empleador') {
-        successMessage.value = 'Login exitoso como Empleador'
-        // Redirect to employer dashboard after 1.5 seconds
-        setTimeout(() => {
-          router.push('/dashboard-main-employer')
-        }, 1500)
-      } else {
-        // Redirect to home page for other user types
-        setTimeout(() => {
-          router.push('/')
-          // TODO: Change this to redirect to the employer dashboard
-          // Show success message
-          successMessage.value = 'Login exitoso como Usuario'
-        }, 1500)
-      }
-    } else {
-      errorMessage.value = data.message || 'Error al iniciar sesión'
+  // 5. Estado reactivo del componente
+  data() {
+    return {
+      showPassword: false,
+      email: '',
+      password: '',
+      isLoading: false,
+      errorMessage: '',
+      successMessage: '',
+      API_BASE_URL: 'http://localhost:5011/api'
     }
-  } catch (error) {
-    console.error('Login error:', error)
-    errorMessage.value = 'Error de conexión. Verifique que el servidor esté ejecutándose.'
-  } finally {
-    isLoading.value = false
-  }
+  },
+
+  // 6. Propiedades derivadas
+  computed: {},
+
+  // 7. Observadores de cambios
+  watch: {},
+
+  // 8. Métodos y lógica ejecutable
+  methods: {
+    async handleLogin() {
+      // Clear previous messages
+      this.errorMessage = ''
+      this.successMessage = ''
+
+      // Validation
+      if (!this.email || !this.password) {
+        this.errorMessage = 'Por favor ingrese correo y contraseña'
+        return
+      }
+
+      this.isLoading = true
+
+      try {
+        const response = await fetch(`${this.API_BASE_URL}/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            correo: this.email,
+            contrasena: this.password
+          })
+        })
+
+        const data = await response.json()
+
+        if (response.ok && data.success) {
+          this.successMessage = data.message || 'Login exitoso'
+          
+          // Store user data and token in localStorage
+          localStorage.setItem('user', JSON.stringify(data.userData))
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('employerId', data.userData.idPersona);
+          }
+          
+          // Check if user is Administrador and redirect accordingly
+          if (data.userData.tipoUsuario === 'Administrador') {
+            this.successMessage = 'Login exitoso como Super Administrador'
+            // Redirect to superadmin menu after 1.5 seconds
+            setTimeout(() => {
+              this.$router.push('/superadmin')
+            }, 1500)
+          } else if (data.userData.tipoUsuario === 'Usuario') {
+            this.successMessage = 'Login exitoso como Usuario'
+          } else if (data.userData.tipoUsuario === 'Empleador') {
+            this.successMessage = 'Login exitoso como Empleador'
+            // Redirect to employer dashboard after 1.5 seconds
+            setTimeout(() => {
+              this.$router.push('/dashboard-main-employer')
+            }, 1500)
+          } else {
+            // Redirect to home page for other user types
+            setTimeout(() => {
+              this.$router.push('/')
+              // TODO: Change this to redirect to the employer dashboard
+              // Show success message
+              this.successMessage = 'Login exitoso como Usuario'
+            }, 1500)
+          }
+        } else {
+          this.errorMessage = data.message || 'Error al iniciar sesión'
+        }
+      } catch (error) {
+        console.error('Login error:', error)
+        this.errorMessage = 'Error de conexión. Verifique que el servidor esté ejecutándose.'
+      } finally {
+        this.isLoading = false
+      }
+    }
+  },
+
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {},
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
+
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
+
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
 }
 </script>
