@@ -163,7 +163,19 @@
 
 <script>
 export default {
+  // 1. Nombre del componente
   name: 'PasswordSetup',
+
+  // 2. Componentes hijos locales
+  components: {},
+
+  // 3. Directivas locales
+  directives: {},
+
+  // 4. Props recibidas del padre
+  props: {},
+
+  // 5. Estado reactivo del componente
   data() {
     return {
       formData: {
@@ -179,6 +191,8 @@ export default {
       token: ''
     }
   },
+
+  // 6. Propiedades derivadas
   computed: {
     passwordRequirements() {
       const password = this.formData.password || '';
@@ -191,15 +205,11 @@ export default {
       };
     }
   },
-  mounted() {
-    // Get token from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    this.token = urlParams.get('token');
-    
-    if (!this.token) {
-      this.errorMessage = 'Token de configuración no válido o faltante.';
-    }
-  },
+
+  // 7. Observadores de cambios
+  watch: {},
+
+  // 8. Métodos y lógica ejecutable
   methods: {
     validateForm() {
       this.errors = {};
@@ -241,6 +251,7 @@ export default {
 
       return isValid;
     },
+
     async handleSubmit() {
       if (!this.validateForm()) {
         return;
@@ -289,6 +300,40 @@ export default {
         this.isLoading = false;
       }
     }
-  }
+  },
+
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {
+    // Get token from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    this.token = urlParams.get('token');
+    
+    if (!this.token) {
+      this.errorMessage = 'Token de configuración no válido o faltante.';
+    }
+  },
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
+
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
+
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
 }
 </script>
