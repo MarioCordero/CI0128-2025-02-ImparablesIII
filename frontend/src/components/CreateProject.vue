@@ -219,194 +219,245 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
 import axios from 'axios'
 import MainEmployerHeader from './common/MainEmployerHeader.vue'
 import '../assets/neumorphismGlobal.css'
 
-const router = useRouter()
-const companies = ref([])
+export default {
+  // 1. Nombre del componente
+  name: 'CompanyRegistration',
 
-const loading = ref(false)
-const errorMessage = ref('')
-const successMessage = ref('')
-const formattedTelefono = ref('')
+  // 2. Componentes hijos locales
+  components: {
+    MainEmployerHeader
+  },
 
-function formatTelefono(event) {
-  let value = event.target.value.replace(/\D/g, '') // Remove non-digits
-  if (value.length > 4) {
-    value = value.slice(0, 4) + '-' + value.slice(4, 8)
-  }
-  formattedTelefono.value = value
-  form.value.Telefono = value.replace('-', '') // Store only digits in form
-}
+  // 3. Directivas locales
+  directives: {},
 
-const form = ref({
-  Nombre: '',
-  CedulaJuridica: '',
-  Email: '',
-  Telefono: '',
-  PeriodoPago: '',
-  Provincia: '',
-  Canton: '',
-  Distrito: '',
-  DireccionParticular: ''
-})
-const errors = ref({})
+  // 4. Props recibidas del padre
+  props: {},
 
-function validateForm() {
-  errors.value = {}
-  let isValid = true
-
-  if (!form.value.Nombre || form.value.Nombre.trim().length === 0) {
-    errors.value.Nombre = 'El nombre es requerido'
-    isValid = false
-  } else if (form.value.Nombre.length > 20) {
-    errors.value.Nombre = 'El nombre no puede exceder 20 caracteres'
-    isValid = false
-  }
-
-  if (!form.value.CedulaJuridica || form.value.CedulaJuridica.toString().length !== 9) {
-    errors.value.CedulaJuridica = 'La cédula jurídica debe tener 9 dígitos'
-    isValid = false
-  }
-
-  if (!form.value.Email || form.value.Email.trim().length === 0) {
-    errors.value.Email = 'El correo electrónico es requerido'
-    isValid = false
-  } else if (form.value.Email.length > 50) {
-    errors.value.Email = 'El correo no puede exceder 50 caracteres'
-    isValid = false
-  } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(form.value.Email)) {
-      errors.value.Email = 'Formato de correo electrónico inválido'
-      isValid = false
+  // 5. Estado reactivo del componente
+  data() {
+    return {
+      companies: [],
+      loading: false,
+      errorMessage: '',
+      successMessage: '',
+      formattedTelefono: '',
+      form: {
+        Nombre: '',
+        CedulaJuridica: '',
+        Email: '',
+        Telefono: '',
+        PeriodoPago: '',
+        Provincia: '',
+        Canton: '',
+        Distrito: '',
+        DireccionParticular: ''
+      },
+      errors: {}
     }
-  }
+  },
 
-  if (form.value.Telefono && form.value.Telefono.toString().length !== 8) {
-    errors.value.Telefono = 'El teléfono debe tener 8 dígitos'
-    isValid = false
-  }
+  // 6. Propiedades derivadas
+  computed: {},
 
-  if (!form.value.PeriodoPago) {
-    errors.value.PeriodoPago = 'El período de pago es requerido'
-    isValid = false
-  }
+  // 7. Observadores de cambios
+  watch: {},
 
-  if (!form.value.Provincia) {
-    errors.value.Provincia = 'La provincia es requerida'
-    isValid = false
-  }
-
-  if (form.value.Canton && form.value.Canton.length > 30) {
-    errors.value.Canton = 'El cantón no puede exceder 30 caracteres'
-    isValid = false
-  }
-
-  if (form.value.Distrito && form.value.Distrito.length > 30) {
-    errors.value.Distrito = 'El distrito no puede exceder 30 caracteres'
-    isValid = false
-  }
-
-  if (form.value.DireccionParticular && form.value.DireccionParticular.length > 150) {
-    errors.value.DireccionParticular = 'La dirección no puede exceder 150 caracteres'
-    isValid = false
-  }
-
-  return isValid
-}
-
-async function handleSubmit() {
-  loading.value = true
-  errorMessage.value = ''
-  successMessage.value = ''
-
-  if (!validateForm()) {
-    errorMessage.value = 'Por favor complete todos los campos obligatorios correctamente.'
-    loading.value = false
-    return
-  }
-
-  try {
-    const dataToSend = {
-      Nombre: form.value.Nombre.trim(),
-      CedulaJuridica: parseInt(form.value.CedulaJuridica),
-      Email: form.value.Email.trim(),
-      PeriodoPago: form.value.PeriodoPago,
-      Provincia: form.value.Provincia,
-      Telefono: form.value.Telefono ? parseInt(form.value.Telefono) : null,
-      Canton: form.value.Canton || null,
-      Distrito: form.value.Distrito || null,
-      DireccionParticular: form.value.DireccionParticular || null
-    }
-
-    await axios.post('http://localhost:5011/api/Project', dataToSend, {
-      headers: { 'Content-Type': 'application/json' },
-      timeout: 10000
-    })
-
-    successMessage.value = `¡Empresa "${form.value.Nombre}" registrada exitosamente! Redirigiendo al dashboard...`
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    setTimeout(() => {
-      router.push('/dashboard-main-employer')
-    }, 2000)
-  } catch (error) {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    if (error.response?.status === 409) {
-      errorMessage.value = error.response.data.message || 'Ya existe una empresa con estos datos'
-    } else if (error.response?.status === 400) {
-      if (error.response.data.errors) {
-        const errs = Object.values(error.response.data.errors).flat()
-        errorMessage.value = errs.join(', ')
-      } else {
-        errorMessage.value = error.response.data.message || 'Datos inválidos'
+  // 8. Métodos y lógica ejecutable
+  methods: {
+    formatTelefono(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 4) {
+        value = value.slice(0, 4) + '-' + value.slice(4, 8)
       }
-    } else if (error.response?.status === 500) {
-      errorMessage.value = 'Error interno del servidor. Por favor, intente más tarde.'
-    } else if (error.code === 'ECONNABORTED') {
-      errorMessage.value = 'Tiempo de espera agotado. Verifique su conexión.'
-    } else if (error.message) {
-      errorMessage.value = error.message
-    } else {
-      errorMessage.value = 'Error al registrar la empresa. Verifique su conexión.'
+      this.formattedTelefono = value
+      this.form.Telefono = value.replace('-', '')
+    },
+
+    validateForm() {
+      this.errors = {}
+      let isValid = true
+
+      if (!this.form.Nombre || this.form.Nombre.trim().length === 0) {
+        this.errors.Nombre = 'El nombre es requerido'
+        isValid = false
+      } else if (this.form.Nombre.length > 20) {
+        this.errors.Nombre = 'El nombre no puede exceder 20 caracteres'
+        isValid = false
+      }
+
+      if (!this.form.CedulaJuridica || this.form.CedulaJuridica.toString().length !== 9) {
+        this.errors.CedulaJuridica = 'La cédula jurídica debe tener 9 dígitos'
+        isValid = false
+      }
+
+      if (!this.form.Email || this.form.Email.trim().length === 0) {
+        this.errors.Email = 'El correo electrónico es requerido'
+        isValid = false
+      } else if (this.form.Email.length > 50) {
+        this.errors.Email = 'El correo no puede exceder 50 caracteres'
+        isValid = false
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(this.form.Email)) {
+          this.errors.Email = 'Formato de correo electrónico inválido'
+          isValid = false
+        }
+      }
+
+      if (this.form.Telefono && this.form.Telefono.toString().length !== 8) {
+        this.errors.Telefono = 'El teléfono debe tener 8 dígitos'
+        isValid = false
+      }
+
+      if (!this.form.PeriodoPago) {
+        this.errors.PeriodoPago = 'El período de pago es requerido'
+        isValid = false
+      }
+
+      if (!this.form.Provincia) {
+        this.errors.Provincia = 'La provincia es requerida'
+        isValid = false
+      }
+
+      if (this.form.Canton && this.form.Canton.length > 30) {
+        this.errors.Canton = 'El cantón no puede exceder 30 caracteres'
+        isValid = false
+      }
+
+      if (this.form.Distrito && this.form.Distrito.length > 30) {
+        this.errors.Distrito = 'El distrito no puede exceder 30 caracteres'
+        isValid = false
+      }
+
+      if (this.form.DireccionParticular && this.form.DireccionParticular.length > 150) {
+        this.errors.DireccionParticular = 'La dirección no puede exceder 150 caracteres'
+        isValid = false
+      }
+
+      return isValid
+    },
+
+    async handleSubmit() {
+      this.loading = true
+      this.errorMessage = ''
+      this.successMessage = ''
+
+      if (!this.validateForm()) {
+        this.errorMessage = 'Por favor complete todos los campos obligatorios correctamente.'
+        this.loading = false
+        return
+      }
+
+      try {
+        const dataToSend = {
+          Nombre: this.form.Nombre.trim(),
+          CedulaJuridica: parseInt(this.form.CedulaJuridica),
+          Email: this.form.Email.trim(),
+          PeriodoPago: this.form.PeriodoPago,
+          Provincia: this.form.Provincia,
+          Telefono: this.form.Telefono ? parseInt(this.form.Telefono) : null,
+          Canton: this.form.Canton || null,
+          Distrito: this.form.Distrito || null,
+          DireccionParticular: this.form.DireccionParticular || null
+        }
+
+        await axios.post('http://localhost:5011/api/Project', dataToSend, {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 10000
+        })
+
+        this.successMessage = `¡Empresa "${this.form.Nombre}" registrada exitosamente! Redirigiendo al dashboard...`
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        setTimeout(() => {
+          this.$router.push('/dashboard-main-employer')
+        }, 2000)
+      } catch (error) {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        if (error.response?.status === 409) {
+          this.errorMessage = error.response.data.message || 'Ya existe una empresa con estos datos'
+        } else if (error.response?.status === 400) {
+          if (error.response.data.errors) {
+            const errs = Object.values(error.response.data.errors).flat()
+            this.errorMessage = errs.join(', ')
+          } else {
+            this.errorMessage = error.response.data.message || 'Datos inválidos'
+          }
+        } else if (error.response?.status === 500) {
+          this.errorMessage = 'Error interno del servidor. Por favor, intente más tarde.'
+        } else if (error.code === 'ECONNABORTED') {
+          this.errorMessage = 'Tiempo de espera agotado. Verifique su conexión.'
+        } else if (error.message) {
+          this.errorMessage = error.message
+        } else {
+          this.errorMessage = 'Error al registrar la empresa. Verifique su conexión.'
+        }
+      } finally {
+        this.loading = false
+      }
+    },
+
+    handleCancel() {
+      if (this.hasFormData() && !confirm('¿Está seguro que desea cancelar? Los datos no guardados se perderán.')) {
+        return
+      }
+      this.resetForm()
+      this.$router.push('/dashboard-main-employer')
+    },
+
+    resetForm() {
+      this.form = {
+        Nombre: '',
+        CedulaJuridica: '',
+        Email: '',
+        Telefono: '',
+        PeriodoPago: '',
+        Provincia: '',
+        Canton: '',
+        Distrito: '',
+        DireccionParticular: ''
+      }
+      this.errorMessage = ''
+      this.successMessage = ''
+      this.errors = {}
+    },
+
+    hasFormData() {
+      return Object.values(this.form).some(value =>
+        value !== null && value !== undefined && value !== ''
+      )
     }
-  } finally {
-    loading.value = false
-  }
-}
+  },
 
-function handleCancel() {
-  if (hasFormData() && !confirm('¿Está seguro que desea cancelar? Los datos no guardados se perderán.')) {
-    return
-  }
-  resetForm()
-  router.push('/dashboard-main-employer')
-}
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {},
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
 
-function resetForm() {
-  form.value = {
-    Nombre: '',
-    CedulaJuridica: '',
-    Email: '',
-    Telefono: '',
-    PeriodoPago: '',
-    Provincia: '',
-    Canton: '',
-    Distrito: '',
-    DireccionParticular: ''
-  }
-  errorMessage.value = ''
-  successMessage.value = ''
-  errors.value = {}
-}
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
 
-function hasFormData() {
-  return Object.values(form.value).some(value =>
-    value !== null && value !== undefined && value !== ''
-  )
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
 }
 </script>
