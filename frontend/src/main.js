@@ -19,7 +19,6 @@ import DashboardMainEmployer from './components/DashboardMainEmployer.vue'
 import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import CreateProject from './components/CreateProject.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
-import HoursRegistry from './components/HoursRegistry.vue'
 import DashboardProject from './components/projectDashboard/DashboardProject.vue'
 import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
 
@@ -37,7 +36,6 @@ const routes = [
   { path: '/superadmin', component: SuperAdminMenu, meta: { requiresAuth: true, requiresRole: 'Administrador' } },
   { path: '/create-project', component: CreateProject },
   { path: '/signup-employer', component: SignUpEmployer },
-  { path: '/hourregistry', component: HoursRegistry },
   { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject }
 ]
 
