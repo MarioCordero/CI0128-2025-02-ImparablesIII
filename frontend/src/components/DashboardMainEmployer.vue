@@ -116,70 +116,121 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-// import axios from 'axios'
+
+
+
+<script>
 import MainEmployerHeader from './common/MainEmployerHeader.vue'
 import '../assets/neumorphismGlobal.css'
 import ProjectList from './ProjectList.vue'
 
-// Reactive data
-const companies = ref([])
-const loading = ref(false)
-const error = ref(null)
-const router = useRouter()
+export default {
+  // 1. Nombre del componente
+  name: 'DashboardMainEmployer',
 
-// const API_BASE_URL = 'http://localhost:5011/api'
+  // 2. Componentes hijos locales
+  components: {
+    MainEmployerHeader,
+    ProjectList
+  },
 
-const user = ref(null)
-onMounted(() => {
-  const userRaw = localStorage.getItem('user')
-  if (userRaw) {
-    try {
-      user.value = JSON.parse(userRaw)
-    } catch {
-      user.value = null
+  // 3. Directivas locales
+  directives: {},
+
+  // 4. Props recibidas del padre
+  props: {},
+
+  // 5. Estado reactivo del componente
+  data() {
+    return {
+      companies: [],
+      loading: false,
+      error: null,
+      user: null
     }
-  }
-  fetchCompanies()
-})
+  },
 
-const getProfitabilityColor = (profitability) => {
-  if (profitability >= 20) return 'bg-green-500'
-  if (profitability >= 15) return 'bg-gray-400'
-  return 'bg-red-500'
+  // 6. Propiedades derivadas
+  computed: {},
+
+  // 7. Observadores de cambios
+  watch: {},
+
+  // 8. Métodos y lógica ejecutable
+  methods: {
+    getProfitabilityColor(profitability) {
+      if (profitability >= 20) return 'bg-green-500'
+      if (profitability >= 15) return 'bg-gray-400'
+      return 'bg-red-500'
+    },
+
+    getProfitabilityTextColor(profitability) {
+      if (profitability >= 20) return 'text-green-600'
+      if (profitability >= 15) return 'text-gray-600'
+      return 'text-red-600'
+    },
+
+    getProfitabilityChange(current, last) {
+      const change = current - last
+      if (change > 0) return `+${change}% vs mes ant.`
+      if (change < 0) return `${change}% vs mes ant.`
+      return '+0% vs mes ant.'
+    },
+
+    navigateToCreateProject() {
+      this.$router.push('/create-project')
+    },
+
+    async fetchCompanies() {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await fetch('http://localhost:5011/api/Project')
+        if (!response.ok) throw new Error('No se pudo cargar las empresas')
+        this.companies = await response.json()
+      } catch (err) {
+        this.error = err.message || 'Error al cargar las empresas'
+      } finally {
+        this.loading = false
+      }
+    }
+  },
+
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {
+    const userRaw = localStorage.getItem('user')
+    if (userRaw) {
+      try {
+        this.user = JSON.parse(userRaw)
+      } catch {
+        this.user = null
+      }
+    }
+  },
+  beforeMount() {},
+  mounted() {
+    this.fetchCompanies()
+  },
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
+
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
+
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
 }
-
-const getProfitabilityTextColor = (profitability) => {
-  if (profitability >= 20) return 'text-green-600'
-  if (profitability >= 15) return 'text-gray-600'
-  return 'text-red-600'
-}
-
-const getProfitabilityChange = (current, last) => {
-  const change = current - last
-  if (change > 0) return `+${change}% vs mes ant.`
-  if (change < 0) return `${change}% vs mes ant.`
-  return '+0% vs mes ant.'
-}
-
-function navigateToCreateProject() {
-  router.push('/create-project')
-}
-
-async function fetchCompanies() {
-  loading.value = true
-  error.value = null
-  try {
-    const response = await fetch('http://localhost:5011/api/Project')
-    if (!response.ok) throw new Error('No se pudo cargar las empresas')
-    companies.value = await response.json()
-  } catch (err) {
-    error.value = err.message || 'Error al cargar las empresas'
-  } finally {
-    loading.value = false
-  }
-}
-
 </script>
