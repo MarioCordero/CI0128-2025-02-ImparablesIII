@@ -124,8 +124,6 @@ export default {
       this.isLoading = true
 
       try {
-        console.log('Attempting login with:', { email: this.email }) // Debug log
-
         const response = await fetch(`${this.API_BASE_URL}/login`, {
           method: 'POST',
           headers: {
@@ -137,10 +135,7 @@ export default {
           })
         })
 
-        console.log('Response status:', response.status) // Debug log
-
         const data = await response.json()
-        console.log('Response data:', data) // Debug log
 
         if (response.ok && data.success) {
           this.successMessage = data.message || 'Login exitoso'
@@ -151,8 +146,6 @@ export default {
             localStorage.setItem('token', data.token);
             localStorage.setItem('employerId', data.userData.idPersona);
           }
-          
-          console.log('Login successful, user data:', data.userData) // Debug log
           
           // Check if user is Administrador and redirect accordingly
           if (data.userData.tipoUsuario === 'Administrador') {

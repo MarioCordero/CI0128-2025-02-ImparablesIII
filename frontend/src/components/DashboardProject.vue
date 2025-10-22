@@ -124,7 +124,6 @@ export default {
         if (!response.ok) throw new Error('No se pudo cargar el proyecto')
         const data = await response.json()
         this.project = data
-        console.log(data)
       } catch (err) {
         this.error = err.message || 'Error al cargar el proyecto'
       } finally {
