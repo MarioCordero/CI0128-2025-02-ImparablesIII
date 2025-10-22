@@ -116,9 +116,6 @@
   </div>
 </template>
 
-
-
-
 <script>
 import MainEmployerHeader from './common/MainEmployerHeader.vue'
 import '../assets/neumorphismGlobal.css'
