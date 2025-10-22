@@ -4,8 +4,8 @@
 # Intenta abrir gnome-terminal (Linux)
 if command -v gnome-terminal &> /dev/null
 then
-    gnome-terminal -- bash -c "cd frontend && npm install && npm run serve; exec bash"
-    gnome-terminal -- bash -c "cd backend && dotnet run; exec bash"
+    gnome-terminal -- bash -c "cd ../frontend && npm install && npm run serve; exec bash"
+    gnome-terminal -- bash -c "cd ../backend && dotnet run; exec bash"
 # Si no hay gnome-terminal, intenta abrir Terminal en macOS con AppleScript
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     osascript -e 'tell app "Terminal"
