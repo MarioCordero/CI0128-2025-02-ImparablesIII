@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-[#E9F7FF]">
-    <MainEmployerHeader/>
+    <MainEmployerHeader :companies="companies" :current-project="project" />
     <DashboardProjectSubHeader />
     <div class="bg-[#E9F7FF] rounded-[40px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] p-12 w-full max-w-4xl">
       <!-- Step Navigation -->
@@ -39,6 +39,16 @@
       </div>
 
       <h2 class="text-2xl font-semibold text-gray-700 text-center mb-8 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff] rounded-[12px] bg-[#E9F7FF] py-2 px-4">{{ stepTitles[currentTab] }}</h2>
+      
+      <!-- Project Selection Info -->
+      <div v-if="isProjectSelected" class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-2xl mb-6 shadow-[2px_2px_4px_#d1e3ee,-2px_-2px_4px_#ffffff]">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <span><strong>Proyecto seleccionado:</strong> {{ projectDisplayName }}</span>
+        </div>
+      </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Tab 1: Personal Information -->
@@ -195,320 +205,348 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import MainEmployerHeader from '../common/MainEmployerHeader.vue'
-import DashboardProjectSubHeader from '../projectDashboard/DashboardProjectSubHeader.vue'
+<script>
+import MainEmployerHeader from './common/MainEmployerHeader.vue'
+import DashboardProjectSubHeader from './projectDashboard/DashboardProjectSubHeader.vue'
 
-const route = useRoute()
-const router = useRouter()
-
-const employerId = route.params.employerId
-const projectId = route.params.projectId
-const project = ref({}) // <-- Now you have a reactive project object
-
-onMounted(async () => {
-  try {
-    const response = await fetch(`http://localhost:5011/api/Project/${projectId}`)
-    if (!response.ok) throw new Error('No se pudo cargar el proyecto')
-    project.value = await response.json()
-    // Now you can use project.value in your form
-  } catch (err) {
-    // Handle error (show message, etc.)
-  }
-})
-
-const currentTab = ref(0)
-const formattedSalario = ref('')
-const errors = reactive({})
-const provinciasCostaRica = [
-  'San José',
-  'Alajuela',
-  'Cartago',
-  'Heredia',
-  'Guanacaste',
-  'Puntarenas',
-  'Limón'
-]
-const stepTitles = [
-  'Información Personal',
-  'Información de Dirección',
-  'Información Laboral'
-]
-
-const formData = reactive({
-  primerNombre: '',
-  segundoNombre: '',
-  primerApellido: '',
-  fechaNacimiento: '',
-  cedula: '',
-  telefono: '',
-  correo: '',
-  provincia: '',
-  canton: '',
-  distrito: '',
-  direccionParticular: '',
-  departamento: '',
-  tipoContrato: '',
-  puesto: '',
-  salario: '',
-  numeroCuentaIban: ''
-})
-
-function goToTab(tabIndex) {
-  if (tabIndex > currentTab.value && !validateCurrentTab()) return
-  if (tabIndex >= 0 && tabIndex <= 2) {
-    currentTab.value = tabIndex
-    clearErrors()
-  }
-}
-
-function formatCedula(event) {
-  let value = event.target.value.replace(/\D/g, '')
-  if (value.length > 1) {
-    if (value.length <= 5) {
-      value = value.slice(0, 1) + '-' + value.slice(1)
-    } else {
-      value = value.slice(0, 1) + '-' + value.slice(1, 5) + '-' + value.slice(5, 9)
+export default {
+  name: 'RegisterEmployee',
+  components: {
+    MainEmployerHeader,
+    DashboardProjectSubHeader
+  },
+  data() {
+    return {
+      currentTab: 0,
+      formattedSalario: '',
+      errors: {},
+      project: {},
+      companies: [],
+      provinciasCostaRica: [
+        'San José',
+        'Alajuela',
+        'Cartago',
+        'Heredia',
+        'Guanacaste',
+        'Puntarenas',
+        'Limón'
+      ],
+      stepTitles: [
+        'Información Personal',
+        'Información de Dirección',
+        'Información Laboral'
+      ],
+      formData: {
+        primerNombre: '',
+        segundoNombre: '',
+        primerApellido: '',
+        fechaNacimiento: '',
+        cedula: '',
+        telefono: '',
+        correo: '',
+        provincia: '',
+        canton: '',
+        distrito: '',
+        direccionParticular: '',
+        departamento: '',
+        tipoContrato: '',
+        puesto: '',
+        salario: '',
+        numeroCuentaIban: ''
+      }
     }
-  }
-  formData.cedula = value
-}
-
-function formatTelefono(event) {
-  let value = event.target.value.replace(/\D/g, '')
-  if (value.length > 4) {
-    value = value.slice(0, 4) + ' ' + value.slice(4, 8)
-  }
-  formData.telefono = value
-}
-
-function formatSalario(event) {
-  let value = event.target.value.replace(/[^\d]/g, '')
-  if (value === '') {
-    formattedSalario.value = ''
-    formData.salario = ''
-    return
-  }
-  const number = parseInt(value)
-  formData.salario = number
-  formattedSalario.value = '₡' + number.toLocaleString('es-CR')
-}
-
-function validateCurrentTab() {
-  clearErrors()
-  let isValid = true
-  switch (currentTab.value) {
-    case 0: isValid = validatePersonalInfo(); break
-    case 1: isValid = validateAddressInfo(); break
-    case 2: isValid = validateEmploymentInfo(); break
-  }
-  return isValid
-}
-
-function validatePersonalInfo() {
-  let isValid = true
-  if (!formData.primerNombre || formData.primerNombre.trim().length === 0) {
-    errors.primerNombre = 'El primer nombre es requerido'
-    isValid = false
-  } else if (formData.primerNombre.length > 20) {
-    errors.primerNombre = 'El primer nombre no puede exceder 20 caracteres'
-    isValid = false
-  }
-  if (!formData.primerApellido || formData.primerApellido.trim().length === 0) {
-    errors.primerApellido = 'El primer apellido es requerido'
-    isValid = false
-  } else if (formData.primerApellido.length > 20) {
-    errors.primerApellido = 'El primer apellido no puede exceder 20 caracteres'
-    isValid = false
-  }
-  if (!formData.fechaNacimiento) {
-    errors.fechaNacimiento = 'La fecha de nacimiento es requerida'
-    isValid = false
-  } else {
-    const today = new Date()
-    const birthDate = new Date(formData.fechaNacimiento)
-    const age = today.getFullYear() - birthDate.getFullYear()
-    const monthDiff = today.getMonth() - birthDate.getMonth()
-    const dayDiff = today.getDate() - birthDate.getDate()
-    if (age < 18 || (age === 18 && monthDiff < 0) || (age === 18 && monthDiff === 0 && dayDiff < 0)) {
-      errors.fechaNacimiento = 'El empleado debe tener al menos 18 años'
-      isValid = false
-    } else if (age > 99 || (age === 99 && monthDiff < 0) || (age === 99 && monthDiff === 0 && dayDiff < 0)) {
-      errors.fechaNacimiento = 'El empleado debe tener menos de 99 años'
-      isValid = false
+  },
+  mounted() {
+    this.initializeProject()
+    this.fetchCompanies()
+  },
+  computed: {
+    employerId() {
+      return this.$route.params.employerId
+    },
+    projectId() {
+      return this.$route.params.projectId
+    },
+    isProjectSelected() {
+      return this.project && this.project.id
+    },
+    projectDisplayName() {
+      return this.project ? this.project.nombre : 'No seleccionado'
     }
-  }
-  if (!formData.cedula || formData.cedula.trim().length === 0) {
-    errors.cedula = 'La cédula es requerida'
-    isValid = false
-  } else {
-    const cedulaDigits = formData.cedula.replace(/-/g, '')
-    if (cedulaDigits.length !== 9) {
-      errors.cedula = 'La cédula debe tener 9 dígitos'
-      isValid = false
+  },
+
+  methods: {
+    async initializeProject() {
+      if (this.projectId) {
+        try {
+          const response = await fetch(`http://localhost:5011/api/Project/${this.projectId}`)
+          if (!response.ok) throw new Error('No se pudo cargar el proyecto')
+          this.project = await response.json()
+        } catch (err) {
+          console.error('Error fetching project:', err)
+        }
+      }
+    },
+    async fetchCompanies() {
+      try {
+        const response = await fetch('http://localhost:5011/api/Project')
+        if (!response.ok) throw new Error('No se pudo cargar las empresas')
+        this.companies = await response.json()
+      } catch (err) {
+        console.error('Error fetching companies:', err)
+      }
+    },
+    goToTab(tabIndex) {
+      if (tabIndex > this.currentTab && !this.validateCurrentTab()) return
+      if (tabIndex >= 0 && tabIndex <= 2) {
+        this.currentTab = tabIndex
+        this.clearErrors()
+      }
+    },
+    formatCedula(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 1) {
+        if (value.length <= 5) {
+          value = value.slice(0, 1) + '-' + value.slice(1)
+        } else {
+          value = value.slice(0, 1) + '-' + value.slice(1, 5) + '-' + value.slice(5, 9)
+        }
+      }
+      this.formData.cedula = value
+    },
+    formatTelefono(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 4) {
+        value = value.slice(0, 4) + ' ' + value.slice(4, 8)
+      }
+      this.formData.telefono = value
+    },
+    formatSalario(event) {
+      let value = event.target.value.replace(/[^\d]/g, '')
+      if (value === '') {
+        this.formattedSalario = ''
+        this.formData.salario = ''
+        return
+      }
+      const number = parseInt(value)
+      this.formData.salario = number
+      this.formattedSalario = '₡' + number.toLocaleString('es-CR')
+    },
+
+    validateCurrentTab() {
+      this.clearErrors()
+      let isValid = true
+      switch (this.currentTab) {
+        case 0: isValid = this.validatePersonalInfo(); break
+        case 1: isValid = this.validateAddressInfo(); break
+        case 2: isValid = this.validateEmploymentInfo(); break
+      }
+      return isValid
+    },
+    validatePersonalInfo() {
+      let isValid = true
+      if (!this.formData.primerNombre || this.formData.primerNombre.trim().length === 0) {
+        this.errors.primerNombre = 'El primer nombre es requerido'
+        isValid = false
+      } else if (this.formData.primerNombre.length > 20) {
+        this.errors.primerNombre = 'El primer nombre no puede exceder 20 caracteres'
+        isValid = false
+      }
+      if (!this.formData.primerApellido || this.formData.primerApellido.trim().length === 0) {
+        this.errors.primerApellido = 'El primer apellido es requerido'
+        isValid = false
+      } else if (this.formData.primerApellido.length > 20) {
+        this.errors.primerApellido = 'El primer apellido no puede exceder 20 caracteres'
+        isValid = false
+      }
+      if (!this.formData.fechaNacimiento) {
+        this.errors.fechaNacimiento = 'La fecha de nacimiento es requerida'
+        isValid = false
+      } else {
+        const today = new Date()
+        const birthDate = new Date(this.formData.fechaNacimiento)
+        const age = today.getFullYear() - birthDate.getFullYear()
+        const monthDiff = today.getMonth() - birthDate.getMonth()
+        const dayDiff = today.getDate() - birthDate.getDate()
+        if (age < 18 || (age === 18 && monthDiff < 0) || (age === 18 && monthDiff === 0 && dayDiff < 0)) {
+          this.errors.fechaNacimiento = 'El empleado debe tener al menos 18 años'
+          isValid = false
+        } else if (age > 99 || (age === 99 && monthDiff < 0) || (age === 99 && monthDiff === 0 && dayDiff < 0)) {
+          this.errors.fechaNacimiento = 'El empleado debe tener menos de 99 años'
+          isValid = false
+        }
+      }
+      if (!this.formData.cedula || this.formData.cedula.trim().length === 0) {
+        this.errors.cedula = 'La cédula es requerida'
+        isValid = false
+      } else {
+        const cedulaDigits = this.formData.cedula.replace(/-/g, '')
+        if (cedulaDigits.length !== 9) {
+          this.errors.cedula = 'La cédula debe tener 9 dígitos'
+          isValid = false
+        }
+      }
+      if (!this.formData.telefono || this.formData.telefono.trim().length === 0) {
+        this.errors.telefono = 'El teléfono es requerido'
+        isValid = false
+      } else {
+        const phoneDigits = this.formData.telefono.replace(/\s/g, '')
+        if (phoneDigits.length !== 8) {
+          this.errors.telefono = 'El teléfono debe tener 8 dígitos (#### ####)'
+          isValid = false
+        }
+      }
+      if (!this.formData.correo || this.formData.correo.trim().length === 0) {
+        this.errors.correo = 'El correo electrónico es requerido'
+        isValid = false
+      } else if (this.formData.correo.length > 50) {
+        this.errors.correo = 'El correo no puede exceder 50 caracteres'
+        isValid = false
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(this.formData.correo)) {
+          this.errors.correo = 'Formato de correo electrónico inválido'
+          isValid = false
+        }
+      }
+      return isValid
+    },
+
+    validateAddressInfo() {
+      let isValid = true
+      if (!this.formData.provincia || this.formData.provincia.trim().length === 0) {
+        this.errors.provincia = 'La provincia es requerida'
+        isValid = false
+      } else if (this.formData.provincia.length > 12) {
+        this.errors.provincia = 'La provincia no puede exceder 12 caracteres'
+        isValid = false
+      }
+      if (!this.formData.canton || this.formData.canton.trim().length === 0) {
+        this.errors.canton = 'El cantón es requerido'
+        isValid = false
+      } else if (this.formData.canton.length > 30) {
+        this.errors.canton = 'El cantón no puede exceder 30 caracteres'
+        isValid = false
+      }
+      if (!this.formData.distrito || this.formData.distrito.trim().length === 0) {
+        this.errors.distrito = 'El distrito es requerido'
+        isValid = false
+      } else if (this.formData.distrito.length > 30) {
+        this.errors.distrito = 'El distrito no puede exceder 30 caracteres'
+        isValid = false
+      }
+      if (!this.formData.direccionParticular || this.formData.direccionParticular.trim().length === 0) {
+        this.errors.direccionParticular = 'La dirección particular es requerida'
+        isValid = false
+      } else if (this.formData.direccionParticular.length > 150) {
+        this.errors.direccionParticular = 'La dirección no puede exceder 150 caracteres'
+        isValid = false
+      }
+      return isValid
+    },
+    validateEmploymentInfo() {
+      let isValid = true
+      if (!this.formData.departamento || this.formData.departamento.trim().length === 0) {
+        this.errors.departamento = 'El departamento es requerido'
+        isValid = false
+      } else if (this.formData.departamento.length > 20) {
+        this.errors.departamento = 'El departamento no puede exceder 20 caracteres'
+        isValid = false
+      }
+      if (!this.formData.tipoContrato || this.formData.tipoContrato.trim().length === 0) {
+        this.errors.tipoContrato = 'El tipo de contrato es requerido'
+        isValid = false
+      } else if (this.formData.tipoContrato.length > 20) {
+        this.errors.tipoContrato = 'El tipo de contrato no puede exceder 20 caracteres'
+        isValid = false
+      }
+      if (!this.formData.puesto || this.formData.puesto.trim().length === 0) {
+        this.errors.puesto = 'El puesto es requerido'
+        isValid = false
+      } else if (this.formData.puesto.length > 20) {
+        this.errors.puesto = 'El puesto no puede exceder 20 caracteres'
+        isValid = false
+      }
+      if (!this.formData.salario || this.formData.salario === '') {
+        this.errors.salario = 'El salario es requerido'
+        isValid = false
+      } else if (this.formData.salario < 0) {
+        this.errors.salario = 'El salario debe ser un valor positivo'
+        isValid = false
+      }
+      if (!this.formData.numeroCuentaIban || this.formData.numeroCuentaIban.trim().length === 0) {
+        this.errors.numeroCuentaIban = 'El número de cuenta IBAN es requerido'
+        isValid = false
+      } else if (this.formData.numeroCuentaIban.length > 30) {
+        this.errors.numeroCuentaIban = 'El número de cuenta no puede exceder 30 caracteres'
+        isValid = false
+      }
+      return isValid
+    },
+    clearErrors() {
+      Object.keys(this.errors).forEach(key => { this.errors[key] = '' })
+    },
+    validateForm() {
+      return this.validatePersonalInfo() && this.validateAddressInfo() && this.validateEmploymentInfo()
+    },
+    resetForm() {
+      Object.assign(this.formData, {
+        primerNombre: '',
+        segundoNombre: '',
+        primerApellido: '',
+        fechaNacimiento: '',
+        cedula: '',
+        telefono: '',
+        correo: '',
+        provincia: '',
+        canton: '',
+        distrito: '',
+        direccionParticular: '',
+        departamento: '',
+        tipoContrato: '',
+        puesto: '',
+        salario: '',
+        numeroCuentaIban: ''
+      })
+      this.formattedSalario = ''
+      this.currentTab = 0
+      this.clearErrors()
+    },
+    async handleSubmit() {
+      if (!this.validateForm()) return
+      const employeeData = {
+        ...this.formData,
+        cedula: this.formData.cedula.replace(/-/g, ''),
+        telefono: this.formData.telefono.replace(/\s/g, ''),
+        fechaNacimiento: new Date(this.formData.fechaNacimiento).toISOString(),
+        numeroCuentaIban: this.formData.numeroCuentaIban,
+        employerId: this.employerId,
+        projectId: this.project.id
+      }
+      try {
+        const response = await fetch('http://localhost:5011/api/RegisterEmployee', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(employeeData)
+        })
+        const result = await response.json()
+        if (response.ok) {
+          alert('Empleado registrado exitosamente!')
+          this.resetForm()
+          // Return to the project dashboard if coming from a project
+          if (this.isProjectSelected) {
+            this.$router.push(`/dashboard-project/${this.project.id}`)
+          } else {
+            this.$router.push('/employer-menu')
+          }
+        } else {
+          alert(`Error: ${result.message || 'Error al registrar el empleado'}`)
+        }
+      } catch (error) {
+        console.error('Error:', error)
+        alert('Error de conexión. Intente nuevamente.')
+      }
     }
-  }
-  if (!formData.telefono || formData.telefono.trim().length === 0) {
-    errors.telefono = 'El teléfono es requerido'
-    isValid = false
-  } else {
-    const phoneDigits = formData.telefono.replace(/\s/g, '')
-    if (phoneDigits.length !== 8) {
-      errors.telefono = 'El teléfono debe tener 8 dígitos (#### ####)'
-      isValid = false
-    }
-  }
-  if (!formData.correo || formData.correo.trim().length === 0) {
-    errors.correo = 'El correo electrónico es requerido'
-    isValid = false
-  } else if (formData.correo.length > 50) {
-    errors.correo = 'El correo no puede exceder 50 caracteres'
-    isValid = false
-  } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(formData.correo)) {
-      errors.correo = 'Formato de correo electrónico inválido'
-      isValid = false
-    }
-  }
-  return isValid
-}
-
-function validateAddressInfo() {
-  let isValid = true
-  if (!formData.provincia || formData.provincia.trim().length === 0) {
-    errors.provincia = 'La provincia es requerida'
-    isValid = false
-  } else if (formData.provincia.length > 12) {
-    errors.provincia = 'La provincia no puede exceder 12 caracteres'
-    isValid = false
-  }
-  if (!formData.canton || formData.canton.trim().length === 0) {
-    errors.canton = 'El cantón es requerido'
-    isValid = false
-  } else if (formData.canton.length > 30) {
-    errors.canton = 'El cantón no puede exceder 30 caracteres'
-    isValid = false
-  }
-  if (!formData.distrito || formData.distrito.trim().length === 0) {
-    errors.distrito = 'El distrito es requerido'
-    isValid = false
-  } else if (formData.distrito.length > 30) {
-    errors.distrito = 'El distrito no puede exceder 30 caracteres'
-    isValid = false
-  }
-  if (!formData.direccionParticular || formData.direccionParticular.trim().length === 0) {
-    errors.direccionParticular = 'La dirección particular es requerida'
-    isValid = false
-  } else if (formData.direccionParticular.length > 150) {
-    errors.direccionParticular = 'La dirección no puede exceder 150 caracteres'
-    isValid = false
-  }
-  return isValid
-}
-
-function validateEmploymentInfo() {
-  let isValid = true
-  if (!formData.departamento || formData.departamento.trim().length === 0) {
-    errors.departamento = 'El departamento es requerido'
-    isValid = false
-  } else if (formData.departamento.length > 20) {
-    errors.departamento = 'El departamento no puede exceder 20 caracteres'
-    isValid = false
-  }
-  if (!formData.tipoContrato || formData.tipoContrato.trim().length === 0) {
-    errors.tipoContrato = 'El tipo de contrato es requerido'
-    isValid = false
-  } else if (formData.tipoContrato.length > 20) {
-    errors.tipoContrato = 'El tipo de contrato no puede exceder 20 caracteres'
-    isValid = false
-  }
-  if (!formData.puesto || formData.puesto.trim().length === 0) {
-    errors.puesto = 'El puesto es requerido'
-    isValid = false
-  } else if (formData.puesto.length > 20) {
-    errors.puesto = 'El puesto no puede exceder 20 caracteres'
-    isValid = false
-  }
-  if (!formData.salario || formData.salario === '') {
-    errors.salario = 'El salario es requerido'
-    isValid = false
-  } else if (formData.salario < 0) {
-    errors.salario = 'El salario debe ser un valor positivo'
-    isValid = false
-  }
-  if (!formData.numeroCuentaIban || formData.numeroCuentaIban.trim().length === 0) {
-    errors.numeroCuentaIban = 'El número de cuenta IBAN es requerido'
-    isValid = false
-  } else if (formData.numeroCuentaIban.length > 30) {
-    errors.numeroCuentaIban = 'El número de cuenta no puede exceder 30 caracteres'
-    isValid = false
-  }
-  return isValid
-}
-
-function clearErrors() {
-  Object.keys(errors).forEach(key => { errors[key] = '' })
-}
-
-function validateForm() {
-  return validatePersonalInfo() && validateAddressInfo() && validateEmploymentInfo()
-}
-
-function resetForm() {
-  Object.assign(formData, {
-    primerNombre: '',
-    segundoNombre: '',
-    primerApellido: '',
-    fechaNacimiento: '',
-    cedula: '',
-    telefono: '',
-    correo: '',
-    provincia: '',
-    canton: '',
-    distrito: '',
-    direccionParticular: '',
-    departamento: '',
-    tipoContrato: '',
-    puesto: '',
-    salario: '',
-    numeroCuentaIban: ''
-  })
-  formattedSalario.value = ''
-  currentTab.value = 0
-  clearErrors()
-}
-
-async function handleSubmit() {
-  if (!validateForm()) return
-  const employeeData = {
-    ...formData,
-    cedula: formData.cedula.replace(/-/g, ''),
-    telefono: formData.telefono.replace(/\s/g, ''),
-    fechaNacimiento: new Date(formData.fechaNacimiento).toISOString(),
-    numeroCuentaIban: formData.numeroCuentaIban,
-    employerId,
-    projectId: project.value.id // TODO
-  }
-  try {
-    const response = await fetch('http://localhost:5011/api/RegisterEmployee', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(employeeData)
-    })
-    const result = await response.json()
-    if (response.ok) {
-      alert('Empleado registrado exitosamente!')
-      resetForm()
-      router.push('/employer-menu')
-    } else {
-      alert(`Error: ${result.message || 'Error al registrar el empleado'}`)
-    }
-  } catch (error) {
-    console.error('Error:', error)
-    alert('Error de conexión. Intente nuevamente.')
   }
 }
 </script>

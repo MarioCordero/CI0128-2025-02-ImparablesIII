@@ -19,8 +19,8 @@ import DashboardMainEmployer from './components/DashboardMainEmployer.vue'
 import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import CreateProject from './components/CreateProject.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
-import DashboardProject from './components/projectDashboard/DashboardProject.vue'
-import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
+import DashboardProject from './components/DashboardProject.vue'
+import AddBenefit from './components/AddBenefit.vue'
 
 // Route definitions
 const routes = [
@@ -37,6 +37,7 @@ const routes = [
   { path: '/create-project', component: CreateProject },
   { path: '/signup-employer', component: SignUpEmployer },
   { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject },
+  { path: '/add-benefit/:projectId?', name: 'AddBenefit', component: AddBenefit },
 ]
 
 const router = createRouter({
