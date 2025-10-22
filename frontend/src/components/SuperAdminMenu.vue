@@ -160,10 +160,21 @@ import '../assets/neumorphismGlobal.css'
 import SuperAdminHeader from './common/SuperAdminHeader.vue'
 
 export default {
+  // 1. Nombre del componente
   name: 'SuperAdminMenu',
+
+  // 2. Componentes hijos locales
   components: {
     SuperAdminHeader
   },
+
+  // 3. Directivas locales
+  directives: {},
+
+  // 4. Props recibidas del padre
+  props: {},
+
+  // 5. Estado reactivo del componente
   data() {
     return {
       empresas: [],
@@ -173,12 +184,14 @@ export default {
       user: null
     }
   },
-  mounted() {
-    // Check authentication first
-    if (this.checkAuthentication()) {
-      this.fetchEmpresas();
-    }
-  },
+
+  // 6. Propiedades derivadas
+  computed: {},
+
+  // 7. Observadores de cambios
+  watch: {},
+
+  // 8. Métodos y lógica ejecutable
   methods: {
     checkAuthentication() {
       const userData = localStorage.getItem('user');
@@ -201,14 +214,17 @@ export default {
         return false;
       }
     },
+
     goBack() {
       this.$router.push('/');
     },
+
     logout() {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
       this.$router.push('/login');
     },
+
     toggleBenefits(empresaId) {
       if (this.expandedEmpresas.has(empresaId)) {
         this.expandedEmpresas.delete(empresaId);
@@ -216,6 +232,7 @@ export default {
         this.expandedEmpresas.add(empresaId);
       }
     },
+
     async fetchEmpresas() {
       try {
         this.loading = true;
@@ -233,6 +250,37 @@ export default {
       }
     }
   },
+
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {
+    // Check authentication first
+    if (this.checkAuthentication()) {
+      this.fetchEmpresas();
+    }
+  },
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
+
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
+
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
 }
 </script>
 
