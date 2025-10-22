@@ -1,19 +1,15 @@
 <template>
   <div class="min-h-screen bg-[#E9F7FF]">
     <MainEmployerHeader :companies="companies" />
-    <DashboardProjectSubHeader />
+    <DashboardProjectSubHeader
+      :selected-section="selectedSection"
+      @section-change="selectedSection = $event"
+    />
     <div class="neumorphism-card w-full max-w-5xl p-10 my-20 rounded-[32px] shadow-lg">
       <div class="flex flex-col md:flex-row items-center justify-between mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Dashboard de Empresa</h1>
-        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="goBack">
+        <!-- <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="goBack">
           Volver
-        </button>
-        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addBenefit">
-          Agreagar beneficio
-        </button>
-        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addEmployee">
-          Agreagar empleado
-        </button>
+        </button> -->
       </div>
       <div v-if="loading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 neumorphism-dark"></div>
@@ -21,7 +17,9 @@
       <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-6 neumorphism-card">
         <span>{{ error }}</span>
       </div>
-      <div v-else>
+
+      <div v-if="selectedSection === 'dashboard'">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Dashboard de Empresa</h1>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div class="neumorphism-card p-6 rounded-2xl">
             <h2 class="text-xl font-semibold mb-2">Información de la Empresa</h2>
@@ -44,6 +42,28 @@
             </ul>
           </div>
         </div>
+      </div>
+      <div v-else-if="selectedSection === 'benefits'">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Gestión de Beneficios</h1>
+        <p>Aquí va la gestión de beneficios.</p>
+        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addBenefit">
+          Agreagar beneficio
+        </button>
+      </div>
+      <div v-else-if="selectedSection === 'employees'">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Gestión de Empleados</h1>
+        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addEmployee">
+          Agregar empleado
+        </button>
+        <p>Aquí va la gestión de empleados.</p>
+      </div>
+      <div v-else-if="selectedSection === 'info'">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Información de la Empresa</h1>
+        <p>Aquí va la información de la empresa.</p>
+      </div>
+      <div v-else-if="selectedSection === 'reports'">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Reportes de Planilla</h1>
+        <p>Aquí van los reportes de planilla.</p>
       </div>
     </div>
   </div>
@@ -75,7 +95,8 @@ export default {
       project: {},
       loading: true,
       error: null,
-      companies: []
+      companies: [],
+      selectedSection: 'dashboard' // default section
     }
   },
 
