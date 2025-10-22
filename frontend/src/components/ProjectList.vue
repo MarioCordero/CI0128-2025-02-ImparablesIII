@@ -171,13 +171,14 @@ export default {
     },
 
     goToDashboard(companyId) {
-      if (companyId) {
-        this.$router.push({ name: 'DashboardProject', params: { id: companyId } });
+      const company = this.companies.find(c => c.id === companyId)
+      if (company) {
+        localStorage.setItem('selectedProject', JSON.stringify(company))
+        this.$router.push({ name: 'DashboardProject', params: { id: companyId } })
       } else {
-        // TODO: SHOW BETTER ERROR MESSAGE
-        alert('No se encontró el ID del proyecto.');
+        alert('No se encontró el proyecto seleccionado.')
       }
-    }
+    },
   },
 
   // 9. Ciclo de vida
