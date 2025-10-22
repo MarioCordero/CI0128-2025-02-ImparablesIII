@@ -1,37 +1,10 @@
 <template>
   <div class="min-h-screen bg-[#E9F7FF] p-0">
-    <!-- Header -->
-    <header class="grid grid-cols-3 items-center gap-[247px] mb-0 rounded-lg bg-[#E9F7FF] px-[89px] min-h-[95px] max-h-[95px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff]">
-      <!-- Columna 1: Título -->
-      <div class="flex items-center">
-        <div class="w-[317px] h-auto gap-0">
-          <p class="text-[24px] font-bold mb-0 whitespace-nowrap">Registrar Empresa</p>
-          <p class="text-gray-600 text-[18px] mb-0 whitespace-nowrap">Agregar nueva empresa al sistema</p>
-        </div>
-      </div>
-      
-      <!-- Columna 2: Vacía -->
-      <div class="flex justify-center">
-      </div>
-      
-      <!-- Columna 3: Botón volver -->
-      <div class="flex justify-end items-center gap-4">
-        <button 
-          @click="handleCancel"
-          class="px-4 py-2 bg-[#E9F7FF] rounded-3 shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] hover:bg-blue-100 transition flex items-center space-x-2"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-          </svg>
-          <span>Volver</span>
-        </button>
-      </div>
-    </header>
+    <MainEmployerHeader :companies="companies" />
 
-    <!-- Content -->
     <div class="mx-[171px] my-[41px] space-y-[41px]">
       <!-- Success Message -->
-      <div v-if="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-2xl mb-6">
+      <div v-if="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-2xl mb-6 neumorphism-card">
         <div class="flex items-center">
           <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -41,7 +14,7 @@
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-6">
+      <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-6 neumorphism-card">
         <div class="flex items-center">
           <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
@@ -51,107 +24,108 @@
       </div>
 
       <!-- Form -->
-      <div class="bg-[#E9F7FF] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] p-8 rounded-2xl">
+      <div class="neumorphism-card bg-[#E9F7FF] p-8 my-20! rounded-2xl">
+        <h1 class="text-5xl font-black mb-8! mt-2 text-black tracking-wide text-center py-2 px-4">
+          Registro de proyecto
+        </h1>
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Información Básica -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Nombre de la Empresa -->
             <div>
-              <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
                 Nombre de la Empresa *
               </label>
               <input
-                id="nombre"
                 v-model="form.Nombre"
                 type="text"
                 required
                 maxlength="20"
-                class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                :class="['neumorphism-input w-full', errors.Nombre ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ingrese el nombre de la empresa"
               />
+              <span v-if="errors.Nombre" class="text-red-500 text-sm mt-1">{{ errors.Nombre }}</span>
             </div>
 
             <!-- Cédula Jurídica -->
             <div>
-              <label for="cedulaJuridica" class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
                 Cédula Jurídica *
               </label>
               <input
-                id="cedulaJuridica"
                 v-model="form.CedulaJuridica"
                 type="number"
                 required
                 min="100000000"
                 max="999999999"
-                class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                :class="['neumorphism-input w-full', errors.CedulaJuridica ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ingrese la cédula jurídica (9 dígitos)"
               />
+              <span v-if="errors.CedulaJuridica" class="text-red-500 text-sm mt-1">{{ errors.CedulaJuridica }}</span>
             </div>
 
             <!-- Email -->
             <div>
-              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
                 Correo Electrónico *
               </label>
               <input
-                id="email"
                 v-model="form.Email"
                 type="email"
                 required
                 maxlength="50"
-                class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                :class="['neumorphism-input w-full', errors.Email ? 'ring-2 ring-red-500' : '']"
                 placeholder="empresa@ejemplo.com"
               />
+              <span v-if="errors.Email" class="text-red-500 text-sm mt-1">{{ errors.Email }}</span>
             </div>
 
             <!-- Teléfono -->
             <div>
-              <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
-                Teléfono
-              </label>
+              <label class="block mb-1 font-medium text-gray-700">Número de teléfono*</label>
               <input
-                id="telefono"
-                v-model="form.Telefono"
-                type="number"
-                min="10000000"
-                max="99999999"
-                class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
-                placeholder="Ingrese el teléfono (8 dígitos)"
+                v-model="formattedTelefono"
+                type="tel"
+                required
+                @input="formatTelefono"
+                :class="['neumorphism-input w-full', errors.Telefono ? 'ring-2 ring-red-500' : '']"
+                placeholder="####-####"
+                maxlength="9"
               />
+              <span v-if="errors.Telefono" class="text-red-500 text-sm mt-1">{{ errors.Telefono }}</span>
             </div>
 
             <!-- Período de Pago -->
             <div>
-              <label for="periodoPago" class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
                 Período de Pago *
               </label>
               <select
-                id="periodoPago"
                 v-model="form.PeriodoPago"
                 required
-                class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                :class="['neumorphism-input w-full', errors.PeriodoPago ? 'ring-2 ring-red-500' : '']"
               >
                 <option value="">Seleccione período de pago</option>
                 <option value="Mensual">Mensual</option>
                 <option value="Quincenal">Quincenal</option>
               </select>
+              <span v-if="errors.PeriodoPago" class="text-red-500 text-sm mt-1">{{ errors.PeriodoPago }}</span>
             </div>
           </div>
 
           <!-- Dirección -->
           <div class="mt-8">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4">Dirección</h3>
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 neumorphism-card rounded-[12px] bg-[#E9F7FF] py-2 px-4">Dirección</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Provincia -->
               <div>
-                <label for="provincia" class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
                   Provincia *
                 </label>
                 <select
-                  id="provincia"
                   v-model="form.Provincia"
                   required
-                  class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  :class="['neumorphism-input w-full', errors.Provincia ? 'ring-2 ring-red-500' : '']"
                 >
                   <option value="">Seleccione provincia</option>
                   <option value="San José">San José</option>
@@ -162,51 +136,52 @@
                   <option value="Puntarenas">Puntarenas</option>
                   <option value="Limón">Limón</option>
                 </select>
+                <span v-if="errors.Provincia" class="text-red-500 text-sm mt-1">{{ errors.Provincia }}</span>
               </div>
 
               <!-- Cantón -->
               <div>
-                <label for="canton" class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
                   Cantón
                 </label>
                 <input
-                  id="canton"
                   v-model="form.Canton"
                   type="text"
                   maxlength="30"
-                  class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  :class="['neumorphism-input w-full', errors.Canton ? 'ring-2 ring-red-500' : '']"
                   placeholder="Ingrese el cantón"
                 />
+                <span v-if="errors.Canton" class="text-red-500 text-sm mt-1">{{ errors.Canton }}</span>
               </div>
 
               <!-- Distrito -->
               <div>
-                <label for="distrito" class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
                   Distrito
                 </label>
                 <input
-                  id="distrito"
                   v-model="form.Distrito"
                   type="text"
                   maxlength="30"
-                  class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  :class="['neumorphism-input w-full', errors.Distrito ? 'ring-2 ring-red-500' : '']"
                   placeholder="Ingrese el distrito"
                 />
+                <span v-if="errors.Distrito" class="text-red-500 text-sm mt-1">{{ errors.Distrito }}</span>
               </div>
 
               <!-- Dirección Particular -->
               <div>
-                <label for="direccionParticular" class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
                   Dirección Particular
                 </label>
                 <input
-                  id="direccionParticular"
                   v-model="form.DireccionParticular"
                   type="text"
                   maxlength="150"
-                  class="w-full px-4 py-3 bg-[#E9F7FF] shadow-[inset_4px_4px_8px_#d1e3ee,inset_-4px_-4px_8px_#ffffff] rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  :class="['neumorphism-input w-full', errors.DireccionParticular ? 'ring-2 ring-red-500' : '']"
                   placeholder="Dirección específica (opcional)"
                 />
+                <span v-if="errors.DireccionParticular" class="text-red-500 text-sm mt-1">{{ errors.DireccionParticular }}</span>
               </div>
             </div>
           </div>
@@ -216,7 +191,7 @@
             <button
               type="button"
               @click="handleCancel"
-              class="px-6 py-3 bg-[#E9F7FF] shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] rounded-lg text-gray-700 hover:bg-gray-100 transition flex items-center space-x-2"
+              class="neumorphism-light px-6 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition flex items-center space-x-2"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -227,7 +202,7 @@
             <button
               type="submit"
               :disabled="loading"
-              class="px-6 py-3 bg-blue-500 shadow-[4px_4px_8px_#d1e3ee,-4px_-4px_8px_#ffffff] rounded-lg text-white hover:bg-blue-600 disabled:opacity-50 transition flex items-center space-x-2"
+              class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-600 disabled:opacity-50 transition flex items-center space-x-2"
             >
               <svg v-if="loading" class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m-15.357-2A8.001 8.001 0 0019.419 15m0 0H15"/>
@@ -246,40 +221,140 @@
 
 <script>
 import axios from 'axios'
+import MainEmployerHeader from './common/MainEmployerHeader.vue'
+import '../assets/neumorphismGlobal.css'
 
 export default {
-  name: 'CreateProject',
+  // 1. Nombre del componente
+  name: 'CompanyRegistration',
+
+  // 2. Componentes hijos locales
+  components: {
+    MainEmployerHeader
+  },
+
+  // 3. Directivas locales
+  directives: {},
+
+  // 4. Props recibidas del padre
+  props: {},
+
+  // 5. Estado reactivo del componente
   data() {
     return {
+      companies: [],
       loading: false,
       errorMessage: '',
       successMessage: '',
+      formattedTelefono: '',
       form: {
         Nombre: '',
-        CedulaJuridica: null,
+        CedulaJuridica: '',
         Email: '',
-        Telefono: null,
+        Telefono: '',
         PeriodoPago: '',
         Provincia: '',
         Canton: '',
         Distrito: '',
         DireccionParticular: ''
-      }
+      },
+      errors: {}
     }
   },
+
+  // 6. Propiedades derivadas
+  computed: {},
+
+  // 7. Observadores de cambios
+  watch: {},
+
+  // 8. Métodos y lógica ejecutable
   methods: {
+    formatTelefono(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 4) {
+        value = value.slice(0, 4) + '-' + value.slice(4, 8)
+      }
+      this.formattedTelefono = value
+      this.form.Telefono = value.replace('-', '')
+    },
+
+    validateForm() {
+      this.errors = {}
+      let isValid = true
+
+      if (!this.form.Nombre || this.form.Nombre.trim().length === 0) {
+        this.errors.Nombre = 'El nombre es requerido'
+        isValid = false
+      } else if (this.form.Nombre.length > 20) {
+        this.errors.Nombre = 'El nombre no puede exceder 20 caracteres'
+        isValid = false
+      }
+
+      if (!this.form.CedulaJuridica || this.form.CedulaJuridica.toString().length !== 9) {
+        this.errors.CedulaJuridica = 'La cédula jurídica debe tener 9 dígitos'
+        isValid = false
+      }
+
+      if (!this.form.Email || this.form.Email.trim().length === 0) {
+        this.errors.Email = 'El correo electrónico es requerido'
+        isValid = false
+      } else if (this.form.Email.length > 50) {
+        this.errors.Email = 'El correo no puede exceder 50 caracteres'
+        isValid = false
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(this.form.Email)) {
+          this.errors.Email = 'Formato de correo electrónico inválido'
+          isValid = false
+        }
+      }
+
+      if (this.form.Telefono && this.form.Telefono.toString().length !== 8) {
+        this.errors.Telefono = 'El teléfono debe tener 8 dígitos'
+        isValid = false
+      }
+
+      if (!this.form.PeriodoPago) {
+        this.errors.PeriodoPago = 'El período de pago es requerido'
+        isValid = false
+      }
+
+      if (!this.form.Provincia) {
+        this.errors.Provincia = 'La provincia es requerida'
+        isValid = false
+      }
+
+      if (this.form.Canton && this.form.Canton.length > 30) {
+        this.errors.Canton = 'El cantón no puede exceder 30 caracteres'
+        isValid = false
+      }
+
+      if (this.form.Distrito && this.form.Distrito.length > 30) {
+        this.errors.Distrito = 'El distrito no puede exceder 30 caracteres'
+        isValid = false
+      }
+
+      if (this.form.DireccionParticular && this.form.DireccionParticular.length > 150) {
+        this.errors.DireccionParticular = 'La dirección no puede exceder 150 caracteres'
+        isValid = false
+      }
+
+      return isValid
+    },
+
     async handleSubmit() {
-      this.loading = true;
-      this.errorMessage = '';
-      this.successMessage = '';
+      this.loading = true
+      this.errorMessage = ''
+      this.successMessage = ''
+
+      if (!this.validateForm()) {
+        this.errorMessage = 'Por favor complete todos los campos obligatorios correctamente.'
+        this.loading = false
+        return
+      }
 
       try {
-        // Validar campos requeridos
-        if (!this.validateForm()) {
-          throw new Error('Por favor complete todos los campos obligatorios');
-        }
-
-        // Preparar datos para enviar
         const dataToSend = {
           Nombre: this.form.Nombre.trim(),
           CedulaJuridica: parseInt(this.form.CedulaJuridica),
@@ -290,93 +365,99 @@ export default {
           Canton: this.form.Canton || null,
           Distrito: this.form.Distrito || null,
           DireccionParticular: this.form.DireccionParticular || null
-        };
-
-        console.log('Enviando datos:', dataToSend);
+        }
 
         await axios.post('http://localhost:5011/api/Project', dataToSend, {
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           timeout: 10000
-        });
-        
-        this.successMessage = `¡Empresa "${this.form.Nombre}" registrada exitosamente! Redirigiendo al dashboard...`;
-        
-        // Scroll to top para mostrar mensaje
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        // Redirigir al dashboard después de 2 segundos
-        setTimeout(() => {
-          this.$router.push('/dashboard-main-employer');
-        }, 2000);
+        })
 
+        this.successMessage = `¡Empresa "${this.form.Nombre}" registrada exitosamente! Redirigiendo al dashboard...`
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        setTimeout(() => {
+          this.$router.push('/dashboard-main-employer')
+        }, 2000)
       } catch (error) {
-        console.error('Error creating project:', error);
-        
-        // Scroll to top para mostrar error
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
+        window.scrollTo({ top: 0, behavior: 'smooth' })
         if (error.response?.status === 409) {
-          this.errorMessage = error.response.data.message || 'Ya existe una empresa con estos datos';
+          this.errorMessage = error.response.data.message || 'Ya existe una empresa con estos datos'
         } else if (error.response?.status === 400) {
           if (error.response.data.errors) {
-            const errors = Object.values(error.response.data.errors).flat();
-            this.errorMessage = errors.join(', ');
+            const errs = Object.values(error.response.data.errors).flat()
+            this.errorMessage = errs.join(', ')
           } else {
-            this.errorMessage = error.response.data.message || 'Datos inválidos';
+            this.errorMessage = error.response.data.message || 'Datos inválidos'
           }
         } else if (error.response?.status === 500) {
-          this.errorMessage = 'Error interno del servidor. Por favor, intente más tarde.';
+          this.errorMessage = 'Error interno del servidor. Por favor, intente más tarde.'
         } else if (error.code === 'ECONNABORTED') {
-          this.errorMessage = 'Tiempo de espera agotado. Verifique su conexión.';
+          this.errorMessage = 'Tiempo de espera agotado. Verifique su conexión.'
         } else if (error.message) {
-          this.errorMessage = error.message;
+          this.errorMessage = error.message
         } else {
-          this.errorMessage = 'Error al registrar la empresa. Verifique su conexión.';
+          this.errorMessage = 'Error al registrar la empresa. Verifique su conexión.'
         }
       } finally {
-        this.loading = false;
+        this.loading = false
       }
-    },
-
-    validateForm() {
-      return this.form.Nombre && 
-             this.form.CedulaJuridica && 
-             this.form.Email && 
-             this.form.PeriodoPago && 
-             this.form.Provincia;
     },
 
     handleCancel() {
       if (this.hasFormData() && !confirm('¿Está seguro que desea cancelar? Los datos no guardados se perderán.')) {
-        return;
+        return
       }
-      this.resetForm();
-      this.$router.push('/dashboard-main-employer');
+      this.resetForm()
+      this.$router.push('/dashboard-main-employer')
     },
 
     resetForm() {
       this.form = {
         Nombre: '',
-        CedulaJuridica: null,
+        CedulaJuridica: '',
         Email: '',
-        Telefono: null,
+        Telefono: '',
         PeriodoPago: '',
         Provincia: '',
         Canton: '',
         Distrito: '',
         DireccionParticular: ''
-      };
-      this.errorMessage = '';
-      this.successMessage = '';
+      }
+      this.errorMessage = ''
+      this.successMessage = ''
+      this.errors = {}
     },
 
     hasFormData() {
-      return Object.values(this.form).some(value => 
+      return Object.values(this.form).some(value =>
         value !== null && value !== undefined && value !== ''
-      );
+      )
     }
-  }
+  },
+
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {},
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
+
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
+
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
 }
 </script>

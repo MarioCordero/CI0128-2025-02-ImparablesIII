@@ -1,40 +1,14 @@
 <template>
-  <div class="min-h-screen bg-[#dbeafe] p-4">
-    <!-- Header -->
-    <header class="grid grid-cols-3 items-center gap-[247px] mb-0 rounded-lg bg-[#dbeafe] px-[89px] min-h-[95px] max-h-[95px] shadow-[8px_8px_16px_#c1d5e8,-8px_-8px_16px_#ffffff]">
-      <!-- Columna 1: Título -->
-      <div class="flex items-center">
-        <div class="w-[317px] h-auto gap-0">
-          <p class="text-[24px] font-bold mb-0 whitespace-nowrap">Panel de Super Administrador</p>
-          <p class="text-gray-600 text-[18px] mb-0 whitespace-nowrap">Gestión de Empresas del Sistema</p>
-        </div>
-      </div>
-      
-      <!-- Columna 2: Usuario info centrado -->
-      <div class="flex justify-center">
-        <div v-if="user" class="bg-[#dbeafe] shadow-[8px_8px_16px_#c1d5e8,-8px_-8px_16px_#ffffff] min-w-[459px] min-h-[40px] rounded-[4px] px-3 py-1 flex items-center justify-center">
-          <span class="text-gray-700 font-medium">Bienvenido, {{ user.Nombre }} {{ user.Apellidos }}</span>
-        </div>
-      </div>
-      
-      <!-- Columna 3: Botones alineados a la derecha -->
-      <div class="flex justify-end items-center gap-4">
-        <button 
-          @click="logout"
-          class="px-4 py-2 bg-[#dbeafe] rounded-3 shadow-[4px_4px_8px_#c1d5e8,-4px_-4px_8px_#ffffff] hover:bg-red-100 transition flex items-center space-x-2"
-        >
-          <span>Cerrar Sesión</span>
-        </button>
-      </div>
-    </header>
+  <div class="min-h-screen bg-[#dbeafe]">
+    <SuperAdminHeader />
 
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#87ceeb]"></div>
+      <div class="animate-spin rounded-full h-12 w-12 neumorphism-dark"></div>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-6">
+    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-6 neumorphism-card">
       <div class="flex items-center">
         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
@@ -45,7 +19,7 @@
 
     <!-- Businesses List -->
     <div v-else class="space-y-6">
-      <div class="bg-[#eaf4fa] mt-10 rounded-[40px] shadow-2xl p-6">
+      <div class="bg-[#eaf4fa] mt-10 rounded-[40px] neumorphism-card p-6">
         <h3 class="text-2xl font-semibold text-gray-700 mb-6 text-center">
           Empresas Registradas ({{ empresas.length }})
         </h3>
@@ -61,7 +35,7 @@
           <div
             v-for="empresa in empresas"
             :key="empresa.id"
-            class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+            class="bg-white rounded-2xl neumorphism-card hover:neumorphism-card-hover transition-all duration-300 overflow-hidden"
           >
             <!-- Business Header -->
             <div class="p-6 border-b border-gray-100">
@@ -96,7 +70,7 @@
                   </div>
                   
                   <!-- Address Information -->
-                  <div v-if="empresa.direccion" class="mt-4 p-4 bg-gray-50 rounded-xl">
+                  <div v-if="empresa.direccion" class="mt-4 p-4 bg-gray-50 rounded-xl neumorphism-input">
                     <h5 class="font-semibold text-gray-700 mb-2 flex items-center">
                       <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -114,7 +88,7 @@
                 <!-- Toggle Benefits Button -->
                 <button
                   @click="toggleBenefits(empresa.id)"
-                  class="bg-[#87ceeb] text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center space-x-2"
+                  class="bg-[#87ceeb] neumorphism-dark text-white px-4 py-2 rounded-full hover:bg-blue-700 transition flex items-center space-x-2"
                 >
                   <span>{{ expandedEmpresas.has(empresa.id) ? 'Ocultar' : 'Ver' }} Beneficios</span>
                   <svg 
@@ -131,7 +105,7 @@
             </div>
 
             <!-- Benefits Section -->
-            <div v-if="expandedEmpresas.has(empresa.id)" class="p-6 bg-gray-50">
+            <div v-if="expandedEmpresas.has(empresa.id)" class="p-6 bg-gray-50 neumorphism-input">
               <h5 class="font-semibold text-gray-700 mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -150,7 +124,7 @@
                 <div
                   v-for="beneficio in empresa.beneficios"
                   :key="`${beneficio.idEmpresa}-${beneficio.nombre}`"
-                  class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all"
+                  class="bg-white rounded-xl p-4 neumorphism-card hover:neumorphism-card-hover transition-all"
                 >
                   <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -182,8 +156,25 @@
 </template>
 
 <script>
+import '../assets/neumorphismGlobal.css'
+import SuperAdminHeader from './common/SuperAdminHeader.vue'
+
 export default {
+  // 1. Nombre del componente
   name: 'SuperAdminMenu',
+
+  // 2. Componentes hijos locales
+  components: {
+    SuperAdminHeader
+  },
+
+  // 3. Directivas locales
+  directives: {},
+
+  // 4. Props recibidas del padre
+  props: {},
+
+  // 5. Estado reactivo del componente
   data() {
     return {
       empresas: [],
@@ -193,34 +184,28 @@ export default {
       user: null
     }
   },
-  mounted() {
-    // Check authentication first
-    if (this.checkAuthentication()) {
-      this.fetchEmpresas();
-    }
-  },
+
+  // 6. Propiedades derivadas
+  computed: {},
+
+  // 7. Observadores de cambios
+  watch: {},
+
+  // 8. Métodos y lógica ejecutable
   methods: {
     checkAuthentication() {
       const userData = localStorage.getItem('user');
       const token = localStorage.getItem('token');
-
-      console.log('User data:', userData);
-      console.log('Token:', token);
-      
       if (!userData || !token) {
         this.$router.push('/login');
         return false;
       }
-      
       try {
         this.user = JSON.parse(userData);
-        
-        // Double-check user role
         if (this.user.tipoUsuario !== 'Administrador') {
           this.$router.push('/');
           return false;
         }
-        
         return true;
       } catch (error) {
         localStorage.removeItem('user');
@@ -229,14 +214,17 @@ export default {
         return false;
       }
     },
+
     goBack() {
       this.$router.push('/');
     },
+
     logout() {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
       this.$router.push('/login');
     },
+
     toggleBenefits(empresaId) {
       if (this.expandedEmpresas.has(empresaId)) {
         this.expandedEmpresas.delete(empresaId);
@@ -244,66 +232,56 @@ export default {
         this.expandedEmpresas.add(empresaId);
       }
     },
+
     async fetchEmpresas() {
       try {
         this.loading = true;
         this.error = null;
-        
         const response = await fetch('http://localhost:5011/api/Project');
-        
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-        
         const data = await response.json(); 
         this.empresas = data;
       } catch (err) {
-        console.error('Error fetching empresas:', err);
         this.error = 'Error al cargar las empresas. Por favor, intente nuevamente.';
       } finally {
         this.loading = false;
       }
     }
   },
-  
+
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {
+    // Check authentication first
+    if (this.checkAuthentication()) {
+      this.fetchEmpresas();
+    }
+  },
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
+
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
+
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
 }
 </script>
 
-<style scoped>
-/* Custom neumorphic shadow effects */
-.shadow-inner {
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.8);
-}
-
-.shadow-lg {
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.8);
-}
-
-.shadow-xl {
-  box-shadow: 12px 12px 24px rgba(0, 0, 0, 0.15), -12px -12px 24px rgba(255, 255, 255, 0.8);
-}
-
-/* Smooth transitions */
-.transition-all {
-  transition: all 0.3s ease;
-}
-
-/* Custom scrollbar for benefits section */
-.bg-gray-50::-webkit-scrollbar {
-  width: 6px;
-}
-
-.bg-gray-50::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.bg-gray-50::-webkit-scrollbar-thumb {
-  background: #87ceeb;
-  border-radius: 3px;
-}
-
-.bg-gray-50::-webkit-scrollbar-thumb:hover {
-  background: #5fb3d3;
-}
-</style>
+<!-- No custom styles needed, all neumorphism handled by globalNeumorphism.css -->
