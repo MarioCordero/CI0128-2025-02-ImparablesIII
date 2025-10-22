@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-[#E9F7FF]">
-    <MainEmployerHeader :companies="companies" />
+    <MainEmployerHeader/>
     <DashboardProjectSubHeader />
     <div class="bg-[#E9F7FF] rounded-[40px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] p-12 w-full max-w-4xl">
       <!-- Step Navigation -->
@@ -198,8 +198,8 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import MainEmployerHeader from './common/MainEmployerHeader.vue'
-import DashboardProjectSubHeader from './projectDashboard/DashboardProjectSubHeader.vue'
+import MainEmployerHeader from '../common/MainEmployerHeader.vue'
+import DashboardProjectSubHeader from '../projectDashboard/DashboardProjectSubHeader.vue'
 
 const route = useRoute()
 const router = useRouter()

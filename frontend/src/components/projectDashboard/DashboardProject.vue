@@ -1,11 +1,11 @@
 <template>
   <div class="min-h-screen bg-[#E9F7FF]">
-    <MainEmployerHeader :companies="companies" />
+    <MainEmployerHeader @project-changed="onProjectChanged"/>
     <DashboardProjectSubHeader
       :selected-section="selectedSection"
       @section-change="selectedSection = $event"
     />
-    <div class="neumorphism-card w-full max-w-5xl p-10 my-20 rounded-[32px] shadow-lg">
+    <div class="neumorphism-card w-full p-10 my-20 rounded-[32px] shadow-lg">
       <div class="flex flex-col md:flex-row items-center justify-between mb-8">
         <!-- <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="goBack">
           Volver
@@ -64,14 +64,16 @@
       <div v-else-if="selectedSection === 'reports'">
         <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Reportes de Planilla</h1>
         <p>Aquí van los reportes de planilla.</p>
+        <PayrollReports />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import MainEmployerHeader from './common/MainEmployerHeader.vue'
-import DashboardProjectSubHeader from './projectDashboard/DashboardProjectSubHeader.vue'
+import MainEmployerHeader from '../common/MainEmployerHeader.vue'
+import DashboardProjectSubHeader from '../projectDashboard/DashboardProjectSubHeader.vue'
+import PayrollReports from './PayrollReports.vue';
 
 export default {
   // 1. Nombre del componente
@@ -80,7 +82,8 @@ export default {
   // 2. Componentes hijos locales
   components: {
     MainEmployerHeader,
-    DashboardProjectSubHeader
+    DashboardProjectSubHeader,
+    PayrollReports
   },
 
   // 3. Directivas locales
@@ -126,7 +129,7 @@ export default {
       })
     },
 
-    async fetchCompanies() {
+    async fetchCompanies() { // Verify if needed
       try {
         const response = await fetch('http://localhost:5011/api/Project')
         if (!response.ok) throw new Error('No se pudo cargar las empresas')
@@ -136,21 +139,28 @@ export default {
       }
     },
 
+    onProjectChanged(project) {
+      this.project = project
+      this.error = null
+      this.loading = false
+    },
+
     async fetchProject() {
       try {
         this.loading = true
         this.error = null
-        const id = this.$route.params.id
-        const response = await fetch(`http://localhost:5011/api/Project/${id}`)
-        if (!response.ok) throw new Error('No se pudo cargar el proyecto')
-        const data = await response.json()
-        this.project = data
+        const localProject = localStorage.getItem('selectedProject')
+        if (localProject) {
+          this.project = JSON.parse(localProject)
+        } else {
+          this.error = 'No hay información de la empresa en localStorage'
+        }
       } catch (err) {
         this.error = err.message || 'Error al cargar el proyecto'
       } finally {
         this.loading = false
       }
-    }
+    },
   },
 
   // 9. Ciclo de vida
@@ -158,8 +168,8 @@ export default {
   created() {},
   beforeMount() {},
   mounted() {
-    this.fetchCompanies()
-    this.fetchProject()
+    this.fetchCompanies() // // Verify if needed
+    this.fetchProject() // Verify if needed
   },
   beforeUpdate() {},
   updated() {},

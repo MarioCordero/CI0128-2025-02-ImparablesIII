@@ -84,6 +84,7 @@ export default {
           company => company.id == this.selectedProjectId
         )
         localStorage.setItem('selectedProject', JSON.stringify(selectedProject))
+        this.$emit('project-changed', selectedProject) // <-- Add this line
         this.$router.push({
           name: 'DashboardProject',
           params: { id: this.selectedProjectId }
