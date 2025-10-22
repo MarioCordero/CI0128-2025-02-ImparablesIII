@@ -111,7 +111,7 @@ export default {
         if (!response.ok) throw new Error('No se pudo cargar las empresas')
         this.companies = await response.json()
       } catch (err) {
-
+        // manejo
       }
     },
 
