@@ -14,13 +14,13 @@ import './assets/tailwind.css'
 // Vue Components
 import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
-import RegisterEmployee from './components/RegisterEmployee.vue'
 import PasswordSetup from './components/PasswordSetup.vue'
 import DashboardMainEmployer from './components/DashboardMainEmployer.vue'
 import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import CreateProject from './components/CreateProject.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
-import DashboardProject from './components/DashboardProject.vue'
+import DashboardProject from './components/projectDashboard/DashboardProject.vue'
+import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
 
 // Route definitions
 const routes = [
