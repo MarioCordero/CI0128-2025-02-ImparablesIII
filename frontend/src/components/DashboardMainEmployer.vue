@@ -39,22 +39,22 @@
                 </div>
               </div>
               <ul class="space-y-4">
-                <li v-for="(company, index) in companies" :key="company.Id" class="flex items-center justify-between">
+                <li v-for="project in projects" :key="project.id" @click="$emit('select-project', project)">
                   <div class="flex items-center gap-3">
                     <div class="w-[52px] h-[52px] flex items-center justify-center neumorphism-card rounded-[10px] font-bold text-lg">
                       {{ index + 1 }}
                     </div>
                     <div>
-                      <span class="font-bold">{{ company.Name }}</span>
-                      <div class="text-gray-600 text-sm">{{ company.ActiveEmployees }} empleados</div>
+                      <span class="font-bold">{{ project.Name }}</span>
+                      <div class="text-gray-600 text-sm">{{ project.ActiveEmployees }} empleados</div>
                     </div>
                   </div>
                   <div class="flex flex-col items-end">
-                    <span :class="`${getProfitabilityColor(company.CurrentProfitability)} text-white rounded px-3 py-1 font-bold text-base neumorphism-card`">
-                      {{ company.CurrentProfitability }}%
+                    <span :class="`${getProfitabilityColor(project.CurrentProfitability)} text-white rounded px-3 py-1 font-bold text-base neumorphism-card`">
+                      {{ project.CurrentProfitability }}%
                     </span>
-                    <span :class="`${getProfitabilityTextColor(company.CurrentProfitability)} text-xs mt-1`">
-                      {{ getProfitabilityChange(company.CurrentProfitability, company.LastMonthProfitability) }}
+                    <span :class="`${getProfitabilityTextColor(project.CurrentProfitability)} text-xs mt-1`">
+                      {{ getProfitabilityChange(project.CurrentProfitability, project.LastMonthProfitability) }}
                     </span>
                   </div>
                 </li>
