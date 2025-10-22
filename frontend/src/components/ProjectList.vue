@@ -105,13 +105,24 @@
 
 <script>
 export default {
+  // 1. Nombre del componente
   name: 'ProjectList',
+
+  // 2. Componentes hijos locales
+  components: {},
+
+  // 3. Directivas locales
+  directives: {},
+
+  // 4. Props recibidas del padre
   props: {
     userId: {
       type: [String, Number],
       required: true
     }
   },
+
+  // 5. Estado reactivo del componente
   data() {
     return {
       companies: [],
@@ -119,6 +130,11 @@ export default {
       error: null
     }
   },
+
+  // 6. Propiedades derivadas
+  computed: {},
+
+  // 7. Observadores de cambios
   watch: {
     userId: {
       immediate: true,
@@ -127,6 +143,8 @@ export default {
       }
     }
   },
+
+  // 8. Métodos y lógica ejecutable
   methods: {
     async fetchCompaniesByUser(userId) {
       try {
@@ -142,6 +160,7 @@ export default {
         this.loading = false;
       }
     },
+
     formatPeriodDescription(period) {
       switch (period) {
         case 'Mensual': return 'Pago cada mes';
@@ -150,14 +169,42 @@ export default {
         default: return '';
       }
     },
+
     goToDashboard(companyId) {
-      if (companyId) {
-        this.$router.push({ name: 'DashboardProject', params: { id: companyId } });
+      const company = this.companies.find(c => c.id === companyId)
+      if (company) {
+        localStorage.setItem('selectedProject', JSON.stringify(company))
+        this.$router.push({ name: 'DashboardProject', params: { id: companyId } })
       } else {
-        // TODO: SHOW BETTER ERROR MESSAGE
-        alert('No se encontró el ID del proyecto.');
+        alert('No se encontró el proyecto seleccionado.')
       }
-    }
-  }
+    },
+  },
+
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {},
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
+
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
+
+  // 11. Eventos emitidos
+  emits: [],
+
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
+
+  // 13. Filtros
+  filters: {}
 }
 </script>
