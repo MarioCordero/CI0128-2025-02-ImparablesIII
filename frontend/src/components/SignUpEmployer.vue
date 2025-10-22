@@ -214,238 +214,292 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script>
 import axios from 'axios'
 import HeaderLandingPage from './common/HeaderLandingPage.vue'
 
-const form = ref({
-  nombre: '',
-  primerApellido: '',
-  segundoApellido: '',
-  cedula: '',
-  email: '',
-  telefono: '',
-  fechaNacimiento: '',
-  password: '',
-  confirmPassword: '',
-  provincia: '',
-  canton: '',
-  distrito: '',
-  direccionParticular: '',
-})
+export default {
+  // 1. Nombre del componente
+  name: 'SignUpEmployer',
 
-const formattedTelefono = ref('')
-const errors = ref({})
-const showPassword = ref(false)
-const showVerification = ref(false)
-const verificationCode = ref('')
-const verificationError = ref('')
-const provinciasCostaRica = [
-  'San José',
-  'Alajuela',
-  'Cartago',
-  'Heredia',
-  'Guanacaste',
-  'Puntarenas',
-  'Limón'
-]
+  // 2. Componentes hijos locales
+  components: {
+    HeaderLandingPage
+  },
 
-function formatCedula(event) {
-  let value = event.target.value.replace(/\D/g, '')
-  if (value.length > 1) {
-    if (value.length <= 5) {
-      value = value.slice(0, 1) + '-' + value.slice(1)
-    } else {
-      value = value.slice(0, 1) + '-' + value.slice(1, 5) + '-' + value.slice(5, 9)
+  // 3. Directivas locales
+  directives: {},
+
+  // 4. Props recibidas del padre
+  props: {},
+
+  // 5. Estado reactivo del componente
+  data() {
+    return {
+      form: {
+        nombre: '',
+        primerApellido: '',
+        segundoApellido: '',
+        cedula: '',
+        email: '',
+        telefono: '',
+        fechaNacimiento: '',
+        password: '',
+        confirmPassword: '',
+        provincia: '',
+        canton: '',
+        distrito: '',
+        direccionParticular: '',
+      },
+      formattedTelefono: '',
+      errors: {},
+      showPassword: false,
+      showVerification: false,
+      verificationCode: '',
+      verificationError: '',
+      provinciasCostaRica: [
+        'San José',
+        'Alajuela',
+        'Cartago',
+        'Heredia',
+        'Guanacaste',
+        'Puntarenas',
+        'Limón'
+      ]
     }
-  }
-  form.value.cedula = value
-}
+  },
 
-function formatTelefono(event) {
-  let value = event.target.value.replace(/\D/g, '')
-  if (value.length > 4) {
-    value = value.slice(0, 4) + ' ' + value.slice(4, 8)
-  }
-  formattedTelefono.value = value
-  form.value.telefono = value.replace(/\s/g, '')
-}
+  // 6. Propiedades derivadas
+  computed: {},
 
-async function submitForm() {
-  if (validateForm()) {
-    try {
-      const employerData = {
-        ...form.value,
-        cedula: form.value.cedula.replace(/-/g, ''),
-        telefono: parseInt(form.value.telefono),
-        fechaNacimiento: new Date(form.value.fechaNacimiento).toISOString(),
+  // 7. Observadores de cambios
+  watch: {},
+
+  // 8. Métodos y lógica ejecutable
+  methods: {
+    formatCedula(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 1) {
+        if (value.length <= 5) {
+          value = value.slice(0, 1) + '-' + value.slice(1)
+        } else {
+          value = value.slice(0, 1) + '-' + value.slice(1, 5) + '-' + value.slice(5, 9)
+        }
+      }
+      this.form.cedula = value
+    },
+
+    formatTelefono(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 4) {
+        value = value.slice(0, 4) + ' ' + value.slice(4, 8)
+      }
+      this.formattedTelefono = value
+      this.form.telefono = value.replace(/\s/g, '')
+    },
+
+    async submitForm() {
+      if (this.validateForm()) {
+        try {
+          const employerData = {
+            ...this.form,
+            cedula: this.form.cedula.replace(/-/g, ''),
+            telefono: parseInt(this.form.telefono),
+            fechaNacimiento: new Date(this.form.fechaNacimiento).toISOString(),
+          }
+
+          const response = await axios.post(
+            'http://localhost:5011/api/SignUpEmployer',
+            employerData,
+            { headers: { 'Content-Type': 'application/json' } }
+          )
+
+          if (response.data.message) {
+            alert(response.data.message)
+            window.location.href = '/login'
+          } else {
+            this.showVerification = true
+          }
+        } catch (error) {
+          if (error.response && error.response.data && error.response.data.message) {
+            alert(`Error: ${error.response.data.message}`)
+          } else {
+            alert('Error en el registro. Por favor, intenta de nuevo.')
+          }
+        }
+      }
+    },
+
+    validateForm() {
+      this.errors = {}
+      let isValid = true
+
+      // Personal Information Validation
+      if (!this.form.nombre || this.form.nombre.trim().length === 0) {
+        this.errors.nombre = 'El nombre es requerido'
+        isValid = false
+      } else if (this.form.nombre.length > 20) {
+        this.errors.nombre = 'El nombre no puede exceder 20 caracteres'
+        isValid = false
       }
 
-      const response = await axios.post(
-        'http://localhost:5011/api/SignUpEmployer',
-        employerData,
-        { headers: { 'Content-Type': 'application/json' } }
-      )
+      if (!this.form.primerApellido || this.form.primerApellido.trim().length === 0) {
+        this.errors.primerApellido = 'El primer apellido es requerido'
+        isValid = false
+      } else if (this.form.primerApellido.length > 20) {
+        this.errors.primerApellido = 'El primer apellido no puede exceder 20 caracteres'
+        isValid = false
+      }
 
-      if (response.data.message) {
-        alert(response.data.message)
+      if (this.form.segundoApellido && this.form.segundoApellido.length > 20) {
+        this.errors.segundoApellido = 'El segundo apellido no puede exceder 20 caracteres'
+        isValid = false
+      }
+
+      if (!this.form.cedula || this.form.cedula.trim().length === 0) {
+        this.errors.cedula = 'La cédula es requerida'
+        isValid = false
+      } else {
+        const cedulaDigits = this.form.cedula.replace(/-/g, '')
+        if (cedulaDigits.length !== 9) {
+          this.errors.cedula = 'La cédula debe tener 9 dígitos'
+          isValid = false
+        }
+      }
+
+      if (!this.form.email || this.form.email.trim().length === 0) {
+        this.errors.email = 'El correo electrónico es requerido'
+        isValid = false
+      } else if (this.form.email.length > 50) {
+        this.errors.email = 'El correo no puede exceder 50 caracteres'
+        isValid = false
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(this.form.email)) {
+          this.errors.email = 'Formato de correo electrónico inválido'
+          isValid = false
+        }
+      }
+
+      if (!this.form.telefono || this.form.telefono.trim().length === 0) {
+        this.errors.telefono = 'El teléfono es requerido'
+        isValid = false
+      } else {
+        const phoneDigits = this.form.telefono.replace(/\s/g, '')
+        if (phoneDigits.length !== 8) {
+          this.errors.telefono = 'El teléfono debe tener 8 dígitos (#### ####)'
+          isValid = false
+        }
+      }
+
+      if (!this.form.fechaNacimiento) {
+        this.errors.fechaNacimiento = 'La fecha de nacimiento es requerida'
+        isValid = false
+      } else {
+        const today = new Date()
+        const birthDate = new Date(this.form.fechaNacimiento)
+        const age = today.getFullYear() - birthDate.getFullYear()
+        const monthDiff = today.getMonth() - birthDate.getMonth()
+        const dayDiff = today.getDate() - birthDate.getDate()
+
+        if (age < 18 || (age === 18 && monthDiff < 0) || (age === 18 && monthDiff === 0 && dayDiff < 0)) {
+          this.errors.fechaNacimiento = 'Debe tener al menos 18 años'
+          isValid = false
+        } else if (age > 99 || (age === 99 && monthDiff < 0) || (age === 99 && monthDiff === 0 && dayDiff < 0)) {
+          this.errors.fechaNacimiento = 'Debe tener menos de 99 años'
+          isValid = false
+        }
+      }
+
+      // Address Validation
+      if (!this.form.provincia || this.form.provincia.trim().length === 0) {
+        this.errors.provincia = 'La provincia es requerida'
+        isValid = false
+      } else if (this.form.provincia.length > 12) {
+        this.errors.provincia = 'La provincia no puede exceder 12 caracteres'
+        isValid = false
+      }
+
+      if (!this.form.canton || this.form.canton.trim().length === 0) {
+        this.errors.canton = 'El cantón es requerido'
+        isValid = false
+      } else if (this.form.canton.length > 30) {
+        this.errors.canton = 'El cantón no puede exceder 30 caracteres'
+        isValid = false
+      }
+
+      if (!this.form.distrito || this.form.distrito.trim().length === 0) {
+        this.errors.distrito = 'El distrito es requerido'
+        isValid = false
+      } else if (this.form.distrito.length > 30) {
+        this.errors.distrito = 'El distrito no puede exceder 30 caracteres'
+        isValid = false
+      }
+
+      if (!this.form.direccionParticular || this.form.direccionParticular.trim().length === 0) {
+        this.errors.direccionParticular = 'La dirección particular es requerida'
+        isValid = false
+      } else if (this.form.direccionParticular.length > 150) {
+        this.errors.direccionParticular = 'La dirección no puede exceder 150 caracteres'
+        isValid = false
+      }
+
+      // Password Validation
+      if (!this.form.password || this.form.password.trim().length === 0) {
+        this.errors.password = 'La contraseña es requerida'
+        isValid = false
+      } else if (this.form.password.length < 8) {
+        this.errors.password = 'La contraseña debe tener al menos 8 caracteres'
+        isValid = false
+      } else if (this.form.password.length > 16) {
+        this.errors.password = 'La contraseña no puede exceder 16 caracteres'
+        isValid = false
+      }
+
+      if (!this.form.confirmPassword || this.form.confirmPassword.trim().length === 0) {
+        this.errors.confirmPassword = 'La confirmación de contraseña es requerida'
+        isValid = false
+      } else if (this.form.password !== this.form.confirmPassword) {
+        this.errors.confirmPassword = 'Las contraseñas no coinciden'
+        isValid = false
+      }
+
+      return isValid
+    },
+
+    verifyCode() {
+      if (/^\d{6}$/.test(this.verificationCode)) {
         window.location.href = '/login'
       } else {
-        showVerification.value = true
-      }
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(`Error: ${error.response.data.message}`)
-      } else {
-        alert('Error en el registro. Por favor, intenta de nuevo.')
+        this.verificationError = 'El código debe ser de 6 dígitos.'
       }
     }
-  }
-}
+  },
 
-function validateForm() {
-  errors.value = {}
-  let isValid = true
+  // 9. Ciclo de vida
+  beforeCreate() {},
+  created() {},
+  beforeMount() {},
+  mounted() {},
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {},
 
-  // Personal Information Validation
-  if (!form.value.nombre || form.value.nombre.trim().length === 0) {
-    errors.value.nombre = 'El nombre es requerido'
-    isValid = false
-  } else if (form.value.nombre.length > 20) {
-    errors.value.nombre = 'El nombre no puede exceder 20 caracteres'
-    isValid = false
-  }
+  // 10. Opciones de inyección
+  provide() {
+    return {}
+  },
+  inject: [],
 
-  if (!form.value.primerApellido || form.value.primerApellido.trim().length === 0) {
-    errors.value.primerApellido = 'El primer apellido es requerido'
-    isValid = false
-  } else if (form.value.primerApellido.length > 20) {
-    errors.value.primerApellido = 'El primer apellido no puede exceder 20 caracteres'
-    isValid = false
-  }
+  // 11. Eventos emitidos
+  emits: [],
 
-  if (form.value.segundoApellido && form.value.segundoApellido.length > 20) {
-    errors.value.segundoApellido = 'El segundo apellido no puede exceder 20 caracteres'
-    isValid = false
-  }
+  // 12. Reutilización de lógica
+  mixins: [],
+  extends: null,
 
-  if (!form.value.cedula || form.value.cedula.trim().length === 0) {
-    errors.value.cedula = 'La cédula es requerida'
-    isValid = false
-  } else {
-    const cedulaDigits = form.value.cedula.replace(/-/g, '')
-    if (cedulaDigits.length !== 9) {
-      errors.value.cedula = 'La cédula debe tener 9 dígitos'
-      isValid = false
-    }
-  }
-
-  if (!form.value.email || form.value.email.trim().length === 0) {
-    errors.value.email = 'El correo electrónico es requerido'
-    isValid = false
-  } else if (form.value.email.length > 50) {
-    errors.value.email = 'El correo no puede exceder 50 caracteres'
-    isValid = false
-  } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(form.value.email)) {
-      errors.value.email = 'Formato de correo electrónico inválido'
-      isValid = false
-    }
-  }
-
-  if (!form.value.telefono || form.value.telefono.trim().length === 0) {
-    errors.value.telefono = 'El teléfono es requerido'
-    isValid = false
-  } else {
-    const phoneDigits = form.value.telefono.replace(/\s/g, '')
-    if (phoneDigits.length !== 8) {
-      errors.value.telefono = 'El teléfono debe tener 8 dígitos (#### ####)'
-      isValid = false
-    }
-  }
-
-  if (!form.value.fechaNacimiento) {
-    errors.value.fechaNacimiento = 'La fecha de nacimiento es requerida'
-    isValid = false
-  } else {
-    const today = new Date()
-    const birthDate = new Date(form.value.fechaNacimiento)
-    const age = today.getFullYear() - birthDate.getFullYear()
-    const monthDiff = today.getMonth() - birthDate.getMonth()
-    const dayDiff = today.getDate() - birthDate.getDate()
-
-    if (age < 18 || (age === 18 && monthDiff < 0) || (age === 18 && monthDiff === 0 && dayDiff < 0)) {
-      errors.value.fechaNacimiento = 'Debe tener al menos 18 años'
-      isValid = false
-    } else if (age > 99 || (age === 99 && monthDiff < 0) || (age === 99 && monthDiff === 0 && dayDiff < 0)) {
-      errors.value.fechaNacimiento = 'Debe tener menos de 99 años'
-      isValid = false
-    }
-  }
-
-  // Address Validation
-  if (!form.value.provincia || form.value.provincia.trim().length === 0) {
-    errors.value.provincia = 'La provincia es requerida'
-    isValid = false
-  } else if (form.value.provincia.length > 12) {
-    errors.value.provincia = 'La provincia no puede exceder 12 caracteres'
-    isValid = false
-  }
-
-  if (!form.value.canton || form.value.canton.trim().length === 0) {
-    errors.value.canton = 'El cantón es requerido'
-    isValid = false
-  } else if (form.value.canton.length > 30) {
-    errors.value.canton = 'El cantón no puede exceder 30 caracteres'
-    isValid = false
-  }
-
-  if (!form.value.distrito || form.value.distrito.trim().length === 0) {
-    errors.value.distrito = 'El distrito es requerido'
-    isValid = false
-  } else if (form.value.distrito.length > 30) {
-    errors.value.distrito = 'El distrito no puede exceder 30 caracteres'
-    isValid = false
-  }
-
-  if (!form.value.direccionParticular || form.value.direccionParticular.trim().length === 0) {
-    errors.value.direccionParticular = 'La dirección particular es requerida'
-    isValid = false
-  } else if (form.value.direccionParticular.length > 150) {
-    errors.value.direccionParticular = 'La dirección no puede exceder 150 caracteres'
-    isValid = false
-  }
-
-  // Password Validation
-  if (!form.value.password || form.value.password.trim().length === 0) {
-    errors.value.password = 'La contraseña es requerida'
-    isValid = false
-  } else if (form.value.password.length < 8) {
-    errors.value.password = 'La contraseña debe tener al menos 8 caracteres'
-    isValid = false
-  } else if (form.value.password.length > 16) {
-    errors.value.password = 'La contraseña no puede exceder 16 caracteres'
-    isValid = false
-  }
-
-  if (!form.value.confirmPassword || form.value.confirmPassword.trim().length === 0) {
-    errors.value.confirmPassword = 'La confirmación de contraseña es requerida'
-    isValid = false
-  } else if (form.value.password !== form.value.confirmPassword) {
-    errors.value.confirmPassword = 'Las contraseñas no coinciden'
-    isValid = false
-  }
-
-  return isValid
-}
-
-function verifyCode() {
-  if (/^\d{6}$/.test(verificationCode.value)) {
-    window.location.href = '/login'
-  } else {
-    verificationError.value = 'El código debe ser de 6 dígitos.'
-  }
+  // 13. Filtros
+  filters: {}
 }
 </script>
