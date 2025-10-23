@@ -37,7 +37,7 @@ const routes = [
   { path: '/superadmin', component: SuperAdminMenu, meta: { requiresAuth: true, requiresRole: 'Administrador' } },
   { path: '/create-project', component: CreateProject },
   { path: '/signup-employer', component: SignUpEmployer },
-  { path: '/hourregistry', component: WorkHours },
+  { path: '/work-hours', component: WorkHours },
   { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject }
 ]
 
