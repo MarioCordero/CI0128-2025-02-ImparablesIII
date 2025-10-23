@@ -156,6 +156,9 @@ export default {
             }, 1500)
           } else if (data.userData.tipoUsuario === 'Usuario') {
             this.successMessage = 'Login exitoso como Usuario'
+            setTimeout(() => {
+              this.$router.push('/dashboard-employee')
+            }, 1500)
           } else if (data.userData.tipoUsuario === 'Empleador') {
             this.successMessage = 'Login exitoso como Empleador'
             // Redirect to employer dashboard after 1.5 seconds
