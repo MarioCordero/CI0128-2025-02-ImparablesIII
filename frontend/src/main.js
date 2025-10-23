@@ -22,7 +22,7 @@ import SignUpEmployer from './components/SignUpEmployer.vue'
 import HoursRegistry from './components/HoursRegistry.vue'
 import DashboardProject from './components/projectDashboard/DashboardProject.vue'
 import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
-import DashboardEmployee from './components/DashboardEmployee.vue'
+import DashboardEmployee from './components/employee/DashboardEmployee.vue'
 
 // Route definitions
 const routes = [
