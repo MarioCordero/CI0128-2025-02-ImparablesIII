@@ -146,29 +146,24 @@ export default {
             localStorage.setItem('token', data.token);
             localStorage.setItem('employerId', data.userData.idPersona);
           }
-          
-          // Check if user is Administrador and redirect accordingly
           if (data.userData.tipoUsuario === 'Administrador') {
             this.successMessage = 'Login exitoso como Super Administrador'
-            // Redirect to superadmin menu after 1.5 seconds
             setTimeout(() => {
               this.$router.push('/superadmin')
             }, 1500)
-          } else if (data.userData.tipoUsuario === 'Usuario') {
-            this.successMessage = 'Login exitoso como Usuario'
+          } else if (data.userData.tipoUsuario === 'Empleado') {
+            this.successMessage = 'Login exitoso como Empleado'
+            setTimeout(() => {
+              this.$router.push('/dashboard-employee')
+            }, 1500)
           } else if (data.userData.tipoUsuario === 'Empleador') {
             this.successMessage = 'Login exitoso como Empleador'
-            // Redirect to employer dashboard after 1.5 seconds
             setTimeout(() => {
               this.$router.push('/dashboard-main-employer')
             }, 1500)
           } else {
-            // Redirect to home page for other user types
             setTimeout(() => {
               this.$router.push('/')
-              // TODO: Change this to redirect to the employer dashboard
-              // Show success message
-              this.successMessage = 'Login exitoso como Usuario'
             }, 1500)
           }
         } else {
