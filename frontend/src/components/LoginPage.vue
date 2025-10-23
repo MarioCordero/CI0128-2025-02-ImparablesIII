@@ -146,7 +146,6 @@ export default {
             localStorage.setItem('token', data.token);
             localStorage.setItem('employerId', data.userData.idPersona);
           }
-          console.log('Role:', data.userData.tipoUsuario)
           if (data.userData.tipoUsuario === 'Administrador') {
             this.successMessage = 'Login exitoso como Super Administrador'
             setTimeout(() => {

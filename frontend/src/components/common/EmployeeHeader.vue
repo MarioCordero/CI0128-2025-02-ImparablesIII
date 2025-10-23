@@ -39,8 +39,6 @@ export default {
     }
   },
   async mounted() {
-    await this.fetchCompanies()
-    this.detectCurrentProject()
   },
   methods: {
     navigateToHomeLogged() {
