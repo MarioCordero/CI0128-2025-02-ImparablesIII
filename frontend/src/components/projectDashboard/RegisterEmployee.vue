@@ -206,8 +206,8 @@
 </template>
 
 <script>
-import MainEmployerHeader from './common/MainEmployerHeader.vue'
-import DashboardProjectSubHeader from './projectDashboard/DashboardProjectSubHeader.vue'
+import MainEmployerHeader from '../common/MainEmployerHeader.vue'
+import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
 
 export default {
   name: 'RegisterEmployee',
