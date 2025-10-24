@@ -31,15 +31,35 @@
             <p class="text-gray-700"><span class="font-bold">Dirección:</span> {{ project.direccion || 'N/A' }}</p>
           </div>
           <div class="neumorphism-card p-6 rounded-2xl">
-            <h2 class="text-xl font-semibold mb-2">Beneficios Corporativos</h2>
-            <div v-if="!benefits || benefits.length === 0" class="text-gray-500">
+            <h2 class="text-xl font-semibold mb-4">Beneficios Corporativos</h2>
+            <div v-if="!benefits || benefits.length === 0" class="text-gray-500 text-center py-8">
               No hay beneficios registrados para esta empresa.
             </div>
-            <ul v-else class="list-disc pl-5">
-              <li v-for="benefit in benefits" :key="benefit.id" class="mb-2">
-                <span class="font-bold">{{ benefit.name }}</span> - {{ benefit.type }} ({{ benefit.calculationType }})
-              </li>
-            </ul>
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div v-for="benefit in benefits" :key="benefit.id" class="neumorphism-card p-4 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                <div class="flex flex-col space-y-2">
+                  <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
+                  <div class="space-y-1 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 font-medium">Tipo:</span>
+                      <span class="text-gray-800">{{ benefit.type }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 font-medium">Cálculo:</span>
+                      <span class="text-gray-800">{{ benefit.calculationType }}</span>
+                    </div>
+                    <div v-if="benefit.value" class="flex justify-between">
+                      <span class="text-gray-600 font-medium">Valor:</span>
+                      <span class="text-gray-800">₡{{ benefit.value.toLocaleString() }}</span>
+                    </div>
+                    <div v-if="benefit.percentage" class="flex justify-between">
+                      <span class="text-gray-600 font-medium">Porcentaje:</span>
+                      <span class="text-gray-800">{{ benefit.percentage }}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -120,7 +140,11 @@ export default {
     },
     async fetchBenefits() {
       try {
-        const response = await fetch('http://localhost:5011/api/Benefit');
+        if (!this.project || !this.project.id) {
+          this.benefits = [];
+          return;
+        }
+        const response = await fetch(`http://localhost:5011/api/Benefit/company/${this.project.id}`);
         if (!response.ok) throw new Error('No se pudo cargar los beneficios');
         this.benefits = await response.json();
       } catch (err) {
@@ -131,6 +155,7 @@ export default {
       this.project = project;
       this.error = null;
       this.loading = false;
+      this.fetchBenefits();
     },
 
     async fetchProject() {
@@ -150,9 +175,9 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
     this.fetchCompanies();
-    this.fetchProject();
+    await this.fetchProject();
     this.fetchBenefits();
   }
 }
