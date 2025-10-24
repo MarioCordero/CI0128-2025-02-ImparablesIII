@@ -13,8 +13,6 @@ namespace backend.Repositories
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
         }
-
-        #region CRUD Operations
         
         public async Task<Benefit> CreateAsync(Benefit benefit)
         {
@@ -22,15 +20,17 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                INSERT INTO PlaniFy.Beneficio (idEmpresa, Nombre, TipoCalculo, Tipo)
-                VALUES (@CompanyId, @Name, @CalculationType, @Type)";
+                INSERT INTO PlaniFy.Beneficio (idEmpresa, Nombre, TipoCalculo, Tipo, Valor, Porcentaje)
+                    VALUES (@CompanyId, @Name, @CalculationType, @Type, @Value, @Percentage)";
 
             var parameters = new
             {
                 CompanyId = benefit.CompanyId,
                 Name = benefit.Name,
                 CalculationType = benefit.CalculationType,
-                Type = benefit.Type
+                Type = benefit.Type,
+                Value = benefit.Value,
+                Percentage = benefit.Percentage
             };
 
             await connection.ExecuteAsync(query, parameters);
@@ -43,7 +43,7 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage
                 FROM PlaniFy.Beneficio
                 WHERE idEmpresa = @CompanyId AND Nombre = @Name";
 
@@ -63,7 +63,7 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor, Porcentaje
                 FROM PlaniFy.Beneficio
                 ORDER BY idEmpresa, Nombre";
 
@@ -77,7 +77,7 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage
                 FROM PlaniFy.Beneficio
                 WHERE idEmpresa = @CompanyId
                 ORDER BY Nombre";
@@ -90,52 +90,6 @@ namespace backend.Repositories
             var result = await connection.QueryAsync<Benefit>(query, parameters);
             return result.ToList();
         }
-
-        public async Task<bool> UpdateAsync(int companyId, string name, UpdateBenefitDto updateDto)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            var query = @"
-                UPDATE PlaniFy.Beneficio
-                SET Nombre = @NewName, TipoCalculo = @CalculationType, Tipo = @Type
-                WHERE idEmpresa = @CompanyId AND Nombre = @OldName";
-
-            var parameters = new
-            {
-                CompanyId = companyId,
-                OldName = name,
-                NewName = updateDto.Name,
-                CalculationType = updateDto.CalculationType,
-                Type = updateDto.Type
-            };
-
-            var rowsAffected = await connection.ExecuteAsync(query, parameters);
-            return rowsAffected > 0;
-        }
-
-        public async Task<bool> DeleteAsync(int companyId, string name)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            var query = @"
-                DELETE FROM PlaniFy.Beneficio
-                WHERE idEmpresa = @CompanyId AND Nombre = @Name";
-
-            var parameters = new
-            {
-                CompanyId = companyId,
-                Name = name
-            };
-
-            var rowsAffected = await connection.ExecuteAsync(query, parameters);
-            return rowsAffected > 0;
-        }
-
-        #endregion
-
-        #region Validation Methods
 
         public async Task<bool> ExistsAsync(int companyId, string name)
         {
@@ -176,17 +130,13 @@ namespace backend.Repositories
             return count > 0;
         }
 
-        #endregion
-
-        #region Specific Queries
-
         public async Task<List<BenefitResponseDto>> GetBenefitsWithCompanyNameAsync(int companyId)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
             var query = @"
-                SELECT b.idEmpresa as CompanyId, b.Nombre as Name, b.TipoCalculo as CalculationType, b.Tipo as Type, e.Nombre as CompanyName
+                SELECT b.idEmpresa as CompanyId, b.Nombre as Name, b.TipoCalculo as CalculationType, b.Tipo as Type, b.Valor as Value, b.Porcentaje as Percentage, e.Nombre as CompanyName
                 FROM PlaniFy.Beneficio b
                 INNER JOIN PlaniFy.Empresa e ON b.idEmpresa = e.Id
                 WHERE b.idEmpresa = @CompanyId
@@ -200,26 +150,5 @@ namespace backend.Repositories
             var result = await connection.QueryAsync<BenefitResponseDto>(query, parameters);
             return result.ToList();
         }
-
-        public async Task<int> CountByCompanyIdAsync(int companyId)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            var query = @"
-                SELECT COUNT(1)
-                FROM PlaniFy.Beneficio
-                WHERE idEmpresa = @CompanyId";
-
-            var parameters = new
-            {
-                CompanyId = companyId
-            };
-
-            var count = await connection.QuerySingleAsync<int>(query, parameters);
-            return count;
-        }
-
-        #endregion
     }
 }
