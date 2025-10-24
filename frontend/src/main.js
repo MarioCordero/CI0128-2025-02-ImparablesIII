@@ -23,9 +23,7 @@ import HoursRegistry from './components/HoursRegistry.vue'
 import DashboardProject from './components/projectDashboard/DashboardProject.vue'
 import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
 import DashboardEmployee from './components/employee/DashboardEmployee.vue'
-import DashboardProject from './components/projectDashboard/DashboardProject.vue'
 import AddBenefit from './components/projectDashboard/AddBenefit.vue'
-import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
 
 // Route definitions
 const routes = [
