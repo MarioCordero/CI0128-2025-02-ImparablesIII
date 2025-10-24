@@ -22,4 +22,15 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup> 
+    <Compile Remove="Tests/**" /> 
+  </ItemGroup> 
+ 
+  <PropertyGroup> 
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration> 
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform> 
+    <DebugType>portable</DebugType> 
+    <DebugSymbols>true</DebugSymbols> 
+  </PropertyGroup> 
+
 </Project>
