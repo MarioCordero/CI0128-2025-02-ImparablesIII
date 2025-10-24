@@ -39,39 +39,39 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPost("calculate")]
-        public async Task<ActionResult<PayrollDetailDto>> CalculateEmployeePayroll(
-            [FromBody] PayrollCalculationRequestDto request)
-        {
-            try
-            {
-                var result = await _payrollService.CalculateEmployeePayrollAsync(request);
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+        // [HttpPost("calculate")]
+        // public async Task<ActionResult<PayrollDetailDto>> CalculateEmployeePayroll(
+        //     [FromBody] PayrollCalculationRequestDto request)
+        // {
+        //     try
+        //     {
+        //         var result = await _payrollService.CalculateEmployeePayrollAsync(request);
+        //         return Ok(result);
+        //     }
+        //     catch (ArgumentException ex)
+        //     {
+        //         return BadRequest(ex.Message);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, $"Internal server error: {ex.Message}");
+        //     }
+        // }
 
-        [HttpPost("process")]
-        public async Task<ActionResult> ProcessPayroll(
-            [FromBody] PayrollFiltersDto filters)
-        {
-            try
-            {
-                var result = await _payrollService.ProcessPayrollAsync(filters);
-                return Ok(new { success = result, message = "Payroll processed successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+        // [HttpPost("process")]
+        // public async Task<ActionResult> ProcessPayroll(
+        //     [FromBody] PayrollFiltersDto filters)
+        // {
+        //     try
+        //     {
+        //         var result = await _payrollService.ProcessPayrollAsync(filters);
+        //         return Ok(new { success = result, message = "Payroll processed successfully" });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, $"Internal server error: {ex.Message}");
+        //     }
+        // }
 
         [HttpGet("history/{employeeId}")]
         public async Task<ActionResult<IEnumerable<PayrollDetailDto>>> GetPayrollHistory(int employeeId)
