@@ -22,6 +22,8 @@ import SignUpEmployer from './components/SignUpEmployer.vue'
 import HoursRegistry from './components/HoursRegistry.vue'
 import DashboardProject from './components/projectDashboard/DashboardProject.vue'
 import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
+import ProfileEmployee from './components/ProfileEmployee.vue'
+import EditInfoEmployee from './components/EditInfoEmployee.vue'
 
 // Route definitions
 const routes = [
@@ -38,7 +40,9 @@ const routes = [
   { path: '/create-project', component: CreateProject },
   { path: '/signup-employer', component: SignUpEmployer },
   { path: '/hourregistry', component: HoursRegistry },
-  { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject }
+  { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject },
+  { path: '/profile-employee', component: ProfileEmployee },
+  { path: '/edit-info-employee', component: EditInfoEmployee }
 ]
 
 const router = createRouter({
