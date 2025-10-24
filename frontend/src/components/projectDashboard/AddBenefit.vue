@@ -41,10 +41,10 @@
               <input
                 v-model="form.name"
                 type="text"
-                required
                 maxlength="20"
                 :class="['neumorphism-input w-full', errors.name ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ej: Bono de Navidad"
+                @blur="validateName"
               />
               <span v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</span>
             </div>
@@ -56,8 +56,8 @@
               </label>
               <select
                 v-model="form.calculationType"
-                required
                 :class="['neumorphism-input w-full', errors.calculationType ? 'ring-2 ring-red-500' : '']"
+                @change="validateCalculationType"
               >
                 <option value="">Seleccione el tipo de cálculo</option>
                 <option value="Porcentaje">Porcentaje</option>
@@ -76,13 +76,13 @@
               </label>
               <select
                 v-model="computedType"
-                required
                 :disabled="form.calculationType === 'API'"
                 :class="[
                   'neumorphism-input w-full', 
                   errors.type ? 'ring-2 ring-red-500' : '',
                   form.calculationType === 'API' ? 'bg-gray-100 cursor-not-allowed' : ''
                 ]"
+                @change="validateType"
               >
                 <option value="">Seleccione el tipo de beneficio</option>
                 <option value="Bonificación">Bonificación</option>
@@ -99,14 +99,13 @@
               </label>
               <select
                 v-model="form.companyId"
-                required
                 :disabled="isProjectSelected"
                 :class="[
                   'neumorphism-input w-full', 
                   errors.companyId ? 'ring-2 ring-red-500' : '',
                   isProjectSelected ? 'bg-gray-100 cursor-not-allowed' : ''
                 ]"
-                @change="clearErrors"
+                @change="validateCompanyId"
               >
                 <option value="">Seleccione la empresa</option>
                 <option v-for="company in companies" :key="company.id" :value="company.id">
@@ -129,9 +128,9 @@
                   type="number"
                   min="0"
                   max="100"
-                  required
                   :class="['neumorphism-input w-full pr-8 no-spinner', errors.percentage ? 'ring-2 ring-red-500' : '']"
                   placeholder="Ej: 15% "
+                  @blur="validatePercentage"
                 />
                 <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">%</span>
               </div>
@@ -148,10 +147,10 @@
                 <input
                   v-model="formattedValue"
                   type="text"
-                  required
                   :class="['neumorphism-input w-full pr-8', errors.value ? 'ring-2 ring-red-500' : '']"
                   placeholder="Ej: 50,000"
                   @input="handleValueInput"
+                  @blur="validateValue"
                 />
                 <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₡</span>
               </div>
@@ -186,7 +185,19 @@
         </form>
       </div>
 
-      <div v-if="benefits.length > 0" class="neumorphism-card bg-[#E9F7FF] p-8 rounded-2xl">
+      <!-- Loading State -->
+      <div v-if="isLoadingBenefits" class="neumorphism-card bg-[#E9F7FF] p-8 rounded-2xl">
+        <div class="flex items-center justify-center">
+          <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-lg text-gray-600">Cargando beneficios...</span>
+        </div>
+      </div>
+
+      <!-- Benefits List -->
+      <div v-else-if="benefits.length > 0" class="neumorphism-card bg-[#E9F7FF] p-8 rounded-2xl">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Beneficios Existentes</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
@@ -211,6 +222,17 @@
               <span class="font-medium">Empresa:</span> {{ benefit.companyName }}
             </p>
           </div>
+        </div>
+      </div>
+
+      <!-- No Benefits Message -->
+      <div v-else-if="!isLoadingBenefits" class="neumorphism-card bg-[#E9F7FF] p-8 rounded-2xl">
+        <div class="text-center text-gray-600">
+          <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay beneficios registrados</h3>
+          <p class="text-gray-500">Los beneficios que agregues aparecerán aquí.</p>
         </div>
       </div>
     </div>
@@ -242,134 +264,174 @@ export default {
       errorMessage: '',
       companies: [],
       benefits: [],
-      selectedProject: null
+      selectedProject: null,
+      isLoadingBenefits: false
     }
   },
   computed: {
     isProjectSelected() {
-      return this.selectedProject !== null
+      return this.selectedProject !== null;
     },
     projectDisplayName() {
-      return this.selectedProject ? this.selectedProject.nombre : 'No seleccionado'
+      return this.selectedProject ? this.selectedProject.nombre : 'No seleccionado';
     },
     computedType: {
       get() {
-        return this.form.calculationType === 'API' ? 'Ambos' : this.form.type
+        return this.form.calculationType === 'API' ? 'Ambos' : this.form.type;
       },
       set(value) {
         if (this.form.calculationType !== 'API') {
-          this.form.type = value
+          this.form.type = value;
         }
       }
     },
     formattedValue: {
       get() {
-        if (!this.form.value || this.form.value === '') return ''
-        return this.formatNumber(this.form.value)
+        if (!this.form.value || this.form.value === '') return '';
+        return this.formatNumber(this.form.value);
       }
     }
   },
   watch: {
     'form.calculationType'(newValue) {
       // Clear conditional fields when calculation type changes
-      this.form.value = ''
-      this.form.percentage = ''
+      this.form.value = '';
+      this.form.percentage = '';
       
       // Auto-set type to 'Ambos' when API is selected
       if (newValue === 'API') {
-        this.form.type = 'Ambos'
+        this.form.type = 'Ambos';
       } else if (this.form.type === 'Ambos' && newValue !== 'API') {
         // Clear type if it was set to 'Ambos' and user changes away from API
-        this.form.type = ''
+        this.form.type = '';
       }
     }
   },
   mounted() {
     this.initializeProject();
     this.fetchCompanies();
-    this.fetchBenefits();
   },
   methods: {
     formatNumber(value) {
-      const numericValue = value.toString().replace(/[^0-9]/g, '')
-      if (!numericValue) return ''
+      const numericValue = value.toString().replace(/[^0-9]/g, '');
+      if (!numericValue) return '';
       
-      return parseInt(numericValue).toLocaleString('es-CR')
+      return parseInt(numericValue).toLocaleString('es-CR');
     },
     handleValueInput(event) {
-      const inputValue = event.target.value
+      const inputValue = event.target.value;
       // Remove any non-numeric characters except commas
-      const numericValue = inputValue.replace(/[^0-9]/g, '')
+      const numericValue = inputValue.replace(/[^0-9]/g, '');
       
       // Update the form value with the numeric value
-      this.form.value = numericValue
+      this.form.value = numericValue;
       
       // Update the display value with formatting
       this.$nextTick(() => {
         if (numericValue) {
-          event.target.value = this.formatNumber(numericValue)
+          event.target.value = this.formatNumber(numericValue);
         }
       })
     },
     clearErrors() {
-      this.errors = {}
-      this.errorMessage = ''
+      this.errors = {};
+      this.errorMessage = '';
+    },
+    validateName() {
+      if (!this.form.name.trim()) {
+        this.errors.name = 'El nombre del beneficio es obligatorio';
+      } else if (this.form.name.trim().length > 20) {
+        this.errors.name = 'El nombre no puede exceder 20 caracteres';
+      } else if (!/^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$/.test(this.form.name.trim())) {
+        this.errors.name = 'El nombre solo puede contener letras y espacios';
+      }
+    },
+    validateCalculationType() {
+      if (!this.form.calculationType) {
+        this.errors.calculationType = 'El tipo de cálculo es obligatorio';
+      }
+    },
+    validateType() {
+      const typeValue = this.form.calculationType === 'API' ? 'Ambos' : this.form.type;
+      if (!typeValue) {
+        this.errors.type = 'El tipo de beneficio es obligatorio';
+      }
+    },
+    validateCompanyId() {
+      if (!this.form.companyId) {
+        this.errors.companyId = 'Debe seleccionar una empresa';
+      }
+    },
+    validatePercentage() {
+      if (this.form.calculationType === 'Porcentaje') {
+        if (!this.form.percentage || this.form.percentage <= 0 || this.form.percentage > 100) {
+          this.errors.percentage = 'El porcentaje debe estar entre 1 y 100';
+        }
+      }
+    },
+    validateValue() {
+      if (this.form.calculationType === 'Monto Fijo') {
+        const numericValue = parseInt(this.form.value) || 0;
+        if (!this.form.value || numericValue <= 0) {
+          this.errors.value = 'El valor debe ser mayor a 0';
+        }
+      }
     },
     validateForm() {
-      this.clearErrors()
-      let isValid = true
+      this.clearErrors();
+      let isValid = true;
 
       if (!this.form.name.trim()) {
-        this.errors.name = 'El nombre del beneficio es obligatorio'
-        isValid = false
+        this.errors.name = 'El nombre del beneficio es obligatorio';
+        isValid = false;
       } else if (this.form.name.trim().length > 20) {
-        this.errors.name = 'El nombre no puede exceder 20 caracteres'
-        isValid = false
+        this.errors.name = 'El nombre no puede exceder 20 caracteres';
+        isValid = false;
       } else if (!/^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$/.test(this.form.name.trim())) {
-        this.errors.name = 'El nombre solo puede contener letras y espacios'
-        isValid = false
+        this.errors.name = 'El nombre solo puede contener letras y espacios';
+        isValid = false;
       }
 
       if (!this.form.calculationType) {
-        this.errors.calculationType = 'El tipo de cálculo es obligatorio'
-        isValid = false
+        this.errors.calculationType = 'El tipo de cálculo es obligatorio';
+        isValid = false;
       }
 
-      const typeValue = this.form.calculationType === 'API' ? 'Ambos' : this.form.type
+      const typeValue = this.form.calculationType === 'API' ? 'Ambos' : this.form.type;
       if (!typeValue) {
-        this.errors.type = 'El tipo de beneficio es obligatorio'
-        isValid = false
+        this.errors.type = 'El tipo de beneficio es obligatorio';
+        isValid = false;
       }
 
       if (this.form.calculationType === 'Porcentaje') {
         if (!this.form.percentage || this.form.percentage <= 0 || this.form.percentage > 100) {
-          this.errors.percentage = 'El porcentaje debe estar entre 1 y 100'
-          isValid = false
+          this.errors.percentage = 'El porcentaje debe estar entre 1 y 100';
+          isValid = false;
         }
       }
 
       if (this.form.calculationType === 'Monto Fijo') {
-        const numericValue = parseInt(this.form.value) || 0
+        const numericValue = parseInt(this.form.value) || 0;
         if (!this.form.value || numericValue <= 0) {
-          this.errors.value = 'El valor debe ser mayor a 0'
-          isValid = false
+          this.errors.value = 'El valor debe ser mayor a 0';
+          isValid = false;
         }
       }
 
       if (!this.form.companyId) {
-        this.errors.companyId = 'Debe seleccionar una empresa'
-        isValid = false
+        this.errors.companyId = 'Debe seleccionar una empresa';
+        isValid = false;
       }
 
-      return isValid
+      return isValid;
     },
     async handleSubmit() {
       if (!this.validateForm()) {
-        return
+        return;
       }
 
-      this.isSubmitting = true
-      this.clearErrors()
+      this.isSubmitting = true;
+      this.clearErrors();
 
       try {
         const requestData = {
@@ -389,10 +451,10 @@ export default {
           body: JSON.stringify(requestData)
         })
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (response.ok) {
-          this.successMessage = 'Beneficio agregado exitosamente'
+          this.successMessage = 'Beneficio agregado exitosamente';
           this.form = {
             name: '',
             calculationType: '',
@@ -402,82 +464,64 @@ export default {
             percentage: ''
           }
           // Refresh the benefits list
-          await this.fetchBenefits()
+          await this.fetchBenefitsByProject(this.selectedProject.id);
           
           // Auto-redirect after 2 seconds if coming from a project
           if (this.isProjectSelected) {
             setTimeout(() => {
-              this.$router.push(`/dashboard-project/${this.selectedProject.id}`)
-            }, 2000)
+              this.$router.push(`/dashboard-project/${this.selectedProject.id}`);
+            }, 2000);
           }
         } else {
-          this.errorMessage = data.message || 'Error al agregar el beneficio'
+          this.errorMessage = data.message || 'Error al agregar el beneficio';
         }
       } catch (error) {
-        console.error('Error:', error)
-        this.errorMessage = 'Error de conexión. Por favor, intente nuevamente.'
+        this.errorMessage = 'Error de conexión. Por favor, intente nuevamente.';
       } finally {
-        this.isSubmitting = false
+        this.isSubmitting = false;
       }
     },
     async fetchCompanies() {
       try {
-        const response = await fetch(apiConfig.endpoints.project)
-        if (!response.ok) throw new Error('No se pudo cargar las empresas')
+        const response = await fetch(apiConfig.endpoints.project);
+        if (!response.ok) throw new Error('No se pudo cargar las empresas');
         this.companies = await response.json()
       } catch (err) {
-        this.errorMessage = 'Error al cargar las empresas'
-      }
-    },
-    async fetchBenefits() {
-      try {
-        // Get the current project from localStorage
-        const currentProject = JSON.parse(localStorage.getItem('selectedProject'))
-        
-        if (currentProject && currentProject.id) {
-          // Fetch benefits for the current project only
-          const response = await fetch(apiConfig.endpoints.benefitByCompany(currentProject.id))
-          if (!response.ok) throw new Error('No se pudo cargar los beneficios del proyecto')
-          this.benefits = await response.json()
-        } else {
-          // If no project is selected, fetch all benefits
-          const response = await fetch(apiConfig.endpoints.benefit)
-          if (!response.ok) throw new Error('No se pudo cargar los beneficios')
-          this.benefits = await response.json()
-        }
-      } catch (err) {
-        this.errorMessage = 'Error al cargar los beneficios'
+        this.errorMessage = 'Error al cargar las empresas';
       }
     },
     goBack() {
       if (this.isProjectSelected) {
-        this.$router.push(`/dashboard-project/${this.selectedProject.id}`)
+        this.$router.push(`/dashboard-project/${this.selectedProject.id}`);
       } else {
-        this.$router.push('/dashboard-main-employer')
+        this.$router.push('/dashboard-main-employer');
       }
     },
     async initializeProject() {
-      const storedProject = localStorage.getItem('selectedProject')
+      const storedProject = localStorage.getItem('selectedProject');
       
       if (storedProject) {
         try {
-          this.selectedProject = JSON.parse(storedProject)
-          this.form.companyId = this.selectedProject.id
+          this.selectedProject = JSON.parse(storedProject);
+          this.form.companyId = this.selectedProject.id;
+          // Load benefits for the stored project
+          await this.fetchBenefitsByProject(this.selectedProject.id);
         } catch (err) {
-          console.error('Error parsing stored project:', err)
-          this.errorMessage = 'Error al cargar el proyecto almacenado'
+          this.errorMessage = 'Error al cargar el proyecto almacenado';
         }
       } else {
         const projectId = this.$route.params.projectId || this.projectId
         
         if (projectId) {
           try {
-            const response = await fetch(apiConfig.endpoints.projectById(projectId))
+            const response = await fetch(apiConfig.endpoints.projectById(projectId));
             if (response.ok) {
-              this.selectedProject = await response.json()
-              this.form.companyId = this.selectedProject.id
+              this.selectedProject = await response.json();
+              this.form.companyId = this.selectedProject.id;
               // Store in localStorage for future use
-              localStorage.setItem('selectedProject', JSON.stringify(this.selectedProject))
+              localStorage.setItem('selectedProject', JSON.stringify(this.selectedProject));
+              // Load benefits for the fetched project
+              await this.fetchBenefitsByProject(this.selectedProject.id);
             }
           } catch (err) {
             this.errorMessage = 'Error al cargar el proyecto'
@@ -486,13 +530,20 @@ export default {
       }
     },
     async fetchBenefitsByProject(projectId) {
+      this.isLoadingBenefits = true;
       try {
-        const response = await fetch(apiConfig.endpoints.benefitByCompany(projectId))
+        const response = await fetch(apiConfig.endpoints.benefitByCompany(projectId));
+        
         if (response.ok) {
-          this.benefits = await response.json()
+          this.benefits = await response.json();
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          this.errorMessage = errorData.message || 'Error al cargar los beneficios del proyecto';
         }
       } catch (err) {
-        this.errorMessage = 'Error al cargar los beneficios del proyecto'
+        this.errorMessage = 'Error al cargar los beneficios del proyecto';
+      } finally {
+        this.isLoadingBenefits = false;
       }
     }
   }
