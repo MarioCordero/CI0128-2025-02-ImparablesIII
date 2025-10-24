@@ -29,19 +29,20 @@ namespace backend.Services
                 throw new ArgumentException("Ya existe un beneficio con este nombre para esta empresa");
             }
 
-            // Create benefit entity
             var benefit = new Benefit
             {
                 CompanyId = createBenefitDto.CompanyId,
                 Name = createBenefitDto.Name.Trim(),
                 CalculationType = createBenefitDto.CalculationType.Trim(),
-                Type = createBenefitDto.Type.Trim()
+                Type = createBenefitDto.Type.Trim(),
+                Value = createBenefitDto.Value,
+                Percentage = createBenefitDto.Percentage
             };
+            
 
             // Save to database
             await _benefitRepository.CreateAsync(benefit);
 
-            // Get company name for response
             var company = await _projectRepository.GetByIdAsync(createBenefitDto.CompanyId);
             var companyName = company?.Nombre ?? "Empresa no encontrada";
 
@@ -51,7 +52,9 @@ namespace backend.Services
                 Name = benefit.Name,
                 CalculationType = benefit.CalculationType,
                 Type = benefit.Type,
-                CompanyName = companyName
+                CompanyName = companyName,
+                Value = benefit.Value,
+                Percentage = benefit.Percentage
             };
         }
 
@@ -69,7 +72,9 @@ namespace backend.Services
                     Name = benefit.Name,
                     CalculationType = benefit.CalculationType,
                     Type = benefit.Type,
-                    CompanyName = company?.Nombre ?? "Empresa no encontrada"
+                    CompanyName = company?.Nombre ?? "Empresa no encontrada",
+                    Value = benefit.Value,
+                    Percentage = benefit.Percentage
                 });
             }
 
@@ -102,64 +107,15 @@ namespace backend.Services
                 Name = benefit.Name,
                 CalculationType = benefit.CalculationType,
                 Type = benefit.Type,
-                CompanyName = company?.Nombre ?? "Empresa no encontrada"
+                CompanyName = company?.Nombre ?? "Empresa no encontrada",
+                Value = benefit.Value,
+                Percentage = benefit.Percentage
             };
-        }
-
-        public async Task<BenefitResponseDto> UpdateBenefitAsync(int companyId, string name, UpdateBenefitDto updateDto)
-        {
-            // Validate that the benefit exists
-            if (!await _benefitRepository.ExistsAsync(companyId, name))
-            {
-                throw new ArgumentException("El beneficio especificado no existe");
-            }
-
-            // If the name is being changed, check for uniqueness
-            if (name != updateDto.Name && await _benefitRepository.ExistsAsync(companyId, updateDto.Name))
-            {
-                throw new ArgumentException("Ya existe un beneficio con este nombre para esta empresa");
-            }
-
-            // Update the benefit
-            var success = await _benefitRepository.UpdateAsync(companyId, name, updateDto);
-            if (!success)
-            {
-                throw new Exception("Error al actualizar el beneficio");
-            }
-
-            // Get updated benefit with company name
-            var benefit = await _benefitRepository.GetByIdAsync(companyId, updateDto.Name);
-            var company = await _projectRepository.GetByIdAsync(companyId);
-
-            return new BenefitResponseDto
-            {
-                CompanyId = benefit!.CompanyId,
-                Name = benefit.Name,
-                CalculationType = benefit.CalculationType,
-                Type = benefit.Type,
-                CompanyName = company?.Nombre ?? "Empresa no encontrada"
-            };
-        }
-
-        public async Task<bool> DeleteBenefitAsync(int companyId, string name)
-        {
-            // Validate that the benefit exists
-            if (!await _benefitRepository.ExistsAsync(companyId, name))
-            {
-                throw new ArgumentException("El beneficio especificado no existe");
-            }
-
-            return await _benefitRepository.DeleteAsync(companyId, name);
         }
 
         public async Task<bool> ExistsBenefitAsync(int companyId, string name)
         {
             return await _benefitRepository.ExistsAsync(companyId, name);
-        }
-
-        public async Task<int> CountBenefitsByCompanyIdAsync(int companyId)
-        {
-            return await _benefitRepository.CountByCompanyIdAsync(companyId);
         }
     }
 }
