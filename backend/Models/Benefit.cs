@@ -19,6 +19,12 @@ namespace backend.Models
         [MaxLength(20)]
         public string Type { get; set; } = string.Empty;
         
+        [Range(0, int.MaxValue, ErrorMessage = "El Valor debe ser mayor a 0")]
+        public int? Value { get; set; }
+
+        [Range(0, 100, ErrorMessage = "El Porcentaje debe estar entre 0 y 100")]
+        public int? Percentage { get; set; }
+        
         // Navigation property - change from Empresa to Project
         public Project? Project { get; set; }
     }
