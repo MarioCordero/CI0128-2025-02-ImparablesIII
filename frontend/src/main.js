@@ -19,8 +19,11 @@ import DashboardMainEmployer from './components/DashboardMainEmployer.vue'
 import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import CreateProject from './components/CreateProject.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
-import DashboardProject from './components/DashboardProject.vue'
 import AddBenefit from './components/AddBenefit.vue'
+import HoursRegistry from './components/HoursRegistry.vue'
+import DashboardProject from './components/projectDashboard/DashboardProject.vue'
+import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
+import DashboardEmployee from './components/employee/DashboardEmployee.vue'
 
 // Route definitions
 const routes = [
@@ -36,8 +39,10 @@ const routes = [
   { path: '/superadmin', component: SuperAdminMenu, meta: { requiresAuth: true, requiresRole: 'Administrador' } },
   { path: '/create-project', component: CreateProject },
   { path: '/signup-employer', component: SignUpEmployer },
+  { path: '/hourregistry', component: HoursRegistry },
   { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject },
   { path: '/add-benefit/:projectId?', name: 'AddBenefit', component: AddBenefit },
+  { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee }
 ]
 
 const router = createRouter({
