@@ -36,5 +36,8 @@ namespace backend.Models
         public string? Contrasena { get; set; }
         
         public int? IdEmpresa { get; set; }
+
+        public Persona? Persona { get; set; }
+
     }
 }
