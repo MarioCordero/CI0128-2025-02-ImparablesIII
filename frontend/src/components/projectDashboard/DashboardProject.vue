@@ -32,12 +32,12 @@
           </div>
           <div class="neumorphism-card p-6 rounded-2xl">
             <h2 class="text-xl font-semibold mb-2">Beneficios Corporativos</h2>
-            <div v-if="!project.beneficios || project.beneficios.length === 0" class="text-gray-500">
+            <div v-if="!benefits || benefits.length === 0" class="text-gray-500">
               No hay beneficios registrados para esta empresa.
             </div>
             <ul v-else class="list-disc pl-5">
-              <li v-for="benefit in project.beneficios" :key="benefit.id" class="mb-2">
-                <span class="font-bold">{{ benefit.nombre }}</span> - {{ benefit.tipo }} ({{ benefit.tipoCalculo }})
+              <li v-for="benefit in benefits" :key="benefit.id" class="mb-2">
+                <span class="font-bold">{{ benefit.name }}</span> - {{ benefit.type }} ({{ benefit.calculationType }})
               </li>
             </ul>
           </div>
@@ -76,49 +76,30 @@ import DashboardProjectSubHeader from '../projectDashboard/DashboardProjectSubHe
 import PayrollReports from './PayrollReports.vue';
 
 export default {
-  // 1. Nombre del componente
   name: 'ProjectDashboard',
-
-  // 2. Componentes hijos locales
   components: {
     MainEmployerHeader,
     DashboardProjectSubHeader,
     PayrollReports
   },
-
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
-  props: {},
-
-  // 5. Estado reactivo del componente
   data() {
     return {
       project: {},
       loading: true,
       error: null,
       companies: [],
-      selectedSection: 'dashboard' // default section
+      benefits: [],
+      selectedSection: 'dashboard' 
     }
   },
-
-  // 6. Propiedades derivadas
-  computed: {},
-
-  // 7. Observadores de cambios
-  watch: {},
-
-  // 8. Métodos y lógica ejecutable
   methods: {
     goBack() {
-      this.$router.push('/dashboard-main-employer')
+      this.$router.push('/dashboard-main-employer');
     },
 
     addBenefit() {
-      this.$router.push('/dashboard-main-employer/benefits/new') // TODO
+      this.$router.push('/add-benefit');
     },
-
     addEmployee() {
       this.$router.push({
         name: 'RegisterEmployee',
@@ -128,68 +109,51 @@ export default {
         }
       })
     },
-
-    async fetchCompanies() { // Verify if needed
+    async fetchCompanies() {
       try {
-        const response = await fetch('http://localhost:5011/api/Project')
-        if (!response.ok) throw new Error('No se pudo cargar las empresas')
-        this.companies = await response.json()
+        const response = await fetch('http://localhost:5011/api/Project');
+        if (!response.ok) throw new Error('No se pudo cargar las empresas');
+        this.companies = await response.json();
       } catch (err) {
         // manejo
       }
     },
-
+    async fetchBenefits() {
+      try {
+        const response = await fetch('http://localhost:5011/api/Benefit');
+        if (!response.ok) throw new Error('No se pudo cargar los beneficios');
+        this.benefits = await response.json();
+      } catch (err) {
+        this.error = err.message || 'Error al cargar los beneficios';
+      }
+    },
     onProjectChanged(project) {
-      this.project = project
-      this.error = null
-      this.loading = false
+      this.project = project;
+      this.error = null;
+      this.loading = false;
     },
 
     async fetchProject() {
       try {
-        this.loading = true
-        this.error = null
-        const localProject = localStorage.getItem('selectedProject')
+        this.loading = true;
+        this.error = null;
+        const localProject = localStorage.getItem('selectedProject');
         if (localProject) {
-          this.project = JSON.parse(localProject)
+          this.project = JSON.parse(localProject);
         } else {
-          this.error = 'No hay información de la empresa en localStorage'
+          this.error = 'No hay información de la empresa en localStorage';
         }
       } catch (err) {
-        this.error = err.message || 'Error al cargar el proyecto'
+        this.error = err.message || 'Error al cargar el proyecto';
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
   },
-
-  // 9. Ciclo de vida
-  beforeCreate() {},
-  created() {},
-  beforeMount() {},
   mounted() {
-    this.fetchCompanies() // // Verify if needed
-    this.fetchProject() // Verify if needed
-  },
-  beforeUpdate() {},
-  updated() {},
-  beforeUnmount() {},
-  unmounted() {},
-
-  // 10. Opciones de inyección
-  provide() {
-    return {}
-  },
-  inject: [],
-
-  // 11. Eventos emitidos
-  emits: [],
-
-  // 12. Reutilización de lógica
-  mixins: [],
-  extends: null,
-
-  // 13. Filtros
-  filters: {}
+    this.fetchCompanies();
+    this.fetchProject();
+    this.fetchBenefits();
+  }
 }
 </script>
