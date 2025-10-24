@@ -1,9 +1,9 @@
 using backend.Services;
-// using backend.Services.Interfaces;
 using backend.Repositories;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Data;
 using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,7 +75,7 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 // Business repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
-builder.Services.AddScoped<EmployeeRepository>(); // Assuming this doesn't have interface yet
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>(); // <-- Add this line // ASK
 builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
 
 // ===================================
@@ -97,6 +97,12 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Infrastructure services
 builder.Services.AddMemoryCache(); // Memory cache for password tokens
+
+// Payroll services
+builder.Services.AddScoped<IPayrollRepository, PayrollRepository>();
+builder.Services.AddScoped<IPayrollService, PayrollService>();
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); // ASK
+builder.Services.AddScoped<IDbConnection>(_ => new SqlConnection(connectionString)); // ASK
 
 var app = builder.Build();
 

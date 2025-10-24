@@ -1,7 +1,3 @@
-¡Claro! Aquí tienes el README completo con toda la documentación lista para pegar al final de tu archivo:
-
----
-
 ## 🏗️ Project Architecture
 
 This project is structured into two main parts: the **Frontend** and the **Backend**, each with clearly defined responsibilities.
