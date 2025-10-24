@@ -10,14 +10,14 @@ namespace backend.Services
     {
         private readonly IMemoryCache _cache;
         private readonly ILogger<PasswordSetupService> _logger;
-        private readonly EmployeeRepository _employeeRepository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly IPasswordRepository _passwordRepository;
         private readonly IUsuarioRepository _usuarioRepository;
 
         public PasswordSetupService(
             IMemoryCache cache, 
             ILogger<PasswordSetupService> logger,
-            EmployeeRepository employeeRepository,
+            IEmployeeRepository employeeRepository,
             IPasswordRepository passwordRepository,
             IUsuarioRepository usuarioRepository)
         {

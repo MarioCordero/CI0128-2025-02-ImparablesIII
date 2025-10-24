@@ -65,7 +65,7 @@ namespace backend.Services
             if (employee == null)
                 throw new ArgumentException("Employee not found");
 
-            var grossSalary = employee.Salario ?? 0;
+            var grossSalary = employee.Salario;
             var ccssEmployee = CalculateCcssEmployee(grossSalary);
             var ccssEmployer = CalculateCcssEmployer(grossSalary);
             var incomeTax = CalculateIncomeTax(grossSalary);
@@ -75,12 +75,12 @@ namespace backend.Services
             return new PayrollDetailDto
             {
                 EmployeeId = request.EmployeeId,
-                EmployeeName = $"{employee.Persona?.Nombre} {employee.Persona?.Apellido1}",
+                EmployeeName = $"{employee.Persona?.Nombre} {employee.Persona?.Apellidos}",
                 GrossSalary = grossSalary,
                 CcssEmployee = ccssEmployee,
                 CcssEmployer = ccssEmployer,
                 IncomeTax = incomeTax,
-                OtherDeductions = 0, // Could be calculated based on other deductions
+                OtherDeductions = 0,
                 Benefits = benefits,
                 NetSalary = netSalary,
                 Period = request.Period,
@@ -88,48 +88,48 @@ namespace backend.Services
             };
         }
 
-        public async Task<bool> ProcessPayrollAsync(PayrollFiltersDto filters)
-        {
-            var employees = await _employeeRepository.GetAllEmployeesAsync();
+        // public async Task<bool> ProcessPayrollAsync(PayrollFiltersDto filters)
+        // {
+        //     var employees = await _employeeRepository.GetAllEmployeesAsync();
             
-            foreach (var employee in employees)
-            {
-                if (filters.DepartmentId.HasValue && employee.DepartamentoId != filters.DepartmentId.Value)
-                    continue;
+        //     foreach (var employee in employees)
+        //     {
+        //         if (filters.DepartmentId.HasValue && employee.DepartamentoId != filters.DepartmentId.Value)
+        //             continue;
 
-                // Check if payroll already processed
-                if (await _payrollRepository.IsPayrollProcessedAsync(employee.EmpleadoId, filters.Period, filters.PeriodType))
-                    continue;
+        //         // Check if payroll already processed
+        //         if (await _payrollRepository.IsPayrollProcessedAsync(employee.EmpleadoId, filters.Period, filters.PeriodType))
+        //             continue;
 
-                var calculationRequest = new PayrollCalculationRequestDto
-                {
-                    EmployeeId = employee.EmpleadoId,
-                    Period = filters.Period,
-                    PeriodType = filters.PeriodType
-                };
+        //         var calculationRequest = new PayrollCalculationRequestDto
+        //         {
+        //             EmployeeId = employee.EmpleadoId,
+        //             Period = filters.Period,
+        //             PeriodType = filters.PeriodType
+        //         };
 
-                var payrollDetail = await CalculateEmployeePayrollAsync(calculationRequest);
+        //         var payrollDetail = await CalculateEmployeePayrollAsync(calculationRequest);
 
-                var payroll = new Payroll
-                {
-                    EmployeeId = employee.EmpleadoId,
-                    Period = filters.Period,
-                    PeriodType = filters.PeriodType,
-                    GrossSalary = payrollDetail.GrossSalary,
-                    CcssEmployee = payrollDetail.CcssEmployee,
-                    CcssEmployer = payrollDetail.CcssEmployer,
-                    IncomeTax = payrollDetail.IncomeTax,
-                    OtherDeductions = payrollDetail.OtherDeductions,
-                    Benefits = payrollDetail.Benefits,
-                    NetSalary = payrollDetail.NetSalary,
-                    Status = "Paid"
-                };
+        //         var payroll = new Payroll
+        //         {
+        //             EmployeeId = employee.EmpleadoId,
+        //             Period = filters.Period,
+        //             PeriodType = filters.PeriodType,
+        //             GrossSalary = payrollDetail.GrossSalary,
+        //             CcssEmployee = payrollDetail.CcssEmployee,
+        //             CcssEmployer = payrollDetail.CcssEmployer,
+        //             IncomeTax = payrollDetail.IncomeTax,
+        //             OtherDeductions = payrollDetail.OtherDeductions,
+        //             Benefits = payrollDetail.Benefits,
+        //             NetSalary = payrollDetail.NetSalary,
+        //             Status = "Paid"
+        //         };
 
-                await _payrollRepository.CreatePayrollAsync(payroll);
-            }
+        //         await _payrollRepository.CreatePayrollAsync(payroll);
+        //     }
 
-            return true;
-        }
+        //     return true;
+        // }
 
         public async Task<IEnumerable<PayrollDetailDto>> GetPayrollHistoryAsync(int employeeId)
         {

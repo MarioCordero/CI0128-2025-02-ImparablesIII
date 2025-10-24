@@ -83,5 +83,7 @@ namespace backend.DTOs
         public decimal NetSalary { get; set; }
         public DateTime Period { get; set; }
         public string Status { get; set; } = "Pending";
+        public string? Department { get; set; }
+
     }
 }
