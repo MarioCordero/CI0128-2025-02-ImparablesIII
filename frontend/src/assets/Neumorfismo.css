@@ -1,0 +1,74 @@
+.neumorfismo-tarjeta {
+  background: #dbeafe; /* color base gris claro */
+  border-radius: 12px;
+  box-shadow: 8px 8px 16px #bebebe,
+              -8px -8px 16px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorfismo-sobre {
+  background: #dbeafe; /* color base gris claro */
+  box-shadow: 8px 8px 16px #bebebe,
+              -8px -8px 16px #ffffff;
+}
+
+.neumorfismo-sobre-suave {
+    background: #dbeafe; /* color base gris claro */
+    border-radius: 12px;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+    box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+}
+
+/*
+.neumorphism-card:hover {
+  box-shadow: inset 8px 8px 16px #bebebe,
+              inset -8px -8px 16px #ffffff;
+}
+*/
+
+.neumorfismo-input {
+  background: #dbeafe;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  box-shadow: inset 3px 3px 6px #bebebe,
+              inset -3px -3px 6px #ffffff;
+  width: 100%;
+  color: #333;
+  cursor: not-allowed;
+}
+
+
+.neumorfismo-input:focus {
+  outline: none;
+  box-shadow: 4px 4px 6px #1048ff,
+              -4px -4px 6px #1048ff,
+              4px -4px 6px #1048ff,
+              -4px 4px 6px #1048ff;
+}
+
+.neumorfismo-boton {
+  background: #dbeafe; /* color base gris claro */
+  border-radius: 12px;
+  box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorfismo-boton:hover {
+  background: #bfcddf; /* color base gris claro */
+  border-radius: 12px;
+  box-shadow: 2px 2px 4px #bebebe,
+              -2px -2px 4px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorfismo-boton:active {
+  background: #dbeafe;
+  box-shadow: inset 3px 3px 6px #bebebe,
+              inset -3px -3px 6px #ffffff;
+  transition: all 0.1s ease;
+ 
+}
