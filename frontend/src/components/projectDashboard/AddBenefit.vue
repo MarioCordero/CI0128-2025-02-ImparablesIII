@@ -219,6 +219,7 @@
 
 <script>
 import MainEmployerHeader from '../common/MainEmployerHeader.vue'
+import { apiConfig } from '../../config/api.js'
 
 export default {
   name: 'AddBenefit',
@@ -380,7 +381,7 @@ export default {
           Percentage: this.form.calculationType === 'Porcentaje' && this.form.percentage ? parseInt(this.form.percentage) : null
         };
         
-        const response = await fetch('http://localhost:5011/api/Benefit', {
+        const response = await fetch(apiConfig.endpoints.benefit, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -421,7 +422,7 @@ export default {
     },
     async fetchCompanies() {
       try {
-        const response = await fetch('http://localhost:5011/api/Project')
+        const response = await fetch(apiConfig.endpoints.project)
         if (!response.ok) throw new Error('No se pudo cargar las empresas')
         this.companies = await response.json()
       } catch (err) {
@@ -435,12 +436,12 @@ export default {
         
         if (currentProject && currentProject.id) {
           // Fetch benefits for the current project only
-          const response = await fetch(`http://localhost:5011/api/Benefit/company/${currentProject.id}`)
+          const response = await fetch(apiConfig.endpoints.benefitByCompany(currentProject.id))
           if (!response.ok) throw new Error('No se pudo cargar los beneficios del proyecto')
           this.benefits = await response.json()
         } else {
           // If no project is selected, fetch all benefits
-          const response = await fetch('http://localhost:5011/api/Benefit')
+          const response = await fetch(apiConfig.endpoints.benefit)
           if (!response.ok) throw new Error('No se pudo cargar los beneficios')
           this.benefits = await response.json()
         }
@@ -471,7 +472,7 @@ export default {
         
         if (projectId) {
           try {
-            const response = await fetch(`http://localhost:5011/api/Project/${projectId}`)
+            const response = await fetch(apiConfig.endpoints.projectById(projectId))
             if (response.ok) {
               this.selectedProject = await response.json()
               this.form.companyId = this.selectedProject.id
@@ -486,7 +487,7 @@ export default {
     },
     async fetchBenefitsByProject(projectId) {
       try {
-        const response = await fetch(`http://localhost:5011/api/Benefit/company/${projectId}`)
+        const response = await fetch(apiConfig.endpoints.benefitByCompany(projectId))
         if (response.ok) {
           this.benefits = await response.json()
         }
