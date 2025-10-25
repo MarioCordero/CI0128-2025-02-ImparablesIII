@@ -70,6 +70,14 @@ namespace backend.Repositories
 
         private async Task InsertEmpleadoAsync(SqlConnection connection, SqlTransaction transaction, RegisterEmployeeDto employeeDto, int personaId)
         {
+            // Use ProjectId if available, otherwise fall back to IdEmpresa
+            var empresaId = employeeDto.ProjectId ?? employeeDto.IdEmpresa;
+            
+            if (!empresaId.HasValue)
+            {
+                throw new ArgumentException("Either ProjectId or IdEmpresa must be provided");
+            }
+
             var query = @"
                 INSERT INTO PlaniFy.Empleado (idPersona, Departamento, TipoContrato, TipoSalario, Puesto, FechaContratacion, Salario, iban, Contrasena, idEmpresa)
                 VALUES (@IdPersona, @Departamento, @TipoContrato, @TipoSalario, @Puesto, @FechaContratacion, @Salario, @Iban, @Contrasena, @IdEmpresa)";
@@ -85,7 +93,7 @@ namespace backend.Repositories
                 Salario = employeeDto.Salario,
                 Iban = employeeDto.NumeroCuentaIban,
                 Contrasena = employeeDto.Contrasena,
-                IdEmpresa = employeeDto.IdEmpresa
+                IdEmpresa = empresaId.Value
             };
 
             await connection.ExecuteAsync(query, parameters, transaction);
