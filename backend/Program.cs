@@ -77,6 +77,7 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>(); // <-- Add this line // ASK
 builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
+builder.Services.AddScoped<IBenefitRepository, BenefitRepository>();
 
 // ===================================
 // SERVICES REGISTRATION
@@ -87,6 +88,7 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IDashboardMainEmployerService, DashboardMainEmployerService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<backend.Services.IEmployerService, backend.Services.EmployerService>();
+builder.Services.AddScoped<IBenefitService, BenefitService>();
 
 // Authentication & Security services
 builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
