@@ -1,5 +1,5 @@
 .neumorfismo-tarjeta {
-  background: #dbeafe; /* color base gris claro */
+  background: #dbeafe;
   border-radius: 12px;
   box-shadow: 8px 8px 16px #bebebe,
               -8px -8px 16px #ffffff;
@@ -7,26 +7,19 @@
 }
 
 .neumorfismo-sobre {
-  background: #dbeafe; /* color base gris claro */
+  background: #dbeafe;
   box-shadow: 8px 8px 16px #bebebe,
               -8px -8px 16px #ffffff;
 }
 
 .neumorfismo-sobre-suave {
-    background: #dbeafe; /* color base gris claro */
+    background: #dbeafe;
     border-radius: 12px;
     padding: 0.5rem 0.75rem;
     width: 100%;
     box-shadow: 4px 4px 8px #bebebe,
               -4px -4px 8px #ffffff;
 }
-
-/*
-.neumorphism-card:hover {
-  box-shadow: inset 8px 8px 16px #bebebe,
-              inset -8px -8px 16px #ffffff;
-}
-*/
 
 .neumorfismo-input {
   background: #dbeafe;
@@ -37,9 +30,8 @@
               inset -3px -3px 6px #ffffff;
   width: 100%;
   color: #333;
-  cursor: not-allowed;
+  cursor: text;
 }
-
 
 .neumorfismo-input:focus {
   outline: none;
@@ -50,7 +42,7 @@
 }
 
 .neumorfismo-boton {
-  background: #dbeafe; /* color base gris claro */
+  background: #dbeafe;
   border-radius: 12px;
   box-shadow: 4px 4px 8px #bebebe,
               -4px -4px 8px #ffffff;
@@ -58,7 +50,7 @@
 }
 
 .neumorfismo-boton:hover {
-  background: #bfcddf; /* color base gris claro */
+  background: #bfcddf;
   border-radius: 12px;
   box-shadow: 2px 2px 4px #bebebe,
               -2px -2px 4px #ffffff;
@@ -70,5 +62,56 @@
   box-shadow: inset 3px 3px 6px #bebebe,
               inset -3px -3px 6px #ffffff;
   transition: all 0.1s ease;
- 
+}
+
+.neumorfismo-boton-verde {
+  background: #bcf7c1;
+  border-radius: 12px;
+  color: #000000;
+  box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorfismo-boton-verde:hover {
+  background: #8bb68f;
+  border-radius: 12px;
+  color:#ffffff;
+  box-shadow: 2px 2px 4px #bebebe,
+              -2px -2px 4px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorfismo-boton-verde:active {
+  background: #bcf7c1;
+  color: #000000;
+  box-shadow: inset 3px 3px 6px #bebebe,
+              inset -3px -3px 6px #ffffff;
+  transition: all 0.1s ease;
+}
+
+.neumorfismo-boton-rojo {
+  background: #f7bcbc;
+  border-radius: 12px;
+  color: #000000;
+  box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorfismo-boton-rojo:hover {
+  background: #b68b8b;
+  border-radius: 12px;
+  color:#ffffff;
+  box-shadow: 2px 2px 4px #bebebe,
+              -2px -2px 4px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorfismo-boton-rojo:active {
+  background: #f7bcbc;
+  color: #000000;
+  box-shadow: inset 3px 3px 6px #bebebe,
+              inset -3px -3px 6px #ffffff;
+  transition: all 0.1s ease;
 }
