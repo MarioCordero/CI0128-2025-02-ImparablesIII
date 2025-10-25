@@ -1,27 +1,56 @@
 <template>
     <div class="bg-[#dbeafe] min-h-screen">
-
-        <SuperAdminHeader/>
-
+        <EmployeeHeader :user="user" />
+        
         <div class="mx-[171px] my-[41px] space-y-[41px] pb-[41px]">
             
             <!-- Primera parte 1x1 -->
             <div class="neumorfismo-tarjeta flex items-center justify-between px-[39px] py-[37px]">
-            <div class="flex items-center gap-4">
-                <div class="neumorfismo-sobre w-[160px] h-[160px] rounded-full flex items-center justify-center">
-                    <!-- hay que meter logo o foto de perfil -->
+                <div class="flex items-center gap-4">
+                    <div class="neumorfismo-sobre w-[160px] h-[160px] rounded-full flex items-center justify-center">
+                        <!-- hay que meter logo o foto de perfil -->
+                    </div>
+                    <div>
+                        <p class="font-medium text-[44px]">{{ fullName }}</p>
+                        <p class="text-[29px]">{{ userData.user.puesto }}</p>
+                        <p class="text-[20px]">{{ userData.user.departamento }}</p>
+                    </div>
                 </div>
-                <div>
-                <p class="font-medium text-[44px]">{{ user?.nombre || 'Empleado' }}</p>
-                <p class="text-[29px]">{{ user?.puesto || 'Puesto' }}</p>
-                <p class="text-[20px]">{{ user?.departamento || 'Departamento' }}</p>
+                <div class="flex gap-2">
+                    <button 
+                        v-if="!isEditing" 
+                        @click="enableEditing" 
+                        class="neumorfismo-boton flex items-center gap-2 text-gray-800 px-4 py-2"
+                    >
+                        Editar Perfil
+                    </button>
+                    <button 
+                        v-if="isEditing" 
+                        @click="saveChanges" 
+                        :disabled="saving"
+                        class="neumorfismo-boton-verde flex items-center gap-2 text-gray-800 px-4 py-2"
+                    >
+                        <span v-if="saving">Guardando...</span>
+                        <span v-else>Guardar Cambios</span>
+                    </button>
+                    <button 
+                        v-if="isEditing" 
+                        @click="cancelEditing" 
+                        :disabled="saving"
+                        class="neumorfismo-boton-rojo flex items-center gap-2 text-gray-800 px-4 py-2"
+                    >
+                        Cancelar
+                    </button>
                 </div>
             </div>
-            <button @click="navigateToEditInfoEmployee" class="neumorfismo-boton flex items-center gap-2 text-gray-800 px-4 py-2 rounded-lg">
-                Editar Perfil
-            </button>
-            </div> <!-- Fin Segunda Parte 1x2 -->
 
+            <!-- Mensajes de éxito/error -->
+            <div v-if="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                {{ successMessage }}
+            </div>
+            <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {{ error }}
+            </div>
 
             <!-- Segunda Parte 1x2 -->
             <div class="grid grid-cols-2 gap-[41px]">
@@ -29,54 +58,139 @@
                 <!-- Información Personal -->
                 <div class="neumorfismo-tarjeta px-[39px] py-[37px]">
                     <p class="text-[32px] font-medium mb-4">Información Personal</p>
-                    <div class="space-y-3">
-                    <div>
-                        <label class="text-[23px] text-gray-600">Nombre Completo</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.nombre || 'Nombre Completo del Empleado' }} </p>
-                    </div>
-                    <div>
-                        <label class="text-[23px] text-gray-600">Correo Electrónico</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.correo || 'Correo Electronico del Empleado' }} </p>
-                    </div>
-                    <div>
-                        <label class="text-[23px] text-gray-600">Número de Teléfono</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.telefono || 'Numero Telefonico del Empleado' }} </p>
-                    </div>
-                    <div>
-                        <label class="text-[23px] text-gray-600">Dirección</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.direccion || 'Direccion del Empleado' }} </p>
-                    </div>
-                    <div>
-                        <label class="text-[23px] text-gray-600">Cuenta IBAN</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.iban || 'Cuenta Iban del Empleado' }} </p>
-                    </div>
+                    <div class="space-y-[25px]">
+                        <!-- Nombre Completo -->
+                        <div>
+                            <label class="text-[23px] text-gray-600">Nombre Completo</label>
+                            <div v-if="!isEditing" class="neumorfismo-sobre-suave text-[20px] p-2">
+                                {{ editedUserData.nombre }} {{ editedUserData.segundoNombre }} {{ editedUserData.apellidos }}
+                            </div>
+                            <div v-else class="grid grid-cols-3 gap-2">
+                                <input 
+                                    v-model="editedUserData.nombre"
+                                    class="neumorfismo-input text-[16px] p-2 rounded"
+                                    placeholder="Primer nombre"
+                                    :disabled="saving"
+                                />
+                                <input 
+                                    v-model="editedUserData.segundoNombre"
+                                    class="neumorfismo-input text-[16px] p-2 rounded"
+                                    placeholder="Segundo nombre"
+                                    :disabled="saving"
+                                />
+                                <input 
+                                    v-model="editedUserData.apellidos"
+                                    class="neumorfismo-input text-[16px] p-2 rounded"
+                                    placeholder="Apellidos"
+                                    :disabled="saving"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[23px] text-gray-600">Correo Electrónico</label>
+                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.user.correo }} </p>
+                        </div>
+
+                        <!-- Número de Teléfono -->
+                        <div>
+                            <label class="text-[23px] text-gray-600">Número de Teléfono</label>
+                            <div v-if="!isEditing" class="neumorfismo-sobre-suave text-[20px] p-2">
+                                {{ editedUserData.telefono }}
+                            </div>
+                            <input 
+                                v-else
+                                v-model.number="editedUserData.telefono"
+                                type="number"
+                                class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                placeholder="Número de teléfono"
+                                :disabled="saving"
+                            />
+                        </div>
+
+                        <!-- Dirección -->
+                        <div>
+                            <label class="text-[23px] text-gray-600">Dirección</label>
+                            <div v-if="!isEditing" class="neumorfismo-sobre-suave text-[20px] p-2">
+                                {{ editedUserData.direccion }}
+                            </div>
+                            <div v-else class="space-y-2">
+                                <select 
+                                    v-model="editedUserData.provincia"
+                                    class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                    :disabled="saving"
+                                >
+                                    <option value="">Seleccione provincia</option>
+                                    <option value="San José">San José</option>
+                                    <option value="Alajuela">Alajuela</option>
+                                    <option value="Cartago">Cartago</option>
+                                    <option value="Heredia">Heredia</option>
+                                    <option value="Guanacaste">Guanacaste</option>
+                                    <option value="Puntarenas">Puntarenas</option>
+                                    <option value="Limón">Limón</option>
+                                </select>
+                                <input 
+                                    v-model="editedUserData.canton"
+                                    class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                    placeholder="Cantón"
+                                    :disabled="saving"
+                                />
+                                <input 
+                                    v-model="editedUserData.distrito"
+                                    class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                    placeholder="Distrito"
+                                    :disabled="saving"
+                                />
+                                <input 
+                                    v-model="editedUserData.direccionParticular"
+                                    class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                    placeholder="Dirección particular"
+                                    :disabled="saving"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Cuenta IBAN -->
+                        <div>
+                            <label class="text-[23px] text-gray-600">Cuenta IBAN</label>
+                            <div v-if="!isEditing" class="neumorfismo-sobre-suave text-[20px] p-2">
+                                {{ editedUserData.iban }}
+                            </div>
+                            <input 
+                                v-else
+                                v-model="editedUserData.iban"
+                                class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                placeholder="IBAN"
+                                :disabled="saving"
+                            />
+                        </div>
                     </div>
                 </div>
 
                 <!-- Información Laboral -->
                 <div class="neumorfismo-tarjeta px-[39px] py-[37px]">
                     <p class="text-[32px] font-medium mb-4">Información Laboral</p>
-                    <div class="space-y-3">
-                    <div>
-                        <label class="text-[23px] text-gray-600">Empresa</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ project?.nombre || 'Nombre de la Empresa' }} </p>
-                    </div>
-                    <div>
-                        <label class="text-[23px] text-gray-600">Departamento</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.departamento || 'Departamento del Empleado' }} </p>
-                    </div>
-                    <div>
-                        <label class="text-[23px] text-gray-600">Puesto</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.puesto || 'Puesto del Empleado' }} </p>
-                    </div>
-                    <div>
-                        <label class="text-[23px] text-gray-600">Tipo de Contrato</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.tipoContrato || 'Tipo de contrato del Empleado' }} </p>
-                    </div>
-                    <div>
-                        <label class="text-[23px] text-gray-600">Fecha de Contratación</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.fechaContratacion || 'Fecha de Contratacion del Empleado' }} </p>
-                    </div>
+                    <div class="space-y-[25px]">
+                        <div>
+                            <label class="text-[23px] text-gray-600">Empresa</label>
+                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.project.nombreEmpresa }} </p>
+                        </div>
+                        <div>
+                            <label class="text-[23px] text-gray-600">Departamento</label>
+                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.user.departamento }} </p>
+                        </div>
+                        <div>
+                            <label class="text-[23px] text-gray-600">Puesto</label>
+                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.user.puesto }} </p>
+                        </div>
+                        <div>
+                            <label class="text-[23px] text-gray-600">Tipo de Contrato</label>
+                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.user.tipoContrato }} </p>
+                        </div>
+                        <div>
+                            <label class="text-[23px] text-gray-600">Fecha de Contratación</label>
+                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ formattedDate }} </p>
+                        </div>
                     </div>
                 </div>
 
@@ -87,14 +201,14 @@
             <div class="neumorfismo-tarjeta px-[34px] py-[41px]">
                 <p class="text-[32px] font-medium mb-4">Información de Compensación</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[23px] text-gray-600">Tipo de Salario</label>
-                    <p class="neumorfismo-sobre-suave text-[20px]"> {{ proyect?.periodoPago || 'Periodo de Pago de la Empresa' }} </p>
-                </div>
-                <div>
-                    <label class="text-[23px] text-gray-600">Salario</label>
-                    <p class="neumorfismo-sobre-suave text-[20px]"> {{ user?.salario || 'Salario del Empleado' }} </p>
-                </div>
+                    <div>
+                        <label class="text-[23px] text-gray-600">Tipo de Salario</label>
+                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.project.periodoPago }} </p>
+                    </div>
+                    <div>
+                        <label class="text-[23px] text-gray-600">Salario</label>
+                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ formattedSalary }} </p>
+                    </div>
                 </div>
             </div> <!-- Fin Tercera Parte 1x1 -->
 
@@ -104,91 +218,230 @@
 </template>
 
 <script>
-import SuperAdminHeader from './common/SuperAdminHeader.vue'
 import "../assets/Neumorfismo.css";
-
+import EmployeeHeader from './common/EmployeeHeader.vue'
 
 export default {
-  // 1. Nombre del componente
-  name: 'ProfileEmployee',
+  name: 'EditInfoEmployee',
 
-  // 2. Componentes hijos locales
-  components: { SuperAdminHeader },
+  components: { 
+    EmployeeHeader
+  },
 
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
-  props: {},
-
-  // 5. Estado reactivo del componente
-  data() { },
-
-  // 6. Propiedades derivadas
-  computed: {},
-
-  // 7. Observadores de cambios
-  watch: {},
-
-  // 8. Métodos y lógica ejecutable
-  methods: {
-    navigateToEditInfoEmployee() {
-        this.$router.push('/edit-info-employee')
-    },
-
-      async loadUserData() {
-        try {
-        // Opción 1: Si tienes el ID en los parámetros de ruta
-        const employeeId = this.$route.params.id;
-        
-        // Opción 2: Si es el perfil del usuario logueado
-        // const employeeId = null; // Para usar el endpoint "me"
-        
-        let url = '/api/EmployeeProfile/me';
-        if (employeeId) {
-            url = `/api/EmployeeProfile/${employeeId}`;
-        }
-
-        const response = await this.$http.get(url);
-        this.user = response.data.user;
-        this.project = response.data.project;
-        
-        } catch (error) {
-        console.error('Error loading profile:', error);
-        // Manejar error - mostrar datos por defecto
-        this.user = {
-            nombre: 'Empleado no encontrado',
-            puesto: 'Puesto no disponible',
-            // ... otros campos por defecto
-        };
-        }
+  props: {
+    id: {
+      type: [String, Number],
+      required: true
     }
   },
 
-  // 9. Ciclo de vida
-  beforeCreate() {},
-  created() {},
-  beforeMount() {},
-  mounted() {},
-  beforeUpdate() {},
-  updated() {},
-  beforeUnmount() {},
-  unmounted() {},
-
-  // 10. Opciones de inyección
-  provide() {
-    return {}
+  data() {
+    return {
+      userData: {
+        user: {
+          nombre: '',
+          puesto: '',
+          departamento: '',
+          correo: '',
+          telefono: '',
+          direccion: '',
+          iban: '',
+          tipoContrato: '',
+          fechaContratacion: '',
+          salario: 0
+        },
+        project: {
+          nombreEmpresa: '',
+          periodoPago: ''
+        }
+      },
+      editedUserData: {
+        nombre: '',
+        segundoNombre: '',
+        apellidos: '',
+        correo: '',
+        telefono: 0,
+        provincia: '',
+        canton: '',
+        distrito: '',
+        direccionParticular: '',
+        direccion: '',
+        iban: ''
+      },
+      originalUserData: {},
+      user: null,
+      loading: false,
+      saving: false,
+      error: null,
+      successMessage: null,
+      isEditing: false
+    }
   },
-  inject: [],
 
-  // 11. Eventos emitidos
-  emits: [],
+  computed: {
+    formattedDate() {
+      if (!this.userData.user.fechaContratacion) return '';
+      const date = new Date(this.userData.user.fechaContratacion);
+      return date.toLocaleDateString('es-ES');
+    },
 
-  // 12. Reutilización de lógica
-  mixins: [],
-  extends: null,
+    formattedSalary() {
+      if (!this.userData.user.salario) return '';
+      return new Intl.NumberFormat('es-CR', {
+        style: 'currency',
+        currency: 'CRC'
+      }).format(this.userData.user.salario);
+    },
 
-  // 13. Filtros
-  filters: {}
+    fullName() {
+      return `${this.editedUserData.nombre} 
+        ${this.editedUserData.segundoNombre || ''} 
+        ${this.editedUserData.apellidos}`.replace(/\s+/g, ' ').trim();
+    }
+  },
+
+  methods: {
+    enableEditing() {
+      this.isEditing = true;
+      this.successMessage = null;
+      this.error = null;
+      
+      this.originalUserData = { ...this.editedUserData };
+    },
+
+    cancelEditing() {
+      this.isEditing = false;
+      this.error = null;
+      
+      this.editedUserData = { ...this.originalUserData };
+    },
+
+    async saveChanges() {
+      this.saving = true;
+      this.error = null;
+      this.successMessage = null;
+
+      try {
+        if (!this.editedUserData.nombre.trim() || 
+            !this.editedUserData.apellidos.trim() ||
+            !this.editedUserData.provincia.trim() ||
+            !this.editedUserData.canton.trim() ||
+            !this.editedUserData.distrito.trim() ||
+            !this.editedUserData.direccionParticular.trim()) {
+          this.error = 'Todos los campos son requeridos';
+          this.saving = false;
+          return;
+        }
+
+        const updateData = {
+          nombre: this.editedUserData.nombre.trim(),
+          segundoNombre: this.editedUserData.segundoNombre.trim(),
+          apellidos: this.editedUserData.apellidos.trim(),
+          telefono: this.editedUserData.telefono,
+          provincia: this.editedUserData.provincia.trim(),
+          canton: this.editedUserData.canton.trim(),
+          distrito: this.editedUserData.distrito.trim(),
+          direccionParticular: this.editedUserData.direccionParticular.trim(),
+          iban: this.editedUserData.iban.trim()
+        };
+
+        console.log('Enviando datos al backend:', updateData);
+
+        const response = await fetch(`http://localhost:5011/api/ProfileEmployee/${this.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          this.successMessage = result.message;
+          this.isEditing = false;
+          
+          await this.fetchUserData();
+        } else {
+          this.error = result.message || 'Error al guardar los cambios';
+        }
+
+      } catch (error) {
+        console.error('Error al guardar cambios:', error);
+        this.error = 'Error de conexión al servidor';
+      } finally {
+        this.saving = false;
+      }
+    },
+
+    parseExistingData() {
+      const nombreCompleto = this.userData.user.nombre?.split(' ') || [];
+      this.editedUserData.nombre = nombreCompleto[0] || '';
+      this.editedUserData.segundoNombre = nombreCompleto[1] || '';
+      this.editedUserData.apellidos = nombreCompleto.slice(2).join(' ') || '';
+      
+      this.editedUserData.correo = this.userData.user.correo || '';
+      this.editedUserData.telefono = this.userData.user.telefono || 0;
+      this.editedUserData.iban = this.userData.user.iban || '';
+      this.editedUserData.direccion = this.userData.user.direccion || '';
+      
+      if (this.userData.user.direccion) {
+        const direccionParts = this.userData.user.direccion.split(', ');
+        if (direccionParts.length >= 4) {
+          this.editedUserData.provincia = direccionParts[0] || '';
+          this.editedUserData.canton = direccionParts[1] || '';
+          this.editedUserData.distrito = direccionParts[2] || '';
+          this.editedUserData.direccionParticular = direccionParts[3] || '';
+        }
+      }
+    },
+
+    async fetchUserData() {
+      if (!this.id) {
+        this.error = 'No se pudo identificar al usuario.';
+        return;
+      }
+
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await fetch(`http://localhost:5011/api/ProfileEmployee/${this.id}`);
+        
+        if (!response.ok) {
+          throw new Error('Error al obtener los datos del usuario');
+        }
+        
+        const data = await response.json();
+        this.userData = data;
+        this.parseExistingData();
+      } catch (error) {
+        console.error('Error en la petición:', error);
+        this.error = error.message || 'Error al cargar los datos del perfil';
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    loadUserFromLocalStorage() {
+      const userRaw = localStorage.getItem('user');
+      if (userRaw) {
+        try {
+          this.user = JSON.parse(userRaw);
+        } catch {
+          this.user = null;
+        }
+      }
+    }
+
+  },
+
+  created() {
+    this.loadUserFromLocalStorage();
+  },
+
+  mounted() {
+    this.fetchUserData();
+  }
 }
 </script>
