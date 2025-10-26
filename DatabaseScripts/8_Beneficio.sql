@@ -6,6 +6,8 @@ CREATE TABLE PlaniFy.Beneficio (
     Nombre NVARCHAR(20) NOT NULL,
     TipoCalculo NVARCHAR(20) NOT NULL,
     Tipo NVARCHAR(20) NOT NULL,
+    Valor INT,
+    Porcentaje INT,
     PRIMARY KEY (idEmpresa, Nombre),
     FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id)
         ON DELETE CASCADE

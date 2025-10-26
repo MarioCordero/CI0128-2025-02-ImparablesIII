@@ -71,6 +71,9 @@ namespace backend.Models
         [MaxLength(16)]
         public string? Contrasena { get; set; }
         
+        // Relationship IDs
         public int? IdEmpresa { get; set; }
+        public int? EmployerId { get; set; }
+        public int? ProjectId { get; set; }
     }
 }
