@@ -5,7 +5,7 @@ namespace backend.Models
     public class Employer
     {
         public int Id { get; set; }
-        
+
         [Required]
         [MaxLength(50)]
         public string Name { get; set; } = string.Empty;
@@ -17,15 +17,15 @@ namespace backend.Models
     public class Company
     {
         public int Id { get; set; }
-        
+
         [Required]
         [MaxLength(20)]
         public string Name { get; set; } = string.Empty;
-        
+
         [Required]
         [MaxLength(20)]
         public string LegalId { get; set; } = string.Empty; // Cedula Juridica
-        
+
         [Required]
         [MaxLength(20)]
         public string PayPeriod { get; set; } = string.Empty;
@@ -41,42 +41,47 @@ namespace backend.Models
     public class Employee
     {
         public int Id { get; set; }
-        
+
         [Required]
         [MaxLength(50)]
         public string FullName { get; set; } = string.Empty;
-        
+
         public bool Active { get; set; } = true;
 
         public int CompanyId { get; set; }
+
         public Company Company { get; set; } = null!;
+
+        public Persona? Persona { get; set; }
+
     }
 
     public class Notification
     {
         public int Id { get; set; }
-        
+
         [Required]
         [MaxLength(100)]
         public string Title { get; set; } = string.Empty;
-        
+
         [Required]
         [MaxLength(500)]
         public string Message { get; set; } = string.Empty;
-        
+
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
         public int CompanyId { get; set; }
         public Company Company { get; set; } = null!;
     }
 
-    public class Payroll
-    {
-        public int Id { get; set; }
-        public decimal Amount { get; set; }
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+    // Deleted Payroll from this file to avoid conflict
+    // public class Payroll
+    // {
+    //     public int Id { get; set; }
+    //     public decimal Amount { get; set; }
+    //     public DateTime Date { get; set; } = DateTime.UtcNow;
 
-        public int CompanyId { get; set; }
-        public Company Company { get; set; } = null!;
-    }
+    //     public int CompanyId { get; set; }
+    //     public Company Company { get; set; } = null!;
+    // }
 }

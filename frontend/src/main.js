@@ -22,6 +22,7 @@ import SignUpEmployer from './components/SignUpEmployer.vue'
 import HoursRegistry from './components/HoursRegistry.vue'
 import DashboardProject from './components/projectDashboard/DashboardProject.vue'
 import RegisterEmployee from './components/projectDashboard/RegisterEmployee.vue'
+import ProfileEmployee from './components/ProfileEmployee.vue'
 import DashboardEmployee from './components/employee/DashboardEmployee.vue'
 import AddBenefit from './components/projectDashboard/AddBenefit.vue'
 
@@ -41,6 +42,8 @@ const routes = [
   { path: '/signup-employer', component: SignUpEmployer },
   { path: '/hourregistry', component: HoursRegistry },
   { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject },
+  { path: '/profile-employee/:id?', name: 'ProfileEmployee', component: ProfileEmployee, props: true },
+  { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee }
   { path: '/add-benefit/:projectId?', name: 'AddBenefit', component: AddBenefit },
   { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee },
   { path: '/add-benefit', name: 'AddBenefit', component: AddBenefit },
