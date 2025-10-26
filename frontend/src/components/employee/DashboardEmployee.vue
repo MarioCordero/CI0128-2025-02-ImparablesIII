@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-[#E9F7FF] p-0">
-    <EmployeeHeader />
+    <EmployeeHeader :user="user"/>
     <DashboardEmployeeSubHeader
       :selectedSection="selectedSection"
       @section-change="selectedSection = $event"

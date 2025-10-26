@@ -5,7 +5,7 @@ using System.Data;
 
 namespace backend.Repositories
 {
-    public class EmployeeRepository
+    public class EmployeeRepository : IEmployeeRepository
     {
         private readonly string _connectionString;
         private readonly IDireccionRepository _direccionRepository;
@@ -107,6 +107,24 @@ namespace backend.Repositories
         public async Task<bool> ValidateEmailExistsAsync(string email)
         {
             return !await _personaRepository.IsEmailAvailableAsync(email);
+        }
+
+        public async Task<Empleado?> GetEmployeeByIdAsync(int employeeId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"
+                SELECT e.*, p.*
+                FROM PlaniFy.Empleado e
+                INNER JOIN PlaniFy.Persona p ON e.idPersona = p.idPersona
+                WHERE e.EmpleadoId = @EmployeeId";
+
+            var employee = await connection.QueryAsync<Empleado, Persona, Empleado>(
+                query,
+                (e, p) => { e.Persona = p; return e; },
+                new { EmployeeId = employeeId }
+            );
+
+            return employee.FirstOrDefault();
         }
 
         public async Task<bool> TestConnectionAsync()
