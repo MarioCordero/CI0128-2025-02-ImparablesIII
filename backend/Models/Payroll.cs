@@ -68,6 +68,6 @@ namespace backend.Models
         
         // Navigation properties
         public virtual Payroll Payroll { get; set; }
-        public virtual Beneficio Benefit { get; set; }
+        // public virtual Beneficio Benefit { get; set; }
     }
 }
