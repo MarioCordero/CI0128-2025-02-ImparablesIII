@@ -1,5 +1,3 @@
-using backend.Services.PaymentsCalculate;
-
 namespace backend.Services.PaymentsCalculate.Employee
 {
     // Seguro de Enfermedad y Maternidad (trabajador)

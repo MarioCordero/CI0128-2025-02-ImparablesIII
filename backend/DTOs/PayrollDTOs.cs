@@ -71,4 +71,26 @@ namespace backend.DTOs
         public PeriodInfoDto PeriodInfo { get; set; } = new();
         public Dictionary<string, string> Tooltips { get; set; } = new();
     }
+
+    // ------------------------------TEST DTOs------------------------------
+        public class TestEmployeeDeductionsRequest
+    {
+        public decimal GrossSalary { get; set; }
+    }
+
+    // Flat line for output (decoupled from your CalcLine record)
+    public class TestCalcLineDto
+    {
+        public string Code { get; set; } = "";
+        public decimal Amount { get; set; }
+        public string Role { get; set; } = ""; // "EmployeeDeduction" | "EmployerDeduction"
+    }
+
+    public class TestEmployeeDeductionsResponse
+    {
+        public decimal GrossSalary { get; set; }
+        public decimal TotalEmployeeDeductions { get; set; }
+        public decimal NetSalary { get; set; } // Gross - EE (benefits not included here)
+        public List<TestCalcLineDto> Lines { get; set; } = new();
+    }
 }
