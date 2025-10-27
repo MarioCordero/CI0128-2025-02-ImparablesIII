@@ -202,7 +202,6 @@ export default {
       return this.benefitsData.currentSelections < this.benefitsData.maxSelections
     },
     filteredBenefits() {
-      // The filtering is already done in the backend, so we just return all benefits
       return this.benefitsData.availableBenefits || []
     }
   },
@@ -265,41 +264,6 @@ export default {
       } catch (error) {
         console.error('Error selecting benefit:', error)
         this.error = 'Error al agregar el beneficio'
-        this.$emit('error', this.error)
-      } finally {
-        this.loading = false
-      }
-    },
-    async deselectBenefit(benefit) {
-      this.loading = true
-      this.error = null
-
-      try {
-        const response = await fetch(apiConfig.endpoints.employeeBenefitsDeselect(this.employeeId), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            benefitName: benefit.benefitName
-          })
-        })
-
-        const result = await response.json()
-
-        if (response.ok && result.success) {
-          this.benefitsData.currentSelections = result.currentSelections
-          this.benefitsData.maxSelections = result.maxSelections
-          // Refresh benefits to update selection status
-          await this.fetchBenefits()
-          this.$emit('success', result.message || 'Beneficio removido exitosamente')
-        } else {
-          this.error = result.message || 'Error al remover el beneficio'
-          this.$emit('error', this.error)
-        }
-      } catch (error) {
-        console.error('Error deselecting benefit:', error)
-        this.error = 'Error al remover el beneficio'
         this.$emit('error', this.error)
       } finally {
         this.loading = false
