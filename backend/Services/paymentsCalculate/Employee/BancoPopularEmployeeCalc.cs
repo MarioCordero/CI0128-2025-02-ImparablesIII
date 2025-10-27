@@ -1,5 +1,3 @@
-using backend.Services.PaymentsCalculate;
-
 namespace backend.Services.PaymentsCalculate.Employee
 {
     // Aporte trabajador Banco Popular
