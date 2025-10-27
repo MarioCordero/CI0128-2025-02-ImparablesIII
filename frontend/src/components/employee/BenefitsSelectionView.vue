@@ -7,7 +7,7 @@
       
       <!-- Selection Counter -->
       <div class="mt-4 p-4 bg-white rounded-lg shadow-sm border-2 border-[#4a5568]/30">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between mb-3">
           <div>
             <p class="text-sm text-gray-600">Beneficios seleccionados</p>
             <p class="text-2xl font-bold text-[#4a5568]">
@@ -24,6 +24,23 @@
               Has alcanzado el límite máximo
             </span>
           </div>
+        </div>
+        
+        <!-- Selected Benefits List -->
+        <div v-if="benefitsData.selectedBenefits.length > 0" class="border-t border-gray-200 pt-3">
+          <p class="text-sm font-semibold text-gray-700 mb-2">Beneficios activos:</p>
+          <div class="flex flex-wrap gap-2">
+            <div
+              v-for="benefit in benefitsData.selectedBenefits"
+              :key="`selected-${benefit.benefitName}`"
+              class="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg text-sm"
+            >
+              <span class="text-green-700 font-medium">{{ benefit.benefitName }}</span>
+            </div>
+          </div>
+        </div>
+        <div v-else class="border-t border-gray-200 pt-3">
+          <p class="text-sm text-gray-500 italic">No hay beneficios seleccionados aún</p>
         </div>
       </div>
     </div>
@@ -203,7 +220,7 @@ export default {
     },
     filteredBenefits() {
       return this.benefitsData.availableBenefits || []
-    }
+    },
   },
   created() {
     this.fetchBenefits()
