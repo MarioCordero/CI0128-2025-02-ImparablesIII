@@ -68,6 +68,7 @@ namespace backend.Services
         // ----------------------------------------- test methods -----------------------------------------
         public Task<TestEmployeeDeductionsResponse> TestEmployeeDeductionsAsync(TestEmployeeDeductionsRequest request)
         {
+            // just for one employee, no DB involved
             if (request.GrossSalary <= 0)
                 throw new ArgumentException("GrossSalary must be > 0.");
 
