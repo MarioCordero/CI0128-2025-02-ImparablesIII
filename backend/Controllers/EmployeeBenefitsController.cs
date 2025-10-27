@@ -10,16 +10,16 @@ namespace backend.Controllers
     public class EmployeeBenefitsController : ControllerBase
     {
         private readonly IEmployeeBenefitService _employeeBenefitService;
-        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IEmployeeService _employeeService;
         private readonly ILogger<EmployeeBenefitsController> _logger;
 
         public EmployeeBenefitsController(
             IEmployeeBenefitService employeeBenefitService,
-            IEmployeeRepository employeeRepository,
+            IEmployeeService employeeService,
             ILogger<EmployeeBenefitsController> logger)
         {
             _employeeBenefitService = employeeBenefitService;
-            _employeeRepository = employeeRepository;
+            _employeeService = employeeService;
             _logger = logger;
         }
         
@@ -30,7 +30,7 @@ namespace backend.Controllers
             {
                 _logger.LogInformation("Getting benefits for employee {EmployeeId}", employeeId);
 
-                var companyId = await _employeeRepository.GetCompanyIdForEmployeeAsync(employeeId);
+                var companyId = await _employeeService.GetEmployeeCompanyIdAsync(employeeId);
                 if (!companyId.HasValue)
                 {
                     return NotFound(new { message = "Empleado no encontrado o no tiene empresa asignada" });
@@ -60,7 +60,7 @@ namespace backend.Controllers
             {
                 _logger.LogInformation("Selecting benefit {BenefitName} for employee {EmployeeId}", request.BenefitName, employeeId);
 
-                var companyId = await _employeeRepository.GetCompanyIdForEmployeeAsync(employeeId);
+                var companyId = await _employeeService.GetEmployeeCompanyIdAsync(employeeId);
                 if (!companyId.HasValue)
                 {
                     return NotFound(new { message = "Empleado no encontrado o no tiene empresa asignada" });
@@ -87,7 +87,7 @@ namespace backend.Controllers
         {
             try
             {
-                var companyId = await _employeeRepository.GetCompanyIdForEmployeeAsync(employeeId);
+                var companyId = await _employeeService.GetEmployeeCompanyIdAsync(employeeId);
                 if (!companyId.HasValue)
                 {
                     return NotFound(new { message = "Empleado no encontrado o no tiene empresa asignada" });
