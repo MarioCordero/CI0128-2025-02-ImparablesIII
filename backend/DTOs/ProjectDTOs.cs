@@ -44,6 +44,10 @@ namespace backend.DTOs
 
         [StringLength(150, ErrorMessage = "La dirección particular no puede exceder los 150 caracteres")]
         public string? DireccionParticular { get; set; }
+
+        [Required(ErrorMessage = "El máximo de beneficios es obligatorio")]
+        [Range(1, int.MaxValue, ErrorMessage = "El máximo de beneficios debe ser mayor a 0")]
+        public int MaximoBeneficios { get; set; }
     }
 
     public class UpdateProjectDto
@@ -64,6 +68,10 @@ namespace backend.DTOs
 
         [Range(10000000, 99999999, ErrorMessage = "El teléfono debe tener 8 dígitos")]
         public int? Telefono { get; set; }
+
+        [Required(ErrorMessage = "El máximo de beneficios es obligatorio")]
+        [Range(1, int.MaxValue, ErrorMessage = "El máximo de beneficios debe ser mayor a 0")]
+        public int MaximoBeneficios { get; set; }
     }
 
     public class ProjectResponseDto
@@ -77,6 +85,8 @@ namespace backend.DTOs
         public int IdDireccion { get; set; }
         public DireccionDto? Direccion { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        public int MaximoBeneficios { get; set; }
     }
 
     public class ProjectListDto
@@ -86,6 +96,7 @@ namespace backend.DTOs
         public int CedulaJuridica { get; set; }
         public string Email { get; set; } = string.Empty;
         public string PeriodoPago { get; set; } = string.Empty;
+        public int MaximoBeneficios { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 

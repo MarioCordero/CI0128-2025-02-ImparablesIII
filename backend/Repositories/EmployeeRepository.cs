@@ -140,5 +140,16 @@ namespace backend.Repositories
                 return false;
             }
         }
+
+        public async Task<int?> GetEmployeeCompanyIdAsync(int employeeId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"
+                SELECT idEmpresa
+                FROM PlaniFy.Empleado
+                WHERE idPersona = @EmployeeId";
+
+            return await connection.QueryFirstOrDefaultAsync<int?>(query, new { EmployeeId = employeeId });
+        }
     }
 }

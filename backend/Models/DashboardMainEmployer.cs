@@ -35,7 +35,6 @@ namespace backend.Models
 
         public List<Employee> Employees { get; set; } = new List<Employee>();
         public List<Notification> Notifications { get; set; } = new List<Notification>();
-        public List<Payroll> Payrolls { get; set; } = new List<Payroll>();
     }
 
     public class Employee

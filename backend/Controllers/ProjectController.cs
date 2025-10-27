@@ -105,7 +105,8 @@ namespace backend.Controllers
                         projectDto.Provincia,
                         projectDto.Canton,
                         projectDto.Distrito,
-                        projectDto.DireccionParticular)
+                        projectDto.DireccionParticular),
+                    MaximoBeneficios = projectDto.MaximoBeneficios
                 };
 
                 var createdProject = await _projectRepository.CreateAsync(project);

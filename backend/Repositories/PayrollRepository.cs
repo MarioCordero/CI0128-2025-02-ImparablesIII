@@ -1,175 +1,215 @@
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Dapper;
-using backend.DTOs;
 using backend.Models;
-using System.Data;
+using backend.DTOs;
 
 namespace backend.Repositories
 {
     public class PayrollRepository : IPayrollRepository
     {
-        private readonly IDbConnection _dbConnection;
-
-        public PayrollRepository(IDbConnection dbConnection)
+        private readonly string _connectionString;
+        public PayrollRepository(IConfiguration config)
         {
-            _dbConnection = dbConnection;
+            _connectionString = config.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
 
-        public async Task<IEnumerable<Payroll>> GetPayrollByPeriodAsync(DateTime period, string periodType)
+        public async Task<(List<EmployeePayrollDto> Items, PayrollTotalsDto Totals)> ExecutePayrollReportAsync( int companyId, int year, int month, string periodType, int? fortnight, string? department) 
         {
-            var sql = @"
-                SELECT p.*, e.*, per.* 
-                FROM Payroll p
-                INNER JOIN Empleado e ON p.EmployeeId = e.EmpleadoId
-                INNER JOIN Persona per ON e.PersonaId = per.PersonaId
-                WHERE p.Period = @Period AND p.PeriodType = @PeriodType";
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
 
-            return await _dbConnection.QueryAsync<Payroll, Empleado, Persona, Payroll>(
-                sql,
-                (payroll, employee, person) =>
+                var parameters = new
                 {
-                    employee.Persona = person;
-                    payroll.Employee = employee;
-                    return payroll;
-                },
-                new { Period = period, PeriodType = periodType },
-                splitOn: "EmpleadoId,PersonaId"
-            );
+                    CompanyId = companyId,
+                    Year = year,
+                    Month = month,
+                    PeriodType = periodType,
+                    Fortnight = fortnight,
+                    Department = department
+                };
+
+                using var multi = await connection.QueryMultipleAsync(
+                    "PlaniFy.sp_PayrollReport",
+                    parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+
+                var items = (await multi.ReadAsync<EmployeePayrollDto>()).ToList();
+                var totals = await multi.ReadFirstOrDefaultAsync<PayrollTotalsDto>() ?? new PayrollTotalsDto();
+
+                return (items, totals);
+            }
+            catch (Exception)
+            {
+                return (new List<EmployeePayrollDto>(), new PayrollTotalsDto());
+            }
         }
 
-        public async Task<IEnumerable<Payroll>> GetPayrollByFiltersAsync(PayrollFiltersDto filters)
+        public async Task<List<EmployeeRow>> GetEmployeesAsync(int companyId, string? department)
         {
-            var sql = @"
-                SELECT p.*, e.*, per.*, d.Nombre as DepartamentoNombre
-                FROM Payroll p
-                INNER JOIN Empleado e ON p.EmployeeId = e.EmpleadoId
-                INNER JOIN Persona per ON e.PersonaId = per.PersonaId
-                LEFT JOIN Departamento d ON e.DepartamentoId = d.DepartamentoId
-                WHERE p.Period = @Period AND p.PeriodType = @PeriodType";
-
-            if (filters.DepartmentId.HasValue)
+            try
             {
-                sql += " AND e.DepartamentoId = @DepartmentId";
-            }
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
 
-            return await _dbConnection.QueryAsync<Payroll, Empleado, Persona, Payroll>(
-                sql,
-                (payroll, employee, person) =>
+                var query = @"
+                    SELECT e.idPersona AS IdEmpleado, p.Nombre, p.Apellidos, e.Departamento, e.Salario
+                    FROM PlaniFy.Empleado e
+                    JOIN PlaniFy.Persona p ON p.Id = e.idPersona
+                    WHERE e.idEmpresa = @CompanyId
+                    AND (@Department IS NULL OR e.Departamento = @Department);";
+
+                var parameters = new
                 {
-                    employee.Persona = person;
-                    payroll.Employee = employee;
-                    return payroll;
-                },
-                new { 
-                    Period = filters.Period, 
-                    PeriodType = filters.PeriodType,
-                    DepartmentId = filters.DepartmentId
-                },
-                splitOn: "EmpleadoId,PersonaId"
-            );
-        }
+                    CompanyId = companyId,
+                    Department = department
+                };
 
-        public async Task<IEnumerable<PayrollDetailDto>> GetPayrollDetailsAsync(PayrollFiltersDto filters)
-        {
-            var sql = @"
-                SELECT 
-                    p.PayrollId,
-                    p.EmployeeId,
-                    CONCAT(per.Nombre, ' ', per.Apellido1) as EmployeeName,
-                    p.GrossSalary,
-                    p.CcssEmployee,
-                    p.CcssEmployer,
-                    p.IncomeTax,
-                    p.OtherDeductions,
-                    p.Benefits,
-                    p.NetSalary,
-                    p.Period,
-                    p.Status,
-                    d.Nombre as Department
-                FROM Payroll p
-                INNER JOIN Empleado e ON p.EmployeeId = e.EmpleadoId
-                INNER JOIN Persona per ON e.PersonaId = per.PersonaId
-                LEFT JOIN Departamento d ON e.DepartamentoId = d.DepartamentoId
-                WHERE p.Period = @Period AND p.PeriodType = @PeriodType";
-
-            if (filters.DepartmentId.HasValue)
-            {
-                sql += " AND e.DepartamentoId = @DepartmentId";
+                var result = (await connection.QueryAsync<EmployeeRow>(query, parameters)).ToList();
+                return result;
             }
-
-            return await _dbConnection.QueryAsync<PayrollDetailDto>(sql, new
+            catch (Exception)
             {
-                Period = filters.Period,
-                PeriodType = filters.PeriodType,
-                DepartmentId = filters.DepartmentId
-            });
+                return new List<EmployeeRow>();
+            }
         }
 
-        public async Task<Payroll> GetPayrollByIdAsync(int payrollId)
+        public async Task<List<PayrollRow>> GetPayrollsAsync(int companyId, DateTime start, DateTime end)
         {
-            var sql = "SELECT * FROM Payroll WHERE PayrollId = @PayrollId";
-            return await _dbConnection.QueryFirstOrDefaultAsync<Payroll>(sql, new { PayrollId = payrollId });
-        }
-
-        public async Task<Payroll> CreatePayrollAsync(Payroll payroll)
-        {
-            var sql = @"
-                INSERT INTO Payroll (EmployeeId, Period, PeriodType, GrossSalary, CcssEmployee, 
-                                   CcssEmployer, IncomeTax, OtherDeductions, Benefits, NetSalary, Status)
-                OUTPUT INSERTED.*
-                VALUES (@EmployeeId, @Period, @PeriodType, @GrossSalary, @CcssEmployee, 
-                       @CcssEmployer, @IncomeTax, @OtherDeductions, @Benefits, @NetSalary, @Status)";
-
-            return await _dbConnection.QueryFirstOrDefaultAsync<Payroll>(sql, payroll);
-        }
-
-        public async Task<Payroll> UpdatePayrollAsync(Payroll payroll)
-        {
-            var sql = @"
-                UPDATE Payroll 
-                SET GrossSalary = @GrossSalary, CcssEmployee = @CcssEmployee, CcssEmployer = @CcssEmployer,
-                    IncomeTax = @IncomeTax, OtherDeductions = @OtherDeductions, Benefits = @Benefits,
-                    NetSalary = @NetSalary, Status = @Status, UpdatedAt = GETUTCDATE()
-                OUTPUT INSERTED.*
-                WHERE PayrollId = @PayrollId";
-
-            return await _dbConnection.QueryFirstOrDefaultAsync<Payroll>(sql, payroll);
-        }
-
-        public async Task<bool> DeletePayrollAsync(int payrollId)
-        {
-            var sql = "DELETE FROM Payroll WHERE PayrollId = @PayrollId";
-            var affectedRows = await _dbConnection.ExecuteAsync(sql, new { PayrollId = payrollId });
-            return affectedRows > 0;
-        }
-
-        public async Task<Payroll> GetEmployeePayrollAsync(int employeeId, DateTime period, string periodType)
-        {
-            var sql = @"
-                SELECT * FROM Payroll 
-                WHERE EmployeeId = @EmployeeId AND Period = @Period AND PeriodType = @PeriodType";
-
-            return await _dbConnection.QueryFirstOrDefaultAsync<Payroll>(sql, new
+            try
             {
-                EmployeeId = employeeId,
-                Period = period,
-                PeriodType = periodType
-            });
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    SELECT Id, idEmpresa AS EmpresaId, FechaGeneracion, Estado, FechaPago
+                    FROM PlaniFy.Planilla
+                    WHERE idEmpresa = @CompanyId
+                    AND CAST(FechaGeneracion AS DATE) BETWEEN @Start AND @End;";
+
+                var parameters = new
+                {
+                    CompanyId = companyId,
+                    Start = start,
+                    End = end
+                };
+
+                var result = (await connection.QueryAsync<PayrollRow>(query, parameters)).ToList();
+                return result;
+            }
+            catch (Exception)
+            {
+                return new List<PayrollRow>();
+            }
         }
 
-        public async Task<bool> IsPayrollProcessedAsync(int employeeId, DateTime period, string periodType)
+        public async Task<List<PayrollDetailRow>> GetPayrollDetailsAsync(IEnumerable<int> payrollIds, IEnumerable<int> employeeIds)
         {
-            var sql = @"
-                SELECT COUNT(1) FROM Payroll 
-                WHERE EmployeeId = @EmployeeId AND Period = @Period AND PeriodType = @PeriodType";
-
-            var count = await _dbConnection.ExecuteScalarAsync<int>(sql, new
+            try
             {
-                EmployeeId = employeeId,
-                Period = period,
-                PeriodType = periodType
-            });
+                if (!payrollIds.Any() || !employeeIds.Any()) return new List<PayrollDetailRow>();
 
-            return count > 0;
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    SELECT idEmpleado, idPlanilla, salarioBruto
+                    FROM PlaniFy.DetallePlanilla
+                    WHERE idPlanilla IN @PayrollIds AND idEmpleado IN @EmployeeIds;";
+
+                var parameters = new
+                {
+                    PayrollIds = payrollIds.ToArray(),
+                    EmployeeIds = employeeIds.ToArray()
+                };
+
+                var result = (await connection.QueryAsync<PayrollDetailRow>(query, parameters)).ToList();
+                return result;
+            }
+            catch (Exception)
+            {
+                return new List<PayrollDetailRow>();
+            }
+        }
+
+        public async Task<List<DeductionEmployeeRow>> GetDeductionsAsync(IEnumerable<int> payrollIds, IEnumerable<int> employeeIds)
+        {
+            try
+            {
+                if (!payrollIds.Any() || !employeeIds.Any()) return new List<DeductionEmployeeRow>();
+
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    SELECT idPlanilla, idEmpleado, Tipo, Nombre, Monto
+                    FROM PlaniFy.DeduccionEmpleado
+                    WHERE idPlanilla IN @PayrollIds AND idEmpleado IN @EmployeeIds;";
+
+                var parameters = new
+                {
+                    PayrollIds = payrollIds.ToArray(),
+                    EmployeeIds = employeeIds.ToArray()
+                };
+
+                var result = (await connection.QueryAsync<DeductionEmployeeRow>(query, parameters)).ToList();
+                return result;
+            }
+            catch (Exception)
+            {
+                return new List<DeductionEmployeeRow>();
+            }
+        }
+
+        public async Task<List<BenefitRow>> GetBenefitsAsync(int companyId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = "SELECT * FROM PlaniFy.Beneficio WHERE idEmpresa = @CompanyId;";
+
+                var parameters = new { CompanyId = companyId };
+
+                var result = (await connection.QueryAsync<BenefitRow>(query, parameters)).ToList();
+                return result;
+            }
+            catch (Exception)
+            {
+                return new List<BenefitRow>();
+            }
+        }
+
+        public async Task<List<BenefitEmployeeRow>> GetEmployeeBenefitsAsync(int companyId, IEnumerable<int> employeeIds)
+        {
+            try
+            {
+                if (!employeeIds.Any()) return new List<BenefitEmployeeRow>();
+
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    SELECT idEmpleado, NombreBeneficio, idEmpresa, TipoBeneficio
+                    FROM PlaniFy.BeneficioEmpleado
+                    WHERE idEmpresa = @CompanyId AND idEmpleado IN @EmployeeIds;";
+
+                var parameters = new
+                {
+                    CompanyId = companyId,
+                    EmployeeIds = employeeIds.ToArray()
+                };
+
+                var result = (await connection.QueryAsync<BenefitEmployeeRow>(query, parameters)).ToList();
+                return result;
+            }
+            catch (Exception)
+            {
+                return new List<BenefitEmployeeRow>();
+            }
         }
     }
 }

@@ -166,7 +166,7 @@
             <div class="space-y-6">
               <div class="relative">
                 <div class="space-x-2 ml-2"><p>Salario</p></div>
-                <input v-model="formattedSalario.value" type="text" placeholder="₡0.000" @input="formatSalario" class="input-style" required />
+                <input v-model="formattedSalario" type="text" placeholder="₡0.000" @input="formatSalario" class="input-style" required />
                 <p v-if="errors.salario" class="text-red-500 text-sm mt-1 ml-2">{{ errors.salario }}</p>
               </div>
               <div class="relative">

@@ -43,7 +43,7 @@ const routes = [
   { path: '/hourregistry', component: HoursRegistry },
   { path: '/dashboard-project/:id', name: 'DashboardProject', component: DashboardProject },
   { path: '/profile-employee/:id?', name: 'ProfileEmployee', component: ProfileEmployee, props: true },
-  { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee }
+  { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee },
   { path: '/add-benefit/:projectId?', name: 'AddBenefit', component: AddBenefit },
   { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee },
   { path: '/add-benefit', name: 'AddBenefit', component: AddBenefit },
