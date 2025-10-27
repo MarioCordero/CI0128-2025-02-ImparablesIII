@@ -1,73 +1,54 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace backend.Models
 {
-    [Table("Payroll")]
-    public class Payroll
+    public class EmployeeRow
     {
-        [Key]
-        public int PayrollId { get; set; }
-        
-        [Required]
-        public int EmployeeId { get; set; }
-        
-        [Required]
-        public DateTime Period { get; set; }
-        
-        [Required]
-        [StringLength(20)]
-        public string PeriodType { get; set; } = "Monthly";
-        
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal GrossSalary { get; set; }
-        
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal CcssEmployee { get; set; }
-        
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal CcssEmployer { get; set; }
-        
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal IncomeTax { get; set; }
-        
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal OtherDeductions { get; set; }
-        
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Benefits { get; set; }
-        
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal NetSalary { get; set; }
-        
-        [StringLength(20)]
-        public string Status { get; set; } = "Pending"; // Pending, Paid, Cancelled
-        
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-        
-        // Navigation property
-        public virtual Empleado Employee { get; set; }
+        public int IdEmpleado { get; set; }
+        public string Nombre { get; set; } = "";
+        public string Apellidos { get; set; } = "";
+        public string Departamento { get; set; } = "";
+        public decimal Salario { get; set; }
     }
 
-    [Table("PayrollBenefits")]
-    public class PayrollBenefit
+    public class BenefitRow
     {
-        [Key]
-        public int PayrollBenefitId { get; set; }
-        
-        [Required]
-        public int PayrollId { get; set; }
-        
-        [Required]
-        public int BenefitId { get; set; }
-        
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Amount { get; set; }
-        
-        // Navigation properties
-        public virtual Payroll Payroll { get; set; }
-        public virtual Beneficio Benefit { get; set; }
+        public int idEmpresa { get; set; }
+        public string Nombre { get; set; } = "";
+        public string TipoCalculo { get; set; } = "";
+        public string Tipo { get; set; } = "";
+        public int? Valor { get; set; }
+        public int? Porcentaje { get; set; }
+    }
+
+    public class BenefitEmployeeRow
+    {
+        public int idEmpleado { get; set; }
+        public string NombreBeneficio { get; set; } = "";
+        public int idEmpresa { get; set; }
+        public string TipoBeneficio { get; set; } = "";
+    }
+
+    public class DeductionEmployeeRow
+    {
+        public int idPlanilla { get; set; }
+        public int idEmpleado { get; set; }
+        public string Tipo { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public decimal Monto { get; set; }
+    }
+
+    public class PayrollRow
+    {
+        public int Id { get; set; }
+        public int EmpresaId { get; set; }
+        public DateTime FechaGeneracion { get; set; }
+        public string? Estado { get; set; }
+        public DateTime? FechaPago { get; set; }
+    }
+
+    public class PayrollDetailRow
+    {
+        public int idEmpleado { get; set; }
+        public int idPlanilla { get; set; }
+        public decimal salarioBruto { get; set; }
     }
 }

@@ -1,89 +1,74 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace backend.DTOs
 {
-    // DTOs para Request
+    public enum PeriodType { Monthly, Biweekly }
+    public enum PaymentStatus { Pending, Paid }
+
     public class PayrollFiltersDto
     {
-        public int? DepartmentId { get; set; }
+        public int CompanyId { get; set; }
+        public string? Department { get; set; }
         public DateTime Period { get; set; }
-        public string PeriodType { get; set; } = "Monthly"; // Monthly, Biweekly
+        public PeriodType PeriodType { get; set; } = PeriodType.Monthly;
+        public int? Fortnight { get; set; } // 1 or 2 if Biweekly
     }
 
-    public class PayrollCalculationRequestDto
+    public class DeductionBreakdownDto
     {
-        [Required]
-        public int EmployeeId { get; set; }
-        
-        [Required]
-        public DateTime Period { get; set; }
-        
-        [Required]
-        public string PeriodType { get; set; }
+        public string Type { get; set; } = "EE"; // EE | ER
+        public string Name { get; set; } = "";
+        public decimal Amount { get; set; }
     }
 
-    // DTOs para Response
-    public class PayrollSummaryDto
+    public class BenefitBreakdownDto
     {
-        public List<EmployeePayrollDto> Employees { get; set; } = new();
-        public PayrollTotalsDto Totals { get; set; } = new();
-        public PeriodInfoDto PeriodInfo { get; set; } = new();
+        public string Name { get; set; } = "";
+        public string Calculation { get; set; } = "";
+        public decimal Amount { get; set; }
     }
 
     public class EmployeePayrollDto
     {
         public int EmployeeId { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Department { get; set; } = string.Empty;
-        public string GrossSalary { get; set; } = string.Empty;
-        public string EmployeeDeductions { get; set; } = string.Empty;
-        public string EmployerDeductions { get; set; } = string.Empty;
-        public string Benefits { get; set; } = string.Empty;
-        public string NetSalary { get; set; } = string.Empty;
-        public string PaymentStatus { get; set; } = "Pending";
-        public string StatusColor { get; set; } = "warning";
-        public List<DeductionTooltipDto> DeductionTooltips { get; set; } = new();
+        public string FullName { get; set; } = "";
+        public string Department { get; set; } = "";
+        public decimal GrossSalary { get; set; }
+        public decimal EmployeeDeductions { get; set; }
+        public decimal EmployerDeductions { get; set; }
+        public decimal Benefits { get; set; }
+        public decimal NetSalary { get; set; }
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
+        public DateTime? PaidAt { get; set; }
+        public List<DeductionBreakdownDto> Deductions { get; set; } = new();
+        public List<BenefitBreakdownDto> BenefitsList { get; set; } = new();
     }
 
     public class PayrollTotalsDto
     {
-        public string TotalCompanyGrossSalary { get; set; } = "₡0";
-        public string TotalEmployerDeductions { get; set; } = "₡0";
-        public string TotalEmployeeDeductions { get; set; } = "₡0";
-        public string TotalBenefits { get; set; } = "₡0";
-        public string TotalNetSalary { get; set; } = "₡0";
+        public decimal TotalGross { get; set; }
+        public decimal TotalEmployeeDeductions { get; set; }
+        public decimal TotalEmployerDeductions { get; set; }
+        public decimal TotalBenefits { get; set; }
+        public decimal TotalNet { get; set; }
+        public decimal CompanyCost => TotalNet + TotalEmployerDeductions;
+        public int EmployeeCount { get; set; }
     }
 
     public class PeriodInfoDto
     {
-        public string Period { get; set; } = string.Empty;
-        public string PeriodType { get; set; } = string.Empty;
+        public PeriodType PeriodType { get; set; }
+        public string Label { get; set; } = "";
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int? Fortnight { get; set; }
     }
 
-    public class DeductionTooltipDto
+    public class PayrollSummaryDto
     {
-        public string Concept { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Amount { get; set; } = string.Empty;
-    }
-
-    public class PayrollDetailDto
-    {
-        public int PayrollId { get; set; }
-        public int EmployeeId { get; set; }
-        public string EmployeeName { get; set; } = string.Empty;
-        public decimal GrossSalary { get; set; }
-        public decimal CcssEmployee { get; set; }
-        public decimal CcssEmployer { get; set; }
-        public decimal IncomeTax { get; set; }
-        public decimal OtherDeductions { get; set; }
-        public decimal Benefits { get; set; }
-        public decimal NetSalary { get; set; }
-        public DateTime Period { get; set; }
-        public string Status { get; set; } = "Pending";
-        public string? Department { get; set; }
-
+        public List<EmployeePayrollDto> Employees { get; set; } = new();
+        public PayrollTotalsDto Totals { get; set; } = new();
+        public PeriodInfoDto PeriodInfo { get; set; } = new();
+        public Dictionary<string, string> Tooltips { get; set; } = new();
     }
 }
