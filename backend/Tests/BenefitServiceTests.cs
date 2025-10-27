@@ -10,9 +10,9 @@ namespace backend.Tests
     [TestClass]
     public class BenefitServiceTests
     {
-        private Mock<IBenefitRepository> _mockBenefitRepository;
-        private Mock<IProjectRepository> _mockProjectRepository;
-        private BenefitService _benefitService;
+        private Mock<IBenefitRepository> _mockBenefitRepository = null!;
+        private Mock<IProjectRepository> _mockProjectRepository = null!;
+        private BenefitService _benefitService = null!;
 
         [TestInitialize]
         public void Setup()
