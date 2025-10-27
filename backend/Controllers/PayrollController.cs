@@ -23,5 +23,17 @@ namespace backend.Controllers
             var result = await _service.GetReportAsync(filters);
             return Ok(result);
         }
+
+        // NEW: quick ad-hoc testing endpoint
+        // POST /api/payroll/test-employee-deductions
+        [HttpPost("test-employee-deductions")] // TEST
+        public async Task<ActionResult<TestEmployeeDeductionsResponse>> TestEmployeeDeductions(
+            [FromBody] TestEmployeeDeductionsRequest request)
+        {
+            if (request is null) return BadRequest("Body is required.");
+            if (request.GrossSalary <= 0) return BadRequest("GrossSalary must be > 0.");
+            var res = await _service.TestEmployeeDeductionsAsync(request);
+            return Ok(res);
+        }
     }
 }

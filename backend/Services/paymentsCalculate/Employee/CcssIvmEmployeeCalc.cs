@@ -1,5 +1,3 @@
-using backend.Services.PaymentsCalculate;
-
 namespace backend.Services.PaymentsCalculate.Employee
 {
     // Invalidez, Vejez y Muerte (trabajador)
