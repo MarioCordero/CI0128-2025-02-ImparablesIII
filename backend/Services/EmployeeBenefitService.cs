@@ -25,18 +25,8 @@ namespace backend.Services
             {
                 _logger.LogInformation("Getting benefits for employee {EmployeeId} in company {CompanyId}", employeeId, companyId);
 
-                var availableBenefits = await _employeeBenefitRepository.GetAvailableBenefitsForEmployeeAsync(employeeId, companyId, filter);
-                var selectedBenefits = await _employeeBenefitRepository.GetSelectedBenefitsForEmployeeAsync(employeeId, companyId);
-                var maxSelections = await _employeeBenefitRepository.GetMaxBenefitLimitAsync(companyId);
-                var currentSelections = await _employeeBenefitRepository.GetSelectedBenefitsCountAsync(employeeId, companyId);
-
-                return new EmployeeBenefitsSummaryDto
-                {
-                    AvailableBenefits = availableBenefits,
-                    SelectedBenefits = selectedBenefits,
-                    CurrentSelections = currentSelections,
-                    MaxSelections = maxSelections
-                };
+                // Use the optimized stored procedure method instead of multiple calls
+                return await _employeeBenefitRepository.GetEmployeeBenefitsSummaryAsync(employeeId, companyId, filter);
             }
             catch (Exception ex)
             {
