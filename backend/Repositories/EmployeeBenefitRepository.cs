@@ -90,7 +90,7 @@ namespace backend.Repositories
             return count;
         }
 
-        public async Task<(bool Success, string Message)> AddBenefitToEmployeeAsync(int employeeId, int companyId, string benefitName, string benefitType)
+        public async Task<(bool Success, string Message)> AddBenefitToEmployeeAsync(int employeeId, int companyId, string benefitName, string benefitType, int? NumDependents = null, string? PensionType = null)
         {
             try
             {
@@ -98,15 +98,17 @@ namespace backend.Repositories
                 await connection.OpenAsync();
 
                 var query = @"
-                    INSERT INTO PlaniFy.BeneficioEmpleado (idEmpleado, NombreBeneficio, idEmpresa, TipoBeneficio)
-                    VALUES (@EmployeeId, @BenefitName, @CompanyId, @BenefitType)";
+                    INSERT INTO PlaniFy.BeneficioEmpleado (idEmpleado, NombreBeneficio, idEmpresa, TipoBeneficio, NumeroDependientes, TipoPension)
+                    VALUES (@EmployeeId, @BenefitName, @CompanyId, @BenefitType, @NumDependents, @PensionType)";
 
                 var parameters = new 
                 { 
                     EmployeeId = employeeId, 
                     CompanyId = companyId, 
                     BenefitName = benefitName,
-                    BenefitType = benefitType
+                    BenefitType = benefitType,
+                    NumDependents = NumDependents,
+                    PensionType = PensionType
                 };
 
                 await connection.ExecuteAsync(query, parameters);
