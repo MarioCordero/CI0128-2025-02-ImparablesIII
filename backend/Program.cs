@@ -105,6 +105,11 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // External API services
 builder.Services.Configure<ExternalApiSettings>(builder.Configuration.GetSection("ExternalApiSettings"));
 
+// Benefit calculation services
+builder.Services.AddHttpClient<backend.Services.PaymentsCalculate.Benefits.PrivateInsurance>();
+builder.Services.AddHttpClient<backend.Services.PaymentsCalculate.Benefits.VoluntaryPension>();
+builder.Services.AddHttpClient<backend.Services.PaymentsCalculate.Benefits.SolidarityAssociation>();
+
 // Infrastructure services
 builder.Services.AddMemoryCache(); // Memory cache for password tokens
 
