@@ -102,6 +102,9 @@ builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// External API services
+builder.Services.Configure<ExternalApiSettings>(builder.Configuration.GetSection("ExternalApiSettings"));
+
 // Infrastructure services
 builder.Services.AddMemoryCache(); // Memory cache for password tokens
 
