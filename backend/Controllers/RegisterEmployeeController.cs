@@ -110,22 +110,6 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("test-connection")]
-        public async Task<IActionResult> TestConnection()
-        {
-            try
-            {
-                // Simple test to verify database connection
-                var result = 0; //await _employeeService.TestConnectionAsync();
-                return Ok(new { message = "Conexión a la base de datos exitosa", result = result });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Database connection test failed: {Message}", ex.Message);
-                return StatusCode(500, new { message = $"Error de conexión a la base de datos: {ex.Message}" });
-            }
-        }
-
         private async Task SendPasswordSetupEmailAsync(string employeeName, string email, string token)
         {
             try

@@ -41,6 +41,7 @@ namespace backend.Services
             {
                 _logger.LogInformation("Selecting benefit {BenefitName} for employee {EmployeeId}", request.BenefitName, employeeId);
 
+
                 var validationResult = await ValidateBenefitSelectionRequestAsync(employeeId, companyId, request);
                 if (validationResult != null)
                 {
@@ -48,7 +49,7 @@ namespace backend.Services
                 }
 
                 var benefit = await GetBenefitAsync(companyId, request.BenefitName);
-                var (success, message) = await AddBenefitAsync(employeeId, companyId, request.BenefitName, benefit.CalculationType);
+                var (success, message) = await AddBenefitAsync(employeeId, companyId, request.BenefitName, benefit.CalculationType, request.NumDependents, request.PensionType);
 
                 if (!success)
                 {
@@ -128,9 +129,9 @@ namespace backend.Services
             return benefit;
         }
 
-        private async Task<(bool Success, string Message)> AddBenefitAsync(int employeeId, int companyId, string benefitName, string benefitType)
+        private async Task<(bool Success, string Message)> AddBenefitAsync(int employeeId, int companyId, string benefitName, string benefitType, int? NumDependents = null, string? PensionType = null)
         {
-            return await _employeeBenefitRepository.AddBenefitToEmployeeAsync(employeeId, companyId, benefitName, benefitType);
+            return await _employeeBenefitRepository.AddBenefitToEmployeeAsync(employeeId, companyId, benefitName, benefitType, NumDependents, PensionType);
         }
 
         private async Task<EmployeeBenefitSelectionResponseDto> CreateSuccessResponseAsync(int employeeId, int companyId)
