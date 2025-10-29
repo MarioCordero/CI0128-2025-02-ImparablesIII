@@ -1,6 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Dapper;
+using System.Text.Json;
 using backend.Models;
 using backend.DTOs;
 
@@ -210,6 +211,47 @@ namespace backend.Repositories
             {
                 return new List<BenefitEmployeeRow>();
             }
+        }
+        public async Task<List<EmployeeDeductionDto>> GetEmployeeDeductionsAsync()
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"SELECT Id, Code, Name, Rate, MinAmount, MaxAmount, IsActive
+                        FROM PlaniFy.EmployeeDeductions WHERE IsActive = 1;";
+            var result = (await connection.QueryAsync<EmployeeDeductionDto>(query)).ToList();
+            return result;
+        }
+
+        public async Task<List<EmployerDeductionDto>> GetEmployerDeductionsAsync()
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"SELECT Id, Code, Name, Rate, MinAmount, MaxAmount, IsActive
+                        FROM PlaniFy.EmployerDeductions WHERE IsActive = 1;";
+            var result = (await connection.QueryAsync<EmployerDeductionDto>(query)).ToList();
+            return result;
+        }
+
+        public async Task<List<EmployeePayrollDto>> GetEmployeesForPayrollAsync(int companyId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            using var command = new SqlCommand("PlaniFy.GetEmployeesForPayroll", connection)
+            {
+                CommandType = System.Data.CommandType.StoredProcedure
+            };
+            command.Parameters.AddWithValue("@CompanyId", companyId);
+
+            string jsonResult = "";
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    jsonResult += reader.GetString(0);
+                }
+            }
+
+            var empleadosRoot = JsonSerializer.Deserialize<EmpleadosRoot>(jsonResult);
+            return empleadosRoot?.Empleados ?? new List<EmployeePayrollDto>();
         }
     }
 }

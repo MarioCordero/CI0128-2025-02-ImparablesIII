@@ -1,12 +1,17 @@
-using backend.Services.PaymentsCalculate;
-
+using backend.DTOs;
 namespace backend.Services.PaymentsCalculate.Employer
 {
-    // FODESAF / Asignaciones Familiares (patrono)
+    // Fondo de Desarrollo Social y Asignaciones Familiares (patrono)
     public class FodesafEmployerCalc
     {
-        private const decimal RATE = 0.05m; // 5% (valor quemado)
-        public CalcLine Calculate(decimal grossSalary)
-            => new("FODESAF_PATR", Math.Round(grossSalary * RATE, 2), CalcRole.EmployerDeduction);
+        private readonly decimal _rate;
+        public FodesafEmployerCalc(decimal rate) { _rate = rate; }
+        public EmployerDeductionLineDto Calculate(decimal grossSalary)
+            => new EmployerDeductionLineDto
+            {
+                Code = "FODESAF_PATR",
+                Amount = Math.Round(grossSalary * _rate, 2),
+                Role = "EmployerDeduction"
+            };
     }
 }

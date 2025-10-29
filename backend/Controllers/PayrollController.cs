@@ -14,14 +14,25 @@ namespace backend.Controllers
             _service = service;
         }
 
-        [HttpGet("report")]
-        public async Task<ActionResult<PayrollSummaryDto>> GetPayrollReport([FromQuery] PayrollFiltersDto filters)
+        [HttpGet("employee-deductions")]
+        public async Task<ActionResult<List<EmployeePayrollDto>>> GetEmployeePayrollWithDeductions([FromQuery] int companyId)
         {
-            if (filters.CompanyId <= 0)
-                return BadRequest("CompanyId is required.");
+            if (companyId <= 0)
+                return BadRequest("CompanyId inválido.");
 
-            var result = await _service.GetReportAsync(filters);
+            var result = await _service.GetEmployeePayrollWithDeductionsAsync(companyId);
             return Ok(result);
         }
+
+        [HttpGet("employer-deductions")]
+        public async Task<ActionResult<List<EmployerDeductionResultDto>>> GetEmployerPayrollWithDeductions([FromQuery] int companyId)
+        {
+            if (companyId <= 0)
+                return BadRequest("CompanyId inválido.");
+
+            var result = await _service.GetEmployerPayrollWithDeductionsAsync(companyId);
+            return Ok(result);
+        }
+
     }
 }
