@@ -254,8 +254,8 @@
 </template>
 
 <script>
-import MainEmployerHeader from '../common/MainEmployerHeader.vue'
-import { apiConfig } from '../../config/api.js'
+import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
+import { apiConfig } from '../../../config/api.js'
 
 export default {
   name: 'AddBenefit',
