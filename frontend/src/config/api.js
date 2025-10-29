@@ -11,7 +11,11 @@ export const apiConfig = {
     updateProject: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`, // <-- NUEVO ENDPOINT
     employeeBenefits: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}`,
     employeeBenefitsSelect: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}/select`,
-    byCompany: (companyId) => `${API_BASE_URL}/api/Project/by-company/${companyId}`
+    byCompany: (companyId) => `${API_BASE_URL}/api/Project/by-company/${companyId}`,
+    payrollGenerate: `${API_BASE_URL}/api/payroll/generate`,
+    payrollSummary: (companyId) => `${API_BASE_URL}/api/payroll/summary?companyId=${companyId}`,
+    payrollHistory: (companyId) => `${API_BASE_URL}/api/payroll/history?companyId=${companyId}`,
+    projectEmployeeCount: (companyId) => `${API_BASE_URL}/api/Project/${companyId}/employees/count`,
   }
 }
 

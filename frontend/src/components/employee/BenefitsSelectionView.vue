@@ -168,7 +168,7 @@
             </div>
             <div v-else>
               <button
-                @click="selectBenefit(benefit)"
+                @click="showBenefitSelectionModal(benefit)"
                 :disabled="!canSelectMore"
                 class="px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
                 :class="canSelectMore ? 'bg-[#4a5568] text-white hover:bg-[#374151]' : 'bg-gray-300 text-gray-600'"
@@ -184,6 +184,72 @@
     <!-- Empty State -->
     <div v-if="!loading && !error && filteredBenefits.length === 0" class="text-center py-12">
       <p class="text-gray-500 text-lg">No se encontraron beneficios con los filtros seleccionados</p>
+    </div>
+
+    <!-- Benefit Selection Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">
+          Configurar {{ selectedBenefit?.benefitName }}
+        </h3>
+        
+        <!-- Seguro Privado Fields -->
+        <div v-if="selectedBenefit?.benefitName === 'Seguro privado'" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Número de Dependientes *
+            </label>
+            <input
+              v-model="benefitForm.NumDependents"
+              type="number"
+              min="0"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ej: 2"
+            />
+            <p class="text-sm text-gray-500 mt-1">Hermanos o familiares que debe cuidar</p>
+          </div>
+        </div>
+
+        <!-- Pensiones Voluntarias Fields -->
+        <div v-if="selectedBenefit?.benefitName === 'Pensiones voluntarias'" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Tipo de Pensión *
+            </label>
+            <select
+              v-model="benefitForm.PensionType"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Seleccione el tipo de pensión</option>
+              <option value="A">Tipo A</option>
+              <option value="B">Tipo B</option>
+              <option value="C">Tipo C</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div v-if="modalError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {{ modalError }}
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="flex justify-end space-x-3 mt-6">
+          <button
+            @click="closeModal"
+            class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+          >
+            Cancelar
+          </button>
+          <button
+            @click="confirmBenefitSelection"
+            :disabled="!isFormValid"
+            class="px-4 py-2 bg-[#4a5568] text-white rounded-lg hover:bg-[#374151] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -211,7 +277,14 @@ export default {
       error: null,
       searchTerm: '',
       selectedCalculationType: '',
-      selectedStatus: ''
+      selectedStatus: '',
+      showModal: false,
+      selectedBenefit: null,
+      benefitForm: {
+        NumDependents: '',
+        PensionType: ''
+      },
+      modalError: null
     }
   },
   computed: {
@@ -221,6 +294,19 @@ export default {
     filteredBenefits() {
       return this.benefitsData.availableBenefits || []
     },
+    isFormValid() {
+      if (!this.selectedBenefit) return false
+      
+      if (this.selectedBenefit.benefitName === 'Seguro privado') {
+        return this.benefitForm.NumDependents !== '' && parseInt(this.benefitForm.NumDependents) >= 0
+      }
+      
+      if (this.selectedBenefit.benefitName === 'Pensiones voluntarias') {
+        return this.benefitForm.PensionType !== '' && ['A', 'B', 'C'].includes(this.benefitForm.PensionType)
+      }
+      
+      return true
+    }
   },
   created() {
     this.fetchBenefits()
@@ -299,6 +385,64 @@ export default {
         'API': 'bg-orange-100 text-orange-800'
       }
       return classes[type] || 'bg-gray-100 text-gray-800'
+    },
+    showBenefitSelectionModal(benefit) {
+      this.selectedBenefit = benefit
+      this.benefitForm = {
+        NumDependents: '',
+        PensionType: ''
+      }
+      this.modalError = null
+      this.showModal = true
+    },
+    closeModal() {
+      this.showModal = false
+      this.selectedBenefit = null
+      this.benefitForm = {
+        NumDependents: '',
+        PensionType: ''
+      }
+      this.modalError = null
+    },
+    async confirmBenefitSelection() {
+      if (!this.isFormValid) return
+
+      this.loading = true
+      this.modalError = null
+
+      try {
+        const requestData = {
+          benefitName: this.selectedBenefit.benefitName,
+          NumDependents: this.selectedBenefit.benefitName === 'Seguro privado' ? parseInt(this.benefitForm.NumDependents) : null,
+          PensionType: this.selectedBenefit.benefitName === 'Pensiones voluntarias' ? this.benefitForm.PensionType : null
+        }
+
+        const response = await fetch(`${apiConfig.endpoints.employeeBenefitsSelect(this.employeeId)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestData)
+        })
+
+        const result = await response.json()
+
+        if (response.ok && result.success) {
+          this.benefitsData.currentSelections = result.currentSelections
+          this.benefitsData.maxSelections = result.maxSelections
+          // Refresh benefits to update selection status
+          await this.fetchBenefits()
+          this.closeModal()
+          this.$emit('success', result.message || 'Beneficio agregado exitosamente')
+        } else {
+          this.modalError = result.message || 'Error al agregar el beneficio'
+        }
+      } catch (error) {
+        console.error('Error selecting benefit:', error)
+        this.modalError = 'Error al agregar el beneficio'
+      } finally {
+        this.loading = false
+      }
     }
   }
 }

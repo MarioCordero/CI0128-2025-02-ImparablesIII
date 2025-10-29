@@ -107,7 +107,7 @@ export default {
     async handleSave(updatedCompany) {
       this.project = updatedCompany
       this.showEditModal = false
-    }
+    } 
   }
 }
 </script>

@@ -3,7 +3,7 @@
 -- ===================================
 CREATE TABLE PlaniFy.BeneficioEmpleado (
     idEmpleado INT NOT NULL,
-    NombreBeneficio NVARCHAR(20) NOT NULL,
+    NombreBeneficio NVARCHAR(50) NOT NULL,
     idEmpresa INT NOT NULL,
     TipoBeneficio NVARCHAR(20) NOT NULL,
     PRIMARY KEY (idEmpleado, NombreBeneficio, idEmpresa),
