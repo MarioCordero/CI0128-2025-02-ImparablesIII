@@ -36,5 +36,6 @@ namespace backend.Repositories
         // Dirección (delegadas)
         Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular);
         Task<DireccionDto?> GetDireccionByIdAsync(int id);
+
     }
 }

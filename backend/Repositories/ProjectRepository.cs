@@ -16,8 +16,6 @@ namespace backend.Repositories
             _direccionRepository = direccionRepository;
         }
 
-        #region CRUD Operations
-        
         public async Task<Project> CreateAsync(Project project)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -42,6 +40,67 @@ namespace backend.Repositories
             var id = await connection.QuerySingleAsync<int>(query, parameters);
             project.Id = id;
             return project;
+        }
+
+        public async Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int companyId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                SELECT 
+                    p.Id,
+                    p.Nombre,
+                    p.CedulaJuridica,
+                    p.Email,
+                    p.PeriodoPago,
+                    p.Telefono,
+                    p.IdDireccion,
+                    p.MaximoBeneficios,
+                    d.Id AS DireccionId,
+                    d.Provincia,
+                    d.Canton,
+                    d.Distrito,
+                    d.DireccionParticular
+                FROM PlaniFy.Empresa p
+                LEFT JOIN PlaniFy.Direccion d ON p.IdDireccion = d.Id
+                WHERE p.Id = @CompanyId";
+
+            var result = await connection.QueryAsync(query, new { CompanyId = companyId });
+            var row = result.FirstOrDefault();
+            if (row != null)
+            {
+                Console.WriteLine($"Empresa: {row.Id}, {row.Nombre}, {row.CedulaJuridica}, {row.Email}, {row.PeriodoPago}, {row.Telefono}, {row.IdDireccion}, {row.MaximoBeneficios}");
+                Console.WriteLine($"Direccion: {row.DireccionId}, {row.Provincia}, {row.Canton}, {row.Distrito}, {row.DireccionParticular}");
+            }
+            else
+            {
+                Console.WriteLine("No se encontró la empresa en la base de datos.");
+            }
+            if (row != null)
+            {
+                var project = new ProjectResponseDto
+                {
+                    Id = row.Id,
+                    Nombre = row.Nombre,
+                    CedulaJuridica = row.CedulaJuridica,
+                    Email = row.Email,
+                    PeriodoPago = row.PeriodoPago,
+                    Telefono = row.Telefono,
+                    IdDireccion = row.IdDireccion,
+                    MaximoBeneficios = row.MaximoBeneficios,
+                    Direccion = row.DireccionId != null ? new DireccionDto
+                    {
+                        Id = row.DireccionId,
+                        Provincia = row.Provincia,
+                        Canton = row.Canton,
+                        Distrito = row.Distrito,
+                        DireccionParticular = row.DireccionParticular
+                    } : null
+                };
+                return project;
+            }
+            return null;
         }
 
         public async Task<Project?> GetByIdAsync(int id)
@@ -128,11 +187,6 @@ namespace backend.Repositories
             var rowsAffected = await connection.ExecuteAsync(query, new { Id = id });
             return rowsAffected > 0;
         }
-
-        #endregion
-
-        #region Existence Checks
-
         public async Task<bool> ExistsByIdAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -182,10 +236,6 @@ namespace backend.Repositories
             return false;
         }
 
-        #endregion
-
-        #region Specific Queries
-
         public async Task<List<Project>> GetByEmployerIdAsync(int employerId)
         {
             // TODO: Implementar relación employer-project según esquema BD
@@ -196,27 +246,6 @@ namespace backend.Repositories
         {
             var project = await GetByIdAsync(companyId);
             return project != null ? new List<Project> { project } : new List<Project>();
-        }
-
-        public async Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int id)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            var query = @"
-                SELECT Id, Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion
-                FROM PlaniFy.Empresa
-                WHERE Id = @Id";
-
-            var project = await connection.QueryFirstOrDefaultAsync<ProjectResponseDto>(query, new { Id = id });
-
-            if (project != null)
-            {
-                project.Direccion = await _direccionRepository.GetDireccionByIdAsync(project.IdDireccion);
-                project.CreatedAt = DateTime.UtcNow; // Valor por defecto
-            }
-
-            return project;
         }
 
         public async Task<List<CompanyDashboardMainEmployerDto>> GetProjectsForDashboardAsync(int employerId)
@@ -236,10 +265,6 @@ namespace backend.Repositories
                 Notifications = new List<NotificationDto>()
             }).ToList();
         }
-
-        #endregion
-
-        #region Business Operations
 
         public async Task<int> CountActiveEmployeesAsync(int projectId)
         {
@@ -285,10 +310,6 @@ namespace backend.Repositories
             return rowsAffected > 0;
         }
 
-        #endregion
-
-        #region Address Operations (Delegated)
-
         public async Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular)
         {
             return await _direccionRepository.CreateDireccionAsync(provincia, canton ?? string.Empty, distrito ?? string.Empty, direccionParticular);
@@ -298,7 +319,5 @@ namespace backend.Repositories
         {
             return await _direccionRepository.GetDireccionByIdAsync(id);
         }
-
-        #endregion
     }
 }
