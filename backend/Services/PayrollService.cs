@@ -132,9 +132,27 @@ namespace backend.Services
             return results;
         }
 
-        public async Task<int> GeneratePayrollWithBenefitsAsync(int companyId, int responsibleEmployeeId, int hours)
+        public async Task<int> GeneratePayrollWithBenefitsAsync(int companyId, int responsibleEmployeeId, int hours, string? periodType = null, int? fortnight = null)
         {
-            
+            var now = DateTime.Now;
+            var isMonthly = string.Equals(periodType, "Mensual", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(periodType);
+            if (isMonthly)
+            {
+                var exists = await _repo.ExistsPayrollForMonthAsync(companyId, now.Year, now.Month);
+                if (exists)
+                {
+                    throw new InvalidOperationException("La planilla de este mes ya fue generada para esta empresa.");
+                }
+            }
+            else
+            {
+                var currentFortnight = fortnight ?? (now.Day <= 15 ? 1 : 2);
+                var existsQ = await _repo.ExistsPayrollForFortnightAsync(companyId, now.Year, now.Month, currentFortnight);
+                if (existsQ)
+                {
+                    throw new InvalidOperationException("La planilla de esta quincena ya fue generada para esta empresa.");
+                }
+            }
             var employees = await GetEmployeePayrollWithDeductionsAsync(companyId);
             var employerDeductions = await GetEmployerPayrollWithDeductionsAsync(companyId);
             
@@ -176,7 +194,7 @@ namespace backend.Services
             
             var payrollId = await _repo.InsertPayrollAsync(new PayrollInsertDto
             {
-                FechaGeneracion = DateTime.Now,
+                FechaGeneracion = now,
                 Horas = hours,
                 IdResponsable = responsibleEmployeeId,
                 IdEmpresa = companyId
@@ -185,6 +203,18 @@ namespace backend.Services
             await _repo.InsertPayrollDetailsAsync(payrollId, payrollDetails);
             
             return payrollId;
+        }
+
+        public async Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId)
+        {
+            if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
+            return await _repo.GetLatestPayrollTotalsByCompanyAsync(companyId);
+        }
+
+        public async Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId)
+        {
+            if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
+            return await _repo.GetPayrollHistoryByCompanyAsync(companyId);
         }
     }
 }
