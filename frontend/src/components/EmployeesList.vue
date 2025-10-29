@@ -59,7 +59,9 @@
 
           </div>
 
-          <button class="neumorfismo-boton p-[7px] rounded-full!">✏️</button>
+          <button class="neumorfismo-boton p-[7px] rounded-full!" @click="editEmployee(empleado.id)">
+            ✏️
+          </button>
 
         </div>
 
@@ -155,7 +157,11 @@
           this.loading = false;
 
         }
-      }
+      },
+
+      editEmployee(employeeId) {
+        this.$router.push(`/edit-employee/${employeeId}`);
+      },
   },
 
   watch: {
