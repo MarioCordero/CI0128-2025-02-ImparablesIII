@@ -207,22 +207,6 @@ namespace backend.Repositories
             return count;
         }
 
-        public async Task<int> GetEmployeesUsingBenefitAsync(int companyId, string benefitName)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            var query = @"
-                SELECT COUNT(DISTINCT idEmpleado)
-                FROM PlaniFy.BeneficioEmpleado
-                WHERE idEmpresa = @CompanyId AND NombreBeneficio = @BenefitName";
-
-            var parameters = new { CompanyId = companyId, BenefitName = benefitName };
-
-            var count = await connection.QuerySingleAsync<int>(query, parameters);
-            return count;
-        }
-
         private List<EmployeeBenefitDto> MapBenefitsFromStoredProcedure(IEnumerable<dynamic> result)
         {
             var benefits = new List<EmployeeBenefitDto>();
@@ -267,7 +251,10 @@ namespace backend.Repositories
                 Percentage = GetPropertyValue<int?>(rowDict, "Percentage"),
                 IsSelected = IsBenefitSelected(rowDict),
                 EmployeeCount = GetPropertyValue<int>(rowDict, "EmployeeCount"),
-                UsagePercentage = GetPropertyValue<double>(rowDict, "UsagePercentage")
+                UsagePercentage = GetPropertyValue<double>(rowDict, "UsagePercentage"),
+                // Employee-specific fields from BeneficioEmpleado table
+                NumDependents = GetPropertyValue<int?>(rowDict, "NumDependents"),
+                PensionType = GetPropertyValue<string>(rowDict, "PensionType")
             };
         }
 
