@@ -106,11 +106,11 @@
 </template>
 
 <script>
-import MainEmployerHeader from '../common/MainEmployerHeader.vue'
-import DashboardProjectSubHeader from '../projectDashboard/DashboardProjectSubHeader.vue'
+import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
+import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
 import PayrollReports from './PayrollReports.vue'
-import EmployeesSection from '../EmployeesSection.vue';
-import EmployeesFilter from '../EmployeesFilter.vue';
+import EmployeesSection from './EmployeesSection.vue';
+import EmployeesFilter from './EmployeesFilter.vue';
 
 export default {
   name: 'ProjectDashboard',

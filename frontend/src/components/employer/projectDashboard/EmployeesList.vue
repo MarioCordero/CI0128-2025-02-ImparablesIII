@@ -81,7 +81,7 @@
 </template>
 
 <script>
-  import "../assets/Neumorfismo.css"
+  // import "../assets/Neumorfismo.css"
 
   export default {
     name: 'ListaEmpleados',
