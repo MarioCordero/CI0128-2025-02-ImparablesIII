@@ -31,7 +31,9 @@ namespace backend.Controllers
                 var payrollId = await _service.GeneratePayrollWithBenefitsAsync(
                     request.CompanyId,
                     request.ResponsibleEmployeeId,
-                    request.Hours);
+                    request.Hours,
+                    request.PeriodType,
+                    request.Fortnight);
 
                 var response = new GeneratePayrollResponseDto
                 {
@@ -42,10 +44,38 @@ namespace backend.Controllers
 
                 return Ok(response);
             }
+            catch (InvalidOperationException ioe)
+            {
+                return Conflict(new { message = ioe.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error al generar la planilla.", error = ex.Message });
             }
+        }
+
+        [HttpGet("summary")]
+        public async Task<ActionResult<PayrollTotalsDto?>> GetLatestPayrollSummary([FromQuery] int companyId)
+        {
+            if (companyId <= 0)
+                return BadRequest("CompanyId inválido.");
+
+            var totals = await _service.GetLatestPayrollTotalsByCompanyAsync(companyId);
+            if (totals == null)
+            {
+                return NotFound();
+            }
+            return Ok(totals);
+        }
+
+        [HttpGet("history")]
+        public async Task<ActionResult<List<PayrollHistoryItemDto>>> GetPayrollHistory([FromQuery] int companyId)
+        {
+            if (companyId <= 0)
+                return BadRequest("CompanyId inválido.");
+
+            var history = await _service.GetPayrollHistoryByCompanyAsync(companyId);
+            return Ok(history);
         }
 
     }
