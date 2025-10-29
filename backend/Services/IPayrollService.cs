@@ -4,10 +4,10 @@ namespace backend.Services
 {
     public interface IPayrollService
     {
-        // Task<PayrollSummaryDto> GetReportAsync(PayrollFiltersDto filters);
-        // Task<EmployeeDeductionsResponse> EmployeeDeductionsAsync(EmployeeDeductionsRequest request);
         Task<List<EmployeePayrollDto>> GetEmployeePayrollWithDeductionsAsync(int companyId);
         Task<List<EmployerDeductionResultDto>> GetEmployerPayrollWithDeductionsAsync(int companyId);
-        // Task<PayrollCalculationResultDto> CalculatePayrollAsync(PayrollCalculationRequestDto request);
+        Task<int> GeneratePayrollWithBenefitsAsync(int companyId, int responsibleEmployeeId, int hours, string? periodType = null, int? fortnight = null);
+        Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId);
+        Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId);
     }
 }
