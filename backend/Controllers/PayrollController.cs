@@ -14,24 +14,38 @@ namespace backend.Controllers
             _service = service;
         }
 
-        [HttpGet("employee-deductions")]
-        public async Task<ActionResult<List<EmployeePayrollDto>>> GetEmployeePayrollWithDeductions([FromQuery] int companyId)
+        [HttpPost("generate")]
+        public async Task<ActionResult<GeneratePayrollResponseDto>> GeneratePayrollWithBenefits([FromBody] GeneratePayrollRequestDto request)
         {
-            if (companyId <= 0)
+            if (request.CompanyId <= 0)
                 return BadRequest("CompanyId inválido.");
 
-            var result = await _service.GetEmployeePayrollWithDeductionsAsync(companyId);
-            return Ok(result);
-        }
+            if (request.ResponsibleEmployeeId <= 0)
+                return BadRequest("ResponsibleEmployeeId inválido.");
 
-        [HttpGet("employer-deductions")]
-        public async Task<ActionResult<List<EmployerDeductionResultDto>>> GetEmployerPayrollWithDeductions([FromQuery] int companyId)
-        {
-            if (companyId <= 0)
-                return BadRequest("CompanyId inválido.");
+            if (request.Hours <= 0)
+                return BadRequest("Hours debe ser mayor que cero.");
 
-            var result = await _service.GetEmployerPayrollWithDeductionsAsync(companyId);
-            return Ok(result);
+            try
+            {
+                var payrollId = await _service.GeneratePayrollWithBenefitsAsync(
+                    request.CompanyId,
+                    request.ResponsibleEmployeeId,
+                    request.Hours);
+
+                var response = new GeneratePayrollResponseDto
+                {
+                    PayrollId = payrollId,
+                    Message = "Planilla generada exitosamente con beneficios y deducciones.",
+                    GeneratedAt = DateTime.Now
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al generar la planilla.", error = ex.Message });
+            }
         }
 
     }
