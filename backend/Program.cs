@@ -94,6 +94,7 @@ builder.Services.AddScoped<IProfileEmployeeService, ProfileEmployeeService>();
 builder.Services.AddScoped<IBenefitService, BenefitService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeBenefitService, EmployeeBenefitService>();
+builder.Services.AddScoped<IBenefitDeductionsService, BenefitDeductionsService>();
 
 // Authentication & Security services
 builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
@@ -102,6 +103,14 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 // Email services
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// External API services
+builder.Services.Configure<ExternalApiSettings>(builder.Configuration.GetSection("ExternalApiSettings"));
+
+// Benefit calculation services
+builder.Services.AddHttpClient<backend.Services.PaymentsCalculate.Benefits.PrivateInsurance>();
+builder.Services.AddHttpClient<backend.Services.PaymentsCalculate.Benefits.VoluntaryPension>();
+builder.Services.AddHttpClient<backend.Services.PaymentsCalculate.Benefits.SolidarityAssociation>();
 
 // Infrastructure services
 builder.Services.AddMemoryCache(); // Memory cache for password tokens

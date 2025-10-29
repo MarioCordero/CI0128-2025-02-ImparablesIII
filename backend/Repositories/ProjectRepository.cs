@@ -263,8 +263,7 @@ namespace backend.Repositories
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             
-            // TODO: Ajustar según esquema real de empleados
-            var query = "SELECT COUNT(*) FROM PlaniFy.Empleado WHERE EmpresaId = @ProjectId AND Activo = 1";
+            var query = "SELECT COUNT(*) FROM PlaniFy.Empleado WHERE EmpresaId = @ProjectId";
             var count = await connection.QuerySingleOrDefaultAsync<int>(query, new { ProjectId = projectId });
             return count;
         }

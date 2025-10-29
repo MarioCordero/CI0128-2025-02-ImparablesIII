@@ -33,22 +33,6 @@
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Información del Beneficio -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Nombre del Beneficio -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Nombre del Beneficio *
-              </label>
-              <input
-                v-model="form.name"
-                type="text"
-                maxlength="20"
-                :class="['neumorphism-input w-full', errors.name ? 'ring-2 ring-red-500' : '']"
-                placeholder="Ej: Bono de Navidad"
-                @blur="validateName"
-              />
-              <span v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</span>
-            </div>
-
             <!-- Tipo de Cálculo -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -65,6 +49,35 @@
                 <option value="API">API</option>
               </select>
               <span v-if="errors.calculationType" class="text-red-500 text-sm mt-1">{{ errors.calculationType }}</span>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nombre del Beneficio *
+              </label>
+              <!-- Text input for non-API calculation types -->
+              <input
+                v-if="form.calculationType !== 'API'"
+                v-model="form.name"
+                type="text"
+                maxlength="20"
+                :class="['neumorphism-input w-full', errors.name ? 'ring-2 ring-red-500' : '']"
+                placeholder="Ej: Bono de Navidad"
+                @blur="validateName"
+              />
+              <!-- Select for API calculation type -->
+              <select
+                v-else
+                v-model="form.name"
+                :class="['neumorphism-input w-full', errors.name ? 'ring-2 ring-red-500' : '']"
+                @change="validateName"
+              >
+                <option value="">Seleccione el beneficio</option>
+                <option value="AsociacionSolidarista">Asociacion Solidarista</option>
+                <option value="Seguro privado">Seguro Privado</option>
+                <option value="Pensiones voluntarias">Pensiones Voluntarias</option>
+              </select>
+              <span v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</span>
             </div>
           </div>
 
@@ -87,7 +100,7 @@
                 <option value="">Seleccione el tipo de beneficio</option>
                 <option value="Bonificación">Bonificación</option>
                 <option value="Descuento">Descuento</option>
-                <option value="Ambos">Ambos</option>
+                <option v-if="form.calculationType === 'API'" value="Ambos">Ambos</option>
               </select>
               <span v-if="errors.type" class="text-red-500 text-sm mt-1">{{ errors.type }}</span>
             </div>
@@ -157,6 +170,7 @@
               <span v-if="errors.value" class="text-red-500 text-sm mt-1">{{ errors.value }}</span>
             </div>
           </div>
+
 
           <div class="flex flex-col sm:flex-row gap-4 pt-6">
             <button
@@ -305,6 +319,10 @@ export default {
         // Clear type if it was set to 'Ambos' and user changes away from API
         this.form.type = '';
       }
+      
+      // Clear name when switching calculation types
+      this.form.name = '';
+      this.errors.name = '';
     }
   },
   mounted() {
@@ -340,6 +358,11 @@ export default {
     validateName() {
       if (!this.form.name.trim()) {
         this.errors.name = 'El nombre del beneficio es obligatorio';
+      } else if (this.form.calculationType === 'API') {
+        const allowedNames = ['AsociacionSolidarista', 'Seguro privado', 'Pensiones voluntarias'];
+        if (!allowedNames.includes(this.form.name.trim())) {
+          this.errors.name = 'Debe seleccionar un beneficio válido para API';
+        }
       } else if (this.form.name.trim().length > 20) {
         this.errors.name = 'El nombre no puede exceder 20 caracteres';
       } else if (!/^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$/.test(this.form.name.trim())) {
@@ -384,6 +407,12 @@ export default {
       if (!this.form.name.trim()) {
         this.errors.name = 'El nombre del beneficio es obligatorio';
         isValid = false;
+      } else if (this.form.calculationType === 'API') {
+        const allowedNames = ['AsociacionSolidarista', 'Seguro privado', 'Pensiones voluntarias'];
+        if (!allowedNames.includes(this.form.name.trim())) {
+          this.errors.name = 'Debe seleccionar un beneficio válido para API';
+          isValid = false;
+        }
       } else if (this.form.name.trim().length > 20) {
         this.errors.name = 'El nombre no puede exceder 20 caracteres';
         isValid = false;

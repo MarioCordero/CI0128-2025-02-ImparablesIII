@@ -1,87 +1,32 @@
 using backend.DTOs;
 using backend.Models;
 using backend.Repositories;
-
-// Calculators
-using backend.Services.PaymentsCalculate;                // PaymentsTypes.cs (CalcRole, CalcLine)
-using backend.Services.PaymentsCalculate.Employee;       // CcssSemEmployeeCalc, etc.
-using backend.Services.PaymentsCalculate.Employer;       // CcssSemEmployerCalc, etc.
+using backend.Constants;
+using backend.Services.PaymentsCalculate;
+using backend.Services.PaymentsCalculate.Employee;
+using backend.Services.PaymentsCalculate.Employer;
 
 namespace backend.Services
 {
     public class PayrollService : IPayrollService
     {
         private readonly IPayrollRepository _repo;
-        public PayrollService(IPayrollRepository repo)
+        private readonly IBenefitDeductionsService _benefitDeductionsService;
+        
+        public PayrollService(IPayrollRepository repo, IBenefitDeductionsService benefitDeductionsService)
         {
             _repo = repo;
+            _benefitDeductionsService = benefitDeductionsService;
         }
-
-        // public async Task<PayrollSummaryDto> GetReportAsync(PayrollFiltersDto f)
-        // {
-        //     // Valores hardcodeados
-        //     var start = new DateTime(2025, 10, 1);
-        //     var end = new DateTime(2025, 10, 31);
-        //     var label = "Monthly 2025-10";
-        //     int year = 2025, month = 10;
-        //     int? fortnight = null;
-
-        //     // Ejemplo de items y totales hardcodeados
-        //     var items = new List<PayrollItemDto>
-        //     {
-        //         new PayrollItemDto
-        //         {
-        //             EmployeeId = 1,
-        //             EmployeeName = "Mario Jiménez",
-        //             GrossSalary = 1000000m,
-        //             TotalDeductions = 106700m,
-        //             NetSalary = 893300m
-        //         }
-        //     };
-
-        //     var totals = new PayrollTotalsDto
-        //     {
-        //         TotalGross = 1000000m,
-        //         TotalDeductions = 106700m,
-        //         TotalNet = 893300m
-        //     };
-
-        //     return new PayrollSummaryDto
-        //     {
-        //         PeriodLabel = label,
-        //         Items = items,
-        //         Totals = totals
-        //     };
-        // }
-
-
-        private static (DateTime, DateTime, string, int, int, int?) ResolvePeriod(DateTime period, PeriodType type, int? fortnight)
-        {
-            int year = period.Year, month = period.Month;
-            if (type == PeriodType.Monthly)
-            {
-                var from = new DateTime(year, month, 1);
-                var to = new DateTime(year, month, DateTime.DaysInMonth(year, month));
-                return (from, to, $"Monthly {year}-{month:00}", year, month, null);
-            }
-            int q = (fortnight is 1 or 2) ? fortnight.Value : (period.Day <= 15 ? 1 : 2);
-            var fromQ = q == 1 ? new DateTime(year, month, 1) : new DateTime(year, month, 16);
-            var toQ = q == 1 ? new DateTime(year, month, 15) : new DateTime(year, month, DateTime.DaysInMonth(year, month));
-            return (fromQ, toQ, $"Biweekly {q} · {year}-{month:00}", year, month, q);
-        }
-        // ----------------------------------------- MONSTER METHODS -----------------------------------------
         private async Task<List<EmployeeDeductionDto>> GetEmployeeDeductionsAsync()
         {
-            // Consulta los montos y reglas de deducción de empleado desde la base de datos
             return await _repo.GetEmployeeDeductionsAsync();
         }
 
         private async Task<List<EmployerDeductionDto>> GetEmployerDeductionsAsync()
         {
-            // Consulta los montos y reglas de deducción de empleador desde la base de datos
             return await _repo.GetEmployerDeductionsAsync();
         }
-        // ----------------------------------------- EMPLOYEE METHODS -----------------------------------------
         public async Task<List<EmployeePayrollDto>> GetEmployeePayrollWithDeductionsAsync(int companyId)
         {
             var empleados = await _repo.GetEmployeesForPayrollAsync(companyId);
@@ -187,46 +132,89 @@ namespace backend.Services
             return results;
         }
 
-        // ----------------------------------------- ORCHESTRATOR METHOD -----------------------------------------
-        // public async Task<PayrollCalculationResultDto> CalculatePayrollAsync(PayrollCalculationRequestDto request)
-        // {
-        //     if (request.CompanyId <= 0)
-        //         throw new ArgumentException("CompanyId inválido.");
+        public async Task<int> GeneratePayrollWithBenefitsAsync(int companyId, int responsibleEmployeeId, int hours, string? periodType = null, int? fortnight = null)
+        {
+            var now = DateTime.Now;
+            var isMonthly = string.Equals(periodType, "Mensual", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(periodType);
+            if (isMonthly)
+            {
+                var exists = await _repo.ExistsPayrollForMonthAsync(companyId, now.Year, now.Month);
+                if (exists)
+                {
+                    throw new InvalidOperationException("La planilla de este mes ya fue generada para esta empresa.");
+                }
+            }
+            else
+            {
+                var currentFortnight = fortnight ?? (now.Day <= 15 ? 1 : 2);
+                var existsQ = await _repo.ExistsPayrollForFortnightAsync(companyId, now.Year, now.Month, currentFortnight);
+                if (existsQ)
+                {
+                    throw new InvalidOperationException("La planilla de esta quincena ya fue generada para esta empresa.");
+                }
+            }
+            var employees = await GetEmployeePayrollWithDeductionsAsync(companyId);
+            var employerDeductions = await GetEmployerPayrollWithDeductionsAsync(companyId);
+            
+            var payrollDetails = new List<PayrollDetailInsertDto>();
+            
+            foreach (var emp in employees)
+            {
+                var employerResult = employerDeductions.FirstOrDefault(e => e.IdEmpleado == emp.IdEmpleado);
+                if (employerResult == null)
+                {
+                    continue;
+                }
+                
+                var benefitCalculation = await _benefitDeductionsService.CalculateBenefitDeductionsAsync(emp.IdEmpleado, companyId);
+                
+                var totalBenefits = (decimal)benefitCalculation.Deductions.Sum(d => d.Amount);
+                var employeeBenefitDeductions = (decimal)benefitCalculation.Deductions
+                    .Where(d => d.Role == DeductionRoleNames.EmployeeDeduction)
+                    .Sum(d => d.Amount);
+                var employerBenefitDeductions = (decimal)benefitCalculation.Deductions
+                    .Where(d => d.Role == DeductionRoleNames.EmployerDeduction)
+                    .Sum(d => d.Amount);
+                
+                var totalEmployeeDeductions = emp.TotalEmployeeDeductions + employeeBenefitDeductions;
+                var totalEmployerDeductions = employerResult.TotalEmployerDeductions + employerBenefitDeductions;
+                
+                var netSalary = emp.SalarioBruto - totalEmployeeDeductions;
+                
+                payrollDetails.Add(new PayrollDetailInsertDto
+                {
+                    IdEmpleado = emp.IdEmpleado,
+                    SalarioBruto = (int)emp.SalarioBruto,
+                    DeduccionesEmpleado = (int)Math.Round(totalEmployeeDeductions, 0),
+                    DeduccionesEmpresa = (int)Math.Round(totalEmployerDeductions, 0),
+                    TotalBeneficios = (int)Math.Round(totalBenefits, 0),
+                    SalarioNeto = (int)Math.Round(netSalary, 0)
+                });
+            }
+            
+            var payrollId = await _repo.InsertPayrollAsync(new PayrollInsertDto
+            {
+                FechaGeneracion = now,
+                Horas = hours,
+                IdResponsable = responsibleEmployeeId,
+                IdEmpresa = companyId
+            });
+            
+            await _repo.InsertPayrollDetailsAsync(payrollId, payrollDetails);
+            
+            return payrollId;
+        }
 
-        //     var empleados = await _repo.GetEmployeesForPayrollAsync(request.CompanyId);
+        public async Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId)
+        {
+            if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
+            return await _repo.GetLatestPayrollTotalsByCompanyAsync(companyId);
+        }
 
-
-        //     // 2. Consultar deducciones desde la base de datos
-
-        //     // 3. Instanciar calculadoras dinámicamente según deducciones
-        //     // TODO: Crear instancias de calculadoras usando los datos de la BD
-
-        //     // 4. Calcular deducciones de empleado
-        //     var employeeResults = new List<CalcLine>();
-        //     foreach (var ded in employeeDeductions)
-        //     {
-        //         // TODO: Ejecutar cálculo usando ded.Rate, ded.MinAmount, ded.MaxAmount, etc.
-        //         // employeeResults.Add(calculatedLine);
-        //     }
-
-        //     // 5. Calcular deducciones de empleador
-        //     var employerResults = new List<CalcLine>();
-        //     foreach (var ded in employerDeductions)
-        //     {
-        //         // TODO: Ejecutar cálculo usando ded.Rate, ded.MinAmount, ded.MaxAmount, etc.
-        //         // employerResults.Add(calculatedLine);
-        //     }
-
-        //     // 6. Calcular totales y neto
-        //     // TODO: Sumar deducciones, calcular salario neto, etc.
-
-        //     // 7. Mapear a DTO de respuesta
-        //     var result = new PayrollCalculationResultDto
-        //     {
-        //         // TODO: Asignar resultados, totales, detalles, etc.
-        //     };
-
-        //     return result;
-        // }
+        public async Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId)
+        {
+            if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
+            return await _repo.GetPayrollHistoryByCompanyAsync(companyId);
+        }
     }
 }
