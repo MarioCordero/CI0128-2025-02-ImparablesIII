@@ -1,12 +1,17 @@
-using backend.Services.PaymentsCalculate;
-
+using backend.DTOs;
 namespace backend.Services.PaymentsCalculate.Employee
 {
     // Aporte trabajador Banco Popular
     public class BancoPopularEmployeeCalc
     {
-        private const decimal RATE = 0.01m; // 1% (valor quemado)
-        public CalcLine Calculate(decimal grossSalary)
-            => new("BP_TRAB", Math.Round(grossSalary * RATE, 2), CalcRole.EmployeeDeduction);
+        private readonly decimal _rate;
+        public BancoPopularEmployeeCalc(decimal rate) { _rate = rate; }
+        public EmployeeDeductionLineDto Calculate(decimal grossSalary)
+            => new EmployeeDeductionLineDto
+            {
+                Code = "BP_TRAB",
+                Amount = Math.Round(grossSalary * _rate, 2),
+                Role = "EmployeeDeduction"
+            };
     }
 }

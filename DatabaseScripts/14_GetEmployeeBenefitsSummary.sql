@@ -74,7 +74,10 @@ BEGIN
         CASE 
             WHEN be_selected.idEmpleado IS NOT NULL THEN 'Seleccionado' 
             ELSE 'Disponible' 
-        END as Status
+        END as Status,
+        -- Employee-specific fields from BeneficioEmpleado table
+        be_selected.NumeroDependientes as NumDependents,
+        be_selected.TipoPension as PensionType
     FROM PlaniFy.Beneficio b
     LEFT JOIN PlaniFy.BeneficioEmpleado be_selected ON b.idEmpresa = be_selected.idEmpresa 
         AND b.Nombre = be_selected.NombreBeneficio 
