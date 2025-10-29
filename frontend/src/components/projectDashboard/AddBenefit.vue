@@ -33,7 +33,24 @@
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Información del Beneficio -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Nombre del Beneficio -->
+            <!-- Tipo de Cálculo -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tipo de Cálculo *
+              </label>
+              <select
+                v-model="form.calculationType"
+                :class="['neumorphism-input w-full', errors.calculationType ? 'ring-2 ring-red-500' : '']"
+                @change="validateCalculationType"
+              >
+                <option value="">Seleccione el tipo de cálculo</option>
+                <option value="Porcentaje">Porcentaje</option>
+                <option value="Monto Fijo">Monto Fijo</option>
+                <option value="API">API</option>
+              </select>
+              <span v-if="errors.calculationType" class="text-red-500 text-sm mt-1">{{ errors.calculationType }}</span>
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Nombre del Beneficio *
@@ -62,24 +79,6 @@
               </select>
               <span v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</span>
             </div>
-
-            <!-- Tipo de Cálculo -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Tipo de Cálculo *
-              </label>
-              <select
-                v-model="form.calculationType"
-                :class="['neumorphism-input w-full', errors.calculationType ? 'ring-2 ring-red-500' : '']"
-                @change="validateCalculationType"
-              >
-                <option value="">Seleccione el tipo de cálculo</option>
-                <option value="Porcentaje">Porcentaje</option>
-                <option value="Monto Fijo">Monto Fijo</option>
-                <option value="API">API</option>
-              </select>
-              <span v-if="errors.calculationType" class="text-red-500 text-sm mt-1">{{ errors.calculationType }}</span>
-            </div>
           </div>
 
           <!-- Tipo de Beneficio -->
@@ -101,7 +100,7 @@
                 <option value="">Seleccione el tipo de beneficio</option>
                 <option value="Bonificación">Bonificación</option>
                 <option value="Descuento">Descuento</option>
-                <option value="Ambos">Ambos</option>
+                <option v-if="form.calculationType === 'API'" value="Ambos">Ambos</option>
               </select>
               <span v-if="errors.type" class="text-red-500 text-sm mt-1">{{ errors.type }}</span>
             </div>
