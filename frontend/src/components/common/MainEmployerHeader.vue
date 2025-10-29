@@ -1,5 +1,5 @@
 <template>
-  <header class="grid grid-cols-3 items-center gap-[120px] mb-0 rounded-lg bg-[#E9F7FF] px-20 min-h-[95px] max-h-[95px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] neumorphism-card">
+  <header class="neumorfismo-tarjeta grid grid-cols-3 items-center gap-[120px] px-20 min-h-[95px] max-h-[95px]">
     <!-- Logo & Title -->
     <div class="flex items-center">
       <button
@@ -18,7 +18,7 @@
     <!-- Project Selector -->
     <div class="flex flex-col justify-center items-center">
       <select
-        class="bg-[#E9F7FF] neumorphism-input shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] min-w-[300px] min-h-[40px] rounded px-3 py-2 text-gray-700"
+        class="neumorfismo-input min-w-[300px] min-h-[40px] px-3 py-2 text-gray-700 cursor-pointer!"
         v-model="selectedProjectId"
         @change="onProjectChange"
       >
@@ -33,7 +33,7 @@
     <div class="flex justify-end items-center gap-4">
       <button
         @click="logout"
-        class="neumorphism-dark px-6 py-2 rounded-xl text-white text-base font-semibold hover:bg-blue-700 transition"
+        class="neumorfismo-boton-azul px-6 py-2 rounded-xl text-base font-semibold text-white!"
       >
         Cerrar Sesión
       </button>
@@ -43,6 +43,7 @@
 
 <script>
 import '../../assets/neumorphismGlobal.css'
+import "../../assets/Neumorfismo.css";
 
 export default {
   name: 'MainEmployerHeader',

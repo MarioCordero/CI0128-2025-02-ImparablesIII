@@ -1,60 +1,63 @@
 <template>
-  <div class="min-h-screen bg-[#E9F7FF]">
+  <div class="bg-[#dbeafe] min-h-screen">
     <MainEmployerHeader @project-changed="onProjectChanged"/>
     <DashboardProjectSubHeader
       :selected-section="selectedSection"
       @section-change="selectedSection = $event"
     />
-    <div class="neumorphism-card w-full p-10 my-20 rounded-[32px] shadow-lg">
-      <div class="flex flex-col md:flex-row items-center justify-between mb-8">
-        <!-- <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="goBack">
-          Volver
-        </button> -->
-      </div>
-      <div v-if="loading" class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 neumorphism-dark"></div>
-      </div>
-      <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-6 neumorphism-card">
-        <span>{{ error }}</span>
-      </div>
 
-      <div v-if="selectedSection === 'dashboard'">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Dashboard de Empresa</h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div class="neumorphism-card p-6 rounded-2xl">
-            <h2 class="text-xl font-semibold mb-2">Información de la Empresa</h2>
-            <p class="text-gray-700"><span class="font-bold">Nombre:</span> {{ project.nombre }}</p>
-            <p class="text-gray-700"><span class="font-bold">Cédula Jurídica:</span> {{ project.cedulaJuridica }}</p>
-            <p class="text-gray-700"><span class="font-bold">Período de Pago:</span> {{ project.periodoPago }}</p>
-            <p class="text-gray-700"><span class="font-bold">Email:</span> {{ project.email }}</p>
-            <p class="text-gray-700"><span class="font-bold">Teléfono:</span> {{ project.telefono }}</p>
-            <p class="text-gray-700"><span class="font-bold">Dirección:</span> {{ project.direccion || 'N/A' }}</p>
-          </div>
-          <div class="neumorphism-card p-6 rounded-2xl">
-            <h2 class="text-xl font-semibold mb-4">Beneficios Corporativos</h2>
-            <div v-if="!benefits || benefits.length === 0" class="text-gray-500 text-center py-8">
-              No hay beneficios registrados para esta empresa.
+  
+      
+        <div class="flex flex-col md:flex-row items-center justify-between mb-8">
+          <!-- <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="goBack">
+            Volver
+          </button> -->
+        </div>
+        <div v-if="loading" class="flex justify-center items-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 neumorphism-dark"></div>
+        </div>
+        <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-6 neumorphism-card">
+          <span>{{ error }}</span>
+        </div>
+  
+        <div v-if="selectedSection === 'dashboard'">
+          <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Dashboard de Empresa</h1>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="neumorphism-card p-6 rounded-2xl">
+              <h2 class="text-xl font-semibold mb-2">Información de la Empresa</h2>
+              <p class="text-gray-700"><span class="font-bold">Nombre:</span> {{ project.nombre }}</p>
+              <p class="text-gray-700"><span class="font-bold">Cédula Jurídica:</span> {{ project.cedulaJuridica }}</p>
+              <p class="text-gray-700"><span class="font-bold">Período de Pago:</span> {{ project.periodoPago }}</p>
+              <p class="text-gray-700"><span class="font-bold">Email:</span> {{ project.email }}</p>
+              <p class="text-gray-700"><span class="font-bold">Teléfono:</span> {{ project.telefono }}</p>
+              <p class="text-gray-700"><span class="font-bold">Dirección:</span> {{ project.direccion || 'N/A' }}</p>
             </div>
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div v-for="benefit in benefits" :key="benefit.id" class="neumorphism-card p-4 rounded-xl hover:shadow-lg transition-shadow duration-300">
-                <div class="flex flex-col space-y-2">
-                  <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
-                  <div class="space-y-1 text-sm">
-                    <div class="flex justify-between">
-                      <span class="text-gray-600 font-medium">Tipo:</span>
-                      <span class="text-gray-800">{{ benefit.type }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-gray-600 font-medium">Cálculo:</span>
-                      <span class="text-gray-800">{{ benefit.calculationType }}</span>
-                    </div>
-                    <div v-if="benefit.value" class="flex justify-between">
-                      <span class="text-gray-600 font-medium">Valor:</span>
-                      <span class="text-gray-800">₡{{ benefit.value.toLocaleString() }}</span>
-                    </div>
-                    <div v-if="benefit.percentage" class="flex justify-between">
-                      <span class="text-gray-600 font-medium">Porcentaje:</span>
-                      <span class="text-gray-800">{{ benefit.percentage }}%</span>
+            <div class="neumorphism-card p-6 rounded-2xl">
+              <h2 class="text-xl font-semibold mb-4">Beneficios Corporativos</h2>
+              <div v-if="!benefits || benefits.length === 0" class="text-gray-500 text-center py-8">
+                No hay beneficios registrados para esta empresa.
+              </div>
+              <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div v-for="benefit in benefits" :key="benefit.id" class="neumorphism-card p-4 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                  <div class="flex flex-col space-y-2">
+                    <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
+                    <div class="space-y-1 text-sm">
+                      <div class="flex justify-between">
+                        <span class="text-gray-600 font-medium">Tipo:</span>
+                        <span class="text-gray-800">{{ benefit.type }}</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-gray-600 font-medium">Cálculo:</span>
+                        <span class="text-gray-800">{{ benefit.calculationType }}</span>
+                      </div>
+                      <div v-if="benefit.value" class="flex justify-between">
+                        <span class="text-gray-600 font-medium">Valor:</span>
+                        <span class="text-gray-800">₡{{ benefit.value.toLocaleString() }}</span>
+                      </div>
+                      <div v-if="benefit.percentage" class="flex justify-between">
+                        <span class="text-gray-600 font-medium">Porcentaje:</span>
+                        <span class="text-gray-800">{{ benefit.percentage }}%</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -62,45 +65,61 @@
             </div>
           </div>
         </div>
-      </div>
-      <div v-else-if="selectedSection === 'benefits'">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Gestión de Beneficios</h1>
-        <p>Aquí va la gestión de beneficios.</p>
-        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addBenefit">
-          Agreagar beneficio
-        </button>
-      </div>
-      <div v-else-if="selectedSection === 'employees'">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Gestión de Empleados</h1>
-        <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addEmployee">
-          Agregar empleado
-        </button>
-        <p>Aquí va la gestión de empleados.</p>
-      </div>
-      <div v-else-if="selectedSection === 'info'">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Información de la Empresa</h1>
-        <p>Aquí va la información de la empresa.</p>
-      </div>
-      <div v-else-if="selectedSection === 'reports'">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Reportes de Planilla</h1>
-        <p>Aquí van los reportes de planilla.</p>
-        <PayrollReports />
-      </div>
-    </div>
+        <div v-else-if="selectedSection === 'benefits'">
+          <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Gestión de Beneficios</h1>
+          <p>Aquí va la gestión de beneficios.</p>
+          <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addBenefit">
+            Agreagar beneficio
+          </button>
+        </div>
+
+        <div v-else-if="selectedSection === 'employees'" class="mx-[171px] my-[41px] space-y-[41px] pb-[41px]">
+          <div>
+            <h1 class="text-4xl font-bold text-gray-800">Gestión de Empleados</h1>
+          </div>
+          <div>
+            <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addEmployee">
+              Agregar empleado
+            </button>
+          </div>
+          <div class="grid grid-cols-[1fr_3fr] gap-[81px]">
+            <EmployeesFilter/>
+            <EmployeesSection :project-id="project.id" />
+          </div>
+        </div>
+
+        <div v-else-if="selectedSection === 'info'">
+          <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Información de la Empresa</h1>
+          <p>Aquí va la información de la empresa.</p>
+        </div>
+        <div v-else-if="selectedSection === 'reports'">
+          <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">Reportes de Planilla</h1>
+          <p>Aquí van los reportes de planilla.</p>
+          <PayrollReports />
+        </div>
+      
+
+
+
+
   </div>
 </template>
 
 <script>
 import MainEmployerHeader from '../common/MainEmployerHeader.vue'
 import DashboardProjectSubHeader from '../projectDashboard/DashboardProjectSubHeader.vue'
-import PayrollReports from './PayrollReports.vue';
+import PayrollReports from './PayrollReports.vue'
+import EmployeesSection from '../EmployeesSection.vue';
+import EmployeesFilter from '../EmployeesFilter.vue';
 
 export default {
   name: 'ProjectDashboard',
   components: {
     MainEmployerHeader,
     DashboardProjectSubHeader,
-    PayrollReports
+    PayrollReports,
+    EmployeesSection,
+    EmployeesFilter
   },
   data() {
     return {

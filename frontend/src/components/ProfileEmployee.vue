@@ -1,6 +1,7 @@
 <template>
     <div class="bg-[#dbeafe] min-h-screen">
-        <EmployeeHeader :user="user" />
+        <EmployeeHeader v-if="!isEmployer" :user="user" />
+        <MainEmployerHeader v-else :user="user" />
         
         <div class="mx-[171px] my-[41px] space-y-[41px] pb-[41px]">
             
@@ -169,31 +170,57 @@
 
                 <!-- Información Laboral -->
                 <div class="neumorfismo-tarjeta px-[39px] py-[37px]">
-                    <p class="text-[32px] font-medium mb-4">Información Laboral</p>
-                    <div class="space-y-[25px]">
-                        <div>
-                            <label class="text-[23px] text-gray-600">Empresa</label>
-                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.project.nombreEmpresa }} </p>
-                        </div>
-                        <div>
-                            <label class="text-[23px] text-gray-600">Departamento</label>
-                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.user.departamento }} </p>
-                        </div>
-                        <div>
-                            <label class="text-[23px] text-gray-600">Puesto</label>
-                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.user.puesto }} </p>
-                        </div>
-                        <div>
-                            <label class="text-[23px] text-gray-600">Tipo de Contrato</label>
-                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.user.tipoContrato }} </p>
-                        </div>
-                        <div>
-                            <label class="text-[23px] text-gray-600">Fecha de Contratación</label>
-                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ formattedDate }} </p>
-                        </div>
+                  <p class="text-[32px] font-medium mb-4">Información Laboral</p>
+                  <div class="space-y-[25px]">
+                    <div>
+                      <label class="text-[23px] text-gray-600">Empresa</label>
+                      <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.project.nombreEmpresa }} </p>
                     </div>
+                    
+                    <!-- Departamento - editable para empleadores -->
+                    <div>
+                      <label class="text-[23px] text-gray-600">Departamento</label>
+                      <p v-if="!isEditing || !isEmployer" class="neumorfismo-sobre-suave text-[20px] p-2">
+                        {{ userData.user.departamento }}
+                      </p>
+                      <input 
+                        v-else
+                        v-model="editedUserData.departamento"
+                        class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                        placeholder="Departamento"
+                        :disabled="saving"
+                      />
+                    </div>
+                    
+                    <!-- Puesto - editable para empleadores -->
+                    <div>
+                      <label class="text-[23px] text-gray-600">Puesto</label>
+                      <p v-if="!isEditing || !isEmployer" class="neumorfismo-sobre-suave text-[20px] p-2">
+                        {{ userData.user.puesto }}
+                      </p>
+                      <input 
+                        v-else
+                        v-model="editedUserData.puesto"
+                        class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                        placeholder="Puesto"
+                        :disabled="saving"
+                      />
+                    </div>
+                    
+                    <!-- Tipo de Contrato -->
+                    <div>
+                      <label class="text-[23px] text-gray-600">Tipo de Contrato</label>
+                      <p class="neumorfismo-sobre-suave text-[20px] p-2">
+                        {{ userData.user.tipoContrato }}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <label class="text-[23px] text-gray-600">Fecha de Contratación</label>
+                      <p class="neumorfismo-sobre-suave text-[20px] p-2"> {{ formattedDate }} </p>
+                    </div>
+                  </div>
                 </div>
-
             </div> <!-- Fin Segunda Parte 1x2 -->
 
             <!-- Tercera Parte 1x1 -->
@@ -205,10 +232,23 @@
                         <label class="text-[23px] text-gray-600">Tipo de Salario</label>
                         <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.project.periodoPago }} </p>
                     </div>
+
+                    <!-- Salario - editable para empleadores -->
                     <div>
-                        <label class="text-[23px] text-gray-600">Salario</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ formattedSalary }} </p>
+                      <label class="text-[23px] text-gray-600">Salario</label>
+                      <p v-if="!isEditing || !isEmployer" class="neumorfismo-sobre-suave text-[20px] p-2">
+                        {{ formattedSalary }}
+                      </p>
+                      <input 
+                        v-else
+                        v-model.number="editedUserData.salario"
+                        type="number"
+                        class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                        placeholder="Salario"
+                        :disabled="saving"
+                      />
                     </div>
+
                 </div>
             </div> <!-- Fin Tercera Parte 1x1 -->
 
@@ -220,12 +260,14 @@
 <script>
 import "../assets/Neumorfismo.css";
 import EmployeeHeader from './common/EmployeeHeader.vue'
+import MainEmployerHeader from './common/MainEmployerHeader.vue'
 
 export default {
   name: 'EditInfoEmployee',
 
   components: { 
-    EmployeeHeader
+    EmployeeHeader,
+    MainEmployerHeader
   },
 
   props: {
@@ -237,6 +279,9 @@ export default {
 
   data() {
     return {
+
+      isEmployer: false,
+
       userData: {
         user: {
           nombre: '',
@@ -266,7 +311,12 @@ export default {
         distrito: '',
         direccionParticular: '',
         direccion: '',
-        iban: ''
+        iban: '',
+
+        departamento: '',
+        puesto: '', 
+        salario: 0
+
       },
       originalUserData: {},
       user: null,
@@ -333,6 +383,17 @@ export default {
           return;
         }
 
+        // Validación de campos laborales si es empleador
+        if (this.isEmployer && (
+          !this.editedUserData.departamento.trim() ||
+          !this.editedUserData.puesto.trim() ||
+          this.editedUserData.salario <= 0
+        )) {
+          this.error = 'Todos los campos laborales son requeridos';
+          this.saving = false;
+          return;
+        }
+
         const updateData = {
           nombre: this.editedUserData.nombre.trim(),
           segundoNombre: this.editedUserData.segundoNombre.trim(),
@@ -342,7 +403,12 @@ export default {
           canton: this.editedUserData.canton.trim(),
           distrito: this.editedUserData.distrito.trim(),
           direccionParticular: this.editedUserData.direccionParticular.trim(),
-          iban: this.editedUserData.iban.trim()
+          iban: this.editedUserData.iban.trim(),
+
+          departamento: this.editedUserData.departamento.trim(),
+          puesto: this.editedUserData.puesto.trim(),
+          salario: this.editedUserData.salario
+
         };
 
         console.log('Enviando datos al backend:', updateData);
@@ -384,6 +450,11 @@ export default {
       this.editedUserData.telefono = this.userData.user.telefono || 0;
       this.editedUserData.iban = this.userData.user.iban || '';
       this.editedUserData.direccion = this.userData.user.direccion || '';
+
+      this.editedUserData.departamento = this.userData.user.departamento || '';
+      this.editedUserData.puesto = this.userData.user.puesto || '';
+      this.editedUserData.tipoContrato = this.userData.user.tipoContrato || '';
+      this.editedUserData.salario = this.userData.user.salario || 0;
       
       if (this.userData.user.direccion) {
         const direccionParts = this.userData.user.direccion.split(', ');
@@ -432,12 +503,27 @@ export default {
           this.user = null;
         }
       }
-    }
+    },
+
+
+    checkUserRole() {
+      const userRaw = localStorage.getItem('user');
+      if (userRaw) {
+        try {
+          const user = JSON.parse(userRaw);
+          this.isEmployer = user.tipoUsuario === 'Empleador' || user.rol === 'Empleador';
+        } catch {
+          this.isEmployer = false;
+        }
+      }
+    },
+
 
   },
 
   created() {
     this.loadUserFromLocalStorage();
+    this.checkUserRole();
   },
 
   mounted() {
