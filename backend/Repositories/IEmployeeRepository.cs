@@ -10,5 +10,6 @@ namespace backend.Repositories
         Task<bool> TestConnectionAsync();
         Task<Empleado?> GetEmployeeByIdAsync(int employeeId);
         Task<int?> GetEmployeeCompanyIdAsync(int employeeId);
+        Task<int> GetEmployeeAgeAsync(int employeeId);
     }
 }
