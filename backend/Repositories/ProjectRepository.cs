@@ -68,15 +68,7 @@ namespace backend.Repositories
 
             var result = await connection.QueryAsync(query, new { CompanyId = companyId });
             var row = result.FirstOrDefault();
-            if (row != null)
-            {
-                Console.WriteLine($"Empresa: {row.Id}, {row.Nombre}, {row.CedulaJuridica}, {row.Email}, {row.PeriodoPago}, {row.Telefono}, {row.IdDireccion}, {row.MaximoBeneficios}");
-                Console.WriteLine($"Direccion: {row.DireccionId}, {row.Provincia}, {row.Canton}, {row.Distrito}, {row.DireccionParticular}");
-            }
-            else
-            {
-                Console.WriteLine("No se encontró la empresa en la base de datos.");
-            }
+
             if (row != null)
             {
                 var project = new ProjectResponseDto
@@ -155,7 +147,7 @@ namespace backend.Repositories
             return projects.ToList();
         }
 
-        public async Task<bool> UpdateAsync(int id, UpdateProjectDto updateDto)
+        public async Task<bool> UpdateAsync(int id, UpdateProjectDTO updateDto)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();

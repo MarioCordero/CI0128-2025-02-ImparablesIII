@@ -7,8 +7,7 @@ namespace backend.Services
         Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto);
         Task<List<ProjectListDto>> GetAllProjectsAsync();
         Task<ProjectResponseDto?> GetProjectByIdAsync(int id);
-        
-        // Métodos para compatibilidad con código existente
+        Task<UpdateProjectResult> UpdateProjectAsync(int id, UpdateProjectDTO dto);
         Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId);
         Task<List<ProjectListDto>> GetProjectsByEmployerAsync(int employerId);
     }

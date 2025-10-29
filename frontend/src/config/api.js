@@ -8,6 +8,7 @@ export const apiConfig = {
     project: `${API_BASE_URL}/api/Project`,
     benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
     projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
+    updateProject: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`, // <-- NUEVO ENDPOINT
     employeeBenefits: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}`,
     employeeBenefitsSelect: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}/select`,
     byCompany: (companyId) => `${API_BASE_URL}/api/Project/by-company/${companyId}`
