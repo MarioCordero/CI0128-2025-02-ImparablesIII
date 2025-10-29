@@ -234,7 +234,6 @@ namespace backend.Repositories
                     SET Iban = @IBAN,
                     Departamento = @Departamento,
                     Puesto = @Puesto, 
-                    TipoContrato = @TipoContrato,
                     Salario = @Salario
                     WHERE IdPersona = @idPersona";
 
@@ -243,7 +242,6 @@ namespace backend.Repositories
                     IBAN = updateRequest.IBAN,
                     Departamento = updateRequest.Departamento,
                     Puesto = updateRequest.Puesto,
-                    TipoContrato = updateRequest.TipoContrato,
                     Salario = updateRequest.Salario, 
                     idPersona = employeeId
                 };
