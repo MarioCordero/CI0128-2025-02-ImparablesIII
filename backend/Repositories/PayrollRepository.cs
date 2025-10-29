@@ -303,5 +303,99 @@ namespace backend.Repositories
 
             await connection.ExecuteAsync(query, parameters);
         }
+
+        public async Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var sql = @"
+                    WITH LastPlanilla AS (
+                        SELECT TOP 1 id
+                        FROM PlaniFy.Planilla
+                        WHERE idEmpresa = @CompanyId
+                        ORDER BY FechaGeneracion DESC, id DESC
+                    )
+                    SELECT 
+                        CAST(SUM(d.salarioBruto) AS DECIMAL(18,2)) AS TotalGross,
+                        CAST(SUM(d.DeduccionesEmpleado) AS DECIMAL(18,2)) AS TotalEmployeeDeductions,
+                        CAST(SUM(d.DeduccionesEmpresa) AS DECIMAL(18,2)) AS TotalEmployerDeductions,
+                        CAST(SUM(d.totalBeneficios) AS DECIMAL(18,2)) AS TotalBenefits,
+                        CAST(SUM(d.salarioNeto) AS DECIMAL(18,2)) AS TotalNet,
+                        COUNT(*) AS EmployeeCount
+                    FROM PlaniFy.DetallePlanilla d
+                    WHERE d.idPlanilla = (SELECT id FROM LastPlanilla);";
+
+                var totals = await connection.QueryFirstOrDefaultAsync<PayrollTotalsDto>(sql, new { CompanyId = companyId });
+                return totals;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<bool> ExistsPayrollForMonthAsync(int companyId, int year, int month)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var sql = @"SELECT CASE WHEN EXISTS (
+                            SELECT 1 FROM PlaniFy.Planilla 
+                            WHERE idEmpresa = @CompanyId 
+                              AND YEAR(FechaGeneracion) = @Year 
+                              AND MONTH(FechaGeneracion) = @Month)
+                        THEN 1 ELSE 0 END";
+
+            var exists = await connection.ExecuteScalarAsync<int>(sql, new { CompanyId = companyId, Year = year, Month = month });
+            return exists == 1;
+        }
+
+        public async Task<bool> ExistsPayrollForFortnightAsync(int companyId, int year, int month, int fortnight)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            // Fortnight 1: days 1-15, Fortnight 2: days 16-end of month
+            var sql = @"SELECT CASE WHEN EXISTS (
+                            SELECT 1 FROM PlaniFy.Planilla 
+                            WHERE idEmpresa = @CompanyId 
+                              AND YEAR(FechaGeneracion) = @Year 
+                              AND MONTH(FechaGeneracion) = @Month
+                              AND (
+                                  (@Fortnight = 1 AND DAY(FechaGeneracion) BETWEEN 1 AND 15)
+                                  OR (@Fortnight = 2 AND DAY(FechaGeneracion) BETWEEN 16 AND DAY(EOMONTH(FechaGeneracion)))
+                              ))
+                        THEN 1 ELSE 0 END";
+
+            var exists = await connection.ExecuteScalarAsync<int>(sql, new { CompanyId = companyId, Year = year, Month = month, Fortnight = fortnight });
+            return exists == 1;
+        }
+
+        public async Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var sql = @"
+                SELECT 
+                    p.id AS PayrollId,
+                    p.FechaGeneracion,
+                    CAST(r.TotalSalarioBruto AS DECIMAL(18,2)) AS TotalGross,
+                    CAST(r.TotalDeduccionesEmpleado AS DECIMAL(18,2)) AS TotalEmployeeDeductions,
+                    CAST(r.TotalDeduccionesEmpresa AS DECIMAL(18,2)) AS TotalEmployerDeductions,
+                    CAST(r.TotalBeneficios AS DECIMAL(18,2)) AS TotalBenefits,
+                    CAST(r.TotalSalarioNeto AS DECIMAL(18,2)) AS TotalNet,
+                    (SELECT COUNT(*) FROM PlaniFy.DetallePlanilla d WHERE d.idPlanilla = p.id) AS EmployeeCount
+                FROM PlaniFy.Planilla p
+                JOIN PlaniFy.ResumenPlanilla r ON r.idPlanilla = p.id AND r.idEmpresa = p.idEmpresa
+                WHERE p.idEmpresa = @CompanyId
+                ORDER BY p.FechaGeneracion DESC, p.id DESC;";
+
+            var rows = (await connection.QueryAsync<PayrollHistoryItemDto>(sql, new { CompanyId = companyId })).ToList();
+            return rows;
+        }
     }
 }
