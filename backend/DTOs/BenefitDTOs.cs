@@ -27,6 +27,9 @@ namespace backend.DTOs
 
         [Range(0, 100, ErrorMessage = "El Porcentaje debe estar entre 0 y 100")]
         public int? Percentage { get; set; }
+
+        [StringLength(200, ErrorMessage = "La descripción no puede exceder 200 caracteres")]
+        public string? Descripcion { get; set; }
     }
 
     public class BenefitResponseDto
@@ -38,6 +41,7 @@ namespace backend.DTOs
         public string? CompanyName { get; set; }
         public int? Value { get; set; }
         public int? Percentage { get; set; }
+        public string? Descripcion { get; set; }
     }
 
     public class BenefitListDto
@@ -48,5 +52,25 @@ namespace backend.DTOs
         public string Type { get; set; } = string.Empty;
         public int? Value { get; set; }
         public int? Percentage { get; set; }
+        public string? Descripcion { get; set; }
     }
+
+    public class UpdateBenefitRequestDto
+    {
+        [Required(ErrorMessage = "El Nombre del beneficio es obligatorio")]
+        [StringLength(20, MinimumLength = 1, ErrorMessage = "El Nombre debe tener entre 1 y 20 caracteres")]
+        [RegularExpression(@"^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$", ErrorMessage = "El Nombre solo puede contener letras y espacios")]
+        public string Name { get; set; } = string.Empty;
+
+        [StringLength(200, ErrorMessage = "La descripción no puede exceder 200 caracteres")]
+        public string? Descripcion { get; set; }
+    }
+
+    public class UpdateBenefitResponseDto
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public BenefitResponseDto? UpdatedBenefit { get; set; }
+    }
+
 }
