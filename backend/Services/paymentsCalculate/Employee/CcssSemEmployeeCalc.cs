@@ -1,12 +1,17 @@
-using backend.Services.PaymentsCalculate;
-
+using backend.DTOs;
 namespace backend.Services.PaymentsCalculate.Employee
 {
     // Seguro de Enfermedad y Maternidad (trabajador)
     public class CcssSemEmployeeCalc
     {
-        private const decimal RATE = 0.055m; // 5.50% (valor quemado)
-        public CalcLine Calculate(decimal grossSalary)
-            => new("CCSS_SEM_TRAB", Math.Round(grossSalary * RATE, 2), CalcRole.EmployeeDeduction);
+        private readonly decimal _rate;
+        public CcssSemEmployeeCalc(decimal rate) { _rate = rate; }
+        public EmployeeDeductionLineDto Calculate(decimal grossSalary)
+            => new EmployeeDeductionLineDto
+            {
+                Code = "CCSS_SEM_EE",
+                Amount = Math.Round(grossSalary * _rate, 2),
+                Role = "EmployeeDeduction"
+            };
     }
 }

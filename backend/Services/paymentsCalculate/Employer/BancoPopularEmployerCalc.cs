@@ -1,12 +1,17 @@
-using backend.Services.PaymentsCalculate;
-
+using backend.DTOs;
 namespace backend.Services.PaymentsCalculate.Employer
 {
-    // Aporte patronal Banco Popular
+    // Banco Popular (patrono)
     public class BancoPopularEmployerCalc
     {
-        private const decimal RATE = 0.0025m; // 0.25% (valor quemado)
-        public CalcLine Calculate(decimal grossSalary)
-            => new("BP_PATR", Math.Round(grossSalary * RATE, 2), CalcRole.EmployerDeduction);
+        private readonly decimal _rate;
+        public BancoPopularEmployerCalc(decimal rate) { _rate = rate; }
+        public EmployerDeductionLineDto Calculate(decimal grossSalary)
+            => new EmployerDeductionLineDto
+            {
+                Code = "BP_PATRON",
+                Amount = Math.Round(grossSalary * _rate, 2),
+                Role = "EmployerDeduction"
+            };
     }
 }
