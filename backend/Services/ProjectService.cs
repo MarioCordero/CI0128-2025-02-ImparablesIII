@@ -33,8 +33,8 @@ namespace backend.Services
                 throw new ArgumentException("Ya existe una empresa con esta cédula jurídica");
             }
 
-            // Create address using DireccionRepository
-            int direccionId = await _direccionRepository.CreateDireccionAsync(
+            // Create address using ProjectRepository (which delegates to DireccionRepository)
+            int direccionId = await _projectRepository.CreateDireccionAsync(
                 createProjectDto.Provincia,
                 createProjectDto.Canton,
                 createProjectDto.Distrito,
@@ -55,6 +55,7 @@ namespace backend.Services
                 PeriodoPago = createProjectDto.PeriodoPago,
                 Telefono = createProjectDto.Telefono,
                 IdDireccion = direccionId,
+                MaximoBeneficios = createProjectDto.MaximoBeneficios,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -72,7 +73,8 @@ namespace backend.Services
                 Telefono = createdProject.Telefono,
                 IdDireccion = createdProject.IdDireccion,
                 Direccion = direccion,
-                CreatedAt = createdProject.CreatedAt
+                CreatedAt = createdProject.CreatedAt,
+                MaximoBeneficios = createdProject.MaximoBeneficios
             };
         }
 
@@ -87,6 +89,7 @@ namespace backend.Services
                 CedulaJuridica = p.CedulaJuridica,
                 Email = p.Email,
                 PeriodoPago = p.PeriodoPago,
+                MaximoBeneficios = p.MaximoBeneficios,
                 CreatedAt = p.CreatedAt
             }).ToList();
         }

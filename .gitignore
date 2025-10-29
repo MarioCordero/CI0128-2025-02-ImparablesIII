@@ -14,3 +14,5 @@ packages-microsoft-prod.deb
 # EXTERNAL API
 ExternalAPI/bin/
 ExternalAPI/obj/
+utils/package-lock.json
+package-lock.json

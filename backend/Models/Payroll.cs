@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace backend.Models
 {
     public class EmployeeRow
@@ -11,12 +14,17 @@ namespace backend.Models
 
     public class BenefitRow
     {
-        public int idEmpresa { get; set; }
-        public string Nombre { get; set; } = "";
-        public string TipoCalculo { get; set; } = "";
-        public string Tipo { get; set; } = "";
-        public int? Valor { get; set; }
-        public int? Porcentaje { get; set; }
+        [Key]
+        public int PayrollBenefitId { get; set; }
+        
+        [Required]
+        public int PayrollId { get; set; }
+        
+        [Required]
+        public int BenefitId { get; set; }
+        
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Amount { get; set; }
     }
 
     public class BenefitEmployeeRow
