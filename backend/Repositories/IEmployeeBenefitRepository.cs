@@ -12,7 +12,6 @@ namespace backend.Repositories
         Task<(bool Success, string Message)> AddBenefitToEmployeeAsync(int employeeId, int companyId, string benefitName, string benefitType, int? NumDependents = null, string? PensionType = null);
         Task<int> GetMaxBenefitLimitAsync(int companyId);
         Task<int> GetTotalEmployeeCountAsync(int companyId);
-        Task<int> GetEmployeesUsingBenefitAsync(int companyId, string benefitName);
     }
 }
 
