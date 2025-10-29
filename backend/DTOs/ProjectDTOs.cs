@@ -84,8 +84,6 @@ namespace backend.DTOs
         public int? Telefono { get; set; }
         public int IdDireccion { get; set; }
         public DireccionDto? Direccion { get; set; }
-        public DateTime CreatedAt { get; set; }
-
         public int MaximoBeneficios { get; set; }
     }
 

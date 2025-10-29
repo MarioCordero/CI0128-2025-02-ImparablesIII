@@ -73,7 +73,6 @@ namespace backend.Services
                 Telefono = createdProject.Telefono,
                 IdDireccion = createdProject.IdDireccion,
                 Direccion = direccion,
-                CreatedAt = createdProject.CreatedAt,
                 MaximoBeneficios = createdProject.MaximoBeneficios
             };
         }

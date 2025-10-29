@@ -251,7 +251,7 @@ namespace backend.Controllers
                 _logger.LogInformation("Solicitud de empleados para el proyecto {ProjectId}", projectId);
 
                 var result = await _employeeService.GetEmployeesByCompanyAsync(projectId);
-                
+
                 _logger.LogInformation("Enviados {Count} empleados para el proyecto {ProjectId}", result.TotalCount, projectId);
                 return Ok(result);
             }
@@ -263,11 +263,21 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error interno obteniendo empleados para el proyecto {ProjectId}", projectId);
-                return StatusCode(500, new { 
+                return StatusCode(500, new
+                {
                     message = "Error interno del servidor",
-                    detail = ex.Message 
+                    detail = ex.Message
                 });
             }
+        }
+        
+        [HttpGet("by-company/{companyId}")]
+        public async Task<ActionResult<ProjectResponseDto>> GetByCompanyId(int companyId)
+        {
+            var project = await _projectRepository.GetProjectWithDireccionAsync(companyId);
+            if (project == null)
+                return NotFound();
+            return Ok(project);
         }
 
     }

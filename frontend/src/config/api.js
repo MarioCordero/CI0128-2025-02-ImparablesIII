@@ -10,7 +10,7 @@ export const apiConfig = {
     projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
     employeeBenefits: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}`,
     employeeBenefitsSelect: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}/select`,
-    
+    byCompany: (companyId) => `${API_BASE_URL}/api/Project/by-company/${companyId}`
   }
 }
 
