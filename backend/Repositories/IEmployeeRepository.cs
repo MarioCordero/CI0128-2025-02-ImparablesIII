@@ -1,3 +1,4 @@
+using backend.DTOs;
 using backend.Models;
 
 namespace backend.Repositories
@@ -10,5 +11,6 @@ namespace backend.Repositories
         Task<bool> TestConnectionAsync();
         Task<Empleado?> GetEmployeeByIdAsync(int employeeId);
         Task<int?> GetEmployeeCompanyIdAsync(int employeeId);
+        Task<List<EmployeeListDto>> GetEmployeesByCompanyAsync(int companyId);
     }
 }

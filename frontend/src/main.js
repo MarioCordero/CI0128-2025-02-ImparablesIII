@@ -47,6 +47,7 @@ const routes = [
   { path: '/add-benefit/:projectId?', name: 'AddBenefit', component: AddBenefit },
   { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee },
   { path: '/add-benefit', name: 'AddBenefit', component: AddBenefit },
+  { path: '/edit-employee/:id', name: 'EditEmployee', component: ProfileEmployee, props: true }
 ]
 
 const router = createRouter({
