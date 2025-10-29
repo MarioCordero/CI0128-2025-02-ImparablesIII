@@ -9,5 +9,6 @@ namespace backend.Services
         Task<List<BenefitResponseDto>> GetBenefitsByCompanyIdAsync(int companyId);
         Task<BenefitResponseDto?> GetBenefitByIdAsync(int companyId, string name);
         Task<bool> ExistsBenefitAsync(int companyId, string name);
+        Task<UpdateBenefitResponseDto> UpdateBenefitAsync(int companyId, string name, UpdateBenefitRequestDto updateDto);
     }
 }
