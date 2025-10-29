@@ -115,8 +115,8 @@ namespace backend.Repositories
             var query = @"
                 SELECT e.*, p.*
                 FROM PlaniFy.Empleado e
-                INNER JOIN PlaniFy.Persona p ON e.idPersona = p.idPersona
-                WHERE e.EmpleadoId = @EmployeeId";
+                INNER JOIN PlaniFy.Persona p ON e.idPersona = p.Id
+                WHERE e.idPersona = @EmployeeId";
 
             var employee = await connection.QueryAsync<Empleado, Persona, Empleado>(
                 query,
@@ -150,6 +150,35 @@ namespace backend.Repositories
                 WHERE idPersona = @EmployeeId";
 
             return await connection.QueryFirstOrDefaultAsync<int?>(query, new { EmployeeId = employeeId });
+        }
+
+        public async Task<int> GetEmployeeAgeAsync(int employeeId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = @"
+                    SELECT p.FechaNacimiento
+                    FROM PlaniFy.Persona p
+                    INNER JOIN PlaniFy.Empleado e ON p.Id = e.idPersona
+                    WHERE e.idPersona = @EmployeeId";
+
+                var fechaNacimiento = await connection.QueryFirstOrDefaultAsync<DateTime?>(query, new { EmployeeId = employeeId });
+
+                if (!fechaNacimiento.HasValue)
+                {
+                    throw new InvalidOperationException($"Employee with ID {employeeId} not found or has no birth date");
+                }
+
+                var today = DateTime.Today;
+                var age = today.Year - fechaNacimiento.Value.Year;
+
+                return age;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to calculate age for employee {employeeId}", ex);
+            }
         }
     }
 }
