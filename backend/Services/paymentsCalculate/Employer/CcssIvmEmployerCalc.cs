@@ -1,12 +1,17 @@
-using backend.Services.PaymentsCalculate;
-
+using backend.DTOs;
 namespace backend.Services.PaymentsCalculate.Employer
 {
     // Invalidez, Vejez y Muerte (patrono)
     public class CcssIvmEmployerCalc
     {
-        private const decimal RATE = 0.0542m; // 5.42% (valor quemado)
-        public CalcLine Calculate(decimal grossSalary)
-            => new("CCSS_IVM_PATR", Math.Round(grossSalary * RATE, 2), CalcRole.EmployerDeduction);
+        private readonly decimal _rate;
+        public CcssIvmEmployerCalc(decimal rate) { _rate = rate; }
+        public EmployerDeductionLineDto Calculate(decimal grossSalary)
+            => new EmployerDeductionLineDto
+            {
+                Code = "CCSS_IVM_ER",
+                Amount = Math.Round(grossSalary * _rate, 2),
+                Role = "EmployerDeduction"
+            };
     }
 }

@@ -12,5 +12,10 @@ namespace backend.Repositories
         Task<List<BenefitRow>> GetBenefitsAsync(int companyId);
         Task<List<BenefitEmployeeRow>> GetEmployeeBenefitsAsync(int companyId, IEnumerable<int> employeeIds);
         Task<(List<EmployeePayrollDto> Items, PayrollTotalsDto Totals)> ExecutePayrollReportAsync(int companyId, int year, int month, string periodType, int? fortnight, string? department);
+        // NEW
+        Task<List<EmployeeDeductionDto>> GetEmployeeDeductionsAsync();
+        Task<List<EmployerDeductionDto>> GetEmployerDeductionsAsync();
+        Task<List<EmployeePayrollDto>> GetEmployeesForPayrollAsync(int companyId);
+
     }
 }
