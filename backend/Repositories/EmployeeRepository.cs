@@ -1,7 +1,9 @@
+using backend.DTOs; 
 using backend.Models;
 using Microsoft.Data.SqlClient;
 using Dapper;
 using System.Data;
+
 
 namespace backend.Repositories
 {
@@ -11,13 +13,19 @@ namespace backend.Repositories
         private readonly IDireccionRepository _direccionRepository;
         private readonly IPersonaRepository _personaRepository;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ILogger<EmployeeRepository> _logger; // ← Agregar esta línea
 
-        public EmployeeRepository(IConfiguration configuration, IDireccionRepository direccionRepository, IPersonaRepository personaRepository, IUsuarioRepository usuarioRepository)
+        public EmployeeRepository(IConfiguration configuration,
+                                IDireccionRepository direccionRepository,
+                                IPersonaRepository personaRepository,
+                                IUsuarioRepository usuarioRepository,
+                                ILogger<EmployeeRepository> logger)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             _direccionRepository = direccionRepository;
             _personaRepository = personaRepository;
             _usuarioRepository = usuarioRepository;
+             _logger = logger;
         }
 
         public async Task<int> RegisterEmployeeAsync(RegisterEmployeeDto employeeDto)
@@ -150,6 +158,40 @@ namespace backend.Repositories
                 WHERE idPersona = @EmployeeId";
 
             return await connection.QueryFirstOrDefaultAsync<int?>(query, new { EmployeeId = employeeId });
+        }
+
+         public async Task<List<EmployeeListDto>> GetEmployeesByCompanyAsync(int companyId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var sql = @"
+                    SELECT 
+                        p.Id,
+                        CONCAT_WS(' ', p.Nombre, p.SegundoNombre, p.Apellidos) AS NombreCompleto,
+                        p.Correo,
+                        p.Telefono,
+                        e.Puesto,
+                        e.Departamento,
+                        e.Salario,
+                        e.TipoContrato
+                    FROM Planify.Persona p
+                    INNER JOIN PlaniFy.Empleado e ON p.Id = e.IdPersona
+                    WHERE e.IdEmpresa = @CompanyId";
+
+                var parameters = new { CompanyId = companyId };
+
+                var employees = await connection.QueryAsync<EmployeeListDto>(sql, parameters);
+                
+                return employees.AsList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo empleados para la empresa {CompanyId}", companyId);
+                return new List<EmployeeListDto>();
+            }
         }
     }
 }
