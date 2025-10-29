@@ -118,4 +118,37 @@ namespace backend.DTOs
         public decimal NetSalary { get; set; }
         public List<EmployeeDeductionLineDto> DeductionLines { get; set; } = new();
     }
+
+    // DTOs para inserción de planilla
+    public class PayrollInsertDto
+    {
+        public DateTime FechaGeneracion { get; set; }
+        public int Horas { get; set; }
+        public int IdResponsable { get; set; }
+        public int IdEmpresa { get; set; }
+    }
+
+    public class PayrollDetailInsertDto
+    {
+        public int IdEmpleado { get; set; }
+        public int SalarioBruto { get; set; }
+        public int DeduccionesEmpleado { get; set; }
+        public int DeduccionesEmpresa { get; set; }
+        public int TotalBeneficios { get; set; }
+        public int SalarioNeto { get; set; }
+    }
+
+    public class GeneratePayrollRequestDto
+    {
+        public int CompanyId { get; set; }
+        public int ResponsibleEmployeeId { get; set; }
+        public int Hours { get; set; }
+    }
+
+    public class GeneratePayrollResponseDto
+    {
+        public int PayrollId { get; set; }
+        public string Message { get; set; } = "";
+        public DateTime GeneratedAt { get; set; }
+    }
 }
