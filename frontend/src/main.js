@@ -12,7 +12,6 @@ import './assets/neumorphismGlobal.css'
 import './assets/tailwind.css'
 
 // Vue Components
-import DashboardEmployee from './components/employee/DashboardEmployee.vue'
 import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
 import PasswordSetup from './components/PasswordSetup.vue'
@@ -20,6 +19,8 @@ import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
 import HoursRegistry from './components/HoursRegistry.vue'
 import ProfileEmployee from './components/ProfileEmployee.vue'
+import DashboardEmployee from './components/employee/DashboardEmployee.vue'
+import EditBenefit from './components/EditBenefit.vue'
 // EMPLOYER COMPONENTS
 import AddBenefit from './components/employer/projectDashboard/AddBenefit.vue'
 import RegisterEmployee from './components/employer/projectDashboard/RegisterEmployee.vue'
@@ -48,7 +49,8 @@ const routes = [
   { path: '/add-benefit/:projectId?', name: 'AddBenefit', component: AddBenefit },
   { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee },
   { path: '/add-benefit', name: 'AddBenefit', component: AddBenefit },
-  { path: '/edit-employee/:id', name: 'EditEmployee', component: ProfileEmployee, props: true }
+  { path: '/edit-employee/:id', name: 'EditEmployee', component: ProfileEmployee, props: true },
+  { path: '/edit-benefit/:companyId/:name', name: 'EditBenefit', component: EditBenefit, props: true }
 ]
 
 const router = createRouter({
