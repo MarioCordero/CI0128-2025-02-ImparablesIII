@@ -94,6 +94,7 @@ builder.Services.AddScoped<IProfileEmployeeService, ProfileEmployeeService>();
 builder.Services.AddScoped<IBenefitService, BenefitService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeBenefitService, EmployeeBenefitService>();
+builder.Services.AddScoped<IBenefitDeductionsService, BenefitDeductionsService>();
 
 // Authentication & Security services
 builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
