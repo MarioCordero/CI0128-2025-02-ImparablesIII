@@ -2,6 +2,7 @@ using backend.DTOs;
 using backend.Models;
 using Microsoft.Data.SqlClient;
 using Dapper;
+using System.Data;
 
 namespace backend.Repositories
 {
@@ -21,7 +22,7 @@ namespace backend.Repositories
 
             var query = @"
                 INSERT INTO PlaniFy.Beneficio (idEmpresa, Nombre, TipoCalculo, Tipo, Valor, Porcentaje, Descripcion)
-                    VALUES (@CompanyId, @Name, @CalculationType, @Type, @Value, @Percentage, @Description)";
+                VALUES (@CompanyId, @Name, @CalculationType, @Type, @Value, @Percentage, @Descripcion)";
 
             var parameters = new
             {
@@ -31,7 +32,7 @@ namespace backend.Repositories
                 Type = benefit.Type,
                 Value = benefit.Value,
                 Percentage = benefit.Percentage,
-                Description = benefit.Descripcion
+                Descripcion = benefit.Descripcion
             };
 
             await connection.ExecuteAsync(query, parameters);
@@ -157,21 +158,39 @@ namespace backend.Repositories
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
-            var query = @"
-                UPDATE PlaniFy.Beneficio 
-                SET Nombre = @NewName, Descripcion = @Descripcion
-                WHERE idEmpresa = @CompanyId AND Nombre = @OriginalName";
-
-            var parameters = new
+            try
             {
-                CompanyId = companyId,
-                OriginalName = name,
-                NewName = updateDto.Name.Trim(),
-                Descripcion = updateDto.Descripcion
-            };
+                Console.WriteLine($"=== EXECUTING STORED PROCEDURE ===");
+                Console.WriteLine($"CompanyId: {companyId}, Original: '{name}', New: '{updateDto.Name.Trim()}'");
 
-            var rowsAffected = await connection.ExecuteAsync(query, parameters);
-            return rowsAffected > 0;
+                var parameters = new DynamicParameters();
+                parameters.Add("@CompanyId", companyId);
+                parameters.Add("@OriginalName", name);
+                parameters.Add("@NewName", updateDto.Name.Trim());
+                parameters.Add("@Descripcion", updateDto.Descripcion);
+
+                // Ejecutar el stored procedure
+                await connection.ExecuteAsync(
+                    "PlaniFy.SP_ActualizarBeneficio",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                Console.WriteLine($"Stored procedure executed successfully");
+                return true;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"SQL Error in stored procedure: {ex.Message}");
+                
+                // Manejar errores específicos del SP
+                if (ex.Message.Contains("Beneficio no encontrado"))
+                    throw new ArgumentException("Beneficio no encontrado");
+                else if (ex.Message.Contains("Ya existe un beneficio"))
+                    throw new ArgumentException("Ya existe un beneficio con este nombre para esta empresa");
+                else
+                    throw new Exception($"Error al actualizar beneficio: {ex.Message}");
+            }
         }
     }
 }
