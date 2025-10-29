@@ -231,12 +231,20 @@ namespace backend.Repositories
                 // 4. Actualizar el empleado (IBAN)
                 var updateEmpleadoSql = @"
                     UPDATE PlaniFy.Empleado 
-                    SET Iban = @IBAN
+                    SET Iban = @IBAN,
+                    Departamento = @Departamento,
+                    Puesto = @Puesto, 
+                    TipoContrato = @TipoContrato,
+                    Salario = @Salario
                     WHERE IdPersona = @idPersona";
 
-                var empleadoParams = new 
+                var empleadoParams = new
                 {
                     IBAN = updateRequest.IBAN,
+                    Departamento = updateRequest.Departamento,
+                    Puesto = updateRequest.Puesto,
+                    TipoContrato = updateRequest.TipoContrato,
+                    Salario = updateRequest.Salario, 
                     idPersona = employeeId
                 };
 
