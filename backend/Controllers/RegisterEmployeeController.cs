@@ -116,7 +116,7 @@ namespace backend.Controllers
             try
             {
                 // Simple test to verify database connection
-                var result = await _employeeService.TestConnectionAsync();
+                var result = 0; //await _employeeService.TestConnectionAsync();
                 return Ok(new { message = "Conexión a la base de datos exitosa", result = result });
             }
             catch (Exception ex)

@@ -1,3 +1,4 @@
+using backend.DTOs;
 using backend.Models;
 using backend.Repositories;
 
@@ -82,6 +83,27 @@ namespace backend.Services
             }
 
             return await _projectRepository.GetByIdAsync(companyId.Value);
+        }
+
+        public async Task<EmployeeListResponseDto> GetEmployeesByCompanyAsync(int companyId)
+        {
+            _logger.LogInformation("Obteniendo empleados para la empresa {CompanyId}", companyId);
+
+            if (companyId <= 0)
+            {
+                _logger.LogWarning("ID de empresa inválido: {CompanyId}", companyId);
+                throw new ArgumentException("El ID de la empresa debe ser mayor a 0");
+            }
+
+            var employees = await _employeeRepository.GetEmployeesByCompanyAsync(companyId);
+            
+            _logger.LogInformation("Se encontraron {Count} empleados para la empresa {CompanyId}", employees.Count, companyId);
+            
+            return new EmployeeListResponseDto
+            {
+                Employees = employees,
+                TotalCount = employees.Count
+            };
         }
     }
 }
