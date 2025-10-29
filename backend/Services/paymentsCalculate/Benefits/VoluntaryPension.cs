@@ -8,7 +8,6 @@ namespace backend.Services.PaymentsCalculate.Benefits
 {
     public class VoluntaryPension
     {
-        private const string BENEFIT_CODE = "PEN_VOL";
         private readonly HttpClient _httpClient;
         private readonly ILogger<VoluntaryPension> _logger;
         private readonly ExternalApiSettings _apiSettings;
@@ -20,7 +19,7 @@ namespace backend.Services.PaymentsCalculate.Benefits
             _apiSettings = apiSettings?.Value ?? throw new ArgumentNullException(nameof(apiSettings));
         }
 
-        public async Task<List<CalcLine>> CalculateAsync(decimal grossSalary, string PensionType)
+        public async Task<List<DeductionItem>> CalculateAsync(decimal grossSalary, string PensionType)
         {
             if (grossSalary <= 0)
             {
@@ -53,13 +52,13 @@ namespace backend.Services.PaymentsCalculate.Benefits
             }
         }
 
-        private async Task<List<CalcLine>> GetPensionVoluntariaAsync(decimal salary, string pensionType)
+        private async Task<List<DeductionItem>> GetPensionVoluntariaAsync(decimal salary, string pensionType)
         {
             try
             {
                 var responseContent = await CallVoluntaryPensionApiAsync(salary, pensionType);
                 var apiResponse = DeserializeApiResponse(responseContent);
-                return ConvertToCalcLines(apiResponse);
+                return apiResponse.Deductions;
             }
             catch (HttpRequestException)
             {
@@ -98,7 +97,13 @@ namespace backend.Services.PaymentsCalculate.Benefits
         {
             try
             {
-                var apiResponse = JsonSerializer.Deserialize<ExternalApiDeductionResponse>(responseContent);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                
+                var apiResponse = JsonSerializer.Deserialize<ExternalApiDeductionResponse>(responseContent, options);
                 
                 if (apiResponse?.Deductions == null || !apiResponse.Deductions.Any())
                 {
@@ -110,33 +115,9 @@ namespace backend.Services.PaymentsCalculate.Benefits
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to deserialize API response");
+                _logger.LogError(ex, "Failed to deserialize API response: {Response}", responseContent);
                 throw new InvalidOperationException("Invalid JSON response from voluntary pension API", ex);
             }
-        }
-
-        private List<CalcLine> ConvertToCalcLines(ExternalApiDeductionResponse apiResponse)
-        {
-            var calcLines = new List<CalcLine>();
-            
-            foreach (var deduction in apiResponse.Deductions)
-            {
-                var calcRole = MapDeductionTypeToCalcRole(deduction.Type);
-                var calcLine = new CalcLine($"{BENEFIT_CODE}_{deduction.Type}", Math.Round(deduction.Amount, 2), calcRole);
-                calcLines.Add(calcLine);
-            }
-            
-            _logger.LogInformation("Voluntary pension API returned {Count} deductions", calcLines.Count);
-            return calcLines;
-        }
-
-        private static CalcRole MapDeductionTypeToCalcRole(string deductionType)
-        {
-            return deductionType.ToUpper() switch
-            {
-                "ER" => CalcRole.EmployerDeduction,
-                "EE" => CalcRole.EmployeeDeduction,
-            };
         }
     }
 }
