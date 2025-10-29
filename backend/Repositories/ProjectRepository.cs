@@ -24,9 +24,9 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                INSERT INTO PlaniFy.Empresa (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion)
+                INSERT INTO PlaniFy.Empresa (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios)
                 OUTPUT INSERTED.Id
-                VALUES (@Nombre, @CedulaJuridica, @Email, @PeriodoPago, @Telefono, @IdDireccion)";
+                VALUES (@Nombre, @CedulaJuridica, @Email, @PeriodoPago, @Telefono, @IdDireccion, @MaximoBeneficios)";
 
             var parameters = new
             {
@@ -35,7 +35,8 @@ namespace backend.Repositories
                 Email = project.Email,
                 PeriodoPago = project.PeriodoPago,
                 Telefono = project.Telefono,
-                IdDireccion = project.IdDireccion
+                IdDireccion = project.IdDireccion,
+                MaximoBeneficios = project.MaximoBeneficios
             };
 
             var id = await connection.QuerySingleAsync<int>(query, parameters);
@@ -290,7 +291,7 @@ namespace backend.Repositories
 
         public async Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular)
         {
-            return await _direccionRepository.CreateDireccionAsync(provincia, canton, distrito, direccionParticular);
+            return await _direccionRepository.CreateDireccionAsync(provincia, canton ?? string.Empty, distrito ?? string.Empty, direccionParticular);
         }
 
         public async Task<DireccionDto?> GetDireccionByIdAsync(int id)

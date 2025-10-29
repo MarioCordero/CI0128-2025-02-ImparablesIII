@@ -9,6 +9,7 @@ CREATE TABLE PlaniFy.Empresa (
     PeriodoPago NVARCHAR(20) NOT NULL,
     Telefono INT,
     idDireccion INT NOT NULL,
+    MaximoBeneficios INT NOT NULL,
     FOREIGN KEY (idDireccion) REFERENCES PlaniFy.Direccion(id),
     CONSTRAINT CK_Periodo_Pago CHECK (
         PeriodoPago IN (

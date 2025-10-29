@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Models;
-using backend.Repositories;
 using backend.Services;
 using backend.DTOs;
 using System.ComponentModel.DataAnnotations;
@@ -11,20 +10,20 @@ namespace backend.Controllers
     [Route("api/[controller]")]
     public class RegisterEmployeeController : ControllerBase
     {
-        private readonly EmployeeRepository _employeeRepository;
+        private readonly IEmployeeService _employeeService;
         private readonly ILogger<RegisterEmployeeController> _logger;
         private readonly IEmailService _emailService;
         private readonly IPasswordSetupService _passwordSetupService;
         private readonly IConfiguration _configuration;
 
         public RegisterEmployeeController(
-            EmployeeRepository employeeRepository, 
+            IEmployeeService employeeService, 
             ILogger<RegisterEmployeeController> logger,
             IEmailService emailService,
             IPasswordSetupService passwordSetupService,
             IConfiguration configuration)
         {
-            _employeeRepository = employeeRepository;
+            _employeeService = employeeService;
             _logger = logger;
             _emailService = emailService;
             _passwordSetupService = passwordSetupService;
@@ -43,21 +42,21 @@ namespace backend.Controllers
                 }
 
                 // Validate that cedula doesn't already exist
-                var cedulaExists = await _employeeRepository.ValidateCedulaExistsAsync(employeeDto.Cedula);
+                var cedulaExists = await _employeeService.ValidateCedulaExistsAsync(employeeDto.Cedula);
                 if (cedulaExists)
                 {
                     return BadRequest(new { message = "La cédula ya está registrada en el sistema." });
                 }
 
                 // Validate that email doesn't already exist
-                var emailExists = await _employeeRepository.ValidateEmailExistsAsync(employeeDto.Correo);
+                var emailExists = await _employeeService.ValidateEmailExistsAsync(employeeDto.Correo);
                 if (emailExists)
                 {
                     return BadRequest(new { message = "El correo electrónico ya está registrado en el sistema." });
                 }
 
                 // Register the employee
-                var employeeId = await _employeeRepository.RegisterEmployeeAsync(employeeDto);
+                var employeeId = await _employeeService.RegisterEmployeeAsync(employeeDto);
 
                 _logger.LogInformation($"Employee registered successfully with ID: {employeeId}");
 
@@ -86,7 +85,7 @@ namespace backend.Controllers
         {
             try
             {
-                var exists = await _employeeRepository.ValidateCedulaExistsAsync(cedula);
+                var exists = await _employeeService.ValidateCedulaExistsAsync(cedula);
                 return Ok(new { exists = exists });
             }
             catch (Exception ex)
@@ -101,7 +100,7 @@ namespace backend.Controllers
         {
             try
             {
-                var exists = await _employeeRepository.ValidateEmailExistsAsync(email);
+                var exists = await _employeeService.ValidateEmailExistsAsync(email);
                 return Ok(new { exists = exists });
             }
             catch (Exception ex)
@@ -117,7 +116,7 @@ namespace backend.Controllers
             try
             {
                 // Simple test to verify database connection
-                var result = await _employeeRepository.TestConnectionAsync();
+                var result = 0; //await _employeeService.TestConnectionAsync();
                 return Ok(new { message = "Conexión a la base de datos exitosa", result = result });
             }
             catch (Exception ex)

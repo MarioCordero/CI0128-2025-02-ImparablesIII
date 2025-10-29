@@ -111,6 +111,21 @@
               </select>
               <span v-if="errors.PeriodoPago" class="text-red-500 text-sm mt-1">{{ errors.PeriodoPago }}</span>
             </div>
+
+            <!-- Máximo de Beneficios -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Máximo de Beneficios *
+              </label>
+              <input
+                v-model="form.MaximoBeneficios"
+                type="number"
+                required
+                :class="['neumorphism-input w-full', errors.MaximoBeneficios ? 'ring-2 ring-red-500' : '']"
+                placeholder="Ingrese el máximo de beneficios"
+              />
+              <span v-if="errors.MaximoBeneficios" class="text-red-500 text-sm mt-1">{{ errors.MaximoBeneficios }}</span>
+            </div>
           </div>
 
           <!-- Dirección -->
@@ -256,7 +271,8 @@ export default {
         Provincia: '',
         Canton: '',
         Distrito: '',
-        DireccionParticular: ''
+        DireccionParticular: '',
+        MaximoBeneficios: ''
       },
       errors: {}
     }
@@ -340,6 +356,11 @@ export default {
         isValid = false
       }
 
+      if (!this.form.MaximoBeneficios || this.form.MaximoBeneficios < 1) {
+        this.errors.MaximoBeneficios = 'El máximo de beneficios debe ser mayor a 0'
+        isValid = false
+      }
+
       return isValid
     },
 
@@ -364,7 +385,8 @@ export default {
           Telefono: this.form.Telefono ? parseInt(this.form.Telefono) : null,
           Canton: this.form.Canton || null,
           Distrito: this.form.Distrito || null,
-          DireccionParticular: this.form.DireccionParticular || null
+          DireccionParticular: this.form.DireccionParticular || null,
+          MaximoBeneficios: parseInt(this.form.MaximoBeneficios)
         }
 
         await axios.post('http://localhost:5011/api/Project', dataToSend, {
@@ -420,7 +442,8 @@ export default {
         Provincia: '',
         Canton: '',
         Distrito: '',
-        DireccionParticular: ''
+        DireccionParticular: '',
+        MaximoBeneficios: ''
       }
       this.errorMessage = ''
       this.successMessage = ''

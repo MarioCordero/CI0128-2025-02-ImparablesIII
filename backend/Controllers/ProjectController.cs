@@ -1,6 +1,8 @@
 using backend.DTOs;
 using backend.Repositories;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace backend.Controllers
@@ -10,12 +12,18 @@ namespace backend.Controllers
     public class ProjectController : ControllerBase
     {
         private readonly IProjectRepository _projectRepository;
+        private readonly IEmployeeService _employeeService;
+        private readonly ILogger<ProjectController> _logger;
 
-        public ProjectController(IProjectRepository projectRepository)
+        public ProjectController(IProjectRepository projectRepository,
+            IEmployeeService employeeService,
+            ILogger<ProjectController> logger)
         {
             _projectRepository = projectRepository;
+            _employeeService = employeeService;
+            _logger = logger;
         }
-
+        
         [HttpGet]
         public async Task<ActionResult<List<ProjectResponseDto>>> GetAll()
         {
@@ -105,7 +113,8 @@ namespace backend.Controllers
                         projectDto.Provincia,
                         projectDto.Canton,
                         projectDto.Distrito,
-                        projectDto.DireccionParticular)
+                        projectDto.DireccionParticular),
+                    MaximoBeneficios = projectDto.MaximoBeneficios
                 };
 
                 var createdProject = await _projectRepository.CreateAsync(project);
@@ -233,5 +242,33 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Error deactivating project", error = ex.Message });
             }
         }
+
+        [HttpGet("{projectId:int}/employees")]
+        public async Task<ActionResult<EmployeeListResponseDto>> GetProjectEmployees(int projectId)
+        {
+            try
+            {
+                _logger.LogInformation("Solicitud de empleados para el proyecto {ProjectId}", projectId);
+
+                var result = await _employeeService.GetEmployeesByCompanyAsync(projectId);
+                
+                _logger.LogInformation("Enviados {Count} empleados para el proyecto {ProjectId}", result.TotalCount, projectId);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning("Argumento inválido para proyecto {ProjectId}: {Message}", projectId, ex.Message);
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error interno obteniendo empleados para el proyecto {ProjectId}", projectId);
+                return StatusCode(500, new { 
+                    message = "Error interno del servidor",
+                    detail = ex.Message 
+                });
+            }
+        }
+
     }
 }
