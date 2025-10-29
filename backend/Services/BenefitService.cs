@@ -36,7 +36,8 @@ namespace backend.Services
                 CalculationType = createBenefitDto.CalculationType.Trim(),
                 Type = createBenefitDto.Type.Trim(),
                 Value = createBenefitDto.Value,
-                Percentage = createBenefitDto.Percentage
+                Percentage = createBenefitDto.Percentage,
+                Descripcion = createBenefitDto.Descripcion
             };
             
 
@@ -54,7 +55,8 @@ namespace backend.Services
                 Type = benefit.Type,
                 CompanyName = companyName,
                 Value = benefit.Value,
-                Percentage = benefit.Percentage
+                Percentage = benefit.Percentage,
+                Descripcion = benefit.Descripcion
             };
         }
 
@@ -74,7 +76,8 @@ namespace backend.Services
                     Type = benefit.Type,
                     CompanyName = company?.Nombre ?? "Empresa no encontrada",
                     Value = benefit.Value,
-                    Percentage = benefit.Percentage
+                    Percentage = benefit.Percentage,
+                    Descripcion = benefit.Descripcion
                 });
             }
 
@@ -109,13 +112,83 @@ namespace backend.Services
                 Type = benefit.Type,
                 CompanyName = company?.Nombre ?? "Empresa no encontrada",
                 Value = benefit.Value,
-                Percentage = benefit.Percentage
+                Percentage = benefit.Percentage,
+                Descripcion = benefit.Descripcion
             };
         }
 
         public async Task<bool> ExistsBenefitAsync(int companyId, string name)
         {
             return await _benefitRepository.ExistsAsync(companyId, name);
+        }
+
+        public async Task<UpdateBenefitResponseDto> UpdateBenefitAsync(int companyId, string name, UpdateBenefitRequestDto updateDto)
+        {
+            try
+            {
+                Console.WriteLine($"=== UPDATE VIA STORED PROCEDURE ===");
+
+                // El stored procedure maneja todas las validaciones
+                var updated = await _benefitRepository.UpdateAsync(companyId, name, updateDto);
+                
+                if (!updated)
+                {
+                    return new UpdateBenefitResponseDto
+                    {
+                        Success = false,
+                        Message = "Error al actualizar el beneficio"
+                    };
+                }
+
+                // Obtener el beneficio actualizado
+                var updatedBenefit = await _benefitRepository.GetByIdAsync(companyId, updateDto.Name.Trim());
+                
+                if (updatedBenefit == null)
+                {
+                    return new UpdateBenefitResponseDto
+                    {
+                        Success = false,
+                        Message = "No se pudo recuperar el beneficio actualizado"
+                    };
+                }
+
+                var company = await _projectRepository.GetByIdAsync(companyId);
+
+                return new UpdateBenefitResponseDto
+                {
+                    Success = true,
+                    Message = "Beneficio actualizado correctamente",
+                    UpdatedBenefit = new BenefitResponseDto
+                    {
+                        CompanyId = updatedBenefit.CompanyId,
+                        Name = updatedBenefit.Name,
+                        CalculationType = updatedBenefit.CalculationType,
+                        Type = updatedBenefit.Type,
+                        CompanyName = company?.Nombre ?? "Empresa no encontrada",
+                        Value = updatedBenefit.Value,
+                        Percentage = updatedBenefit.Percentage,
+                        Descripcion = updatedBenefit.Descripcion
+                    }
+                };
+            }
+            catch (ArgumentException ex)
+            {
+                // Errores de validación del SP
+                return new UpdateBenefitResponseDto
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in update: {ex.Message}");
+                return new UpdateBenefitResponseDto
+                {
+                    Success = false,
+                    Message = $"Error al actualizar: {ex.Message}"
+                };
+            }
         }
     }
 }

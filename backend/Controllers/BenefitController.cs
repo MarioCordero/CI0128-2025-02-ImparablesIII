@@ -112,6 +112,32 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Error checking benefit existence", error = ex.Message });
             }
         }
+
+        [HttpPut("company/{companyId}/benefit/{name}")]
+        public async Task<ActionResult<UpdateBenefitResponseDto>> Update(int companyId, string name, [FromBody] UpdateBenefitRequestDto updateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var result = await _benefitService.UpdateBenefitAsync(companyId, name, updateDto);
+                
+                if (!result.Success)
+                {
+                    return BadRequest(new { message = result.Message });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating benefit {Name} for company {CompanyId}", name, companyId);
+                return StatusCode(500, new { message = "Error updating benefit", error = ex.Message });
+            }
+        }
     }
 
 }

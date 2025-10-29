@@ -2,6 +2,7 @@ using backend.DTOs;
 using backend.Models;
 using Microsoft.Data.SqlClient;
 using Dapper;
+using System.Data;
 
 namespace backend.Repositories
 {
@@ -20,8 +21,8 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                INSERT INTO PlaniFy.Beneficio (idEmpresa, Nombre, TipoCalculo, Tipo, Valor, Porcentaje)
-                    VALUES (@CompanyId, @Name, @CalculationType, @Type, @Value, @Percentage)";
+                INSERT INTO PlaniFy.Beneficio (idEmpresa, Nombre, TipoCalculo, Tipo, Valor, Porcentaje, Descripcion)
+                VALUES (@CompanyId, @Name, @CalculationType, @Type, @Value, @Percentage, @Descripcion)";
 
             var parameters = new
             {
@@ -30,7 +31,8 @@ namespace backend.Repositories
                 CalculationType = benefit.CalculationType,
                 Type = benefit.Type,
                 Value = benefit.Value,
-                Percentage = benefit.Percentage
+                Percentage = benefit.Percentage,
+                Descripcion = benefit.Descripcion
             };
 
             await connection.ExecuteAsync(query, parameters);
@@ -43,7 +45,7 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage, Descripcion
                 FROM PlaniFy.Beneficio
                 WHERE idEmpresa = @CompanyId AND Nombre = @Name";
 
@@ -63,7 +65,7 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor, Porcentaje
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor, Porcentaje, Descripcion
                 FROM PlaniFy.Beneficio
                 ORDER BY idEmpresa, Nombre";
 
@@ -77,7 +79,7 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage, Descripcion
                 FROM PlaniFy.Beneficio
                 WHERE idEmpresa = @CompanyId
                 ORDER BY Nombre";
@@ -136,7 +138,7 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT b.idEmpresa as CompanyId, b.Nombre as Name, b.TipoCalculo as CalculationType, b.Tipo as Type, b.Valor as Value, b.Porcentaje as Percentage, e.Nombre as CompanyName
+                SELECT b.idEmpresa as CompanyId, b.Nombre as Name, b.TipoCalculo as CalculationType, b.Tipo as Type, b.Valor as Value, b.Porcentaje as Percentage, b.Descripcion as Descripcion, e.Nombre as CompanyName
                 FROM PlaniFy.Beneficio b
                 INNER JOIN PlaniFy.Empresa e ON b.idEmpresa = e.Id
                 WHERE b.idEmpresa = @CompanyId
@@ -149,6 +151,46 @@ namespace backend.Repositories
 
             var result = await connection.QueryAsync<BenefitResponseDto>(query, parameters);
             return result.ToList();
+        }
+
+        public async Task<bool> UpdateAsync(int companyId, string name, UpdateBenefitRequestDto updateDto)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            try
+            {
+                Console.WriteLine($"=== EXECUTING STORED PROCEDURE ===");
+                Console.WriteLine($"CompanyId: {companyId}, Original: '{name}', New: '{updateDto.Name.Trim()}'");
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@CompanyId", companyId);
+                parameters.Add("@OriginalName", name);
+                parameters.Add("@NewName", updateDto.Name.Trim());
+                parameters.Add("@Descripcion", updateDto.Descripcion);
+
+                // Ejecutar el stored procedure
+                await connection.ExecuteAsync(
+                    "PlaniFy.SP_ActualizarBeneficio",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                Console.WriteLine($"Stored procedure executed successfully");
+                return true;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"SQL Error in stored procedure: {ex.Message}");
+                
+                // Manejar errores específicos del SP
+                if (ex.Message.Contains("Beneficio no encontrado"))
+                    throw new ArgumentException("Beneficio no encontrado");
+                else if (ex.Message.Contains("Ya existe un beneficio"))
+                    throw new ArgumentException("Ya existe un beneficio con este nombre para esta empresa");
+                else
+                    throw new Exception($"Error al actualizar beneficio: {ex.Message}");
+            }
         }
     }
 }
