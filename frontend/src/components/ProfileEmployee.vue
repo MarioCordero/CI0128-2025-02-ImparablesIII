@@ -207,23 +207,12 @@
                       />
                     </div>
                     
-                    <!-- Tipo de Contrato - editable para empleadores -->
+                    <!-- Tipo de Contrato -->
                     <div>
                       <label class="text-[23px] text-gray-600">Tipo de Contrato</label>
-                      <p v-if="!isEditing || !isEmployer" class="neumorfismo-sobre-suave text-[20px] p-2">
+                      <p class="neumorfismo-sobre-suave text-[20px] p-2">
                         {{ userData.user.tipoContrato }}
                       </p>
-                      <select 
-                        v-else
-                        v-model="editedUserData.tipoContrato"
-                        class="neumorfismo-input text-[16px] p-2 rounded w-full"
-                        :disabled="saving"
-                      >
-                        <option value="Tiempo Completo">Tiempo Completo</option>
-                        <option value="Medio Tiempo">Medio Tiempo</option>
-                        <option value="Por Horas">Por Horas</option>
-                        <option value="Temporal">Temporal</option>
-                      </select>
                     </div>
                     
                     <div>
@@ -324,9 +313,8 @@ export default {
         direccion: '',
         iban: '',
 
-        departamento: '', // ← AGREGAR estos 4 campos
+        departamento: '',
         puesto: '', 
-        tipoContrato: '',
         salario: 0
 
       },
@@ -399,7 +387,6 @@ export default {
         if (this.isEmployer && (
           !this.editedUserData.departamento.trim() ||
           !this.editedUserData.puesto.trim() ||
-          !this.editedUserData.tipoContrato.trim() ||
           this.editedUserData.salario <= 0
         )) {
           this.error = 'Todos los campos laborales son requeridos';
@@ -418,10 +405,8 @@ export default {
           direccionParticular: this.editedUserData.direccionParticular.trim(),
           iban: this.editedUserData.iban.trim(),
 
-          // ENVIAR SIEMPRE los campos laborales
           departamento: this.editedUserData.departamento.trim(),
           puesto: this.editedUserData.puesto.trim(),
-          tipoContrato: this.editedUserData.tipoContrato,
           salario: this.editedUserData.salario
 
         };
@@ -538,9 +523,7 @@ export default {
 
   created() {
     this.loadUserFromLocalStorage();
-    
-    this.checkUserRole(); // ← AGREGAR esta línea
-
+    this.checkUserRole();
   },
 
   mounted() {

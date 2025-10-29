@@ -39,7 +39,6 @@ namespace backend.DTOs
         public string IBAN { get; set; } = string.Empty;
         public string Departamento { get; set; } = string.Empty;
         public string Puesto { get; set; } = string.Empty;
-        public string TipoContrato { get; set; } = string.Empty;
         public int Salario { get; set; }
     }
 
