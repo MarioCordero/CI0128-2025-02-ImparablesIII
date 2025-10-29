@@ -17,37 +17,42 @@ namespace backend.Services
             _repo = repo;
         }
 
-        public async Task<PayrollSummaryDto> GetReportAsync(PayrollFiltersDto f)
-        {
-            var (start, end, label, year, month, fortnight) = ResolvePeriod(f.Period, f.PeriodType, f.Fortnight);
+        // public async Task<PayrollSummaryDto> GetReportAsync(PayrollFiltersDto f)
+        // {
+        //     // Valores hardcodeados
+        //     var start = new DateTime(2025, 10, 1);
+        //     var end = new DateTime(2025, 10, 31);
+        //     var label = "Monthly 2025-10";
+        //     int year = 2025, month = 10;
+        //     int? fortnight = null;
 
-            var (items, totals) = await _repo.ExecutePayrollReportAsync(
-                f.CompanyId, year, month, f.PeriodType.ToString(), fortnight, f.Department);
+        //     // Ejemplo de items y totales hardcodeados
+        //     var items = new List<PayrollItemDto>
+        //     {
+        //         new PayrollItemDto
+        //         {
+        //             EmployeeId = 1,
+        //             EmployeeName = "Mario Jiménez",
+        //             GrossSalary = 1000000m,
+        //             TotalDeductions = 106700m,
+        //             NetSalary = 893300m
+        //         }
+        //     };
 
-            return new PayrollSummaryDto
-            {
-                Employees = items.OrderBy(i => i.FullName).ToList(),
-                Totals = totals,
-                PeriodInfo = new PeriodInfoDto
-                {
-                    PeriodType = f.PeriodType,
-                    Label = label,
-                    StartDate = start,
-                    EndDate = end,
-                    Year = year,
-                    Month = month,
-                    Fortnight = fortnight
-                },
-                Tooltips = new Dictionary<string, string>
-                {
-                    ["GROSS"] = "Gross salary before deductions and benefits.",
-                    ["EE"] = "Employee-side deductions (renta, CCSS, solidarista EE).",
-                    ["ER"] = "Employer-side contributions (CCSS, solidarista ER).",
-                    ["BEN"] = "Voluntary benefits selected by the employee.",
-                    ["NET"] = "Net = Gross - EE + Benefits."
-                }
-            };
-        }
+        //     var totals = new PayrollTotalsDto
+        //     {
+        //         TotalGross = 1000000m,
+        //         TotalDeductions = 106700m,
+        //         TotalNet = 893300m
+        //     };
+
+        //     return new PayrollSummaryDto
+        //     {
+        //         PeriodLabel = label,
+        //         Items = items,
+        //         Totals = totals
+        //     };
+        // }
 
 
         private static (DateTime, DateTime, string, int, int, int?) ResolvePeriod(DateTime period, PeriodType type, int? fortnight)
@@ -64,43 +69,164 @@ namespace backend.Services
             var toQ = q == 1 ? new DateTime(year, month, 15) : new DateTime(year, month, DateTime.DaysInMonth(year, month));
             return (fromQ, toQ, $"Biweekly {q} · {year}-{month:00}", year, month, q);
         }
-
-        // ----------------------------------------- test methods -----------------------------------------
-        public Task<TestEmployeeDeductionsResponse> TestEmployeeDeductionsAsync(TestEmployeeDeductionsRequest request)
+        // ----------------------------------------- MONSTER METHODS -----------------------------------------
+        private async Task<List<EmployeeDeductionDto>> GetEmployeeDeductionsAsync()
         {
-            // just for one employee, no DB involved
-            if (request.GrossSalary <= 0)
-                throw new ArgumentException("GrossSalary must be > 0.");
-
-            // 1) Build calculators on the fly (no DI, no orchestrator)
-            var lines = new List<CalcLine>();
-
-            // Employee (EE)
-            lines.Add(new CcssSemEmployeeCalc().Calculate(request.GrossSalary));    // 5.5%
-            lines.Add(new CcssIvmEmployeeCalc().Calculate(request.GrossSalary));    // 4.17%
-            lines.Add(new BancoPopularEmployeeCalc().Calculate(request.GrossSalary)); // 1%
-            lines.Add(new SalaryTaxEmployeeCalc().Calculate(request.GrossSalary));  // Salary tax
-
-            // Add deductions?  
-
-            // 2) Totals
-            var totalEE = lines.Where(x => x.Role == CalcRole.EmployeeDeduction).Sum(x => x.Amount);
-
-            // 3) Map to DTO response (keep API contract stable)
-            var resp = new TestEmployeeDeductionsResponse
-            {
-                GrossSalary = request.GrossSalary,
-                TotalEmployeeDeductions = totalEE,
-                NetSalary = request.GrossSalary - totalEE,
-                Lines = lines.Select(l => new TestCalcLineDto
-                {
-                    Code = l.Code,
-                    Amount = l.Amount,
-                    Role = l.Role.ToString()
-                }).ToList()
-            };
-
-            return Task.FromResult(resp);
+            // Consulta los montos y reglas de deducción de empleado desde la base de datos
+            return await _repo.GetEmployeeDeductionsAsync();
         }
+
+        private async Task<List<EmployerDeductionDto>> GetEmployerDeductionsAsync()
+        {
+            // Consulta los montos y reglas de deducción de empleador desde la base de datos
+            return await _repo.GetEmployerDeductionsAsync();
+        }
+        // ----------------------------------------- EMPLOYEE METHODS -----------------------------------------
+        public async Task<List<EmployeePayrollDto>> GetEmployeePayrollWithDeductionsAsync(int companyId)
+        {
+            var empleados = await _repo.GetEmployeesForPayrollAsync(companyId);
+            var employeeDeductions = await _repo.GetEmployeeDeductionsAsync();
+
+            foreach (var emp in empleados)
+            {
+                decimal totalDeductions = 0m;
+                var deductionLines = new List<EmployeeDeductionLineDto>();
+
+                foreach (var ded in employeeDeductions)
+                {
+                    EmployeeDeductionLineDto line = null;
+                    switch (ded.Code)
+                    {
+                        case "CCSS_SEM_EE":
+                            line = new CcssSemEmployeeCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "CCSS_IVM_EE":
+                            line = new CcssIvmEmployeeCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "BP_TRAB":
+                            line = new BancoPopularEmployeeCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "RENTA":
+                            line = new SalaryTaxEmployeeCalc(ded.Rate, ded.MinAmount, ded.MaxAmount).Calculate(emp.SalarioBruto);
+                            break;
+                    }
+                    if (line != null)
+                    {
+                        deductionLines.Add(line);
+                        totalDeductions += line.Amount;
+                    }
+                }
+
+                emp.TotalEmployeeDeductions = Math.Round(totalDeductions, 2);
+                emp.NetSalary = Math.Round(emp.SalarioBruto - totalDeductions, 2);
+                emp.DeductionLines = deductionLines;
+            }
+
+            return empleados;
+        }
+        // ----------------------------------------- EMPLOYER METHODS -----------------------------------------
+        public async Task<List<EmployerDeductionResultDto>> GetEmployerPayrollWithDeductionsAsync(int companyId)
+        {
+            var empleados = await _repo.GetEmployeesForPayrollAsync(companyId);
+            var employerDeductions = await _repo.GetEmployerDeductionsAsync();
+
+            var results = new List<EmployerDeductionResultDto>();
+
+            foreach (var emp in empleados)
+            {
+                decimal totalEmployerDeductions = 0m;
+                var deductionLines = new List<EmployerDeductionLineDto>();
+
+                foreach (var ded in employerDeductions)
+                {
+                    EmployerDeductionLineDto line = null;
+                    switch (ded.Code)
+                    {
+                        case "CCSS_SEM_ER":
+                            line = new CcssSemEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "CCSS_IVM_ER":
+                            line = new CcssIvmEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "BP_PATRON":
+                            line = new BancoPopularEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "INA_PATR":
+                            line = new InaEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "FCL_PATR":
+                            line = new FclEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "FODESAF_PATR":
+                            line = new FodesafEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        case "FPC_PATR":
+                            line = new FpcEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
+                            break;
+                        // Agrega otros casos si tienes más deducciones patronales
+                    }
+                    if (line != null)
+                    {
+                        deductionLines.Add(line);
+                        totalEmployerDeductions += line.Amount;
+                    }
+                }
+
+                results.Add(new EmployerDeductionResultDto
+                {
+                    IdEmpleado = emp.IdEmpleado,
+                    IdEmpresa = emp.IdEmpresa,
+                    Nombre = emp.Nombre,
+                    Apellidos = emp.Apellidos,
+                    SalarioBruto = emp.SalarioBruto,
+                    TotalEmployerDeductions = Math.Round(totalEmployerDeductions, 2),
+                    DeductionLines = deductionLines
+                });
+            }
+
+            return results;
+        }
+
+        // ----------------------------------------- ORCHESTRATOR METHOD -----------------------------------------
+        // public async Task<PayrollCalculationResultDto> CalculatePayrollAsync(PayrollCalculationRequestDto request)
+        // {
+        //     if (request.CompanyId <= 0)
+        //         throw new ArgumentException("CompanyId inválido.");
+
+        //     var empleados = await _repo.GetEmployeesForPayrollAsync(request.CompanyId);
+
+
+        //     // 2. Consultar deducciones desde la base de datos
+
+        //     // 3. Instanciar calculadoras dinámicamente según deducciones
+        //     // TODO: Crear instancias de calculadoras usando los datos de la BD
+
+        //     // 4. Calcular deducciones de empleado
+        //     var employeeResults = new List<CalcLine>();
+        //     foreach (var ded in employeeDeductions)
+        //     {
+        //         // TODO: Ejecutar cálculo usando ded.Rate, ded.MinAmount, ded.MaxAmount, etc.
+        //         // employeeResults.Add(calculatedLine);
+        //     }
+
+        //     // 5. Calcular deducciones de empleador
+        //     var employerResults = new List<CalcLine>();
+        //     foreach (var ded in employerDeductions)
+        //     {
+        //         // TODO: Ejecutar cálculo usando ded.Rate, ded.MinAmount, ded.MaxAmount, etc.
+        //         // employerResults.Add(calculatedLine);
+        //     }
+
+        //     // 6. Calcular totales y neto
+        //     // TODO: Sumar deducciones, calcular salario neto, etc.
+
+        //     // 7. Mapear a DTO de respuesta
+        //     var result = new PayrollCalculationResultDto
+        //     {
+        //         // TODO: Asignar resultados, totales, detalles, etc.
+        //     };
+
+        //     return result;
+        // }
     }
 }
