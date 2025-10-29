@@ -12,5 +12,6 @@ namespace backend.Repositories
         Task<bool> ExistsAsync(int companyId, string name);
         Task<bool> ExistsByCompanyIdAsync(int companyId);
         Task<List<BenefitResponseDto>> GetBenefitsWithCompanyNameAsync(int companyId);
+        Task<bool> UpdateAsync(int companyId, string name, UpdateBenefitRequestDto updateDto);
     }
 }
