@@ -20,18 +20,15 @@ import SuperAdminMenu from './components/SuperAdminMenu.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
 import HoursRegistry from './components/HoursRegistry.vue'
 import ProfileEmployee from './components/ProfileEmployee.vue'
-<<<<<<< HEAD
 import DashboardEmployee from './components/employee/DashboardEmployee.vue'
 import AddBenefit from './components/projectDashboard/AddBenefit.vue'
 import EditBenefit from './components/EditBenefit.vue'
-=======
 // EMPLOYER COMPONENTS
 import AddBenefit from './components/employer/projectDashboard/AddBenefit.vue'
 import RegisterEmployee from './components/employer/projectDashboard/RegisterEmployee.vue'
 import DashboardMainEmployer from './components/employer/DashboardMainEmployer.vue'
 import DashboardProject from './components/employer/projectDashboard/DashboardProject.vue'
 import CreateProject from './components/employer/CreateProject.vue'
->>>>>>> develop
 
 // Route definitions
 const routes = [
