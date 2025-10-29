@@ -16,6 +16,16 @@ namespace backend.Repositories
         Task<List<EmployeeDeductionDto>> GetEmployeeDeductionsAsync();
         Task<List<EmployerDeductionDto>> GetEmployerDeductionsAsync();
         Task<List<EmployeePayrollDto>> GetEmployeesForPayrollAsync(int companyId);
+        
+        // Payroll Insert Methods
+        Task<int> InsertPayrollAsync(PayrollInsertDto payroll);
+        Task InsertPayrollDetailsAsync(int payrollId, List<PayrollDetailInsertDto> details);
+
+        // Payroll summary
+        Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId);
+        Task<bool> ExistsPayrollForMonthAsync(int companyId, int year, int month);
+        Task<bool> ExistsPayrollForFortnightAsync(int companyId, int year, int month, int fortnight);
+        Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId);
 
     }
 }

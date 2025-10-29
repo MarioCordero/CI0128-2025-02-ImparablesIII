@@ -12,5 +12,6 @@ namespace backend.Repositories
         Task<Empleado?> GetEmployeeByIdAsync(int employeeId);
         Task<int?> GetEmployeeCompanyIdAsync(int employeeId);
         Task<int> GetEmployeeAgeAsync(int employeeId);
+        Task<List<EmployeeListDto>> GetEmployeesByCompanyAsync(int companyId);
     }
 }
