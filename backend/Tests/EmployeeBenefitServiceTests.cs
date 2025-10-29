@@ -135,7 +135,7 @@ namespace backend.Tests
                 x.GetMaxBenefitLimitAsync(companyId))
                 .ReturnsAsync(5);
             _mockEmployeeBenefitRepository.Setup(x => 
-                x.AddBenefitToEmployeeAsync(employeeId, companyId, request.BenefitName, benefit.CalculationType))
+                x.AddBenefitToEmployeeAsync(employeeId, companyId, request.BenefitName, benefit.CalculationType, null, null))
                 .ReturnsAsync((true, "Success"));
 
             // Act
@@ -147,7 +147,7 @@ namespace backend.Tests
             Assert.AreEqual("Beneficio agregado exitosamente", result.Message);
             _mockBenefitRepository.Verify(x => x.GetByIdAsync(companyId, request.BenefitName), Times.AtLeastOnce);
             _mockEmployeeBenefitRepository.Verify(x => 
-                x.AddBenefitToEmployeeAsync(employeeId, companyId, request.BenefitName, benefit.CalculationType), Times.Once);
+                x.AddBenefitToEmployeeAsync(employeeId, companyId, request.BenefitName, benefit.CalculationType, null, null), Times.Once);
         }
 
         [TestMethod]
@@ -170,7 +170,7 @@ namespace backend.Tests
             Assert.AreEqual("El beneficio no existe", result.Message);
             _mockEmployeeBenefitRepository.Verify(x => 
                 x.AddBenefitToEmployeeAsync(It.IsAny<int>(), It.IsAny<int>(), 
-                    It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string?>()), Times.Never);
         }
 
         [TestMethod]
@@ -202,7 +202,7 @@ namespace backend.Tests
             Assert.AreEqual("El beneficio ya está agregado", result.Message);
             _mockEmployeeBenefitRepository.Verify(x => 
                 x.AddBenefitToEmployeeAsync(It.IsAny<int>(), It.IsAny<int>(), 
-                    It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string?>()), Times.Never);
         }
 
         [TestMethod]
@@ -242,7 +242,7 @@ namespace backend.Tests
             Assert.AreEqual(5, result.MaxSelections);
             _mockEmployeeBenefitRepository.Verify(x => 
                 x.AddBenefitToEmployeeAsync(It.IsAny<int>(), It.IsAny<int>(), 
-                    It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string?>()), Times.Never);
         }
 
         [TestMethod]
@@ -271,7 +271,7 @@ namespace backend.Tests
                 x.GetMaxBenefitLimitAsync(companyId))
                 .ReturnsAsync(5);
             _mockEmployeeBenefitRepository.Setup(x => 
-                x.AddBenefitToEmployeeAsync(employeeId, companyId, request.BenefitName, benefit.CalculationType))
+                x.AddBenefitToEmployeeAsync(employeeId, companyId, request.BenefitName, benefit.CalculationType, null, null))
                 .ReturnsAsync((false, "Error adding benefit"));
 
             // Act
