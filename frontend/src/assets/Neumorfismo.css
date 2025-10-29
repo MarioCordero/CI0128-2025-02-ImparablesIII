@@ -21,6 +21,13 @@
               -4px -4px 8px #ffffff;
 }
 
+.neumorfismo-sobre-suave-np {
+    background: #dbeafe;
+    border-radius: 12px;
+    box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+}
+
 .neumorfismo-input {
   background: #dbeafe;
   border: none;
@@ -39,6 +46,17 @@
               -4px -4px 6px #1048ff,
               4px -4px 6px #1048ff,
               -4px 4px 6px #1048ff;
+}
+
+.neumorfismo-input-select {
+  background: #dbeafe;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  box-shadow: inset 3px 3px 6px #bebebe,
+              inset -3px -3px 6px #ffffff;
+  width: 100%;
+  color: #333;
 }
 
 .neumorfismo-boton {
