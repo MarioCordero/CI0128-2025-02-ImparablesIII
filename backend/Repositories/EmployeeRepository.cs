@@ -1,7 +1,9 @@
+using backend.DTOs; 
 using backend.Models;
 using Microsoft.Data.SqlClient;
 using Dapper;
 using System.Data;
+
 
 namespace backend.Repositories
 {
@@ -11,13 +13,19 @@ namespace backend.Repositories
         private readonly IDireccionRepository _direccionRepository;
         private readonly IPersonaRepository _personaRepository;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ILogger<EmployeeRepository> _logger; // ← Agregar esta línea
 
-        public EmployeeRepository(IConfiguration configuration, IDireccionRepository direccionRepository, IPersonaRepository personaRepository, IUsuarioRepository usuarioRepository)
+        public EmployeeRepository(IConfiguration configuration,
+                                IDireccionRepository direccionRepository,
+                                IPersonaRepository personaRepository,
+                                IUsuarioRepository usuarioRepository,
+                                ILogger<EmployeeRepository> logger)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             _direccionRepository = direccionRepository;
             _personaRepository = personaRepository;
             _usuarioRepository = usuarioRepository;
+             _logger = logger;
         }
 
         public async Task<int> RegisterEmployeeAsync(RegisterEmployeeDto employeeDto)

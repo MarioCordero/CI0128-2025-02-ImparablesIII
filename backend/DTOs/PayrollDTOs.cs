@@ -1,47 +1,14 @@
 namespace backend.DTOs
 {
     public enum PeriodType { Monthly, Biweekly }
-    public enum PaymentStatus { Pending, Paid }
 
     public class PayrollFiltersDto
     {
         public int CompanyId { get; set; }
-        public string? Department { get; set; }
         public DateTime Period { get; set; }
         public PeriodType PeriodType { get; set; } = PeriodType.Monthly;
         public int? Fortnight { get; set; } // 1 or 2 if Biweekly
     }
-
-    public class DeductionBreakdownDto
-    {
-        public string Type { get; set; } = "EE"; // EE | ER
-        public string Name { get; set; } = "";
-        public decimal Amount { get; set; }
-    }
-
-    public class BenefitBreakdownDto
-    {
-        public string Name { get; set; } = "";
-        public string Calculation { get; set; } = "";
-        public decimal Amount { get; set; }
-    }
-
-    public class EmployeePayrollDto
-    {
-        public int EmployeeId { get; set; }
-        public string FullName { get; set; } = "";
-        public string Department { get; set; } = "";
-        public decimal GrossSalary { get; set; }
-        public decimal EmployeeDeductions { get; set; }
-        public decimal EmployerDeductions { get; set; }
-        public decimal Benefits { get; set; }
-        public decimal NetSalary { get; set; }
-        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
-        public DateTime? PaidAt { get; set; }
-        public List<DeductionBreakdownDto> Deductions { get; set; } = new();
-        public List<BenefitBreakdownDto> BenefitsList { get; set; } = new();
-    }
-
     public class PayrollTotalsDto
     {
         public decimal TotalGross { get; set; }
@@ -49,7 +16,6 @@ namespace backend.DTOs
         public decimal TotalEmployerDeductions { get; set; }
         public decimal TotalBenefits { get; set; }
         public decimal TotalNet { get; set; }
-        public decimal CompanyCost => TotalNet + TotalEmployerDeductions;
         public int EmployeeCount { get; set; }
     }
 
@@ -69,28 +35,87 @@ namespace backend.DTOs
         public List<EmployeePayrollDto> Employees { get; set; } = new();
         public PayrollTotalsDto Totals { get; set; } = new();
         public PeriodInfoDto PeriodInfo { get; set; } = new();
-        public Dictionary<string, string> Tooltips { get; set; } = new();
     }
-
-    // ------------------------------TEST DTOs------------------------------
-        public class TestEmployeeDeductionsRequest
+    // ----------------------------DTOs FIJOS PARA DEDUCCIONES DE EMPLEADOR---------------------------
+    public class EmployerDeductionDto
     {
-        public decimal GrossSalary { get; set; }
+        public int Id { get; set; }
+        public string Code { get; set; } = "";
+        public string Name { get; set; } = "";
+        public decimal Rate { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal? MaxAmount { get; set; }
+        public bool IsActive { get; set; }
     }
-
-    // Flat line for output (decoupled from your CalcLine record)
-    public class TestCalcLineDto
+    public class EmployerDeductionLineDto
     {
         public string Code { get; set; } = "";
         public decimal Amount { get; set; }
-        public string Role { get; set; } = ""; // "EmployeeDeduction" | "EmployerDeduction"
+        public string Role { get; set; } = ""; // "EmployerDeduction"
     }
-
-    public class TestEmployeeDeductionsResponse
+    public class EmployerDeductionResultDto
+    {
+        public int IdEmpleado { get; set; }
+        public int IdEmpresa { get; set; }
+        public string Nombre { get; set; } = "";
+        public string Apellidos { get; set; } = "";
+        public decimal SalarioBruto { get; set; }
+        public decimal TotalEmployerDeductions { get; set; }
+        public List<EmployerDeductionLineDto> DeductionLines { get; set; } = new();
+    }
+    // ----------------------------DTOs FIJOS PARA DEDUCCIONES DE EMPLEADO----------------------------
+    public class EmployeeDeductionsRequest
+    {
+        public decimal GrossSalary { get; set; }
+        public int EmployeeId { get; set; } // Opcional, si necesitas identificar al empleado
+        public List<BenefitContributionDto>? BenefitContributions { get; set; } // Aportes voluntarios o beneficios
+    }
+    public class BenefitContributionDto
+    {
+        public string Code { get; set; } = "";
+        public decimal Amount { get; set; }
+    }
+    public class EmployeeDeductionDto
+    {
+        public int Id { get; set; }
+        public string Code { get; set; } = "";
+        public string Name { get; set; } = "";
+        public decimal Rate { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal? MaxAmount { get; set; }
+        public bool IsActive { get; set; }
+    }
+    public class EmployeeDeductionsResponse
     {
         public decimal GrossSalary { get; set; }
         public decimal TotalEmployeeDeductions { get; set; }
-        public decimal NetSalary { get; set; } // Gross - EE (benefits not included here)
-        public List<TestCalcLineDto> Lines { get; set; } = new();
+        public decimal NetSalary { get; set; }
+        public List<EmployeeDeductionLineDto> Lines { get; set; } = new();
+    }
+    public class EmployeeDeductionLineDto
+    {
+        public string Code { get; set; } = "";
+        public decimal Amount { get; set; }
+        public string Role { get; set; } = ""; // Ej: "EmployeeDeduction"
+    }
+        // Para deserializar el JSON raíz del SP
+    public class EmpleadosRoot
+    {
+        public List<EmployeePayrollDto> Empleados { get; set; } = new();
+    }
+
+    // DTO para cada empleado con desglose de deducciones
+    public class EmployeePayrollDto
+    {
+        public int IdEmpleado { get; set; }
+        public int IdEmpresa { get; set; }
+        public string Nombre { get; set; } = "";
+        public string Apellidos { get; set; } = "";
+        public decimal SalarioBruto { get; set; }
+        public DateTime FechaIngreso { get; set; }
+        public string TipoPago { get; set; } = "";
+        public decimal TotalEmployeeDeductions { get; set; }
+        public decimal NetSalary { get; set; }
+        public List<EmployeeDeductionLineDto> DeductionLines { get; set; } = new();
     }
 }

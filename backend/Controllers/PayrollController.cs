@@ -14,26 +14,25 @@ namespace backend.Controllers
             _service = service;
         }
 
-        [HttpGet("report")]
-        public async Task<ActionResult<PayrollSummaryDto>> GetPayrollReport([FromQuery] PayrollFiltersDto filters)
+        [HttpGet("employee-deductions")]
+        public async Task<ActionResult<List<EmployeePayrollDto>>> GetEmployeePayrollWithDeductions([FromQuery] int companyId)
         {
-            if (filters.CompanyId <= 0)
-                return BadRequest("CompanyId is required.");
+            if (companyId <= 0)
+                return BadRequest("CompanyId inválido.");
 
-            var result = await _service.GetReportAsync(filters);
+            var result = await _service.GetEmployeePayrollWithDeductionsAsync(companyId);
             return Ok(result);
         }
 
-        // NEW: quick ad-hoc testing endpoint
-        // POST /api/payroll/test-employee-deductions
-        [HttpPost("test-employee-deductions")] // TEST
-        public async Task<ActionResult<TestEmployeeDeductionsResponse>> TestEmployeeDeductions(
-            [FromBody] TestEmployeeDeductionsRequest request)
+        [HttpGet("employer-deductions")]
+        public async Task<ActionResult<List<EmployerDeductionResultDto>>> GetEmployerPayrollWithDeductions([FromQuery] int companyId)
         {
-            if (request is null) return BadRequest("Body is required.");
-            if (request.GrossSalary <= 0) return BadRequest("GrossSalary must be > 0.");
-            var res = await _service.TestEmployeeDeductionsAsync(request);
-            return Ok(res);
+            if (companyId <= 0)
+                return BadRequest("CompanyId inválido.");
+
+            var result = await _service.GetEmployerPayrollWithDeductionsAsync(companyId);
+            return Ok(result);
         }
+
     }
 }
