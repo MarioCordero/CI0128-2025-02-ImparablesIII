@@ -104,19 +104,9 @@ export default {
         this.isLoading = false;
       }
     },
-    async handleSave(editedCompany) {
-      try {
-        const response = await fetch(apiConfig.endpoints.byCompany(this.project.id), {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(editedCompany)
-        });
-        if (!response.ok) throw new Error('Error al actualizar la empresa');
-        this.project = await response.json();
-        this.showEditModal = false;
-      } catch (error) {
-        alert('No se pudo actualizar la empresa');
-      }
+    async handleSave(updatedCompany) {
+      this.project = updatedCompany
+      this.showEditModal = false
     }
   }
 }

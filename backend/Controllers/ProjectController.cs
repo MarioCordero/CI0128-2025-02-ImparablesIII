@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
+
 namespace backend.Controllers
 {
     [ApiController]
@@ -14,16 +15,21 @@ namespace backend.Controllers
         private readonly IProjectRepository _projectRepository;
         private readonly IEmployeeService _employeeService;
         private readonly ILogger<ProjectController> _logger;
+        private readonly IProjectService _projectService;
 
-        public ProjectController(IProjectRepository projectRepository,
+
+        public ProjectController(
+            IProjectRepository projectRepository,
             IEmployeeService employeeService,
-            ILogger<ProjectController> logger)
+            ILogger<ProjectController> logger,
+            IProjectService projectService)
         {
             _projectRepository = projectRepository;
             _employeeService = employeeService;
+            _projectService = projectService;
             _logger = logger;
         }
-        
+
         [HttpGet]
         public async Task<ActionResult<List<ProjectResponseDto>>> GetAll()
         {
@@ -128,30 +134,6 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error creating project", error = ex.Message });
-            }
-        }
-
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateProjectDto projectDto)
-        {
-            try
-            {
-                if (!await _projectRepository.ExistsByIdAsync(id))
-                {
-                    return NotFound(new { message = "Project not found" });
-                }
-
-                var success = await _projectRepository.UpdateAsync(id, projectDto);
-                if (success)
-                {
-                    return NoContent();
-                }
-
-                return BadRequest(new { message = "Failed to update project" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error updating project", error = ex.Message });
             }
         }
 
@@ -270,7 +252,7 @@ namespace backend.Controllers
                 });
             }
         }
-        
+
         [HttpGet("by-company/{companyId}")]
         public async Task<ActionResult<ProjectResponseDto>> GetByCompanyId(int companyId)
         {
@@ -280,5 +262,18 @@ namespace backend.Controllers
             return Ok(project);
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _projectService.UpdateProjectAsync(id, dto);
+
+            if (!result.Success)
+                return NotFound(result.ErrorMessage);
+
+            return Ok(result.Project);
+        }
     }
 }

@@ -106,4 +106,55 @@ namespace backend.DTOs
         public string? Distrito { get; set; }
         public string? DireccionParticular { get; set; }
     }
+    public class UpdateProjectDTO
+    {
+        [Required]
+        [MaxLength(20)]
+        public string Nombre { get; set; }
+
+        [Required]
+        [Range(100000000, 999999999, ErrorMessage = "La cédula jurídica debe tener 9 dígitos.")]
+        public int CedulaJuridica { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        [RegularExpression(@"^[^\s@]+@[^\s@]+\.[^\s@]+$", ErrorMessage = "Formato de correo electrónico inválido.")]
+        public string Email { get; set; }
+
+        [Required]
+        [Range(10000000, 99999999, ErrorMessage = "El teléfono debe tener 8 dígitos.")]
+        public int Telefono { get; set; }
+
+        [Required]
+        [RegularExpression(@"^(Mensual|Quincenal)$", ErrorMessage = "El período de pago debe ser 'Mensual' o 'Quincenal'.")]
+        public string PeriodoPago { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "El máximo de beneficios debe ser mayor a 0.")]
+        public int MaximoBeneficios { get; set; }
+
+        [Required]
+        public DireccionDTO Direccion { get; set; }
+    }
+
+    public class DireccionDTO
+    {
+        [Required]
+        public string Provincia { get; set; }
+
+        [MaxLength(30)]
+        public string Canton { get; set; }
+
+        [MaxLength(30)]
+        public string Distrito { get; set; }
+
+        [MaxLength(150)]
+        public string DireccionParticular { get; set; }
+    }
+    public class UpdateProjectResult
+    {
+        public bool Success { get; set; }
+        public string ErrorMessage { get; set; }
+        public ProjectResponseDto Project { get; set; }
+    }
 }

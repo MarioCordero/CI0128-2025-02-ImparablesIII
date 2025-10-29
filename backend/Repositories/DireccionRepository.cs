@@ -2,6 +2,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Dapper;
 using backend.DTOs;
+using backend.Models;
 
 namespace backend.Repositories
 {
@@ -67,6 +68,38 @@ namespace backend.Repositories
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
                 return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public async Task<bool> UpdateDireccionAsync(Direccion direccion)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    UPDATE PlaniFy.Direccion
+                    SET Provincia = @Provincia,
+                        Canton = @Canton,
+                        Distrito = @Distrito,
+                        DireccionParticular = @DireccionParticular
+                    WHERE id = @Id";
+
+                var parameters = new
+                {
+                    Provincia = direccion.Provincia,
+                    Canton = direccion.Canton,
+                    Distrito = direccion.Distrito,
+                    DireccionParticular = direccion.DireccionParticular,
+                    Id = direccion.Id
+                };
+
+                var affected = await connection.ExecuteAsync(query, parameters);
+                return affected > 0;
             }
             catch
             {

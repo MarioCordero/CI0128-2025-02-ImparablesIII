@@ -11,7 +11,7 @@ namespace backend.Repositories
         Task<Project?> GetByNameAsync(string nombre);
         Task<Project?> GetByEmailAsync(string email);
         Task<List<Project>> GetAllAsync();
-        Task<bool> UpdateAsync(int id, UpdateProjectDto updateDto);
+        Task<bool> UpdateAsync(int id, UpdateProjectDTO dto);
         Task<bool> DeleteAsync(int id);
 
         // Validaciones de existencia

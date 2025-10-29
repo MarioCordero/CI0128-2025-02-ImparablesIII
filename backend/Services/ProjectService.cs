@@ -110,5 +110,50 @@ namespace backend.Services
             // Devuelve todos los proyectos ya que no hay relación con empleador
             return await GetAllProjectsAsync();
         }
+        public async Task<UpdateProjectResult> UpdateProjectAsync(int id, UpdateProjectDTO dto)
+        {
+            var project = await _projectRepository.GetByIdAsync(id);
+            if (project == null)
+                return new UpdateProjectResult { Success = false, ErrorMessage = "Empresa no encontrada." };
+
+            project.Nombre = dto.Nombre.Trim();
+            project.CedulaJuridica = dto.CedulaJuridica;
+            project.Email = dto.Email.Trim();
+            project.Telefono = dto.Telefono;
+            project.PeriodoPago = dto.PeriodoPago;
+            project.MaximoBeneficios = dto.MaximoBeneficios;
+
+            // Recupera la dirección como DTO
+            var direccionDto = await _direccionRepository.GetDireccionByIdAsync(project.IdDireccion);
+
+            // Convierte el DTO a modelo para actualizar
+            var direccionModel = direccionDto != null
+                ? new Direccion
+                {
+                    Id = direccionDto.Id,
+                    Provincia = dto.Direccion.Provincia,
+                    Canton = dto.Direccion.Canton,
+                    Distrito = dto.Direccion.Distrito,
+                    DireccionParticular = dto.Direccion.DireccionParticular
+                }
+                : new Direccion
+                {
+                    Provincia = dto.Direccion.Provincia,
+                    Canton = dto.Direccion.Canton,
+                    Distrito = dto.Direccion.Distrito,
+                    DireccionParticular = dto.Direccion.DireccionParticular
+                };
+
+            await _direccionRepository.UpdateDireccionAsync(direccionModel);
+            await _projectRepository.UpdateAsync(id, dto);
+
+            var updatedProject = await _projectRepository.GetProjectWithDireccionAsync(id);
+            
+            return new UpdateProjectResult
+            {
+                Success = true,
+                Project = updatedProject
+            };
+        }
     }
 }
