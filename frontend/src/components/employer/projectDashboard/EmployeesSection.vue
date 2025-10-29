@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import "../assets/Neumorfismo.css"
+// import "../assets/Neumorfismo.css"
 import EmployeesList from "./EmployeesList.vue";
 
 export default {
