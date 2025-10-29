@@ -188,5 +188,36 @@ namespace backend.Repositories
                 throw new InvalidOperationException($"Failed to calculate age for employee {employeeId}", ex);
             }
         }
+
+        public async Task<List<EmployeeListDto>> GetEmployeesByCompanyAsync(int companyId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    SELECT 
+                        e.idPersona AS Id,
+                        CONCAT(p.Nombre, ' ', COALESCE(p.SegundoNombre + ' ', ''), p.Apellidos) AS NombreCompleto,
+                        p.Correo,
+                        p.Telefono,
+                        e.Puesto,
+                        e.Departamento,
+                        e.Salario,
+                        e.TipoContrato
+                    FROM PlaniFy.Empleado e
+                    INNER JOIN PlaniFy.Persona p ON p.Id = e.idPersona
+                    WHERE e.idEmpresa = @CompanyId";
+
+                var employees = await connection.QueryAsync<EmployeeListDto>(query, new { CompanyId = companyId });
+                return employees.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving employees for company {CompanyId}", companyId);
+                throw new InvalidOperationException($"Failed to retrieve employees for company {companyId}", ex);
+            }
+        }
     }
 }
