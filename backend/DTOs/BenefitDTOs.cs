@@ -8,7 +8,7 @@ namespace backend.DTOs
         public int CompanyId { get; set; }
 
         [Required(ErrorMessage = "El Nombre del beneficio es obligatorio")]
-        [StringLength(20, MinimumLength = 1, ErrorMessage = "El Nombre debe tener entre 1 y 20 caracteres")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "El Nombre debe tener entre 1 y 50 caracteres")]
         [RegularExpression(@"^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$", ErrorMessage = "El Nombre solo puede contener letras y espacios")]
         public string Name { get; set; } = string.Empty;
 
