@@ -98,6 +98,7 @@ builder.Services.AddScoped<IBenefitDeductionsService, BenefitDeductionsService>(
 
 // Authentication & Security services
 builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
 // Email services
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
