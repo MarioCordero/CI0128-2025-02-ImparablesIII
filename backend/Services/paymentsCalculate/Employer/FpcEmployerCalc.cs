@@ -1,12 +1,17 @@
-using backend.Services.PaymentsCalculate;
-
+using backend.DTOs;
 namespace backend.Services.PaymentsCalculate.Employer
 {
-    // Fondo de Pensiones Complementarias (patrono)
+    // Fondo de Capitalización Laboral (patrono)
     public class FpcEmployerCalc
     {
-        private const decimal RATE = 0.02m; // 2% (valor quemado)
-        public CalcLine Calculate(decimal grossSalary)
-            => new("FPC_PATR", Math.Round(grossSalary * RATE, 2), CalcRole.EmployerDeduction);
+        private readonly decimal _rate;
+        public FpcEmployerCalc(decimal rate) { _rate = rate; }
+        public EmployerDeductionLineDto Calculate(decimal grossSalary)
+            => new EmployerDeductionLineDto
+            {
+                Code = "FPC_PATR",
+                Amount = Math.Round(grossSalary * _rate, 2),
+                Role = "EmployerDeduction"
+            };
     }
 }

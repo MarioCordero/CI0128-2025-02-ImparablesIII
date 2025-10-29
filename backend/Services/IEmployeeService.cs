@@ -1,3 +1,4 @@
+using backend.DTOs;
 using backend.Models;
 
 namespace backend.Services
@@ -10,6 +11,7 @@ namespace backend.Services
         Task<Empleado?> GetEmployeeByIdAsync(int employeeId);
         Task<int?> GetEmployeeCompanyIdAsync(int employeeId);
         Task<Project?> GetEmployeeCompanyAsync(int employeeId);
+        Task<EmployeeListResponseDto> GetEmployeesByCompanyAsync(int companyId);
     }
 }
 

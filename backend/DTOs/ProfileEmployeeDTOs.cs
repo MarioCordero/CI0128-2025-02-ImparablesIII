@@ -37,6 +37,9 @@ namespace backend.DTOs
         public string Distrito { get; set; } = string.Empty;
         public string DireccionParticular { get; set; } = string.Empty;
         public string IBAN { get; set; } = string.Empty;
+        public string Departamento { get; set; } = string.Empty;
+        public string Puesto { get; set; } = string.Empty;
+        public int Salario { get; set; }
     }
 
     public class UpdateEmployeeProfileResponseDto

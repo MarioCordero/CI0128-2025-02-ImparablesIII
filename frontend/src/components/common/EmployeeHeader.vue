@@ -1,5 +1,5 @@
 <template>
-  <header class="grid grid-cols-3 items-center gap-[120px] mb-0 rounded-lg bg-[#E9F7FF] px-20 min-h-[95px] max-h-[95px] shadow-[8px_8px_16px_#d1e3ee,-8px_-8px_16px_#ffffff] neumorphism-card">
+  <header class="neumorfismo-tarjeta grid grid-cols-3 items-center gap-[120px] px-20 min-h-[95px] max-h-[95px]">
     <!-- Logo & Title -->
     <div class="flex items-center">
       <button
@@ -23,14 +23,14 @@
       <!-- Botón de Perfil -->
       <button
         @click="goToProfile"
-        class="neumorphism px-6 py-2 rounded-xl text-[#0056b3] text-base font-semibold hover:bg-blue-50 transition border border-[#0056b3]"
+        class="neumorfismo-boton px-6 py-2 font-semibold"
       >
         Mi Perfil
       </button>
 
       <button
         @click="logout"
-        class="neumorphism-dark px-6 py-2 rounded-xl text-white text-base font-semibold hover:bg-blue-700 transition"
+        class="neumorfismo-boton-azul px-6 py-2 rounded-xl text-base font-semibold text-white!"
       >
         Cerrar Sesión
       </button>
@@ -39,6 +39,8 @@
 </template>
 
 <script>
+import "../../assets/Neumorfismo.css";
+
 export default {
   name: 'EmployeeHeader',
   props: {
