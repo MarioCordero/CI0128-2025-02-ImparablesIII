@@ -38,9 +38,20 @@
                 No hay beneficios registrados para esta empresa.
               </div>
               <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div v-for="benefit in benefits" :key="benefit.id" class="neumorphism-card p-4 rounded-xl hover:shadow-lg transition-shadow duration-300">
+                <div 
+                  v-for="benefit in benefits" 
+                  :key="`${benefit.companyId}-${benefit.name}`" 
+                  class="neumorphism-card p-4 rounded-xl hover:shadow-lg transition-shadow duration-300"
+                >
                   <div class="flex flex-col space-y-2">
-                    <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
+                    <div class="flex justify-between items-start">
+                      <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
+                      <!-- Botón de editar -->
+                      <button class="neumorfismo-boton p-[7px] rounded-full!" @click="editBenefit(benefit)">
+                        ✏️
+                      </button>
+
+                    </div>
                     <div class="space-y-1 text-sm">
                       <div class="flex justify-between">
                         <span class="text-gray-600 font-medium">Tipo:</span>
@@ -111,6 +122,7 @@ import DashboardProjectSubHeader from '../projectDashboard/DashboardProjectSubHe
 import PayrollReports from './PayrollReports.vue'
 import EmployeesSection from '../EmployeesSection.vue';
 import EmployeesFilter from '../EmployeesFilter.vue';
+import '../../assets/Neumorfismo.css'
 
 export default {
   name: 'ProjectDashboard',
@@ -193,6 +205,10 @@ export default {
         this.loading = false;
       }
     },
+
+    editBenefit(benefit) {
+      this.$router.push(`/edit-benefit/${benefit.companyId}/${encodeURIComponent(benefit.name)}`);
+    }
   },
   async mounted() {
     this.fetchCompanies();

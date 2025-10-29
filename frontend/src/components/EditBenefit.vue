@@ -36,6 +36,7 @@
                             v-model.number="beneficio.valor"
                             class="neumorfismo-sobre-suave w-full p-2"
                             placeholder="Ingrese el monto"
+                            disabled
                         />
                     </div>
 
@@ -48,6 +49,7 @@
                             placeholder="Ingrese el porcentaje"
                             min="0"
                             max="100"
+                            disabled
                         />
                     </div>
 
@@ -82,6 +84,11 @@
                 <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                     {{ error }}
                 </div>
+
+                <!-- Mensaje de éxito -->
+                <div v-if="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                    {{ successMessage }}
+                </div>
             
             </div>
         </div>
@@ -100,13 +107,19 @@ export default {
     DashboardProjectSubHeader,
   },
   props: {
-    id: {
+    // Props automáticos desde la ruta con params
+    companyId: {
       type: [String, Number],
+      required: true
+    },
+    name: {
+      type: String,
       required: true
     }
   },
   data() {
     return {
+      selectedSection: 'benefits',
       beneficio: {
         id: null,
         nombre: "",
@@ -118,7 +131,8 @@ export default {
         idEmpresa: null
       },
       loading: false,
-      error: null
+      error: null,
+      successMessage: null
     };
   },
   methods: {
@@ -126,6 +140,7 @@ export default {
       try {
         this.loading = true;
         this.error = null;
+        this.successMessage = null;
 
         // Validaciones
         if (!this.beneficio.nombre.trim()) {
@@ -133,84 +148,125 @@ export default {
           return;
         }
 
-        // Validaciones específicas por tipo
-        if (this.beneficio.tipoCalculo === 'Monto Fijo' && (!this.beneficio.valor || this.beneficio.valor <= 0)) {
-          this.error = "El valor del beneficio es requerido y debe ser mayor a 0";
+        if (this.beneficio.nombre.trim().length > 50) {
+          this.error = "El nombre no puede exceder 50 caracteres";
           return;
         }
 
-        if (this.beneficio.tipoCalculo === 'Porcentaje' && (!this.beneficio.porcentaje || this.beneficio.porcentaje <= 0)) {
-          this.error = "El porcentaje del beneficio es requerido y debe ser mayor a 0";
+        // Validar que solo contenga letras y espacios
+        const nameRegex = /^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$/;
+        if (!nameRegex.test(this.beneficio.nombre.trim())) {
+          this.error = "El nombre solo puede contener letras y espacios";
+          return;
+        }
+
+        if (this.beneficio.descripcion && this.beneficio.descripcion.length > 200) {
+          this.error = "La descripción no puede exceder 200 caracteres";
           return;
         }
 
         console.log("Datos a guardar:", this.beneficio);
         
-        // Simulación de guardado (reemplazar con llamada real al backend)
-        await this.actualizarBeneficio();
+        const result = await this.actualizarBeneficio();
         
-        alert("Cambios guardados correctamente ✅");
-        this.$router.push('/benefits');
+        if (result.success) {
+          this.successMessage = result.message;
+          setTimeout(() => {
+            this.$router.go(-1);
+          }, 1500);
+        } else {
+          this.error = result.message;
+        }
         
       } catch (error) {
         console.error("Error al guardar:", error);
-        this.error = "Error al guardar los cambios";
+        this.error = error.message || "Error al guardar los cambios";
       } finally {
         this.loading = false;
       }
     },
 
     cancelar() {
-      this.$router.push('/benefits');
+      this.$router.go(-1);
     },
 
     async cargarBeneficio() {
       try {
         this.loading = true;
-        // TODO: Reemplazar con llamada real al backend
-        // const response = await fetch(`http://localhost:5011/api/Benefit/${this.id}`);
-        // const data = await response.json();
+        this.error = null;
+
+        const companyId = this.companyId;
+        const benefitName = this.name;
+
+        console.log('Cargando beneficio con:', { companyId, benefitName });
+
+        const response = await fetch(`http://localhost:5011/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`);
         
-        // Simulación de datos (eliminar cuando tengamos el backend)
-        await new Promise(resolve => setTimeout(resolve, 500));
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Beneficio no encontrado');
+          }
+          throw new Error('Error al cargar el beneficio');
+        }
+        
+        const data = await response.json();
+        
         this.beneficio = {
-          id: this.id,
-          nombre: "Seguro Médico Privado",
-          tipoCalculo: "Monto Fijo",
-          tipo: "Bonificación",
-          valor: 45000,
-          porcentaje: null,
-          descripcion: "Cobertura médica completa para empleados y familia",
-          idEmpresa: 6
+          id: data.name,
+          nombre: data.name,
+          tipoCalculo: data.calculationType,
+          tipo: data.type,
+          valor: data.value,
+          porcentaje: data.percentage,
+          descripcion: data.descripcion || '',
+          idEmpresa: data.companyId
         };
         
       } catch (error) {
         console.error("Error al cargar beneficio:", error);
-        this.error = "Error al cargar los datos del beneficio";
+        this.error = error.message;
       } finally {
         this.loading = false;
       }
     },
 
     async actualizarBeneficio() {
-      // TODO: Reemplazar con llamada real al backend
-      // const response = await fetch(`http://localhost:5011/api/Benefit/${this.id}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(this.beneficio)
-      // });
+      const companyId = this.companyId;
+      const originalName = this.name;
       
-      // Simulación de guardado
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return { success: true };
+      const updateData = {
+        name: this.beneficio.nombre.trim(),
+        descripcion: this.beneficio.descripcion.trim()
+      };
+
+      const response = await fetch(`http://localhost:5011/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(originalName)}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar');
+      }
+      
+      return await response.json();
     },
 
-    //onProjectChanged(project) {
-      // Manejar cambio de proyecto si es necesario
-    //}
   },
   mounted() {
     this.cargarBeneficio();
+  },
+  watch: {
+    // Si cambian los parámetros de la ruta, recargar el beneficio
+    '$route.params': {
+      handler() {
+        this.cargarBeneficio();
+      },
+      deep: true
+    }
   }
 };
 </script>
