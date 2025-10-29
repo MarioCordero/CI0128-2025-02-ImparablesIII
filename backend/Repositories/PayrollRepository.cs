@@ -253,5 +253,55 @@ namespace backend.Repositories
             var empleadosRoot = JsonSerializer.Deserialize<EmpleadosRoot>(jsonResult);
             return empleadosRoot?.Empleados ?? new List<EmployeePayrollDto>();
         }
+
+        public async Task<int> InsertPayrollAsync(PayrollInsertDto payroll)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                INSERT INTO PlaniFy.Planilla (FechaGeneracion, Horas, idResponsable, idEmpresa)
+                OUTPUT INSERTED.id
+                VALUES (@FechaGeneracion, @Horas, @IdResponsable, @IdEmpresa);";
+
+            var parameters = new
+            {
+                payroll.FechaGeneracion,
+                payroll.Horas,
+                payroll.IdResponsable,
+                payroll.IdEmpresa
+            };
+
+            var payrollId = await connection.QuerySingleAsync<int>(query, parameters);
+            return payrollId;
+        }
+
+        public async Task InsertPayrollDetailsAsync(int payrollId, List<PayrollDetailInsertDto> details)
+        {
+            if (details == null || !details.Any())
+            {
+                return;
+            }
+
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                INSERT INTO PlaniFy.DetallePlanilla (idEmpleado, idPlanilla, salarioBruto, DeduccionesEmpleado, DeduccionesEmpresa, totalBeneficios, salarioNeto)
+                VALUES (@IdEmpleado, @IdPlanilla, @SalarioBruto, @DeduccionesEmpleado, @DeduccionesEmpresa, @TotalBeneficios, @SalarioNeto);";
+
+            var parameters = details.Select(d => new
+            {
+                d.IdEmpleado,
+                IdPlanilla = payrollId,
+                d.SalarioBruto,
+                d.DeduccionesEmpleado,
+                d.DeduccionesEmpresa,
+                d.TotalBeneficios,
+                d.SalarioNeto
+            });
+
+            await connection.ExecuteAsync(query, parameters);
+        }
     }
 }
