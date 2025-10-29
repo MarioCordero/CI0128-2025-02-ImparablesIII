@@ -24,6 +24,9 @@ namespace backend.Models
 
         [Range(0, 100, ErrorMessage = "El Porcentaje debe estar entre 0 y 100")]
         public int? Percentage { get; set; }
+
+        [MaxLength(200)]
+        public string? Descripcion { get; set; }
         
         // Navigation property - change from Empresa to Project
         public Project? Project { get; set; }
