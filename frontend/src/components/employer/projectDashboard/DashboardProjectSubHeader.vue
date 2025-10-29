@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import '../../assets/Neumorfismo.css'
+// import '../../assets/Neumorfismo.css'
 import { defineProps, defineEmits } from 'vue'
 defineProps({
   selectedSection: String

@@ -123,8 +123,8 @@
 </template>
 
 <script>
-import MainEmployerHeader from './common/MainEmployerHeader.vue'
-import '../assets/neumorphismGlobal.css'
+import MainEmployerHeader from '../common/MainEmployerHeader.vue'
+import '../../assets/neumorphismGlobal.css'
 import ProjectList from './ProjectList.vue'
 
 export default {

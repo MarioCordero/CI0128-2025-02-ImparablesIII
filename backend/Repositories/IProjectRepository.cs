@@ -11,7 +11,7 @@ namespace backend.Repositories
         Task<Project?> GetByNameAsync(string nombre);
         Task<Project?> GetByEmailAsync(string email);
         Task<List<Project>> GetAllAsync();
-        Task<bool> UpdateAsync(int id, UpdateProjectDto updateDto);
+        Task<bool> UpdateAsync(int id, UpdateProjectDTO dto);
         Task<bool> DeleteAsync(int id);
 
         // Validaciones de existencia
@@ -36,5 +36,6 @@ namespace backend.Repositories
         // Dirección (delegadas)
         Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular);
         Task<DireccionDto?> GetDireccionByIdAsync(int id);
+
     }
 }
