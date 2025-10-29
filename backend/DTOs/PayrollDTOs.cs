@@ -138,11 +138,25 @@ namespace backend.DTOs
         public int SalarioNeto { get; set; }
     }
 
+    public class PayrollHistoryItemDto
+    {
+        public int PayrollId { get; set; }
+        public DateTime FechaGeneracion { get; set; }
+        public decimal TotalGross { get; set; }
+        public decimal TotalEmployeeDeductions { get; set; }
+        public decimal TotalEmployerDeductions { get; set; }
+        public decimal TotalBenefits { get; set; }
+        public decimal TotalNet { get; set; }
+        public int EmployeeCount { get; set; }
+    }
+
     public class GeneratePayrollRequestDto
     {
         public int CompanyId { get; set; }
         public int ResponsibleEmployeeId { get; set; }
         public int Hours { get; set; }
+        public string? PeriodType { get; set; } // "Mensual" | "Quincenal"
+        public int? Fortnight { get; set; } // 1 | 2 when Quincenal
     }
 
     public class GeneratePayrollResponseDto
