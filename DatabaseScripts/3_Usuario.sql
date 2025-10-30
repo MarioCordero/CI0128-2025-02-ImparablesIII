@@ -3,10 +3,9 @@
 -- ===================================
 CREATE TABLE PlaniFy.Usuario (
     idPersona INT PRIMARY KEY NOT NULL,
-    TipoUsuario NVARCHAR(20) NOT NULL,
-    Contrasena NVARCHAR(16) NOT NULL,
-    FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) 
-        ON DELETE CASCADE, -- Si se borra la persona, se borra el usuario
+    TipoUsuario NVARCHAR(40) NOT NULL, -- CORREGIDO: 20 → 40
+    Contrasena NVARCHAR(32) NOT NULL,  -- CORREGIDO: 16 → 32
+    FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) ON DELETE CASCADE,
     CONSTRAINT CK_Tipo_Usuario CHECK (
         TipoUsuario IN (
             N'Administrador',
