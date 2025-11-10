@@ -99,6 +99,7 @@
 import "../assets/Neumorfismo.css";
 import MainEmployerHeader from './common/MainEmployerHeader.vue'
 import DashboardProjectSubHeader from './employer/projectDashboard/DashboardProjectSubHeader.vue'
+import apiConfig from '../config/api.js'
 
 export default {
   name: "EditBenefit",
@@ -194,23 +195,16 @@ export default {
       try {
         this.loading = true;
         this.error = null;
-
         const companyId = this.companyId;
         const benefitName = this.name;
-
-        console.log('Cargando beneficio con:', { companyId, benefitName });
-
-        const response = await fetch(`http://localhost:5011/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`);
-        
+        const response = await fetch(`${apiConfig.endpoints.benefitByCompany(companyId)}/benefit/${encodeURIComponent(benefitName)}`);
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error('Beneficio no encontrado');
           }
           throw new Error('Error al cargar el beneficio');
         }
-        
         const data = await response.json();
-        
         this.beneficio = {
           id: data.name,
           nombre: data.name,
@@ -221,7 +215,6 @@ export default {
           descripcion: data.descripcion || '',
           idEmpresa: data.companyId
         };
-        
       } catch (error) {
         console.error("Error al cargar beneficio:", error);
         this.error = error.message;
@@ -239,7 +232,7 @@ export default {
         descripcion: this.beneficio.descripcion.trim()
       };
 
-      const response = await fetch(`http://localhost:5011/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(originalName)}`, {
+      const response = await fetch(`${apiConfig.endpoints.benefitByCompany(companyId)}/benefit/${encodeURIComponent(originalName)}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json'

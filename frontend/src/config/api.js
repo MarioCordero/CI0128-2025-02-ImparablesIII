@@ -7,6 +7,7 @@ export const apiConfig = {
     benefit: `${API_BASE_URL}/api/Benefit`,
     project: `${API_BASE_URL}/api/Project`,
     benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
+    benefitByCompanyAndName: (companyId, benefitName) => `${API_BASE_URL}/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`,
     projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
     updateProject: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`, // <-- NUEVO ENDPOINT
     employeeBenefits: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}`,
