@@ -158,23 +158,13 @@
 <script>
 import '../assets/neumorphismGlobal.css'
 import SuperAdminHeader from './common/SuperAdminHeader.vue'
+import apiConfig from '../config/api.js'
 
 export default {
-  // 1. Nombre del componente
   name: 'SuperAdminMenu',
-
-  // 2. Componentes hijos locales
   components: {
     SuperAdminHeader
   },
-
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
-  props: {},
-
-  // 5. Estado reactivo del componente
   data() {
     return {
       empresas: [],
@@ -184,14 +174,6 @@ export default {
       user: null
     }
   },
-
-  // 6. Propiedades derivadas
-  computed: {},
-
-  // 7. Observadores de cambios
-  watch: {},
-
-  // 8. Métodos y lógica ejecutable
   methods: {
     checkAuthentication() {
       const userData = localStorage.getItem('user');
@@ -214,17 +196,14 @@ export default {
         return false;
       }
     },
-
     goBack() {
       this.$router.push('/');
     },
-
     logout() {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
       this.$router.push('/login');
     },
-
     toggleBenefits(empresaId) {
       if (this.expandedEmpresas.has(empresaId)) {
         this.expandedEmpresas.delete(empresaId);
@@ -232,12 +211,11 @@ export default {
         this.expandedEmpresas.add(empresaId);
       }
     },
-
     async fetchEmpresas() {
       try {
         this.loading = true;
         this.error = null;
-        const response = await fetch('http://localhost:5011/api/Project');
+        const response = await fetch(apiConfig.endpoints.project);
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
@@ -250,13 +228,7 @@ export default {
       }
     }
   },
-
-  // 9. Ciclo de vida
-  beforeCreate() {},
-  created() {},
-  beforeMount() {},
   mounted() {
-    // Check authentication first
     if (this.checkAuthentication()) {
       this.fetchEmpresas();
     }
@@ -265,23 +237,13 @@ export default {
   updated() {},
   beforeUnmount() {},
   unmounted() {},
-
-  // 10. Opciones de inyección
   provide() {
     return {}
   },
   inject: [],
-
-  // 11. Eventos emitidos
   emits: [],
-
-  // 12. Reutilización de lógica
   mixins: [],
   extends: null,
-
-  // 13. Filtros
   filters: {}
 }
 </script>
-
-<!-- No custom styles needed, all neumorphism handled by globalNeumorphism.css -->
