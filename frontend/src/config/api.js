@@ -29,7 +29,10 @@ export const apiConfig = {
     profileEmployee: (employeeId) => `${API_BASE_URL}/api/ProfileEmployee/${employeeId}`,
 
     // SignUp Employer endpoint (nuevo)
-    signUpEmployer: `${API_BASE_URL}/api/SignUpEmployer`
+    signUpEmployer: `${API_BASE_URL}/api/SignUpEmployer`,
+
+    // ProjectList endpoint (nuevo)
+    projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`
   }
 }
 
