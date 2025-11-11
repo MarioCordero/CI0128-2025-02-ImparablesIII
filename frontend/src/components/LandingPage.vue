@@ -79,32 +79,15 @@
 import HeaderLandingPage from './common/HeaderLandingPage.vue'
 
 export default {
-  // 1. Nombre del componente
   name: 'LandingPage',
-
-  // 2. Componentes hijos locales
   components: {
     HeaderLandingPage
   },
-
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
-  props: {},
-
-  // 5. Estado reactivo del componente
   data() {
     return {}
   },
-
-  // 6. Propiedades derivadas
   computed: {},
-
-  // 7. Observadores de cambios
   watch: {},
-
-  // 8. Métodos y lógica ejecutable
   methods: {
     goToLogin() {
       this.$router.push('/login')
@@ -114,8 +97,6 @@ export default {
       this.$router.push('/signup-employer')
     }
   },
-
-  // 9. Ciclo de vida
   beforeCreate() {},
   created() {},
   beforeMount() {},
@@ -124,21 +105,13 @@ export default {
   updated() {},
   beforeUnmount() {},
   unmounted() {},
-
-  // 10. Opciones de inyección
   provide() {
     return {}
   },
   inject: [],
-
-  // 11. Eventos emitidos
   emits: [],
-
-  // 12. Reutilización de lógica
   mixins: [],
   extends: null,
-
-  // 13. Filtros
   filters: {}
 }
 </script>
