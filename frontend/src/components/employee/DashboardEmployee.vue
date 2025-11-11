@@ -51,6 +51,7 @@
 import EmployeeHeader from '../common/EmployeeHeader.vue'
 import DashboardEmployeeSubHeader from './DashboardEmployeeSubHeader.vue'
 import BenefitsSelectionView from './BenefitsSelectionView.vue'
+// import apiConfig from '../../config/api.js'
 
 export default {
   name: 'DashboardEmployee',
@@ -67,7 +68,6 @@ export default {
       successMessage: null,
       user: null,
       selectedSection: 'dashboard',
-      API_BASE_URL: 'http://localhost:5011/api'
     }
   },
   methods: {
