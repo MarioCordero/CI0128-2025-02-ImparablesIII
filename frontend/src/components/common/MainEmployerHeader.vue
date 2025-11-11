@@ -44,6 +44,7 @@
 <script>
 import '../../assets/neumorphismGlobal.css'
 import "../../assets/Neumorfismo.css";
+import apiConfig from '../../config/api.js'
 
 export default {
   name: 'MainEmployerHeader',
@@ -60,7 +61,7 @@ export default {
   methods: {
     async fetchCompanies() {
       try {
-        const response = await fetch('http://localhost:5011/api/Project')
+        const response = await fetch(apiConfig.endpoints.project)
         if (response.ok) {
           this.companies = await response.json()
         }
