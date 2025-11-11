@@ -126,24 +126,14 @@
 import MainEmployerHeader from '../common/MainEmployerHeader.vue'
 import '../../assets/neumorphismGlobal.css'
 import ProjectList from './ProjectList.vue'
+import apiConfig from '../../config/api.js'
 
 export default {
-  // 1. Nombre del componente
   name: 'DashboardMainEmployer',
-
-  // 2. Componentes hijos locales
   components: {
     MainEmployerHeader,
     ProjectList
   },
-
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
-  props: {},
-
-  // 5. Estado reactivo del componente
   data() {
     return {
       companies: [],
@@ -152,43 +142,31 @@ export default {
       user: null
     }
   },
-
-  // 6. Propiedades derivadas
-  computed: {},
-
-  // 7. Observadores de cambios
-  watch: {},
-
-  // 8. Métodos y lógica ejecutable
   methods: {
     getProfitabilityColor(profitability) {
       if (profitability >= 20) return 'bg-green-500'
       if (profitability >= 15) return 'bg-gray-400'
       return 'bg-red-500'
     },
-
     getProfitabilityTextColor(profitability) {
       if (profitability >= 20) return 'text-green-600'
       if (profitability >= 15) return 'text-gray-600'
       return 'text-red-600'
     },
-
     getProfitabilityChange(current, last) {
       const change = current - last
       if (change > 0) return `+${change}% vs mes ant.`
       if (change < 0) return `${change}% vs mes ant.`
       return '+0% vs mes ant.'
     },
-
     navigateToCreateProject() {
       this.$router.push('/create-project')
     },
-
     async fetchCompanies() {
       this.loading = true
       this.error = null
       try {
-        const response = await fetch('http://localhost:5011/api/Project')
+        const response = await fetch(apiConfig.endpoints.project)
         if (!response.ok) throw new Error('No se pudo cargar las empresas')
         this.companies = await response.json()
       } catch (err) {
@@ -198,8 +176,6 @@ export default {
       }
     }
   },
-
-  // 9. Ciclo de vida
   beforeCreate() {},
   created() {
     const userRaw = localStorage.getItem('user')
@@ -215,25 +191,13 @@ export default {
   mounted() {
     this.fetchCompanies()
   },
-  beforeUpdate() {},
-  updated() {},
-  beforeUnmount() {},
-  unmounted() {},
-
-  // 10. Opciones de inyección
   provide() {
     return {}
   },
   inject: [],
-
-  // 11. Eventos emitidos
   emits: [],
-
-  // 12. Reutilización de lógica
   mixins: [],
   extends: null,
-
-  // 13. Filtros
   filters: {}
 }
 </script>
