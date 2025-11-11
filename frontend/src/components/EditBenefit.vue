@@ -108,7 +108,6 @@ export default {
     DashboardProjectSubHeader,
   },
   props: {
-    // Props automáticos desde la ruta con params
     companyId: {
       type: [String, Number],
       required: true
@@ -143,7 +142,6 @@ export default {
         this.error = null;
         this.successMessage = null;
 
-        // Validaciones
         if (!this.beneficio.nombre.trim()) {
           this.error = "El nombre del beneficio es requerido";
           return;
@@ -154,7 +152,6 @@ export default {
           return;
         }
 
-        // Validar que solo contenga letras y espacios
         const nameRegex = /^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$/;
         if (!nameRegex.test(this.beneficio.nombre.trim())) {
           this.error = "El nombre solo puede contener letras y espacios";
@@ -253,7 +250,6 @@ export default {
     this.cargarBeneficio();
   },
   watch: {
-    // Si cambian los parámetros de la ruta, recargar el beneficio
     '$route.params': {
       handler() {
         this.cargarBeneficio();
