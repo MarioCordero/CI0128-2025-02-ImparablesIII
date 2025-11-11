@@ -129,8 +129,6 @@ export default {
       }
     }
   },
-
-  // 8. Métodos y lógica ejecutable
   methods: {
     async fetchCompaniesByUser(userId) {
       try {
@@ -155,7 +153,6 @@ export default {
         default: return '';
       }
     },
-
     goToDashboard(companyId) {
       const company = this.companies.find(c => c.id === companyId)
       if (company) {
@@ -166,31 +163,13 @@ export default {
       }
     },
   },
-
-  // 9. Ciclo de vida
-  beforeCreate() {},
-  created() {},
-  beforeMount() {},
-  mounted() {},
-  beforeUpdate() {},
-  updated() {},
-  beforeUnmount() {},
-  unmounted() {},
-
-  // 10. Opciones de inyección
   provide() {
     return {}
   },
   inject: [],
-
-  // 11. Eventos emitidos
   emits: [],
-
-  // 12. Reutilización de lógica
   mixins: [],
   extends: null,
-
-  // 13. Filtros
   filters: {}
 }
 </script>
