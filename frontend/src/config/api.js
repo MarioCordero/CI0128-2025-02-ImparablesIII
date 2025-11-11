@@ -17,6 +17,11 @@ export const apiConfig = {
     payrollSummary: (companyId) => `${API_BASE_URL}/api/payroll/summary?companyId=${companyId}`,
     payrollHistory: (companyId) => `${API_BASE_URL}/api/payroll/history?companyId=${companyId}`,
     projectEmployeeCount: (companyId) => `${API_BASE_URL}/api/Project/${companyId}/employees/count`,
+
+    // Work-hours endpoints (nuevos)
+    workHours: `${API_BASE_URL}/api/work-hours`,
+    workHoursSummary: `${API_BASE_URL}/api/work-hours/summary`,
+    workHoursRecent: `${API_BASE_URL}/api/work-hours/recent`
   }
 }
 
