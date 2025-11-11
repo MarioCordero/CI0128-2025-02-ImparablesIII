@@ -104,25 +104,16 @@
 </template>
 
 <script>
+import apiConfig from '../../config/api.js'
+
 export default {
-  // 1. Nombre del componente
   name: 'ProjectList',
-
-  // 2. Componentes hijos locales
-  components: {},
-
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
   props: {
     userId: {
       type: [String, Number],
       required: true
     }
   },
-
-  // 5. Estado reactivo del componente
   data() {
     return {
       companies: [],
@@ -130,11 +121,6 @@ export default {
       error: null
     }
   },
-
-  // 6. Propiedades derivadas
-  computed: {},
-
-  // 7. Observadores de cambios
   watch: {
     userId: {
       immediate: true,
@@ -150,7 +136,7 @@ export default {
       try {
         this.loading = true;
         this.error = null;
-        const response = await fetch(`http://localhost:5011/api/Project/dashboard/${userId}`);
+        const response = await fetch(apiConfig.endpoints.projectDashboard(userId));
         if (!response.ok) throw new Error('No se pudieron cargar las empresas');
         const data = await response.json();
         this.companies = data;
