@@ -25,8 +25,11 @@ export const apiConfig = {
     workHoursSummary: `${API_BASE_URL}/api/work-hours/summary`,
     workHoursRecent: `${API_BASE_URL}/api/work-hours/recent`,
   
-    // Profile Employee endpoints (nuevos)
-    profileEmployee: (employeeId) => `${API_BASE_URL}/api/ProfileEmployee/${employeeId}`
+    // Profile Employee endpoints
+    profileEmployee: (employeeId) => `${API_BASE_URL}/api/ProfileEmployee/${employeeId}`,
+
+    // SignUp Employer endpoint (nuevo)
+    signUpEmployer: `${API_BASE_URL}/api/SignUpEmployer`
   }
 }
 
