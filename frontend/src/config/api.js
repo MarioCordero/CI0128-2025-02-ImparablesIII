@@ -5,6 +5,7 @@ export const apiConfig = {
   baseURL: API_BASE_URL,
   endpoints: {
     login: `${API_BASE_URL}/api/login`,
+    passwordSetup: `${API_BASE_URL}/api/PasswordSetup/setup`,
     benefit: `${API_BASE_URL}/api/Benefit`,
     project: `${API_BASE_URL}/api/Project`,
     benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,

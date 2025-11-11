@@ -162,20 +162,10 @@
 </template>
 
 <script>
+import apiConfig from '../config/api.js'
+
 export default {
-  // 1. Nombre del componente
   name: 'PasswordSetup',
-
-  // 2. Componentes hijos locales
-  components: {},
-
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
-  props: {},
-
-  // 5. Estado reactivo del componente
   data() {
     return {
       formData: {
@@ -191,8 +181,6 @@ export default {
       token: ''
     }
   },
-
-  // 6. Propiedades derivadas
   computed: {
     passwordRequirements() {
       const password = this.formData.password || '';
@@ -205,17 +193,10 @@ export default {
       };
     }
   },
-
-  // 7. Observadores de cambios
-  watch: {},
-
-  // 8. Métodos y lógica ejecutable
   methods: {
     validateForm() {
       this.errors = {};
       let isValid = true;
-
-      // Validate password
       if (!this.formData.password) {
         this.errors.password = 'La contraseña es requerida';
         isValid = false;
@@ -239,8 +220,6 @@ export default {
           isValid = false;
         }
       }
-
-      // Validate confirm password
       if (!this.formData.confirmPassword) {
         this.errors.confirmPassword = 'La confirmación de contraseña es requerida';
         isValid = false;
@@ -267,7 +246,7 @@ export default {
       this.successMessage = '';
 
       try {
-        const response = await fetch('http://localhost:5011/api/PasswordSetup/setup', {
+        const response = await fetch(apiConfig.endpoints.passwordSetup, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -278,15 +257,11 @@ export default {
             confirmPassword: this.formData.confirmPassword
           })
         });
-
         const result = await response.json();
-
         if (response.ok && result.success) {
           this.successMessage = 'Contraseña configurada exitosamente. Ya puedes iniciar sesión en la plataforma.';
           this.formData.password = '';
           this.formData.confirmPassword = '';
-          
-          // Redirect to login after 3 seconds
           setTimeout(() => {
             this.$router.push('/login');
           }, 3000);
@@ -301,13 +276,7 @@ export default {
       }
     }
   },
-
-  // 9. Ciclo de vida
-  beforeCreate() {},
-  created() {},
-  beforeMount() {},
   mounted() {
-    // Get token from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     this.token = urlParams.get('token');
     
@@ -319,21 +288,13 @@ export default {
   updated() {},
   beforeUnmount() {},
   unmounted() {},
-
-  // 10. Opciones de inyección
   provide() {
     return {}
   },
   inject: [],
-
-  // 11. Eventos emitidos
   emits: [],
-
-  // 12. Reutilización de lógica
   mixins: [],
   extends: null,
-
-  // 13. Filtros
   filters: {}
 }
 </script>
