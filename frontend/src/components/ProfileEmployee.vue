@@ -261,27 +261,23 @@
 import "../assets/Neumorfismo.css";
 import EmployeeHeader from './common/EmployeeHeader.vue'
 import MainEmployerHeader from './common/MainEmployerHeader.vue'
+import apiConfig from '../config/api.js'   // <-- agregado
 
 export default {
   name: 'EditInfoEmployee',
-
   components: { 
     EmployeeHeader,
     MainEmployerHeader
   },
-
   props: {
     id: {
       type: [String, Number],
       required: true
     }
   },
-
   data() {
     return {
-
       isEmployer: false,
-
       userData: {
         user: {
           nombre: '',
@@ -312,11 +308,9 @@ export default {
         direccionParticular: '',
         direccion: '',
         iban: '',
-
         departamento: '',
         puesto: '', 
         salario: 0
-
       },
       originalUserData: {},
       user: null,
@@ -413,7 +407,7 @@ export default {
 
         console.log('Enviando datos al backend:', updateData);
 
-        const response = await fetch(`http://localhost:5011/api/ProfileEmployee/${this.id}`, {
+        const response = await fetch(apiConfig.endpoints.profileEmployee(this.id), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -477,7 +471,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await fetch(`http://localhost:5011/api/ProfileEmployee/${this.id}`);
+        const response = await fetch(apiConfig.endpoints.profileEmployee(this.id));
         
         if (!response.ok) {
           throw new Error('Error al obtener los datos del usuario');
