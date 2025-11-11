@@ -75,21 +75,10 @@
 import HeaderLandingPage from './common/HeaderLandingPage.vue'
 
 export default {
-  // 1. Nombre del componente
   name: 'LoginPage',
-
-  // 2. Componentes hijos locales
   components: {
     HeaderLandingPage
   },
-
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
-  props: {},
-
-  // 5. Estado reactivo del componente
   data() {
     return {
       showPassword: false,
@@ -98,33 +87,19 @@ export default {
       isLoading: false,
       errorMessage: '',
       successMessage: '',
-      API_BASE_URL: 'http://localhost:5011/api'
     }
   },
-
-  // 6. Propiedades derivadas
-  computed: {},
-
-  // 7. Observadores de cambios
-  watch: {},
-
-  // 8. Métodos y lógica ejecutable
   methods: {
     async handleLogin() {
-      // Clear previous messages
       this.errorMessage = ''
       this.successMessage = ''
-
-      // Validation
       if (!this.email || !this.password) {
         this.errorMessage = 'Por favor ingrese correo y contraseña'
         return
       }
-
       this.isLoading = true
-
       try {
-        const response = await fetch(`${this.API_BASE_URL}/login`, {
+        const response = await fetch(apiConfig.endpoints.login, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -134,13 +109,9 @@ export default {
             contrasena: this.password
           })
         })
-
         const data = await response.json()
-
         if (response.ok && data.success) {
           this.successMessage = data.message || 'Login exitoso'
-          
-          // Store user data and token in localStorage
           localStorage.setItem('user', JSON.stringify(data.userData))
           if (data.token) {
             localStorage.setItem('token', data.token);
@@ -177,8 +148,6 @@ export default {
       }
     }
   },
-
-  // 9. Ciclo de vida
   beforeCreate() {},
   created() {},
   beforeMount() {},
@@ -187,21 +156,13 @@ export default {
   updated() {},
   beforeUnmount() {},
   unmounted() {},
-
-  // 10. Opciones de inyección
   provide() {
     return {}
   },
   inject: [],
-
-  // 11. Eventos emitidos
   emits: [],
-
-  // 12. Reutilización de lógica
   mixins: [],
   extends: null,
-
-  // 13. Filtros
   filters: {}
 }
 </script>
