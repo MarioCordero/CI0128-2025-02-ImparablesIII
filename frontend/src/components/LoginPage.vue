@@ -73,6 +73,7 @@
 
 <script>
 import HeaderLandingPage from './common/HeaderLandingPage.vue'
+import apiConfig from '../config/api.js'
 
 export default {
   name: 'LoginPage',
