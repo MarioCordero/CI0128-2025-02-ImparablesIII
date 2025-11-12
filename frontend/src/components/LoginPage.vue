@@ -1,7 +1,7 @@
 <template>
   <div class="page flex flex-col items-center justify-center font-montserrat">
     <HeaderLandingPage />
-    <div class="neumorphism-card-modal p-20 w-1/3 flex flex-col">
+    <div class="neumorphism-card-modal w-1/3 flex flex-col">
        <!-- Logo -->
       <p class="text-[90px] font-bold text-center mb-4 text-black">PlaniFy</p>
       <h2 class="text-lg text-center font-light mb-4 text-black">INICIAR SESIÓN</h2>
