@@ -96,10 +96,9 @@
 </template>
 
 <script>
-import "../assets/Neumorfismo.css";
-import MainEmployerHeader from './common/MainEmployerHeader.vue'
-import DashboardProjectSubHeader from './employer/projectDashboard/DashboardProjectSubHeader.vue'
-import apiConfig from '../config/api.js'
+import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
+import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
+import apiConfig from '../../../config/api.js'
 
 export default {
   name: "EditBenefit",
