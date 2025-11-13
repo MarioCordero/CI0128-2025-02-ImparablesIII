@@ -5,6 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import './assets/montserratFont.css'
 // Neumorphism global styles
 import './assets/neumorphismGlobal.css'
+import './assets/Neumorfismo.css'
 // Tailwind CSS
 import './assets/tailwind.css'
 // COMMON COMPONENTS
