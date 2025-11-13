@@ -19,12 +19,12 @@ namespace backend.Services.PaymentsCalculate.Benefits
       _apiSettings = apiSettings?.Value ?? throw new ArgumentNullException(nameof(apiSettings));
     }
 
-    public async Task<List<DeductionItem>> CalculateAsync(string companyId, decimal grossSalary)
+    public async Task<List<DeductionItem>> CalculateAsync(string cedulaJuridica, decimal grossSalary)
     {
-      if (string.IsNullOrWhiteSpace(companyId))
+      if (string.IsNullOrWhiteSpace(cedulaJuridica))
       {
-        _logger.LogWarning("Invalid company ID: {CompanyId}", companyId);
-        throw new ArgumentException("Company ID cannot be null or empty", nameof(companyId));
+        _logger.LogWarning("Invalid cedula juridica: {CedulaJuridica}", cedulaJuridica);
+        throw new ArgumentException("Cedula juridica cannot be null or empty", nameof(cedulaJuridica));
       }
 
       if (grossSalary <= 0)
@@ -35,10 +35,10 @@ namespace backend.Services.PaymentsCalculate.Benefits
 
       try
       {
-        _logger.LogInformation("Calculating solidarity association for company: {CompanyId}, salary: {Salary}",
-            companyId, grossSalary);
+        _logger.LogInformation("Calculating solidarity association for cedula juridica: {CedulaJuridica}, salary: {Salary}",
+            cedulaJuridica, grossSalary);
 
-        var deductions = await GetSolidarityAssociationAsync(companyId, grossSalary);
+        var deductions = await GetSolidarityAssociationAsync(cedulaJuridica, grossSalary);
 
         _logger.LogInformation("Solidarity association calculation completed. Found {Count} deductions", deductions.Count);
 
@@ -46,17 +46,17 @@ namespace backend.Services.PaymentsCalculate.Benefits
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, "Error calculating solidarity association for company: {CompanyId}, salary: {Salary}",
-            companyId, grossSalary);
+        _logger.LogError(ex, "Error calculating solidarity association for cedula juridica: {CedulaJuridica}, salary: {Salary}",
+            cedulaJuridica, grossSalary);
         throw new InvalidOperationException("Failed to calculate solidarity association deduction", ex);
       }
     }
 
-        private async Task<List<DeductionItem>> GetSolidarityAssociationAsync(string companyId, decimal grossSalary)
+        private async Task<List<DeductionItem>> GetSolidarityAssociationAsync(string cedulaJuridica, decimal grossSalary)
         {
             try
             {
-                var responseContent = await CallSolidarityAssociationApiAsync(companyId, grossSalary);
+                var responseContent = await CallSolidarityAssociationApiAsync(cedulaJuridica, grossSalary);
                 var apiResponse = DeserializeApiResponse(responseContent);
                 return apiResponse.Deductions;
             }
@@ -71,12 +71,12 @@ namespace backend.Services.PaymentsCalculate.Benefits
             }
         }
 
-        private async Task<string> CallSolidarityAssociationApiAsync(string companyId, decimal grossSalary)
+        private async Task<string> CallSolidarityAssociationApiAsync(string cedulaJuridica, decimal grossSalary)
         {
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", _apiSettings.SolidarityAssociation.ApiToken);
 
-            var url = $"{_apiSettings.SolidarityAssociation.BaseUrl}api/asociacionsolidarista/aporte-empleado?cedulaEmpresa={companyId}&salarioBruto={grossSalary}";
+            var url = $"{_apiSettings.SolidarityAssociation.BaseUrl}api/asociacionsolidarista/aporte-empleado?cedulaEmpresa={cedulaJuridica}&salarioBruto={grossSalary}";
 
             _logger.LogDebug("Making API call to: {Url}", url);
 
