@@ -106,7 +106,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import apiConfig from '../config/api.js'
+import apiConfig from '../../config/api.js'
 
 const userId = '1212'
 

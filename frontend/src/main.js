@@ -1,24 +1,21 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-
 // Montserrat font styles
 import './assets/montserratFont.css'
-
 // Neumorphism global styles
 import './assets/neumorphismGlobal.css'
-
 // Tailwind CSS
 import './assets/tailwind.css'
-
-// Vue Components
+// COMMON COMPONENTS
 import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
 import PasswordSetup from './components/PasswordSetup.vue'
-import SuperAdminMenu from './components/SuperAdminMenu.vue'
+import SuperAdminMenu from './components/superAdmin/SuperAdminMenu.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
-import HoursRegistry from './components/HoursRegistry.vue'
-import ProfileEmployee from './components/ProfileEmployee.vue'
+import ProfileEmployee from './components/common/ProfileEmployee.vue' // component reused for editing employee
+//EMPLOYEE COMPONENTS
+import HoursRegistry from './components/employee/HoursRegistry.vue'
 import DashboardEmployee from './components/employee/DashboardEmployee.vue'
 // EMPLOYER COMPONENTS
 import AddBenefit from './components/employer/projectDashboard/AddBenefit.vue'
@@ -31,11 +28,7 @@ import CreateProject from './components/employer/CreateProject.vue'
 const routes = [
   { path: '/', component: LandingPage },
   { path: '/login', component: Login },
-  {
-    path: '/register-employee/:employerId/:projectId',
-    name: 'RegisterEmployee',
-    component: RegisterEmployee
-  },
+  { path: '/register-employee/:employerId/:projectId', name: 'RegisterEmployee', component: RegisterEmployee },
   { path: '/password-setup', component: PasswordSetup },
   { path: '/dashboard-main-employer', component: DashboardMainEmployer },
   { path: '/superadmin', component: SuperAdminMenu, meta: { requiresAuth: true, requiresRole: 'Administrador' } },
