@@ -156,9 +156,8 @@
 </template>
 
 <script>
-import '../assets/neumorphismGlobal.css'
-import SuperAdminHeader from './common/SuperAdminHeader.vue'
-import apiConfig from '../config/api.js'
+import SuperAdminHeader from '../common/SuperAdminHeader.vue'
+import apiConfig from '../../config/api.js'
 
 export default {
   name: 'SuperAdminMenu',

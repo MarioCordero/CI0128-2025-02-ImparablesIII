@@ -42,8 +42,6 @@
 </template>
 
 <script>
-import '../../assets/neumorphismGlobal.css'
-import "../../assets/Neumorfismo.css";
 import apiConfig from '../../config/api.js'
 
 export default {
