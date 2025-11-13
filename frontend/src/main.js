@@ -8,6 +8,9 @@ import './assets/montserratFont.css'
 // Neumorphism global styles
 import './assets/neumorphismGlobal.css'
 
+// Neumorphism styles
+import './assets/neumorphism.css'
+
 // Tailwind CSS
 import './assets/tailwind.css'
 
