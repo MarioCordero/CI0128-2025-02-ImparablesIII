@@ -22,6 +22,13 @@
       >
         Registro de horas
       </button>
+      <button
+        class="self-stretch flex-auto px-3 py-3.5 neumorphism-light"
+        :class="selectedSection === 'reports' ? 'bg-[#1347e5] text-[#fefefe]' : 'text-gray-700 hover:bg-blue-100'"
+        @click="emit('section-change', 'reports')"
+      >
+        Mis Reportes
+      </button>
     </div>
   </div>
 </template>
