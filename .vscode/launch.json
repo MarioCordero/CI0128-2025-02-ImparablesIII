@@ -17,13 +17,15 @@
       },
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://localhost:5011"
+        "ASPNETCORE_URLS": "http://localhost:5011",
+        "PATH": "${env:PATH}:/usr/local/share/dotnet"
       }
     },
     {
       "name": "Debug Frontend Vue",
       "type": "chrome",
       "request": "launch",
+      "preLaunchTask": "build-frontend",
       "url": "http://localhost:8080",
       "webRoot": "${workspaceFolder}/frontend/src",
       "sourceMaps": true,

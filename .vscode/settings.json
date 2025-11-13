@@ -1,0 +1,13 @@
+{
+  "omnisharp.dotNetCliPaths": [
+    "/usr/local/share/dotnet/dotnet"
+  ],
+  "dotnet.defaultSolution": "backend/backend-lab.sln",
+  "dotnet.server.useOmnisharp": false,
+  "dotnet.server.path": "/usr/local/share/dotnet/dotnet",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.env.osx": {
+    "PATH": "${env:PATH}:/usr/local/share/dotnet"
+  }
+}
+
