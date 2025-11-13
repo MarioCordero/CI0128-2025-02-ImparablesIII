@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-[#E9F7FF] font-montserrat">
+  <div class="page flex flex-col items-center justify-center font-montserrat">
     <HeaderLandingPage />
-    <div class="neumorphism-card bg-[#E9F7FF] p-20 w-1/3 flex flex-col">
+    <div class="neumorphism-card-modal w-1/3 flex flex-col">
        <!-- Logo -->
       <p class="text-[90px] font-bold text-center mb-4 text-black">PlaniFy</p>
       <h2 class="text-lg text-center font-light mb-4 text-black">INICIAR SESIÓN</h2>
@@ -27,7 +27,7 @@
             v-model="email"
             type="email"
             placeholder="Correo electronico"
-            class="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400"
+            class="flex-1 outline-none placeholder-gray-400"
             required
           />
         </div>
@@ -41,7 +41,7 @@
             v-model="password"
             :type="showPassword ? 'text' : 'password'"
             placeholder="Contraseña"
-            class="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400"
+            class="flex-1 outline-none placeholder-gray-400"
             required
           />
           <button type="button" @click="showPassword = !showPassword" tabindex="-1">
@@ -58,7 +58,7 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class="neumorphism-dark text-xl font-medium py-3 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="neumorphism-button-xl-dark !font-medium w-auto"
         >
           {{ isLoading ? 'Ingresando...' : 'Ingresar' }}
         </button>

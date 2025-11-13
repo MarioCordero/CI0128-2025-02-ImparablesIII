@@ -11,12 +11,12 @@
     </div>
 
     <!-- Companies List -->
-    <div v-else class="space-y-6">
+    <div v-else class="space-y-[33px]">
       <div v-for="company in companies" :key="company.id">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-3">
           <h3 class="text-lg font-bold text-black">{{ company.name }}</h3>
           <button
-            class="neumorphism-dark px-4 py-2 rounded text-white hover:bg-blue-700 transition"
+            class="neumorphism-button-normal-blue"
             @click="goToDashboard(company.id)"
           >
             Ir a dashboard de empresa
@@ -25,70 +25,74 @@
 
         <div class="grid md:grid-cols-4 gap-4">
           <!-- Cédula Jurídica -->
-          <div class="neumorphism-card rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 group">
-            <div class="w-[303px] h-[128px] flex flex-col justify-between">
+          <div class="neumorphism-card-project">
+            <div class="flex flex-col justify-between">
               <div class="flex items-center justify-between mb-2">
-                <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Cédula Jurídica</p>
-                <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <p class="font-bold text-[16px]">Cédula Jurídica</p>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <rect x="3" y="7" width="18" height="10" rx="2" stroke="currentColor"/>
                   <path d="M7 15h.01M7 11h.01" stroke="currentColor"/>
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.legalId }}</p>
-                <p class="text-[15px] group-hover:text-white transition-colors duration-200">de la empresa</p>
+                <p class="font-bold text-[28px] mb-1">{{ company.legalId }}</p>
+                <p class="text-[15px]">de la empresa</p>
               </div>
             </div>
           </div>
+
           <!-- Período de Pago -->
-          <div class="neumorphism-card rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 group">
-            <div class="w-[303px] h-[128px] flex flex-col justify-between">
+          <div class="neumorphism-card-project">
+            <div class="flex flex-col justify-between">
               <div class="flex items-center justify-between mb-2">
-                <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Período de Pago</p>
-                <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <p class="font-bold text-[16px]">Período de Pago</p>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor"/>
                   <path d="M16 3v4M8 3v4" stroke="currentColor"/>
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.payPeriod }}</p>
-                <p class="text-[15px] group-hover:text-white transition-colors duration-200">{{ formatPeriodDescription(company.payPeriod) }}</p>
+                <p class="font-bold text-[28px] mb-1">{{ company.payPeriod }}</p>
+                <p class="text-[15px]">{{ formatPeriodDescription(company.payPeriod) }}</p>
               </div>
             </div>
           </div>
+
           <!-- Empleados Activos -->
-          <div class="neumorphism-card rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 group">
-            <div class="w-[303px] h-[128px] flex flex-col justify-between">
+          <div class="neumorphism-card-project">
+            <div class="flex flex-col justify-between">
               <div class="flex items-center justify-between mb-2">
-                <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Empleados Activos</p>
-                <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <p class="font-bold text-[16px]">Empleados Activos</p>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <circle cx="9" cy="7" r="4" stroke="currentColor"/>
                   <path d="M17 11a4 4 0 1 0-8 0" stroke="currentColor"/>
                   <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke="currentColor"/>
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.activeEmployees }}</p>
-                <p class="text-[15px] group-hover:text-white transition-colors duration-200">en esta empresa</p>
+                <p class="font-bold text-[28px] mb-1">{{ company.activeEmployees }}</p>
+                <p class="text-[15px]">en esta empresa</p>
               </div>
             </div>
           </div>
+
           <!-- Rentabilidad Actual -->
-          <div class="neumorphism-card rounded-[14px] w-[365px] h-[190px] flex items-center justify-center transition-all duration-200 hover:scale-110 group">
-            <div class="w-[303px] h-[128px] flex flex-col justify-between">
+          <div class="neumorphism-card-project">
+            <div class="flex flex-col justify-between">
               <div class="flex items-center justify-between mb-2">
-                <p class="font-bold text-[16px] group-hover:text-white transition-colors duration-200">Rentabilidad Actual</p>
-                <svg class="w-6 h-6 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <p class="font-bold text-[16px]">Rentabilidad Actual</p>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path d="M4 17l6-6 4 4 6-6" stroke="currentColor"/>
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1 group-hover:text-white transition-colors duration-200">{{ company.currentProfitability }}%</p>
-                <p class="text-[15px] group-hover:text-white transition-colors duration-200">del mes actual</p>
+                <p class="font-bold text-[28px] mb-1">{{ company.currentProfitability }}%</p>
+                <p class="text-[15px]">del mes actual</p>
               </div>
             </div>
           </div>
         </div>
+
         <!-- Notifications -->
         <div v-if="company.notifications && company.notifications.length" class="mt-4">
           <h4 class="font-semibold text-blue-700 mb-2">Notificaciones</h4>
@@ -162,14 +166,6 @@ export default {
         alert('No se encontró el proyecto seleccionado.')
       }
     },
-  },
-  provide() {
-    return {}
-  },
-  inject: [],
-  emits: [],
-  mixins: [],
-  extends: null,
-  filters: {}
+  }
 }
 </script>
