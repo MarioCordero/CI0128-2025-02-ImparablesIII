@@ -42,6 +42,14 @@
         <p class="text-gray-600 mb-2">Aquí puedes registrar tus horas trabajadas.</p>
       </div>
 
+      <!-- Payroll Reports Section -->
+      <div v-else-if="selectedSection === 'reports'">
+        <PayrollReports
+          :employee-id="user?.idPersona"
+          @error="handleError"
+        />
+      </div>
+
       <div v-if="loading" class="text-gray-600 py-8">Cargando empresa...</div>
     </div>
   </div>
@@ -51,13 +59,15 @@
 import EmployeeHeader from '../common/EmployeeHeader.vue'
 import DashboardEmployeeSubHeader from './DashboardEmployeeSubHeader.vue'
 import BenefitsSelectionView from './BenefitsSelectionView.vue'
+import PayrollReports from './PayrollReports.vue'
 
 export default {
   name: 'DashboardEmployee',
   components: {
     EmployeeHeader,
     DashboardEmployeeSubHeader,
-    BenefitsSelectionView
+    BenefitsSelectionView,
+    PayrollReports
   },
   data() {
     return {
