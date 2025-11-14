@@ -138,42 +138,15 @@
 
 <script>
 import { apiConfig } from '../../config/api.js'
-
-const HTTP_STATUS = {
-  UNAUTHORIZED: 401,
-  NOT_FOUND: 404
-}
-
-const STORAGE_KEYS = {
-  USER: 'user'
-}
-
-const CONTENT_TYPES = {
-  JSON: 'application/json',
-  TEXT_PLAIN: 'text/plain;charset=utf-8'
-}
-
-const LOCALE = 'es-CR'
-
-const ERROR_MESSAGES = {
-  INVALID_EMPLOYEE_ID: 'ID de empleado no válido',
-  UNAUTHENTICATED_USER: 'Usuario no autenticado',
-  UNAUTHORIZED_ACCESS: 'No tiene permiso para acceder a estos reportes',
-  ENDPOINT_NOT_FOUND: (url) => `Endpoint no encontrado. Verifique que el servidor esté corriendo y que la ruta ${url} sea correcta.`,
-  GENERIC_FETCH_ERROR: 'Error al cargar los reportes',
-  GENERIC_PAYROLL_ERROR: 'Error al cargar los reportes de planilla'
-}
-
-const MONTHS = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-]
-
-const DEFAULT_FILTERS = {
-  year: null,
-  month: null,
-  puesto: null
-}
+import {
+  HTTP_STATUS,
+  STORAGE_KEYS,
+  CONTENT_TYPES,
+  LOCALE,
+  ERROR_MESSAGES,
+  MONTHS,
+  DEFAULT_FILTERS
+} from '../../config/const.js'
 
 export default {
   name: 'PayrollReports',
@@ -214,64 +187,64 @@ export default {
   methods: {
     async fetchReports() {
       if (!this.validateEmployeeId()) {
-        return
+        return;
       }
 
-      this.setLoadingState(true)
+      this.setLoadingState(true);
 
       try {
-        const authenticatedEmployeeId = this.getAuthenticatedEmployeeId()
-        const url = this.buildApiUrl(authenticatedEmployeeId)
-        const response = await this.performApiRequest(url)
-        const data = await this.parseResponse(response)
-        this.updateReportsData(data)
+        const authenticatedEmployeeId = this.getAuthenticatedEmployeeId();
+        const url = this.buildApiUrl(authenticatedEmployeeId);
+        const response = await this.performApiRequest(url);
+        const data = await this.parseResponse(response);
+        this.updateReportsData(data);
       } catch (error) {
-        this.handleFetchError(error)
+        this.handleFetchError(error);
       } finally {
-        this.setLoadingState(false)
+        this.setLoadingState(false);
       }
     },
     validateEmployeeId() {
       if (!this.employeeId) {
-        this.error = ERROR_MESSAGES.INVALID_EMPLOYEE_ID
-        return false
+        this.error = ERROR_MESSAGES.INVALID_EMPLOYEE_ID;
+        return false;
       }
-      return true
+      return true;
     },
     getAuthenticatedEmployeeId() {
-      const userRaw = localStorage.getItem(STORAGE_KEYS.USER)
+      const userRaw = localStorage.getItem(STORAGE_KEYS.USER);
       if (!userRaw) {
-        throw new Error(ERROR_MESSAGES.UNAUTHENTICATED_USER)
+        throw new Error(ERROR_MESSAGES.UNAUTHENTICATED_USER);
       }
 
-      const user = JSON.parse(userRaw)
+      const user = JSON.parse(userRaw);
       if (!user || !user.idPersona) {
-        throw new Error(ERROR_MESSAGES.UNAUTHENTICATED_USER)
+        throw new Error(ERROR_MESSAGES.UNAUTHENTICATED_USER);
       }
 
-      return user.idPersona
+      return user.idPersona;
     },
     buildQueryParams(authenticatedEmployeeId) {
       const params = new URLSearchParams({
         authenticatedEmployeeId: authenticatedEmployeeId.toString()
-      })
+      });
 
       if (this.filters.year) {
-        params.append('year', this.filters.year.toString())
+        params.append('year', this.filters.year.toString());
       }
       if (this.filters.month) {
-        params.append('month', this.filters.month.toString())
+        params.append('month', this.filters.month.toString());
       }
       if (this.filters.puesto) {
-        params.append('puesto', this.filters.puesto)
+        params.append('puesto', this.filters.puesto);
       }
 
-      return params
+      return params;
     },
     buildApiUrl(authenticatedEmployeeId) {
-      const baseUrl = apiConfig.endpoints.employeePayrollReports(this.employeeId)
-      const params = this.buildQueryParams(authenticatedEmployeeId)
-      return `${baseUrl}?${params.toString()}`
+      const baseUrl = apiConfig.endpoints.employeePayrollReports(this.employeeId);
+      const params = this.buildQueryParams(authenticatedEmployeeId);
+      return `${baseUrl}?${params.toString()}`;
     },
     async performApiRequest(url) {
       const response = await fetch(url, {
@@ -279,65 +252,65 @@ export default {
         headers: {
           'Content-Type': CONTENT_TYPES.JSON
         }
-      })
+      });
 
       if (!response.ok) {
-        await this.handleApiError(response, url)
+        await this.handleApiError(response, url);
       }
 
-      return response
+      return response;
     },
     async handleApiError(response, url) {
       if (response.status === HTTP_STATUS.UNAUTHORIZED) {
-        throw new Error(ERROR_MESSAGES.UNAUTHORIZED_ACCESS)
+        throw new Error(ERROR_MESSAGES.UNAUTHORIZED_ACCESS);
       }
 
       if (response.status === HTTP_STATUS.NOT_FOUND) {
-        throw new Error(ERROR_MESSAGES.ENDPOINT_NOT_FOUND(url))
+        throw new Error(ERROR_MESSAGES.ENDPOINT_NOT_FOUND(url));
       }
 
-      const errorData = await this.parseErrorResponse(response)
-      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_FETCH_ERROR)
+      const errorData = await this.parseErrorResponse(response);
+      throw new Error(errorData.message || ERROR_MESSAGES.GENERIC_FETCH_ERROR);
     },
     async parseErrorResponse(response) {
       try {
-        return await response.json()
+        return await response.json();
       } catch {
         return {
           message: `Error ${response.status}: ${response.statusText}`
-        }
+        };
       }
     },
     async parseResponse(response) {
-      return await response.json()
+      return await response.json();
     },
     updateReportsData(data) {
-      this.reports = data
-      this.filteredReports = data
+      this.reports = data;
+      this.filteredReports = data;
     },
     handleFetchError(error) {
-      this.error = error.message || ERROR_MESSAGES.GENERIC_PAYROLL_ERROR
-      this.$emit('error', this.error)
+      this.error = error.message || ERROR_MESSAGES.GENERIC_PAYROLL_ERROR;
+      this.$emit('error', this.error);
     },
     setLoadingState(isLoading) {
-      this.loading = isLoading
+      this.loading = isLoading;
       if (isLoading) {
-        this.error = null
+        this.error = null;
       }
     },
     applyFilters() {
-      this.fetchReports()
+      this.fetchReports();
     },
     clearFilters() {
-      this.filters = { ...DEFAULT_FILTERS }
-      this.fetchReports()
+      this.filters = { ...DEFAULT_FILTERS };  
+      this.fetchReports();
     },
     formatPeriod(report) {
-      const monthName = this.months[report.month - 1]
-      return `${monthName} ${report.year}`
+      const monthName = this.months[report.month - 1];
+      return `${monthName} ${report.year}`;
     },
     formatCurrency(amount) {
-      return new Intl.NumberFormat(LOCALE).format(amount)
+      return new Intl.NumberFormat(LOCALE).format(amount);
     },
     buildReportData(report) {
       return {
@@ -351,29 +324,52 @@ export default {
         salarioNeto: report.salarioNeto,
         horas: report.horas,
         fechaGeneracion: this.formatDate(report.fechaGeneracion)
-      }
+      };
     },
     formatDate(dateString) {
-      return new Date(dateString).toLocaleDateString(LOCALE)
+      return new Date(dateString).toLocaleDateString(LOCALE);
+    },
+    generateReportContent(reportData) {
+      return `
+RECIBO DE PAGO DE PLANILLA
+===========================
+
+Empresa: ${reportData.empresa}
+Período: ${reportData.periodo}
+Fecha de Generación: ${reportData.fechaGeneracion}
+Posición: ${reportData.puesto}
+Horas Trabajadas: ${reportData.horas}
+
+DETALLE DE PAGO:
+-----------------
+Salario Bruto:        ₡${this.formatCurrency(reportData.salarioBruto)}
+Deducciones Empleado: ₡${this.formatCurrency(reportData.deduccionesEmpleado)}
+Deducciones Empresa:  ₡${this.formatCurrency(reportData.deduccionesEmpresa)}
+Total Beneficios:     ₡${this.formatCurrency(reportData.totalBeneficios)}
+----------------------------------------
+SALARIO NETO:         ₡${this.formatCurrency(reportData.salarioNeto)}
+
+Este documento es un comprobante de pago generado por PlaniFy.
+      `.trim();
     },
     generateFileName(report) {
-      const monthPadded = report.month.toString().padStart(2, '0')
-      return `Recibo_Planilla_${report.year}_${monthPadded}.txt`
+      const monthPadded = report.month.toString().padStart(2, '0');
+      return `Recibo_Planilla_${report.year}_${monthPadded}.txt`;
     },
     createDownloadFile(content, report) {
-      const blob = new Blob([content], { type: CONTENT_TYPES.TEXT_PLAIN })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = this.generateFileName(report)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      const blob = new Blob([content], { type: CONTENT_TYPES.TEXT_PLAIN });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = this.generateFileName(report);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     }
   },
   mounted() {
-    this.fetchReports()
+    this.fetchReports();
   }
 }
 </script>
