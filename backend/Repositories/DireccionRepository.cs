@@ -43,7 +43,7 @@ namespace backend.Repositories
             }
         }
 
-        public async Task<DireccionDto?> GetDireccionByIdAsync(int id)
+        public async Task<DireccionDTO?> GetDireccionByIdAsync(int id)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace backend.Repositories
 
                 var query = "SELECT id, Provincia, Canton, Distrito, DireccionParticular FROM PlaniFy.Direccion WHERE id = @Id";
 
-                var result = await connection.QueryFirstOrDefaultAsync<DireccionDto>(query, new { Id = id });
+                var result = await connection.QueryFirstOrDefaultAsync<DireccionDTO>(query, new { Id = id });
                 return result;
             }
             catch (Exception)

@@ -99,15 +99,6 @@ namespace backend.DTOs
         public int MaximoBeneficios { get; set; }
     }
 
-    public class DireccionDto
-    {
-        public int Id { get; set; }
-        public string? Provincia { get; set; }
-        public string? Canton { get; set; }
-        public string? Distrito { get; set; }
-        public string? DireccionParticular { get; set; }
-    }
-
     public class UpdateProjectDTO
     {
         [Required]
