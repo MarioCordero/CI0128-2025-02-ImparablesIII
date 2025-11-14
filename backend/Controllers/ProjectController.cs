@@ -1,6 +1,7 @@
 using backend.DTOs;
 using backend.Repositories;
 using backend.Services;
+using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
@@ -40,7 +41,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error retrieving projects", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorRetrievingProjects, error = ex.Message });
             }
         }
 
@@ -52,13 +53,13 @@ namespace backend.Controllers
                 var project = await _projectRepository.GetByIdAsync(id);
                 if (project == null)
                 {
-                    return NotFound(new { message = "Project not found" });
+                    return NotFound(new { message = ReturnMessagesConstants.Project.ProjectNotFound });
                 }
                 return Ok(project);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error retrieving project", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorRetrievingProject, error = ex.Message });
             }
         }
 
@@ -72,7 +73,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error retrieving projects", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorRetrievingProjects, error = ex.Message });
             }
         }
 
@@ -86,7 +87,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error retrieving dashboard projects", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorRetrievingProjects, error = ex.Message });
             }
         }
 
@@ -98,13 +99,13 @@ namespace backend.Controllers
                 // Validate if Legal ID already exists
                 if (await _projectRepository.ExistsByLegalIdAsync(projectDto.LegalId))
                 {
-                    return BadRequest(new { message = "Legal ID already exists" });
+                    return BadRequest(new { message = ReturnMessagesConstants.Project.LegalIdAlreadyExists });
                 }
 
                 // Validate if Email already exists
                 if (await _projectRepository.ExistsByEmailAsync(projectDto.Email))
                 {
-                    return BadRequest(new { message = "Email already exists" });
+                    return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
                 }
 
                 // Crear el proyecto mapeando del DTO
@@ -129,11 +130,11 @@ namespace backend.Controllers
                     return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, new { id = createdProject.Id });
                 }
 
-                return BadRequest(new { message = "Failed to create project" });
+                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorCreatingProject });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error creating project", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorCreatingProject, error = ex.Message });
             }
         }
 
@@ -144,7 +145,7 @@ namespace backend.Controllers
             {
                 if (!await _projectRepository.ExistsByIdAsync(id))
                 {
-                    return NotFound(new { message = "Project not found" });
+                    return NotFound(new { message = ReturnMessagesConstants.Project.ProjectNotFound });
                 }
 
                 var success = await _projectRepository.DeleteAsync(id);
@@ -153,11 +154,11 @@ namespace backend.Controllers
                     return NoContent();
                 }
 
-                return BadRequest(new { message = "Failed to delete project" });
+                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorCreatingProject });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error deleting project", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorDeletingProject, error = ex.Message });
             }
         }
 
@@ -171,7 +172,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error counting employees", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorCountingEmployees, error = ex.Message });
             }
         }
 
@@ -185,7 +186,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error calculating payroll", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Payroll.PayrollGeneratedSuccessfully, error = ex.Message });
             }
         }
 
@@ -197,13 +198,13 @@ namespace backend.Controllers
                 var success = await _projectRepository.ActivateAsync(id);
                 if (success)
                 {
-                    return Ok(new { message = "Project activated successfully" });
+                    return Ok(new { message = ReturnMessagesConstants.Project.ProjectActivatedSuccessfully });
                 }
-                return BadRequest(new { message = "Failed to activate project" });
+                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorActivatingProject });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error activating project", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorActivatingProject, error = ex.Message });
             }
         }
 
@@ -215,13 +216,13 @@ namespace backend.Controllers
                 var success = await _projectRepository.DeactivateAsync(id);
                 if (success)
                 {
-                    return Ok(new { message = "Project deactivated successfully" });
+                    return Ok(new { message = ReturnMessagesConstants.Project.ProjectDeactivatedSuccessfully });
                 }
-                return BadRequest(new { message = "Failed to deactivate project" });
+                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorDeactivatingProject });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error deactivating project", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorDeactivatingProject, error = ex.Message });
             }
         }
 
@@ -247,7 +248,7 @@ namespace backend.Controllers
                 _logger.LogError(ex, "Error interno obteniendo empleados para el proyecto {ProjectId}", projectId);
                 return StatusCode(500, new
                 {
-                    message = "Error interno del servidor",
+                    message = ReturnMessagesConstants.General.InternalServerError,
                     detail = ex.Message
                 });
             }
