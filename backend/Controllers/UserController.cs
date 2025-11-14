@@ -1,5 +1,6 @@
 using backend.Extensions;
 using backend.Services;
+using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -48,7 +49,7 @@ namespace backend.Controllers
                     return Ok(new
                     {
                         Success = true,
-                        Message = "User registered successfully and welcome email sent",
+                        Message = ReturnMessagesConstants.User.UserRegisteredSuccessfully,
                         UserEmail = registrationDto.UserEmail,
                         UserName = registrationDto.UserName,
                         RegisteredAt = DateTime.UtcNow
@@ -59,7 +60,7 @@ namespace backend.Controllers
                     return Ok(new
                     {
                         Success = true,
-                        Message = "User registered successfully but email sending failed",
+                        Message = ReturnMessagesConstants.User.UserRegisteredButEmailFailed,
                         UserEmail = registrationDto.UserEmail,
                         UserName = registrationDto.UserName,
                         RegisteredAt = DateTime.UtcNow,
@@ -73,7 +74,7 @@ namespace backend.Controllers
                 return StatusCode(500, new
                 {
                     Success = false,
-                    Message = "Registration failed",
+                    Message = ReturnMessagesConstants.User.RegistrationFailed,
                     Error = ex.Message
                 });
             }
@@ -109,8 +110,8 @@ namespace backend.Controllers
                 {
                     Success = emailResult.Success,
                     Message = emailResult.Success 
-                        ? "Password reset email sent successfully" 
-                        : "Failed to send password reset email",
+                        ? ReturnMessagesConstants.User.PasswordResetEmailSent 
+                        : ReturnMessagesConstants.User.PasswordResetEmailFailed,
                     Email = forgotPasswordDto.Email,
                     ResetToken = emailResult.Success ? resetToken : null,
                     SentAt = emailResult.SentAt,
@@ -123,7 +124,7 @@ namespace backend.Controllers
                 return StatusCode(500, new
                 {
                     Success = false,
-                    Message = "Password reset failed",
+                    Message = ReturnMessagesConstants.User.PasswordResetFailed,
                     Error = ex.Message
                 });
             }

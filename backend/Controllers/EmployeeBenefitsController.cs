@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Services;
 using backend.DTOs;
 using backend.Repositories;
+using backend.Constants;
 
 namespace backend.Controllers
 {
@@ -33,7 +34,7 @@ namespace backend.Controllers
                 var companyId = await _employeeService.GetEmployeeCompanyIdAsync(employeeId);
                 if (!companyId.HasValue)
                 {
-                    return NotFound(new { message = "Empleado no encontrado o no tiene empresa asignada" });
+                    return NotFound(new { message = ReturnMessagesConstants.Employee.EmployeeNotFoundOrNoCompany });
                 }
 
                 var filter = new BenefitFilterDto
@@ -49,7 +50,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting benefits for employee {EmployeeId}", employeeId);
-                return StatusCode(500, new { message = "Error al obtener los beneficios", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorRetrievingBenefits, error = ex.Message });
             }
         }
 
@@ -63,7 +64,7 @@ namespace backend.Controllers
                 var companyId = await _employeeService.GetEmployeeCompanyIdAsync(employeeId);
                 if (!companyId.HasValue)
                 {
-                    return NotFound(new { message = "Empleado no encontrado o no tiene empresa asignada" });
+                    return NotFound(new { message = ReturnMessagesConstants.Employee.EmployeeNotFoundOrNoCompany });
                 }
 
                 var result = await _employeeBenefitService.SelectBenefitAsync(employeeId, companyId.Value, request);
@@ -78,7 +79,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error selecting benefit for employee {EmployeeId}", employeeId);
-                return StatusCode(500, new { message = "Error al seleccionar el beneficio", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorSelectingBenefit, error = ex.Message });
             }
         }
 
@@ -90,7 +91,7 @@ namespace backend.Controllers
                 var companyId = await _employeeService.GetEmployeeCompanyIdAsync(employeeId);
                 if (!companyId.HasValue)
                 {
-                    return NotFound(new { message = "Empleado no encontrado o no tiene empresa asignada" });
+                    return NotFound(new { message = ReturnMessagesConstants.Employee.EmployeeNotFoundOrNoCompany });
                 }
 
                 var canSelectMore = await _employeeBenefitService.ValidateBenefitSelectionAsync(employeeId, companyId.Value);
@@ -99,7 +100,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error validating benefit selection for employee {EmployeeId}", employeeId);
-                return StatusCode(500, new { message = "Error al validar la selección", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorValidatingSelection, error = ex.Message });
             }
         }
     }
