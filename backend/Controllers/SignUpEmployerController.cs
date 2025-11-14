@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using backend.Services;
 using backend.DTOs;
+using backend.Constants;
 
 namespace backend.Controllers
 {
@@ -49,7 +50,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in RegisterEmployer endpoint");
-                return StatusCode(500, new { message = "An internal error occurred" });
+                return StatusCode(500, new { message = ReturnMessagesConstants.General.InternalServerError });
             }
         }
 

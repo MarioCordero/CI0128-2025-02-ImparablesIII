@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.DTOs;
 using backend.Services;
+using backend.Constants;
 
 namespace backend.Controllers
 {
@@ -43,7 +44,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while setting up password");
-                return StatusCode(500, new { message = "Error interno del servidor." });
+                return StatusCode(500, new { message = ReturnMessagesConstants.General.InternalServerError });
             }
         }
 
