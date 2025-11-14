@@ -77,7 +77,6 @@ export default {
       successMessage: null,
       user: null,
       selectedSection: 'dashboard',
-      API_BASE_URL: 'http://localhost:5011/api'
     }
   },
   methods: {
