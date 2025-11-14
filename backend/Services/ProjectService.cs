@@ -155,5 +155,182 @@ namespace backend.Services
                 Project = updatedProject
             };
         }
+
+       public async Task<List<ProjectResponseDto>> GetProjectsForDashboardAsync(int employerId)
+        {
+            try
+            {
+                var projects = await _projectRepository.GetProjectsForDashboardAsync(employerId);
+                
+                // Enriquecer cada proyecto con datos adicionales para el dashboard
+                foreach (var project in projects)
+                {
+                    project.ActiveEmployees = await GetActiveEmployeesCountAsync(project.Id);
+                    project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id);
+                    project.CurrentProfitability = await CalculateCurrentProfitabilityAsync(project.Id);
+                    project.LastMonthProfitability = await CalculateLastMonthProfitabilityAsync(project.Id);
+                    project.Notifications = await GetProjectNotificationsAsync(project.Id);
+                }
+                
+                return projects;
+            }
+            catch (Exception)
+            {
+                // Log exception si necesario
+                return new List<ProjectResponseDto>();
+            }
+        }
+
+        public async Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int id)
+        {
+            return await _projectRepository.GetProjectWithDireccionAsync(id);
+        }
+
+        public async Task<bool> DeleteProjectAsync(int id)
+        {
+            return await _projectRepository.DeleteAsync(id);
+        }
+
+        public async Task<bool> ActivateProjectAsync(int id)
+        {
+            return await _projectRepository.ActivateAsync(id);
+        }
+
+        public async Task<bool> DeactivateProjectAsync(int id)
+        {
+            return await _projectRepository.DeactivateAsync(id);
+        }
+
+        // ======================================
+        // MÉTODOS DE VALIDACIÓN
+        // ======================================
+
+        public async Task<bool> ExistsByLegalIdAsync(string legalId)
+        {
+            return await _projectRepository.ExistsByLegalIdAsync(legalId);
+        }
+
+        public async Task<bool> ExistsByEmailAsync(string email)
+        {
+            return await _projectRepository.ExistsByEmailAsync(email);
+        }
+
+        public async Task<bool> ProjectExistsAsync(int id)
+        {
+            return await _projectRepository.ExistsAsync(id);
+        }
+
+        // ======================================
+        // MÉTODOS PARA ESTADÍSTICAS DEL DASHBOARD
+        // ======================================
+
+        public async Task<int> GetActiveEmployeesCountAsync(int projectId)
+        {
+            try
+            {
+                // Implementar usando el repositorio de empleados
+                return await _employeeRepository.GetActiveCountByProjectIdAsync(projectId);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public async Task<decimal> GetMonthlyPayrollAsync(int projectId)
+        {
+            try
+            {
+                var currentMonth = DateTime.Now.Month;
+                var currentYear = DateTime.Now.Year;
+                
+                return await _payrollRepository.GetMonthlyTotalByProjectAsync(projectId, currentYear, currentMonth);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public async Task<decimal> CalculateCurrentProfitabilityAsync(int projectId)
+        {
+            try
+            {
+                var currentMonth = DateTime.Now.Month;
+                var currentYear = DateTime.Now.Year;
+                
+                var revenue = await _payrollRepository.GetMonthlyRevenueAsync(projectId, currentYear, currentMonth);
+                var costs = await _payrollRepository.GetMonthlyCostsAsync(projectId, currentYear, currentMonth);
+                
+                if (revenue == 0) return 0;
+                
+                return ((revenue - costs) / revenue) * 100;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public async Task<decimal> CalculateLastMonthProfitabilityAsync(int projectId)
+        {
+            try
+            {
+                var lastMonth = DateTime.Now.AddMonths(-1);
+                var month = lastMonth.Month;
+                var year = lastMonth.Year;
+                
+                var revenue = await _payrollRepository.GetMonthlyRevenueAsync(projectId, year, month);
+                var costs = await _payrollRepository.GetMonthlyCostsAsync(projectId, year, month);
+                
+                if (revenue == 0) return 0;
+                
+                return ((revenue - costs) / revenue) * 100;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public async Task<List<NotificationDto>> GetProjectNotificationsAsync(int projectId)
+        {
+            try
+            {
+                var notifications = new List<NotificationDto>();
+                
+                // Verificar empleados sin beneficios
+                var employeesWithoutBenefits = await _employeeRepository.GetEmployeesWithoutBenefitsAsync(projectId);
+                if (employeesWithoutBenefits > 0)
+                {
+                    notifications.Add(new NotificationDto
+                    {
+                        Title = "Empleados sin beneficios",
+                        Message = $"{employeesWithoutBenefits} empleados no tienen beneficios asignados",
+                        Date = DateTime.Now,
+                        Type = "warning"
+                    });
+                }
+                
+                // Verificar nóminas pendientes
+                var pendingPayrolls = await _payrollRepository.GetPendingPayrollsCountAsync(projectId);
+                if (pendingPayrolls > 0)
+                {
+                    notifications.Add(new NotificationDto
+                    {
+                        Title = "Nóminas pendientes",
+                        Message = $"Tienes {pendingPayrolls} nóminas pendientes de procesar",
+                        Date = DateTime.Now,
+                        Type = "info"
+                    });
+                }
+                
+                return notifications;
+            }
+            catch (Exception)
+            {
+                return new List<NotificationDto>();
+            }
+        }
     }
 }

@@ -13,9 +13,6 @@ namespace backend.DTOs
         [Range(100000000, 999999999, ErrorMessage = "La cédula jurídica debe tener exactamente 9 dígitos")]
         public int CedulaJuridica { get; set; }
 
-        // Agregar esta propiedad
-        public string LegalId => CedulaJuridica.ToString();
-
         [Required(ErrorMessage = "El correo electrónico es obligatorio")]
         [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
         [StringLength(50, ErrorMessage = "El correo no puede exceder los 50 caracteres")]
@@ -29,7 +26,6 @@ namespace backend.DTOs
         [Range(10000000, 99999999, ErrorMessage = "El teléfono debe tener 8 dígitos")]
         public int? Telefono { get; set; }
 
-        // Address fields
         [Required(ErrorMessage = "La provincia es obligatoria")]
         [RegularExpression(@"^(San José|Alajuela|Cartago|Heredia|Guanacaste|Puntarenas|Limón)$",
             ErrorMessage = "La provincia debe ser una de las 7 provincias de Costa Rica")]
@@ -48,6 +44,35 @@ namespace backend.DTOs
         [Required(ErrorMessage = "El máximo de beneficios es obligatorio")]
         [Range(1, int.MaxValue, ErrorMessage = "El máximo de beneficios debe ser mayor a 0")]
         public int MaximoBeneficios { get; set; }
+    }
+
+    public class ProjectResponseDto
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public int CedulaJuridica { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string PeriodoPago { get; set; } = string.Empty;
+        public int? Telefono { get; set; }
+        public int IdDireccion { get; set; }
+        public string? Direccion { get; set; }
+        public int MaximoBeneficios { get; set; }
+        public DateTime CreatedAt { get; set; }
+        
+        // DASHBOARD FIELDS
+        public int ActiveEmployees { get; set; }
+        public decimal MonthlyPayroll { get; set; }
+        public decimal CurrentProfitability { get; set; }
+        public decimal LastMonthProfitability { get; set; }
+        public List<NotificationDto> Notifications { get; set; } = new List<NotificationDto>();
+    }
+
+    public class NotificationDto
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public DateTime Date { get; set; }
+        public string Type { get; set; } = string.Empty;
     }
 
     public class UpdateProjectDto
@@ -74,30 +99,6 @@ namespace backend.DTOs
         public int MaximoBeneficios { get; set; }
     }
 
-    public class ProjectResponseDto
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public int CedulaJuridica { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public string PeriodoPago { get; set; } = string.Empty;
-        public int? Telefono { get; set; }
-        public int IdDireccion { get; set; }
-        public DireccionDto? Direccion { get; set; }
-        public int MaximoBeneficios { get; set; }
-    }
-
-    public class ProjectListDto
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public int CedulaJuridica { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public string PeriodoPago { get; set; } = string.Empty;
-        public int MaximoBeneficios { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
     public class DireccionDto
     {
         public int Id { get; set; }
@@ -106,6 +107,7 @@ namespace backend.DTOs
         public string? Distrito { get; set; }
         public string? DireccionParticular { get; set; }
     }
+
     public class UpdateProjectDTO
     {
         [Required]
@@ -151,10 +153,16 @@ namespace backend.DTOs
         [MaxLength(150)]
         public string DireccionParticular { get; set; }
     }
+
     public class UpdateProjectResult
     {
         public bool Success { get; set; }
         public string ErrorMessage { get; set; }
         public ProjectResponseDto Project { get; set; }
     }
+
+    // Alias para compatibilidad durante la transición
+    public class ProjectListDto : ProjectResponseDto { }
+    public class CompanyDashboardMainEmployerDto : ProjectResponseDto { }
+    public class DashboardMainEmployerDto : ProjectResponseDto { }
 }

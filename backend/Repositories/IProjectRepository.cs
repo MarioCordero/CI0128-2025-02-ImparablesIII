@@ -1,41 +1,27 @@
-using backend.Models;
 using backend.DTOs;
+using backend.Models;
 
 namespace backend.Repositories
 {
     public interface IProjectRepository
     {
-        // CRUD básico
-        Task<Project> CreateAsync(Project project);
-        Task<Project?> GetByIdAsync(int id);
-        Task<Project?> GetByNameAsync(string nombre);
-        Task<Project?> GetByEmailAsync(string email);
-        Task<List<Project>> GetAllAsync();
-        Task<bool> UpdateAsync(int id, UpdateProjectDTO dto);
+        Task<List<ProjectResponseDto>> GetAllAsync();
+        Task<ProjectResponseDto?> GetByIdAsync(int id);
+        Task<List<ProjectResponseDto>> GetByEmployerIdAsync(int employerId);
+        Task<ProjectResponseDto> CreateAsync(Project project); // Changed return type
+        Task<bool> UpdateAsync(int id, UpdateProjectDTO dto); // Update parameter type
         Task<bool> DeleteAsync(int id);
-
-        // Validaciones de existencia
-        Task<bool> ExistsByIdAsync(int id);
-        Task<bool> ExistsByNameAsync(string nombre);
+        Task<bool> ExistsByLegalIdAsync(string legalId); // Now matches implementation
         Task<bool> ExistsByEmailAsync(string email);
-        Task<bool> ExistsByCedulaJuridicaAsync(int cedulaJuridica);
-        Task<bool> ExistsByLegalIdAsync(string legalId);
-
-        // Consultas específicas
-        Task<List<Project>> GetByEmployerIdAsync(int employerId);
-        Task<List<Project>> GetByCompanyIdAsync(int companyId);
-        Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int id);
-        Task<List<CompanyDashboardMainEmployerDto>> GetProjectsForDashboardAsync(int employerId);
-
-        // Operaciones de negocio
-        Task<int> CountActiveEmployeesAsync(int projectId);
-        Task<decimal> GetMonthlyPayrollAsync(int projectId);
-        Task<bool> ActivateAsync(int projectId);
-        Task<bool> DeactivateAsync(int projectId);
-
-        // Dirección (delegadas)
+        Task<bool> ExistsAsync(int id);
         Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular);
         Task<DireccionDto?> GetDireccionByIdAsync(int id);
-
+        Task<bool> UpdateDireccionAsync(int id, DireccionDto direccion);
+        Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int id);
+        Task<bool> ActivateAsync(int id);
+        Task<bool> DeactivateAsync(int id);
+        Task<List<ProjectResponseDto>> GetProjectsForDashboardAsync(int employerId); // Fixed return type
+        Task<int> CountActiveEmployeesAsync(int projectId);
+        Task<decimal> GetMonthlyPayrollAsync(int projectId);
     }
 }
