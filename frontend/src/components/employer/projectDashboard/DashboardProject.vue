@@ -1,12 +1,13 @@
 <template>
-  <div class="bg-[#dbeafe] min-h-screen">
+  <div class="bg-[#dbeafe] min-h-screen flex flex-col page">
     <MainEmployerHeader @project-changed="onProjectChanged"/>
+    
     <DashboardProjectSubHeader
       :selected-section="selectedSection"
       @section-change="selectedSection = $event"
     />
 
-    <div class="mx-[171px] my-[41px] space-y-[41px] pb-[41px]">
+    <div class="mx-[171px] my-[41px] space-y-[41px] pb-[41px] body">
       <div v-if="loading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 neumorphism-dark"></div>
       </div>
@@ -31,8 +32,20 @@
             <p class="text-gray-700"><span class="font-bold">Teléfono:</span> {{ project.telefono }}</p>
             <p class="text-gray-700"><span class="font-bold">Dirección:</span> {{ project.direccion || 'N/A' }}</p>
           </div>
-          
-          <div class="neumorphism-card p-6 rounded-2xl">
+        </div>
+      </div>
+
+      <!-- Benefits Section -->
+      <div v-else-if="selectedSection === 'benefits'">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800 mb-4">Gestión de Beneficios</h1>
+        </div>
+        <div>
+          <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addBenefit">
+            Agregar beneficio
+          </button>
+        </div>
+                  <div class="neumorphism-card p-6 rounded-2xl">
             <h2 class="text-xl font-semibold mb-4">Beneficios Corporativos</h2>
             <div v-if="!benefits || benefits.length === 0" class="text-gray-500 text-center py-8">
               No hay beneficios registrados para esta empresa.
@@ -78,20 +91,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Benefits Section -->
-      <div v-else-if="selectedSection === 'benefits'">
-        <div>
-          <h1 class="text-4xl font-bold text-gray-800 mb-4">Gestión de Beneficios</h1>
-        </div>
-        <div>
-          <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addBenefit">
-            Agregar beneficio
-          </button>
-        </div>
-        <!-- Aquí puedes agregar más contenido de gestión de beneficios -->
       </div>
 
       <!-- Employees Section -->
