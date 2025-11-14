@@ -138,7 +138,7 @@ import PayrollReports from './PayrollReports.vue'
 import EmployeesSection from './EmployeesSection.vue'
 import EmployeesFilter from './EmployeesFilter.vue'
 import EditProjectInfo from './EditProjectInfo.vue'
-import "../../../assets/Neumorfismo.css"
+import { apiConfig } from '../../../config/api.js'
 
 export default {
   name: 'ProjectDashboard',
@@ -181,7 +181,7 @@ export default {
 
     async fetchCompanies() {
       try {
-        const response = await fetch('http://localhost:5011/api/Project');
+        const response = await fetch(apiConfig.endpoints.project);
         if (!response.ok) throw new Error('No se pudo cargar las empresas');
         this.companies = await response.json();
       } catch (err) {
@@ -195,7 +195,7 @@ export default {
           this.benefits = [];
           return;
         }
-        const response = await fetch(`http://localhost:5011/api/Benefit/company/${this.project.id}`);
+        const response = await fetch(apiConfig.endpoints.benefitByCompany(this.project.id));
         if (!response.ok) throw new Error('No se pudo cargar los beneficios');
         this.benefits = await response.json();
       } catch (err) {
