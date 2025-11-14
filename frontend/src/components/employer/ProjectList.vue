@@ -14,7 +14,7 @@
     <div v-else class="space-y-[33px]">
       <div v-for="company in companies" :key="company.id">
         <div class="flex items-center justify-between mb-3">
-          <h3 class="text-lg font-bold text-black">{{ company.name }}</h3>
+          <h3 class="text-lg font-bold text-black">{{ company.nombre }}</h3>
           <button
             class="neumorphism-button-normal-blue"
             @click="goToDashboard(company.id)"
@@ -35,7 +35,7 @@
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1">{{ company.legalId }}</p>
+                <p class="font-bold text-[28px] mb-1">{{ company.cedulaJuridica }}</p>
                 <p class="text-[15px]">de la empresa</p>
               </div>
             </div>
@@ -52,8 +52,8 @@
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1">{{ company.payPeriod }}</p>
-                <p class="text-[15px]">{{ formatPeriodDescription(company.payPeriod) }}</p>
+                <p class="font-bold text-[28px] mb-1">{{ company.periodoPago }}</p>
+                <p class="text-[15px]">{{ formatPeriodDescription(company.periodoPago) }}</p>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@
           <h4 class="font-semibold text-blue-700 mb-2">Notificaciones</h4>
           <ul class="list-disc pl-5">
             <li v-for="(note, idx) in company.notifications" :key="idx" class="text-gray-700">
-              {{ note }}
+              {{ note.message }}
             </li>
           </ul>
         </div>
@@ -148,7 +148,6 @@ export default {
         this.loading = false;
       }
     },
-
     formatPeriodDescription(period) {
       switch (period) {
         case 'Mensual': return 'Pago cada mes';
