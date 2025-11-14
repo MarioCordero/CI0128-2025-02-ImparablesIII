@@ -92,7 +92,7 @@ namespace backend.Repositories
                     Telefono = row.Telefono,
                     IdDireccion = row.IdDireccion,
                     MaximoBeneficios = row.MaximoBeneficios,
-                    Direccion = row.DireccionId != null ? new DireccionDTO
+                    Direccion = row.DireccionId != null ? new DirectionDTO
                     {
                         Id = row.DireccionId,
                         Provincia = row.Provincia,
@@ -350,7 +350,7 @@ namespace backend.Repositories
             }).ToList();
         }
 
-        public async Task<bool> UpdateDireccionAsync(int id, DireccionDTO direccion)
+        public async Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion)
         {
             return await _direccionRepository.UpdateDireccionAsync(id, direccion);
         }
@@ -403,7 +403,7 @@ namespace backend.Repositories
             return await _direccionRepository.CreateDireccionAsync(provincia, canton ?? string.Empty, distrito ?? string.Empty, direccionParticular);
         }
 
-        public async Task<DireccionDTO?> GetDireccionByIdAsync(int id)
+        public async Task<DirectionDTO?> GetDireccionByIdAsync(int id)
         {
             return await _direccionRepository.GetDireccionByIdAsync(id);
         }

@@ -12,9 +12,9 @@ namespace backend.Repositories
         Task<bool> UpdateAsync(int id, UpdateProjectDTO dto); // Update parameter type
         Task<bool> DeleteAsync(int id);
         Task<bool> ExistsByEmailAsync(string email);
-        Task<DireccionDTO?> GetDireccionByIdAsync(int id);
+        Task<DirectionDTO?> GetDireccionByIdAsync(int id);
         Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular);
-        Task<bool> UpdateDireccionAsync(int id, DireccionDTO direccion);
+        Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion);
         Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int id);
         Task<bool> ActivateAsync(int id);
         Task<bool> DeactivateAsync(int id);

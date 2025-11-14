@@ -127,10 +127,10 @@ namespace backend.DTOs
         public int MaximoBeneficios { get; set; }
 
         [Required]
-        public DireccionDTO Direccion { get; set; }
+        public DirectionDTO Direccion { get; set; }
     }
 
-    public class DireccionDTO
+    public class DirectionDTO
     {
         [Required]
         public string Provincia { get; set; }
