@@ -1,5 +1,5 @@
 <template>
-  <header class="neumorfismo-tarjeta grid grid-cols-3 items-center gap-[120px] px-20 min-h-[95px] max-h-[95px]">
+  <header class="neumorphism-header grid grid-cols-3 items-center gap-[120px]">
     <!-- Logo & Title -->
     <div class="flex items-center">
       <button
@@ -18,7 +18,7 @@
     <!-- Project Selector -->
     <div class="flex flex-col justify-center items-center">
       <select
-        class="neumorfismo-input min-w-[300px] min-h-[40px] px-3 py-2 text-gray-700 cursor-pointer!"
+        class="neumorphism-input neumorphism-input-select appearance-auto! min-w-[300px] min-h-[40px] text-center"
         v-model="selectedProjectId"
         @change="onProjectChange"
       >
@@ -33,7 +33,7 @@
     <div class="flex justify-end items-center gap-4">
       <button
         @click="logout"
-        class="neumorfismo-boton-azul px-6 py-2 rounded-xl text-base font-semibold text-white!"
+        class="neumorphism-button-normal-blue"
       >
         Cerrar Sesión
       </button>
@@ -42,8 +42,7 @@
 </template>
 
 <script>
-import '../../assets/neumorphismGlobal.css'
-import "../../assets/Neumorfismo.css";
+import apiConfig from '../../config/api.js'
 
 export default {
   name: 'MainEmployerHeader',
@@ -60,7 +59,7 @@ export default {
   methods: {
     async fetchCompanies() {
       try {
-        const response = await fetch('http://localhost:5011/api/Project')
+        const response = await fetch(apiConfig.endpoints.project)
         if (response.ok) {
           this.companies = await response.json()
         }
@@ -85,7 +84,7 @@ export default {
           company => company.id == this.selectedProjectId
         )
         localStorage.setItem('selectedProject', JSON.stringify(selectedProject))
-        this.$emit('project-changed', selectedProject) // <-- Add this line
+        this.$emit('project-changed', selectedProject)
         this.$router.push({
           name: 'DashboardProject',
           params: { id: this.selectedProjectId }

@@ -1,42 +1,36 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-
 // Montserrat font styles
 import './assets/montserratFont.css'
-
 // Neumorphism global styles
 import './assets/neumorphismGlobal.css'
-
+import './assets/Neumorfismo.css'
+import './assets/neumorphism.css'
 // Tailwind CSS
 import './assets/tailwind.css'
-
-// Vue Components
+// COMMON COMPONENTS
 import LandingPage from './components/LandingPage.vue'
 import Login from './components/LoginPage.vue'
 import PasswordSetup from './components/PasswordSetup.vue'
-import SuperAdminMenu from './components/SuperAdminMenu.vue'
+import SuperAdminMenu from './components/superAdmin/SuperAdminMenu.vue'
 import SignUpEmployer from './components/SignUpEmployer.vue'
-import HoursRegistry from './components/HoursRegistry.vue'
-import ProfileEmployee from './components/ProfileEmployee.vue'
+import ProfileEmployee from './components/common/ProfileEmployee.vue' // component reused for editing employee
+//EMPLOYEE COMPONENTS
+import HoursRegistry from './components/employee/HoursRegistry.vue'
 import DashboardEmployee from './components/employee/DashboardEmployee.vue'
-import EditBenefit from './components/EditBenefit.vue'
 // EMPLOYER COMPONENTS
 import AddBenefit from './components/employer/projectDashboard/AddBenefit.vue'
+import EditBenefit from './components/employer/projectDashboard/EditBenefit.vue'
 import RegisterEmployee from './components/employer/projectDashboard/RegisterEmployee.vue'
 import DashboardMainEmployer from './components/employer/DashboardMainEmployer.vue'
 import DashboardProject from './components/employer/projectDashboard/DashboardProject.vue'
 import CreateProject from './components/employer/CreateProject.vue'
 
-// Route definitions
 const routes = [
   { path: '/', component: LandingPage },
   { path: '/login', component: Login },
-  {
-    path: '/register-employee/:employerId/:projectId',
-    name: 'RegisterEmployee',
-    component: RegisterEmployee
-  },
+  { path: '/register-employee/:employerId/:projectId', name: 'RegisterEmployee', component: RegisterEmployee },
   { path: '/password-setup', component: PasswordSetup },
   { path: '/dashboard-main-employer', component: DashboardMainEmployer },
   { path: '/superadmin', component: SuperAdminMenu, meta: { requiresAuth: true, requiresRole: 'Administrador' } },
@@ -58,41 +52,27 @@ const router = createRouter({
   routes
 })
 
-// Navigation guard to protect routes
 router.beforeEach((to, from, next) => {
-  // Check if the route requires authentication
   if (to.meta.requiresAuth) {
-    // Get user data from localStorage
     const userData = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    
-    // Check if user is authenticated
     if (!userData || !token) {
-      // Redirect to login page
       next('/login');
       return;
     }
-    
     try {
       const user = JSON.parse(userData);
-      
-      // Check if user has the required role
       if (to.meta.requiresRole && user.tipoUsuario !== to.meta.requiresRole) {
-        // Redirect to home page if user doesn't have required role
         next('/');
         return;
       }
-      
-      // User is authenticated and has required role
       next();
     } catch (error) {
-      // Invalid user data, redirect to login
       localStorage.removeItem('user');
       localStorage.removeItem('token');
       next('/login');
     }
   } else {
-    // Route doesn't require authentication
     next();
   }
 })
