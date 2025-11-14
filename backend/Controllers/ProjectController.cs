@@ -152,26 +152,26 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("{id}/employees/count")]
-        public async Task<ActionResult<int>> GetActiveEmployeesCount(int id)
-        {
-            try
-            {
-                var count = await _projectService.GetActiveEmployeesCountAsync(id);
-                return Ok(new { count });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorCountingEmployees, error = ex.Message });
-            }
-        }
+        // [HttpGet("{id}/employees/count")]
+        // public async Task<ActionResult<int>> GetActiveEmployeesCount(int id)
+        // {
+        //     try
+        //     {
+        //         var count = await _projectService.GetActiveEmployeesCountAsync(id);
+        //         return Ok(new { count });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorCountingEmployees, error = ex.Message });
+        //     }
+        // }
 
         [HttpGet("{id}/payroll")]
         public async Task<ActionResult<decimal>> GetMonthlyPayroll(int id)
         {
             try
             {
-                var payroll = await _projectService.GetMonthlyPayrollAsync(id);
+                var payroll = await _projectRepository.GetMonthlyPayrollAsync(id);
                 return Ok(new { payroll });
             }
             catch (Exception ex)

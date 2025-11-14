@@ -7,9 +7,9 @@ namespace backend.Services
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _projectRepository;
-        private readonly IDireccionRepository _direccionRepository;
+        private readonly IDirectionRepository _direccionRepository;
 
-        public ProjectService(IProjectRepository projectRepository, IDireccionRepository direccionRepository)
+        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository)
         {
             _projectRepository = projectRepository;
             _direccionRepository = direccionRepository;
@@ -33,7 +33,7 @@ namespace backend.Services
                 throw new ArgumentException("Ya existe una empresa con esta cédula jurídica");
             }
 
-            // Create address using ProjectRepository (which delegates to DireccionRepository)
+            // Create address using ProjectRepository (which delegates to DirectionRepository)
             int direccionId = await _projectRepository.CreateDireccionAsync(
                 createProjectDto.Provincia,
                 createProjectDto.Canton,

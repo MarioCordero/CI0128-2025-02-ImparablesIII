@@ -68,7 +68,7 @@ builder.Services.AddCors(options =>
 // ===================================
 
 // Core repositories (base entities)
-builder.Services.AddScoped<IDireccionRepository, DireccionRepository>();
+builder.Services.AddScoped<IDirectionRepository, DirectionRepository>();
 builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
