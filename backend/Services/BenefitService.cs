@@ -67,7 +67,7 @@ namespace backend.Services
 
             foreach (var benefit in benefits)
             {
-                var company = await _projectRepository.ExistsByLegalIdAsync(benefit.CompanyId);
+                var company = await _projectRepository.GetByIdAsync(benefit.CompanyId);
                 result.Add(new BenefitResponseDto
                 {
                     CompanyId = benefit.CompanyId,

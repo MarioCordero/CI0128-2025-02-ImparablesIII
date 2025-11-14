@@ -23,12 +23,5 @@ namespace backend.Services
         Task<bool> ExistsByLegalIdAsync(string legalId);
         Task<bool> ExistsByEmailAsync(string email);
         Task<bool> ProjectExistsAsync(int id);
-        
-        // Métodos para estadísticas del dashboard
-        Task<int> GetActiveEmployeesCountAsync(int projectId);
-        Task<decimal> GetMonthlyPayrollAsync(int projectId);
-        Task<decimal> CalculateCurrentProfitabilityAsync(int projectId);
-        Task<decimal> CalculateLastMonthProfitabilityAsync(int projectId);
-        Task<List<NotificationDto>> GetProjectNotificationsAsync(int projectId);
     }
 }
