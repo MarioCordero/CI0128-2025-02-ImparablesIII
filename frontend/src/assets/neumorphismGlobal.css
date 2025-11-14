@@ -81,7 +81,7 @@
 }
 
 /* Card/Container */
-.neumorphism-card {
+.neumorphism-carddd {
   background: #E9F7FF;
   border-radius: 20px;
   box-shadow: 
@@ -91,7 +91,7 @@
 }
 
 /* Input Fields */
-.neumorphism-input {
+.neumorphism-inputt {
   background: #E9F7FF;
   border-radius: 12px;
   box-shadow: 
@@ -102,7 +102,7 @@
   transition: all 0.3s ease;
 }
 
-.neumorphism-input:focus {
+.neumorphism-inputt:focus {
   outline: none;
   box-shadow: 
     inset 6px 6px 12px rgba(0, 0, 0, 0.15),
