@@ -9,6 +9,5 @@ namespace backend.Repositories
         Task<DireccionDto?> GetDireccionByIdAsync(int id);
         Task<bool> TestConnectionAsync();
         Task<bool> UpdateDireccionAsync(Direccion direccion);
-
     }
 }

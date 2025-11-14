@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
-
 namespace backend.Controllers
 {
     [ApiController]
@@ -17,7 +16,6 @@ namespace backend.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ILogger<ProjectController> _logger;
         private readonly IProjectService _projectService;
-
 
         public ProjectController(
             IProjectRepository projectRepository,
@@ -77,17 +75,18 @@ namespace backend.Controllers
             }
         }
 
+        // CONSOLIDADO - Solo un método dashboard que usa el service
         [HttpGet("dashboard/{employerId}")]
-        public async Task<ActionResult<List<CompanyDashboardMainEmployerDto>>> GetProjectsForDashboard(int employerId)
+        public async Task<ActionResult<List<ProjectResponseDto>>> GetProjectsForDashboard(int employerId)
         {
             try
             {
-                var projects = await _projectRepository.GetProjectsForDashboardAsync(employerId);
+                var projects = await _projectService.GetProjectsForDashboardAsync(employerId);
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorRetrievingProjects, error = ex.Message });
+                return StatusCode(500, new { message = "Error al obtener proyectos para dashboard", error = ex.Message });
             }
         }
 
@@ -96,19 +95,15 @@ namespace backend.Controllers
         {
             try
             {
-                // Validate if Legal ID already exists
-                if (await _projectRepository.ExistsByLegalIdAsync(projectDto.LegalId))
+                if (await _projectRepository.ExistsByLegalIdAsync(projectDto.CedulaJuridica.ToString()))
                 {
                     return BadRequest(new { message = ReturnMessagesConstants.Project.LegalIdAlreadyExists });
                 }
-
-                // Validate if Email already exists
                 if (await _projectRepository.ExistsByEmailAsync(projectDto.Email))
                 {
                     return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
                 }
 
-                // Crear el proyecto mapeando del DTO
                 var project = new backend.Models.Project
                 {
                     Nombre = projectDto.Nombre,
@@ -125,12 +120,7 @@ namespace backend.Controllers
                 };
 
                 var createdProject = await _projectRepository.CreateAsync(project);
-                if (createdProject.Id > 0)
-                {
-                    return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, new { id = createdProject.Id });
-                }
-
-                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorCreatingProject });
+                return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, new { id = createdProject.Id });
             }
             catch (Exception ex)
             {
@@ -143,7 +133,7 @@ namespace backend.Controllers
         {
             try
             {
-                if (!await _projectRepository.ExistsByIdAsync(id))
+                if (!await _projectRepository.ExistsAsync(id))
                 {
                     return NotFound(new { message = ReturnMessagesConstants.Project.ProjectNotFound });
                 }
@@ -167,7 +157,7 @@ namespace backend.Controllers
         {
             try
             {
-                var count = await _projectRepository.CountActiveEmployeesAsync(id);
+                var count = await _projectService.GetActiveEmployeesCountAsync(id);
                 return Ok(new { count });
             }
             catch (Exception ex)
@@ -181,7 +171,7 @@ namespace backend.Controllers
         {
             try
             {
-                var payroll = await _projectRepository.GetMonthlyPayrollAsync(id);
+                var payroll = await _projectService.GetMonthlyPayrollAsync(id);
                 return Ok(new { payroll });
             }
             catch (Exception ex)
@@ -195,7 +185,7 @@ namespace backend.Controllers
         {
             try
             {
-                var success = await _projectRepository.ActivateAsync(id);
+                var success = await _projectService.ActivateProjectAsync(id);
                 if (success)
                 {
                     return Ok(new { message = ReturnMessagesConstants.Project.ProjectActivatedSuccessfully });
@@ -213,7 +203,7 @@ namespace backend.Controllers
         {
             try
             {
-                var success = await _projectRepository.DeactivateAsync(id);
+                var success = await _projectService.DeactivateProjectAsync(id);
                 if (success)
                 {
                     return Ok(new { message = ReturnMessagesConstants.Project.ProjectDeactivatedSuccessfully });

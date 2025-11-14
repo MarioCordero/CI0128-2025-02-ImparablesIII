@@ -1,7 +1,3 @@
-Claro, aquí tienes un README que explica cómo crear un componente básico en Vue.js usando Options API, junto con un prompt para que una IA pueda ayudarte a refactorizar cualquier componente hacia ese mismo formato uniforme.
-
----
-
 # README: Cómo crear un componente en Vue.js con Options API
 
 ## Introducción
