@@ -74,37 +74,29 @@ namespace backend.Repositories
                 return false;
             }
         }
-        public async Task<bool> UpdateDireccionAsync(Direccion direccion)
+
+        public async Task<bool> UpdateDireccionAsync(int id, DirectionDTO dto)
         {
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
 
-                var query = @"
-                    UPDATE PlaniFy.Direccion
-                    SET Provincia = @Provincia,
-                        Canton = @Canton,
-                        Distrito = @Distrito,
-                        DireccionParticular = @DireccionParticular
-                    WHERE id = @Id";
+            var query = @"
+                UPDATE PlaniFy.Direccion
+                SET Provincia = @Provincia,
+                    Canton = @Canton,
+                    Distrito = @Distrito,
+                    DireccionParticular = @DireccionParticular
+                WHERE Id = @Id";
 
-                var parameters = new
-                {
-                    Provincia = direccion.Provincia,
-                    Canton = direccion.Canton,
-                    Distrito = direccion.Distrito,
-                    DireccionParticular = direccion.DireccionParticular,
-                    Id = direccion.Id
-                };
+            var affected = await connection.ExecuteAsync(query, new {
+                Id = id,
+                dto.Provincia,
+                dto.Canton,
+                dto.Distrito,
+                dto.DireccionParticular
+            });
 
-                var affected = await connection.ExecuteAsync(query, parameters);
-                return affected > 0;
-            }
-            catch
-            {
-                return false;
-            }
+            return affected > 0;
         }
     }
 }
