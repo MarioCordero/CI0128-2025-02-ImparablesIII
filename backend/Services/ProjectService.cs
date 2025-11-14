@@ -15,7 +15,7 @@ namespace backend.Services
             _direccionRepository = direccionRepository;
         }
 
-        public async Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto)
+        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto)
         {
             // Validate unique constraints
             if (await _projectRepository.ExistsByNameAsync(createProjectDto.Nombre))
@@ -63,7 +63,7 @@ namespace backend.Services
             var createdProject = await _projectRepository.CreateAsync(project);
             var direccion = await _direccionRepository.GetDireccionByIdAsync(direccionId);
 
-            return new ProjectResponseDto
+            return new ProjectResponseDTO
             {
                 Id = createdProject.Id,
                 Nombre = createdProject.Nombre,
@@ -93,13 +93,13 @@ namespace backend.Services
             }).ToList();
         }
 
-        public async Task<ProjectResponseDto?> GetProjectByIdAsync(int id)
+        public async Task<ProjectResponseDTO?> GetProjectByIdAsync(int id)
         {
             return await _projectRepository.GetProjectWithDireccionAsync(id);
         }
 
         // Métodos para compatibilidad
-        public async Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
+        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
         {
             // Ignora el employerId ya que no está en tu esquema
             return await CreateProjectAsync(createProjectDto);
@@ -143,7 +143,7 @@ namespace backend.Services
             };
         }
 
-       public async Task<List<ProjectResponseDto>> GetProjectsForDashboardAsync(int employerId)
+       public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             try
             {
@@ -169,11 +169,11 @@ namespace backend.Services
             catch (Exception)
             {
                 // Log exception si necesario
-                return new List<ProjectResponseDto>();
+                return new List<ProjectResponseDTO>();
             }
         }
 
-        public async Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int id)
+        public async Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id)
         {
             return await _projectRepository.GetProjectWithDireccionAsync(id);
         }
