@@ -61,20 +61,6 @@ namespace backend.Repositories
             }
         }
 
-        public async Task<bool> TestConnectionAsync()
-        {
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         public async Task<bool> UpdateDireccionAsync(int id, DirectionDTO dto)
         {
             using var connection = new SqlConnection(_connectionString);
