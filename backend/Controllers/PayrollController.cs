@@ -1,5 +1,6 @@
 using backend.DTOs;
 using backend.Services;
+using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -18,13 +19,13 @@ namespace backend.Controllers
         public async Task<ActionResult<GeneratePayrollResponseDto>> GeneratePayrollWithBenefits([FromBody] GeneratePayrollRequestDto request)
         {
             if (request.CompanyId <= 0)
-                return BadRequest("CompanyId inválido.");
+                return BadRequest(ReturnMessagesConstants.Validation.CompanyIdInvalid);
 
             if (request.ResponsibleEmployeeId <= 0)
-                return BadRequest("ResponsibleEmployeeId inválido.");
+                return BadRequest(ReturnMessagesConstants.Validation.ResponsibleEmployeeIdInvalid);
 
             if (request.Hours <= 0)
-                return BadRequest("Hours debe ser mayor que cero.");
+                return BadRequest(ReturnMessagesConstants.Validation.HoursMustBeGreaterThanZero);
 
             try
             {
@@ -38,7 +39,7 @@ namespace backend.Controllers
                 var response = new GeneratePayrollResponseDto
                 {
                     PayrollId = payrollId,
-                    Message = "Planilla generada exitosamente con beneficios y deducciones.",
+                    Message = ReturnMessagesConstants.Payroll.PayrollGeneratedSuccessfully,
                     GeneratedAt = DateTime.Now
                 };
 
@@ -50,7 +51,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error al generar la planilla.", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Payroll.ErrorGeneratingPayroll, error = ex.Message });
             }
         }
 
@@ -58,7 +59,7 @@ namespace backend.Controllers
         public async Task<ActionResult<PayrollTotalsDto?>> GetLatestPayrollSummary([FromQuery] int companyId)
         {
             if (companyId <= 0)
-                return BadRequest("CompanyId inválido.");
+                return BadRequest(ReturnMessagesConstants.Validation.CompanyIdInvalid);
 
             var totals = await _service.GetLatestPayrollTotalsByCompanyAsync(companyId);
             if (totals == null)
@@ -72,7 +73,7 @@ namespace backend.Controllers
         public async Task<ActionResult<List<PayrollHistoryItemDto>>> GetPayrollHistory([FromQuery] int companyId)
         {
             if (companyId <= 0)
-                return BadRequest("CompanyId inválido.");
+                return BadRequest(ReturnMessagesConstants.Validation.CompanyIdInvalid);
 
             var history = await _service.GetPayrollHistoryByCompanyAsync(companyId);
             return Ok(history);

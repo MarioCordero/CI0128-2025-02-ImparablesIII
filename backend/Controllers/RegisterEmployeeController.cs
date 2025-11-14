@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Models;
 using backend.Services;
 using backend.DTOs;
+using backend.Constants;
 using System.ComponentModel.DataAnnotations;
 
 namespace backend.Controllers
@@ -45,14 +46,14 @@ namespace backend.Controllers
                 var cedulaExists = await _employeeService.ValidateCedulaExistsAsync(employeeDto.Cedula);
                 if (cedulaExists)
                 {
-                    return BadRequest(new { message = "La cédula ya está registrada en el sistema." });
+                    return BadRequest(new { message = ReturnMessagesConstants.Employee.CedulaAlreadyRegistered });
                 }
 
                 // Validate that email doesn't already exist
                 var emailExists = await _employeeService.ValidateEmailExistsAsync(employeeDto.Correo);
                 if (emailExists)
                 {
-                    return BadRequest(new { message = "El correo electrónico ya está registrado en el sistema." });
+                    return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
                 }
 
                 // Register the employee
@@ -68,7 +69,7 @@ namespace backend.Controllers
 
                 return Ok(new 
                 { 
-                    message = "Empleado registrado exitosamente. Se ha enviado un correo para configurar la contraseña.", 
+                    message = ReturnMessagesConstants.Employee.EmployeeRegisteredSuccessfully, 
                     employeeId = employeeId 
                 });
             }
@@ -76,7 +77,7 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "Error occurred while registering employee: {Message}", ex.Message);
                 _logger.LogError(ex, "Stack trace: {StackTrace}", ex.StackTrace);
-                return StatusCode(500, new { message = $"Error interno del servidor: {ex.Message}" });
+                return StatusCode(500, new { message = string.Format(ReturnMessagesConstants.General.InternalServerErrorWithDetail, ex.Message) });
             }
         }
 
@@ -91,7 +92,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while validating cedula");
-                return StatusCode(500, new { message = "Error interno del servidor." });
+                return StatusCode(500, new { message = ReturnMessagesConstants.General.InternalServerError });
             }
         }
 
@@ -106,7 +107,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while validating email");
-                return StatusCode(500, new { message = "Error interno del servidor." });
+                return StatusCode(500, new { message = ReturnMessagesConstants.General.InternalServerError });
             }
         }
 

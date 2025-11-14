@@ -1,5 +1,6 @@
 using backend.DTOs;
 using backend.Services;
+using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -28,7 +29,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving all benefits");
-                return StatusCode(500, new { message = "Error retrieving benefits", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorRetrievingBenefits, error = ex.Message });
             }
         }
 
@@ -48,7 +49,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving benefits for company {CompanyId}", companyId);
-                return StatusCode(500, new { message = "Error retrieving benefits", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorRetrievingBenefits, error = ex.Message });
             }
         }
 
@@ -60,14 +61,14 @@ namespace backend.Controllers
                 var benefit = await _benefitService.GetBenefitByIdAsync(companyId, name);
                 if (benefit == null)
                 {
-                    return NotFound(new { message = "Beneficio no encontrado" });
+                    return NotFound(new { message = ReturnMessagesConstants.Benefit.BenefitNotFound });
                 }
                 return Ok(benefit);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving benefit {Name} for company {CompanyId}", name, companyId);
-                return StatusCode(500, new { message = "Error retrieving benefit", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorRetrievingBenefit, error = ex.Message });
             }
         }
 
@@ -94,7 +95,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating benefit");
-                return StatusCode(500, new { message = "Error creating benefit", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorCreatingBenefit, error = ex.Message });
             }
         }
 
@@ -109,7 +110,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking if benefit exists: {CompanyId}, {Name}", companyId, name);
-                return StatusCode(500, new { message = "Error checking benefit existence", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorCheckingBenefitExistence, error = ex.Message });
             }
         }
 
@@ -135,7 +136,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating benefit {Name} for company {CompanyId}", name, companyId);
-                return StatusCode(500, new { message = "Error updating benefit", error = ex.Message });
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorUpdatingBenefit, error = ex.Message });
             }
         }
     }

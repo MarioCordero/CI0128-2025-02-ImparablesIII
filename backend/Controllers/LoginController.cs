@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.DTOs;
 using backend.Services;
+using backend.Constants;
 
 namespace backend.Controllers
 {
@@ -23,7 +24,7 @@ namespace backend.Controllers
                 return BadRequest(new LoginResponseDto
                 {
                     Success = false,
-                    Message = "Correo y contraseña son requeridos"
+                    Message = ReturnMessagesConstants.Validation.EmailAndPasswordRequired
                 });
             }
 
@@ -44,7 +45,7 @@ namespace backend.Controllers
             
             if (userData == null)
             {
-                return NotFound("Usuario no encontrado");
+                return NotFound(ReturnMessagesConstants.User.UserNotFound);
             }
 
             return Ok(userData);
