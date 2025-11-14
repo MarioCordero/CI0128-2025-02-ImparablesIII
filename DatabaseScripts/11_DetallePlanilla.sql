@@ -5,10 +5,10 @@ CREATE TABLE PlaniFy.DetallePlanilla (
     idEmpleado INT,
     idPlanilla INT,
     salarioBruto INT,
-    DeduccionesEmpleado INT,
-    DeduccionesEmpresa INT,
     totalBeneficios INT,
-    salarioNeto INT,
+    DeduccionesEmpleado INT,              -- AÑADIDO: Faltaba
+    salarioNeto INT,                      -- AÑADIDO: Faltaba
+    DeduccionesEmpresa INT,               -- AÑADIDO: Faltaba
     PRIMARY KEY (idEmpleado, idPlanilla),
     FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona),
     FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id)

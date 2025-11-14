@@ -106,6 +106,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import apiConfig from '../../config/api.js'
 
 const userId = '1212'
 
@@ -136,7 +137,7 @@ async function registerHours() {
       date: form.value.date,
       sessions: form.value.sessions
     }
-    await axios.post('http://localhost:3000/api/work-hours', payload)
+    await axios.post(apiConfig.endpoints.workHours, payload)
     await loadSummaries()
     await loadRecentRecords()
     form.value.sessions = [{ start: '', end: '' }]
@@ -147,9 +148,9 @@ async function registerHours() {
 
 async function loadSummaries() {
   const [week, month, total] = await Promise.all([
-    axios.get('http://localhost:3000/api/work-hours/summary', { params: { userId, scope: 'week' } }),
-    axios.get('http://localhost:3000/api/work-hours/summary', { params: { userId, scope: 'month' } }),
-    axios.get('http://localhost:3000/api/work-hours/summary', { params: { userId, scope: 'total' } })
+    axios.get(apiConfig.endpoints.workHoursSummary, { params: { userId, scope: 'week' } }),
+    axios.get(apiConfig.endpoints.workHoursSummary, { params: { userId, scope: 'month' } }),
+    axios.get(apiConfig.endpoints.workHoursSummary, { params: { userId, scope: 'total' } })
   ])
   summaries.value.week = week.data
   summaries.value.month = month.data
@@ -157,7 +158,7 @@ async function loadSummaries() {
 }
 
 async function loadRecentRecords() {
-  const res = await axios.get('http://localhost:3000/api/work-hours/recent', {
+  const res = await axios.get(apiConfig.endpoints.workHoursRecent, {
     params: { userId, limit: 5 }
   })
   recentRecords.value = res.data.recentRecords
