@@ -3,7 +3,7 @@ using backend.Models;
 
 namespace backend.Repositories
 {
-    public interface IDireccionRepository
+    public interface IDirectionRepository
     {
         Task<int> CreateDireccionAsync(string provincia, string canton, string distrito, string? direccionParticular);
         Task<DirectionDTO?> GetDireccionByIdAsync(int id);

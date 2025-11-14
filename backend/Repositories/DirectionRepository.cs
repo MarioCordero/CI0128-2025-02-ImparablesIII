@@ -6,11 +6,11 @@ using backend.Models;
 
 namespace backend.Repositories
 {
-    public class DireccionRepository : IDireccionRepository
+    public class DirectionRepository : IDirectionRepository
     {
         private readonly string _connectionString;
 
-        public DireccionRepository(IConfiguration configuration)
+        public DirectionRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }

@@ -8,9 +8,9 @@ namespace backend.Repositories
     public class ProjectRepository : IProjectRepository
     {
         private readonly string _connectionString;
-        private readonly IDireccionRepository _direccionRepository;
+        private readonly IDirectionRepository _direccionRepository;
 
-        public ProjectRepository(IConfiguration configuration, IDireccionRepository direccionRepository)
+        public ProjectRepository(IConfiguration configuration, IDirectionRepository direccionRepository)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
             _direccionRepository = direccionRepository;
@@ -323,10 +323,10 @@ namespace backend.Repositories
             return await GetAllAsync();
         }
 
-        public async Task<List<Project>> GetByCompanyIdAsync(int companyId)
+        public async Task<List<ProjectResponseDTO>> GetByCompanyIdAsync(int companyId)
         {
             var project = await GetByIdAsync(companyId);
-            return project != null ? new List<Project> { project } : new List<Project>();
+            return project != null ? new List<ProjectResponseDTO> { project } : new List<ProjectResponseDTO>();
         }
 
         public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
