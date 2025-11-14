@@ -46,7 +46,7 @@ namespace backend.DTOs
         public int MaximoBeneficios { get; set; }
     }
 
-    public class ProjectResponseDto
+    public class ProjectResponseDTO
     {
         public int Id { get; set; }
         public string Nombre { get; set; } = string.Empty;
@@ -55,7 +55,7 @@ namespace backend.DTOs
         public string PeriodoPago { get; set; } = string.Empty;
         public int? Telefono { get; set; }
         public int IdDireccion { get; set; }
-        public string? Direccion { get; set; }
+        public DirectionDTO? Direccion { get; set; }
         public int MaximoBeneficios { get; set; }
         public DateTime CreatedAt { get; set; }
         
@@ -132,6 +132,8 @@ namespace backend.DTOs
 
     public class DirectionDTO
     {
+        public int Id { get; set; }
+
         [Required]
         public string Provincia { get; set; }
 
@@ -149,11 +151,11 @@ namespace backend.DTOs
     {
         public bool Success { get; set; }
         public string ErrorMessage { get; set; }
-        public ProjectResponseDto Project { get; set; }
+        public ProjectResponseDTO Project { get; set; }
     }
 
     // Alias para compatibilidad durante la transición
-    public class ProjectListDto : ProjectResponseDto { }
-    public class CompanyDashboardMainEmployerDto : ProjectResponseDto { }
-    public class DashboardMainEmployerDto : ProjectResponseDto { }
+    public class ProjectListDto : ProjectResponseDTO { }
+    public class CompanyDashboardMainEmployerDto : ProjectResponseDTO { }
+    public class DashboardMainEmployerDto : ProjectResponseDTO { }
 }

@@ -16,7 +16,7 @@ namespace backend.Repositories
             _direccionRepository = direccionRepository;
         }
 
-        public async Task<ProjectResponseDto> CreateAsync(Project project)
+        public async Task<ProjectResponseDTO> CreateAsync(Project project)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -40,7 +40,7 @@ namespace backend.Repositories
             var id = await connection.QuerySingleAsync<int>(query, parameters);
             project.Id = id;
 
-            return new ProjectResponseDto
+            return new ProjectResponseDTO
             {
                 Id = project.Id,
                 Nombre = project.Nombre,
@@ -53,7 +53,7 @@ namespace backend.Repositories
             };
         }
 
-        public async Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int companyId)
+        public async Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int companyId)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -82,7 +82,7 @@ namespace backend.Repositories
 
             if (row != null)
             {
-                var project = new ProjectResponseDto
+                var project = new ProjectResponseDTO
                 {
                     Id = row.Id,
                     Nombre = row.Nombre,
@@ -106,7 +106,7 @@ namespace backend.Repositories
             return null;
         }
 
-        public async Task<ProjectResponseDto?> GetByIdAsync(int id)
+        public async Task<ProjectResponseDTO?> GetByIdAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -120,7 +120,7 @@ namespace backend.Repositories
             
             if (result != null)
             {
-                return new ProjectResponseDto
+                return new ProjectResponseDTO
                 {
                     Id = result.Id,
                     Nombre = result.Nombre,
@@ -162,7 +162,7 @@ namespace backend.Repositories
             return await connection.QueryFirstOrDefaultAsync<Project>(query, new { Email = email });
         }
 
-        public async Task<List<ProjectResponseDto>> GetAllAsync()
+        public async Task<List<ProjectResponseDTO>> GetAllAsync()
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -172,7 +172,7 @@ namespace backend.Repositories
                 FROM PlaniFy.Empresa";
 
             var results = await connection.QueryAsync(query);
-            return results.Select(r => new ProjectResponseDto
+            return results.Select(r => new ProjectResponseDTO
             {
                 Id = r.Id,
                 Nombre = r.Nombre,
@@ -317,7 +317,7 @@ namespace backend.Repositories
             return count > 0;
         }
 
-        public async Task<List<ProjectResponseDto>> GetByEmployerIdAsync(int employerId)
+        public async Task<List<ProjectResponseDTO>> GetByEmployerIdAsync(int employerId)
         {
             // TODO: Implementar relación employer-project según esquema BD
             return await GetAllAsync();
@@ -329,11 +329,11 @@ namespace backend.Repositories
             return project != null ? new List<Project> { project } : new List<Project>();
         }
 
-        public async Task<List<ProjectResponseDto>> GetProjectsForDashboardAsync(int employerId)
+        public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             var projects = await GetAllAsync();
 
-            return projects.Select(p => new ProjectResponseDto
+            return projects.Select(p => new ProjectResponseDTO
             {
                 Id = p.Id,
                 Nombre = p.Nombre,

@@ -30,7 +30,7 @@ namespace backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProjectResponseDto>>> GetAll()
+        public async Task<ActionResult<List<ProjectResponseDTO>>> GetAll()
         {
             try
             {
@@ -44,7 +44,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProjectResponseDto>> GetById(int id)
+        public async Task<ActionResult<ProjectResponseDTO>> GetById(int id)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("employer/{employerId}")]
-        public async Task<ActionResult<List<ProjectResponseDto>>> GetByEmployerId(int employerId)
+        public async Task<ActionResult<List<ProjectResponseDTO>>> GetByEmployerId(int employerId)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace backend.Controllers
 
         // CONSOLIDADO - Solo un método dashboard que usa el service
         [HttpGet("dashboard/{employerId}")]
-        public async Task<ActionResult<List<ProjectResponseDto>>> GetProjectsForDashboard(int employerId)
+        public async Task<ActionResult<List<ProjectResponseDTO>>> GetProjectsForDashboard(int employerId)
         {
             try
             {
@@ -245,7 +245,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("by-company/{companyId}")]
-        public async Task<ActionResult<ProjectResponseDto>> GetByCompanyId(int companyId)
+        public async Task<ActionResult<ProjectResponseDTO>> GetByCompanyId(int companyId)
         {
             var project = await _projectRepository.GetProjectWithDireccionAsync(companyId);
             if (project == null)
