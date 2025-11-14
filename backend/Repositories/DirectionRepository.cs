@@ -6,11 +6,11 @@ using backend.Models;
 
 namespace backend.Repositories
 {
-    public class DireccionRepository : IDireccionRepository
+    public class DirectionRepository : IDirectionRepository
     {
         private readonly string _connectionString;
 
-        public DireccionRepository(IConfiguration configuration)
+        public DirectionRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
@@ -43,7 +43,7 @@ namespace backend.Repositories
             }
         }
 
-        public async Task<DireccionDto?> GetDireccionByIdAsync(int id)
+        public async Task<DirectionDTO?> GetDireccionByIdAsync(int id)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace backend.Repositories
 
                 var query = "SELECT id, Provincia, Canton, Distrito, DireccionParticular FROM PlaniFy.Direccion WHERE id = @Id";
 
-                var result = await connection.QueryFirstOrDefaultAsync<DireccionDto>(query, new { Id = id });
+                var result = await connection.QueryFirstOrDefaultAsync<DirectionDTO>(query, new { Id = id });
                 return result;
             }
             catch (Exception)
@@ -61,50 +61,28 @@ namespace backend.Repositories
             }
         }
 
-        public async Task<bool> TestConnectionAsync()
+        public async Task<bool> UpdateDireccionAsync(int id, DirectionDTO dto)
         {
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-        public async Task<bool> UpdateDireccionAsync(Direccion direccion)
-        {
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
 
-                var query = @"
-                    UPDATE PlaniFy.Direccion
-                    SET Provincia = @Provincia,
-                        Canton = @Canton,
-                        Distrito = @Distrito,
-                        DireccionParticular = @DireccionParticular
-                    WHERE id = @Id";
+            var query = @"
+                UPDATE PlaniFy.Direccion
+                SET Provincia = @Provincia,
+                    Canton = @Canton,
+                    Distrito = @Distrito,
+                    DireccionParticular = @DireccionParticular
+                WHERE Id = @Id";
 
-                var parameters = new
-                {
-                    Provincia = direccion.Provincia,
-                    Canton = direccion.Canton,
-                    Distrito = direccion.Distrito,
-                    DireccionParticular = direccion.DireccionParticular,
-                    Id = direccion.Id
-                };
+            var affected = await connection.ExecuteAsync(query, new {
+                Id = id,
+                dto.Provincia,
+                dto.Canton,
+                dto.Distrito,
+                dto.DireccionParticular
+            });
 
-                var affected = await connection.ExecuteAsync(query, parameters);
-                return affected > 0;
-            }
-            catch
-            {
-                return false;
-            }
+            return affected > 0;
         }
     }
 }

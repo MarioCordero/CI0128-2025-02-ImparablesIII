@@ -4,11 +4,24 @@ namespace backend.Services
 {
     public interface IProjectService
     {
-        Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto);
+        // Métodos existentes - mantener tal como están
+        Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto);
         Task<List<ProjectListDto>> GetAllProjectsAsync();
-        Task<ProjectResponseDto?> GetProjectByIdAsync(int id);
+        Task<ProjectResponseDTO?> GetProjectByIdAsync(int id);
         Task<UpdateProjectResult> UpdateProjectAsync(int id, UpdateProjectDTO dto);
-        Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId);
+        Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId);
         Task<List<ProjectListDto>> GetProjectsByEmployerAsync(int employerId);
+
+        // Nuevos métodos para consolidar funcionalidad del dashboard
+        Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId);
+        Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id);
+        Task<bool> DeleteProjectAsync(int id);
+        Task<bool> ActivateProjectAsync(int id);
+        Task<bool> DeactivateProjectAsync(int id);
+        
+        // Métodos para validación
+        Task<bool> ExistsByLegalIdAsync(string legalId);
+        Task<bool> ExistsByEmailAsync(string email);
+        Task<bool> ProjectExistsAsync(int id);
     }
 }
