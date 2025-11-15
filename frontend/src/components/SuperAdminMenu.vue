@@ -156,7 +156,7 @@
 </template>
 
 <script>
-import '../assets/neumorphismGlobal.css'
+//import '../assets/neumorphismGlobal.css'
 import SuperAdminHeader from './common/SuperAdminHeader.vue'
 
 export default {

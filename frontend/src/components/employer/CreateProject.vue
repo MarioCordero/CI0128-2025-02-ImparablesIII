@@ -237,7 +237,7 @@
 <script>
 import axios from 'axios'
 import MainEmployerHeader from '../common/MainEmployerHeader.vue'
-import '../../assets/neumorphismGlobal.css'
+//import '../../assets/neumorphismGlobal.css'
 
 export default {
   // 1. Nombre del componente

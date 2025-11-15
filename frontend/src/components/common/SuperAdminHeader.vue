@@ -1,5 +1,5 @@
 <template>
-  <header class="grid grid-cols-3 items-center gap-[120px] mb-0 rounded-lg bg-[#dbeafe] px-20 min-h-[95px] max-h-[95px] shadow-[8px_8px_16px_#c1d5e8,-8px_-8px_16px_#ffffff] neumorphism-card">
+  <header class="neumorphism-header grid grid-cols-3 items-center gap-[120px]">
     <!-- Título -->
     <div class="flex items-center">
       <button
@@ -39,7 +39,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import '../../assets/neumorphismGlobal.css'
+//import '../../assets/neumorphismGlobal.css'
 
 const router = useRouter()
 const user = ref(null)
