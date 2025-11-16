@@ -1,41 +1,32 @@
-using backend.Models;
 using backend.DTOs;
+using backend.Models;
 
 namespace backend.Repositories
 {
     public interface IProjectRepository
     {
-        // CRUD básico
-        Task<Project> CreateAsync(Project project);
-        Task<Project?> GetByIdAsync(int id);
-        Task<Project?> GetByNameAsync(string nombre);
-        Task<Project?> GetByEmailAsync(string email);
-        Task<List<Project>> GetAllAsync();
+        Task<List<ProjectResponseDTO>> GetByEmployerIdAsync(int employerId);
+        Task<ProjectResponseDTO?> GetByIdAsync(int id);
+        Task<List<ProjectResponseDTO>> GetAllAsync();
+        Task<DirectionDTO?> GetDireccionByIdAsync(int id);
+        Task<decimal> GetMonthlyPayrollAsync(int projectId);
+        Task<int> CountActiveEmployeesAsync(int projectId);
+        Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id);
+        Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId);
+
+        Task<ProjectResponseDTO> CreateAsync(Project project);
+        Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular);
+
         Task<bool> UpdateAsync(int id, UpdateProjectDTO dto);
+        Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion);
+
+        Task<bool> ActivateAsync(int id);
+        Task<bool> DeactivateAsync(int id);
         Task<bool> DeleteAsync(int id);
 
-        // Validaciones de existencia
-        Task<bool> ExistsByIdAsync(int id);
         Task<bool> ExistsByNameAsync(string nombre);
         Task<bool> ExistsByEmailAsync(string email);
-        Task<bool> ExistsByCedulaJuridicaAsync(int cedulaJuridica);
-        Task<bool> ExistsByLegalIdAsync(string legalId);
-
-        // Consultas específicas
-        Task<List<Project>> GetByEmployerIdAsync(int employerId);
-        Task<List<Project>> GetByCompanyIdAsync(int companyId);
-        Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int id);
-        Task<List<CompanyDashboardMainEmployerDto>> GetProjectsForDashboardAsync(int employerId);
-
-        // Operaciones de negocio
-        Task<int> CountActiveEmployeesAsync(int projectId);
-        Task<decimal> GetMonthlyPayrollAsync(int projectId);
-        Task<bool> ActivateAsync(int projectId);
-        Task<bool> DeactivateAsync(int projectId);
-
-        // Dirección (delegadas)
-        Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular);
-        Task<DireccionDto?> GetDireccionByIdAsync(int id);
-
+        Task<bool> ExistsByLegalIdAsync(string legalId); // Cedula Jurídica
+        Task<bool> ExistsAsync(int id); // Id
     }
 }

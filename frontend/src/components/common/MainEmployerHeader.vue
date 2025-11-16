@@ -42,6 +42,8 @@
 </template>
 
 <script>
+import apiConfig from '../../config/api.js'
+
 export default {
   name: 'MainEmployerHeader',
   data() {
@@ -57,7 +59,7 @@ export default {
   methods: {
     async fetchCompanies() {
       try {
-        const response = await fetch('http://localhost:5011/api/Project')
+        const response = await fetch(apiConfig.endpoints.project)
         if (response.ok) {
           this.companies = await response.json()
         }

@@ -3,14 +3,23 @@
   "tasks": [
     {
       "label": "build-backend",
-      "command": "dotnet",
-      "type": "process",
+      "command": "/usr/local/share/dotnet/dotnet",
+      "type": "shell",
       "args": [
         "build",
         "${workspaceFolder}/backend/backend-lab.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
+      "options": {
+        "shell": {
+          "executable": "/bin/zsh",
+          "args": ["-c"]
+        },
+        "env": {
+          "PATH": "${env:PATH}:/usr/local/share/dotnet"
+        }
+      },
       "problemMatcher": "$msCompile"
     },
     {
@@ -23,6 +32,17 @@
       },
       "isBackground": true,
       "problemMatcher": {
+        "pattern": {
+          "regexp": "^$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": ".*Local:.*http://localhost:8080.*"
+        }
       }
     }
   ]

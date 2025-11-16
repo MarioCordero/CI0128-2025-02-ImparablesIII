@@ -14,7 +14,7 @@
     <div v-else class="space-y-[33px]">
       <div v-for="company in companies" :key="company.id">
         <div class="flex items-center justify-between mb-3">
-          <h3 class="text-lg font-bold text-black">{{ company.name }}</h3>
+          <h3 class="text-lg font-bold text-black">{{ company.nombre }}</h3>
           <button
             class="neumorphism-button-normal-blue"
             @click="goToDashboard(company.id)"
@@ -35,7 +35,7 @@
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1">{{ company.legalId }}</p>
+                <p class="font-bold text-[28px] mb-1">{{ company.cedulaJuridica }}</p>
                 <p class="text-[15px]">de la empresa</p>
               </div>
             </div>
@@ -52,8 +52,8 @@
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1">{{ company.payPeriod }}</p>
-                <p class="text-[15px]">{{ formatPeriodDescription(company.payPeriod) }}</p>
+                <p class="font-bold text-[28px] mb-1">{{ company.periodoPago }}</p>
+                <p class="text-[15px]">{{ formatPeriodDescription(company.periodoPago) }}</p>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@
           <h4 class="font-semibold text-blue-700 mb-2">Notificaciones</h4>
           <ul class="list-disc pl-5">
             <li v-for="(note, idx) in company.notifications" :key="idx" class="text-gray-700">
-              {{ note }}
+              {{ note.message }}
             </li>
           </ul>
         </div>
@@ -108,16 +108,16 @@
 </template>
 
 <script>
+import apiConfig from '../../config/api.js'
+
 export default {
   name: 'ProjectList',
-
   props: {
     userId: {
       type: [String, Number],
       required: true
     }
   },
-
   data() {
     return {
       companies: [],
@@ -125,7 +125,6 @@ export default {
       error: null
     }
   },
-
   watch: {
     userId: {
       immediate: true,
@@ -134,13 +133,12 @@ export default {
       }
     }
   },
-
   methods: {
     async fetchCompaniesByUser(userId) {
       try {
         this.loading = true;
         this.error = null;
-        const response = await fetch(`http://localhost:5011/api/Project/dashboard/${userId}`);
+        const response = await fetch(apiConfig.endpoints.projectDashboard(userId));
         if (!response.ok) throw new Error('No se pudieron cargar las empresas');
         const data = await response.json();
         this.companies = data;
@@ -150,7 +148,6 @@ export default {
         this.loading = false;
       }
     },
-
     formatPeriodDescription(period) {
       switch (period) {
         case 'Mensual': return 'Pago cada mes';
@@ -159,7 +156,6 @@ export default {
         default: return '';
       }
     },
-
     goToDashboard(companyId) {
       const company = this.companies.find(c => c.id === companyId)
       if (company) {

@@ -48,6 +48,7 @@
 <script>
 import MainEmployerHeader from '../common/MainEmployerHeader.vue'
 import ProjectList from './ProjectList.vue'
+import apiConfig from '../../config/api.js'
 import StatsCard from './StatsCard.vue'
 import NotificationsCard from './projectDashboard/NotificationsCard.vue'
 
@@ -60,7 +61,6 @@ export default {
     StatsCard,
     NotificationsCard
   },
-
   data() {
     return {
       companies: [],
@@ -74,12 +74,11 @@ export default {
     navigateToCreateProject() {
       this.$router.push('/create-project')
     },
-
     async fetchCompanies() {
       this.loading = true
       this.error = null
       try {
-        const response = await fetch('http://localhost:5011/api/Project')
+        const response = await fetch(apiConfig.endpoints.project)
         if (!response.ok) throw new Error('No se pudo cargar las empresas')
         this.companies = await response.json()
       } catch (err) {
@@ -89,7 +88,6 @@ export default {
       }
     }
   },
-
   created() {
     const userRaw = localStorage.getItem('user')
     if (userRaw) {

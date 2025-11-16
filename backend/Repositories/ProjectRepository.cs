@@ -8,15 +8,15 @@ namespace backend.Repositories
     public class ProjectRepository : IProjectRepository
     {
         private readonly string _connectionString;
-        private readonly IDireccionRepository _direccionRepository;
+        private readonly IDirectionRepository _direccionRepository;
 
-        public ProjectRepository(IConfiguration configuration, IDireccionRepository direccionRepository)
+        public ProjectRepository(IConfiguration configuration, IDirectionRepository direccionRepository)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
             _direccionRepository = direccionRepository;
         }
 
-        public async Task<Project> CreateAsync(Project project)
+        public async Task<ProjectResponseDTO> CreateAsync(Project project)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -39,10 +39,21 @@ namespace backend.Repositories
 
             var id = await connection.QuerySingleAsync<int>(query, parameters);
             project.Id = id;
-            return project;
+
+            return new ProjectResponseDTO
+            {
+                Id = project.Id,
+                Nombre = project.Nombre,
+                CedulaJuridica = project.CedulaJuridica,
+                Email = project.Email,
+                PeriodoPago = project.PeriodoPago,
+                Telefono = project.Telefono,
+                MaximoBeneficios = project.MaximoBeneficios,
+                IdDireccion = project.IdDireccion
+            };
         }
 
-        public async Task<ProjectResponseDto?> GetProjectWithDireccionAsync(int companyId)
+        public async Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int companyId)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -71,7 +82,7 @@ namespace backend.Repositories
 
             if (row != null)
             {
-                var project = new ProjectResponseDto
+                var project = new ProjectResponseDTO
                 {
                     Id = row.Id,
                     Nombre = row.Nombre,
@@ -81,7 +92,7 @@ namespace backend.Repositories
                     Telefono = row.Telefono,
                     IdDireccion = row.IdDireccion,
                     MaximoBeneficios = row.MaximoBeneficios,
-                    Direccion = row.DireccionId != null ? new DireccionDto
+                    Direccion = row.DireccionId != null ? new DirectionDTO
                     {
                         Id = row.DireccionId,
                         Provincia = row.Provincia,
@@ -95,17 +106,34 @@ namespace backend.Repositories
             return null;
         }
 
-        public async Task<Project?> GetByIdAsync(int id)
+        public async Task<ProjectResponseDTO?> GetByIdAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
             var query = @"
-                SELECT Id, Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion
+                SELECT Id, Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios
                 FROM PlaniFy.Empresa
                 WHERE Id = @Id";
 
-            return await connection.QueryFirstOrDefaultAsync<Project>(query, new { Id = id });
+            var result = await connection.QueryFirstOrDefaultAsync(query, new { Id = id });
+            
+            if (result != null)
+            {
+                return new ProjectResponseDTO
+                {
+                    Id = result.Id,
+                    Nombre = result.Nombre,
+                    CedulaJuridica = result.CedulaJuridica,
+                    Email = result.Email,
+                    PeriodoPago = result.PeriodoPago,
+                    Telefono = result.Telefono,
+                    IdDireccion = result.idDireccion,
+                    MaximoBeneficios = result.MaximoBeneficios,
+                    CreatedAt = DateTime.Now
+                };
+            }
+            return null;
         }
 
         public async Task<Project?> GetByNameAsync(string nombre)
@@ -134,40 +162,110 @@ namespace backend.Repositories
             return await connection.QueryFirstOrDefaultAsync<Project>(query, new { Email = email });
         }
 
-        public async Task<List<Project>> GetAllAsync()
+        public async Task<List<ProjectResponseDTO>> GetAllAsync()
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
             var query = @"
-                SELECT Id, Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion
+                SELECT Id, Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios
                 FROM PlaniFy.Empresa";
 
-            var projects = await connection.QueryAsync<Project>(query);
-            return projects.ToList();
+            var results = await connection.QueryAsync(query);
+            return results.Select(r => new ProjectResponseDTO
+            {
+                Id = r.Id,
+                Nombre = r.Nombre,
+                CedulaJuridica = r.CedulaJuridica,
+                Email = r.Email,
+                PeriodoPago = r.PeriodoPago,
+                Telefono = r.Telefono,
+                IdDireccion = r.idDireccion,
+                MaximoBeneficios = r.MaximoBeneficios,
+                CreatedAt = DateTime.Now
+            }).ToList();
         }
 
-        public async Task<bool> UpdateAsync(int id, UpdateProjectDTO updateDto)
+        public async Task<bool> UpdateAsync(int id, UpdateProjectDTO dto)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            using var transaction = await connection.BeginTransactionAsync();
+
+            try
+            {
+                // Update company information
+                var updateCompanyQuery = @"
+                    UPDATE PlaniFy.Empresa 
+                    SET 
+                        Nombre = @Nombre,
+                        Email = @Email,
+                        PeriodoPago = @PeriodoPago,
+                        Telefono = @Telefono,
+                        MaximoBeneficios = @MaximoBeneficios
+                    WHERE Id = @Id";
+
+                var companyParameters = new
+                {
+                    Id = id,
+                    Nombre = dto.Nombre,
+                    Email = dto.Email,
+                    PeriodoPago = dto.PeriodoPago,
+                    Telefono = dto.Telefono,
+                    MaximoBeneficios = dto.MaximoBeneficios
+                };
+
+                var rowsAffected = await connection.ExecuteAsync(updateCompanyQuery, companyParameters, transaction);
+
+                // If address information is provided, update it as well
+                if (dto.Direccion != null)
+                {
+                    // Get the current address ID
+                    var getAddressIdQuery = "SELECT idDireccion FROM PlaniFy.Empresa WHERE Id = @Id";
+                    var addressId = await connection.QuerySingleOrDefaultAsync<int?>(getAddressIdQuery, new { Id = id }, transaction);
+
+                    if (addressId.HasValue)
+                    {
+                        var updateAddressQuery = @"
+                            UPDATE PlaniFy.Direccion 
+                            SET 
+                                Provincia = @Provincia,
+                                Canton = @Canton,
+                                Distrito = @Distrito,
+                                DireccionParticular = @DireccionParticular
+                            WHERE Id = @Id";
+
+                        var addressParameters = new
+                        {
+                            Id = addressId.Value,
+                            Provincia = dto.Direccion.Provincia,
+                            Canton = dto.Direccion.Canton,
+                            Distrito = dto.Direccion.Distrito,
+                            DireccionParticular = dto.Direccion.DireccionParticular
+                        };
+
+                        await connection.ExecuteAsync(updateAddressQuery, addressParameters, transaction);
+                    }
+                }
+
+                await transaction.CommitAsync();
+                return rowsAffected > 0;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<bool> ExistsAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
-            var query = @"
-                UPDATE PlaniFy.Empresa 
-                SET Nombre = @Nombre, Email = @Email, PeriodoPago = @PeriodoPago, Telefono = @Telefono
-                WHERE Id = @Id";
-
-            var parameters = new
-            {
-                Id = id,
-                Nombre = updateDto.Nombre,
-                Email = updateDto.Email,
-                PeriodoPago = updateDto.PeriodoPago,
-                Telefono = updateDto.Telefono
-            };
-
-            var rowsAffected = await connection.ExecuteAsync(query, parameters);
-            return rowsAffected > 0;
+            var query = "SELECT COUNT(1) FROM PlaniFy.Empresa WHERE Id = @Id";
+            var count = await connection.QuerySingleAsync<int>(query, new { Id = id });
+            return count > 0;
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -209,53 +307,52 @@ namespace backend.Repositories
             return count > 0;
         }
 
-        public async Task<bool> ExistsByCedulaJuridicaAsync(int cedulaJuridica)
+        public async Task<bool> ExistsByLegalIdAsync(string legalId)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
             var query = "SELECT COUNT(1) FROM PlaniFy.Empresa WHERE CedulaJuridica = @CedulaJuridica";
-            var count = await connection.QuerySingleAsync<int>(query, new { CedulaJuridica = cedulaJuridica });
+            var count = await connection.QuerySingleAsync<int>(query, new { CedulaJuridica = legalId });
             return count > 0;
         }
 
-        public async Task<bool> ExistsByLegalIdAsync(string legalId)
-        {
-            if (int.TryParse(legalId, out int cedulaJuridica))
-            {
-                return await ExistsByCedulaJuridicaAsync(cedulaJuridica);
-            }
-            return false;
-        }
-
-        public async Task<List<Project>> GetByEmployerIdAsync(int employerId)
+        public async Task<List<ProjectResponseDTO>> GetByEmployerIdAsync(int employerId)
         {
             // TODO: Implementar relación employer-project según esquema BD
             return await GetAllAsync();
         }
 
-        public async Task<List<Project>> GetByCompanyIdAsync(int companyId)
+        public async Task<List<ProjectResponseDTO>> GetByCompanyIdAsync(int companyId)
         {
             var project = await GetByIdAsync(companyId);
-            return project != null ? new List<Project> { project } : new List<Project>();
+            return project != null ? new List<ProjectResponseDTO> { project } : new List<ProjectResponseDTO>();
         }
 
-        public async Task<List<CompanyDashboardMainEmployerDto>> GetProjectsForDashboardAsync(int employerId)
+        public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             var projects = await GetAllAsync();
 
-            return projects.Select(p => new CompanyDashboardMainEmployerDto
+            return projects.Select(p => new ProjectResponseDTO
             {
                 Id = p.Id,
-                Name = p.Nombre,
-                LegalId = p.CedulaJuridica.ToString(),
-                ActiveEmployees = 0, // TODO: Implementar
-                PayPeriod = p.PeriodoPago,
-                MonthlyPayroll = 0, // TODO: Implementar
-                CurrentProfitability = 0, // TODO: Implementar
-                LastMonthProfitability = 0, // TODO: Implementar
+                Nombre = p.Nombre,
+                CedulaJuridica = p.CedulaJuridica,
+                Email = p.Email,
+                PeriodoPago = p.PeriodoPago,
+                Telefono = p.Telefono,
+                MaximoBeneficios = p.MaximoBeneficios,
+                ActiveEmployees = 0, // TODO: Implement
+                MonthlyPayroll = 0, // TODO: Implement
+                CurrentProfitability = 0, // TODO: Implement
+                LastMonthProfitability = 0, // TODO: Implement
                 Notifications = new List<NotificationDto>()
             }).ToList();
+        }
+
+        public async Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion)
+        {
+            return await _direccionRepository.UpdateDireccionAsync(id, direccion);
         }
 
         public async Task<int> CountActiveEmployeesAsync(int projectId)
@@ -263,7 +360,7 @@ namespace backend.Repositories
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             
-            var query = "SELECT COUNT(*) FROM PlaniFy.Empleado WHERE EmpresaId = @ProjectId";
+            var query = "SELECT COUNT(*) FROM PlaniFy.Empleado WHERE idEmpresa = @ProjectId";
             var count = await connection.QuerySingleOrDefaultAsync<int>(query, new { ProjectId = projectId });
             return count;
         }
@@ -306,9 +403,27 @@ namespace backend.Repositories
             return await _direccionRepository.CreateDireccionAsync(provincia, canton ?? string.Empty, distrito ?? string.Empty, direccionParticular);
         }
 
-        public async Task<DireccionDto?> GetDireccionByIdAsync(int id)
+        public async Task<DirectionDTO?> GetDireccionByIdAsync(int id)
         {
             return await _direccionRepository.GetDireccionByIdAsync(id);
+        }
+
+        private decimal CalculateProfitability(decimal payroll)
+        {
+            // Implementación temporal - ajustar según tu lógica
+            return payroll > 0 ? 15.5m : 0m;
+        }
+
+        private decimal CalculateLastMonthProfitability(int projectId)
+        {
+            // Implementación temporal - ajustar según tu lógica
+            return 12.3m;
+        }
+
+        private List<NotificationDto> GetProjectNotifications(int projectId)
+        {
+            // Implementación temporal - ajustar según tu lógica
+            return new List<NotificationDto>();
         }
     }
 }

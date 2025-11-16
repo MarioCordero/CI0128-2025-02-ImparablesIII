@@ -12,6 +12,7 @@ namespace backend.Services
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IEmployeeBenefitRepository _employeeBenefitRepository;
     private readonly IBenefitRepository _benefitRepository;
+    private readonly IProjectRepository _projectRepository;
     private readonly PrivateInsurance _privateInsuranceService;
     private readonly SolidarityAssociation _solidarityAssociationService;
     private readonly VoluntaryPension _voluntaryPensionService;
@@ -21,6 +22,7 @@ namespace backend.Services
         IEmployeeRepository employeeRepository,
         IEmployeeBenefitRepository employeeBenefitRepository,
         IBenefitRepository benefitRepository,
+        IProjectRepository projectRepository,
         PrivateInsurance privateInsuranceService,
         SolidarityAssociation solidarityAssociationService,
         VoluntaryPension voluntaryPensionService,
@@ -29,6 +31,7 @@ namespace backend.Services
       _employeeRepository = employeeRepository;
       _employeeBenefitRepository = employeeBenefitRepository;
       _benefitRepository = benefitRepository;
+      _projectRepository = projectRepository;
       _privateInsuranceService = privateInsuranceService;
       _solidarityAssociationService = solidarityAssociationService;
       _voluntaryPensionService = voluntaryPensionService;
@@ -237,9 +240,16 @@ namespace backend.Services
 
     private async Task<List<BenefitDeductionDto>> CalculateSolidarityAssociationDeductionsAsync(EmployeeBenefitCalculationDto employeeBenefit)
     {
-      var companyId = employeeBenefit.CompanyId.ToString();
+      var company = await _projectRepository.GetByIdAsync(employeeBenefit.CompanyId);
+      if (company == null)
+      {
+        _logger.LogWarning("Company with ID {CompanyId} not found", employeeBenefit.CompanyId);
+        throw new ArgumentException($"Company with ID {employeeBenefit.CompanyId} not found");
+      }
+
+      var cedulaJuridica = company.CedulaJuridica.ToString();
       var grossSalary = (decimal)employeeBenefit.EmployeeSalary;
-      var solidarityDeductions = await _solidarityAssociationService.CalculateAsync(companyId, grossSalary);
+      var solidarityDeductions = await _solidarityAssociationService.CalculateAsync(cedulaJuridica, grossSalary);
       return ConvertDeductionItemsToBenefitDeductions(solidarityDeductions);
     }
 

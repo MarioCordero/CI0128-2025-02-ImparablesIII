@@ -1,7 +1,7 @@
 <template>
     <div class="bg-[#dbeafe] min-h-screen">
         <EmployeeHeader v-if="!isEmployer" :user="user" />
-        <MainEmployerHeader v-else :user="user" />
+        <MainEmployerHeader v-else />
         
         <div class="mx-[171px] my-[41px] space-y-[41px] pb-[41px]">
             
@@ -258,30 +258,25 @@
 </template>
 
 <script>
-import "../assets/Neumorfismo.css";
-import EmployeeHeader from './common/EmployeeHeader.vue'
-import MainEmployerHeader from './common/MainEmployerHeader.vue'
+import EmployeeHeader from '../common/EmployeeHeader.vue';
+import MainEmployerHeader from '../common/MainEmployerHeader.vue';
+import apiConfig from '../../config/api.js';
 
 export default {
   name: 'EditInfoEmployee',
-
   components: { 
     EmployeeHeader,
     MainEmployerHeader
   },
-
   props: {
     id: {
       type: [String, Number],
       required: true
     }
   },
-
   data() {
     return {
-
       isEmployer: false,
-
       userData: {
         user: {
           nombre: '',
@@ -312,11 +307,9 @@ export default {
         direccionParticular: '',
         direccion: '',
         iban: '',
-
         departamento: '',
         puesto: '', 
         salario: 0
-
       },
       originalUserData: {},
       user: null,
@@ -382,8 +375,6 @@ export default {
           this.saving = false;
           return;
         }
-
-        // Validación de campos laborales si es empleador
         if (this.isEmployer && (
           !this.editedUserData.departamento.trim() ||
           !this.editedUserData.puesto.trim() ||
@@ -393,7 +384,6 @@ export default {
           this.saving = false;
           return;
         }
-
         const updateData = {
           nombre: this.editedUserData.nombre.trim(),
           segundoNombre: this.editedUserData.segundoNombre.trim(),
@@ -404,34 +394,25 @@ export default {
           distrito: this.editedUserData.distrito.trim(),
           direccionParticular: this.editedUserData.direccionParticular.trim(),
           iban: this.editedUserData.iban.trim(),
-
           departamento: this.editedUserData.departamento.trim(),
           puesto: this.editedUserData.puesto.trim(),
           salario: this.editedUserData.salario
-
         };
-
-        console.log('Enviando datos al backend:', updateData);
-
-        const response = await fetch(`http://localhost:5011/api/ProfileEmployee/${this.id}`, {
+        const response = await fetch(apiConfig.endpoints.profileEmployee(this.id), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(updateData)
         });
-
         const result = await response.json();
-
         if (response.ok && result.success) {
           this.successMessage = result.message;
           this.isEditing = false;
-          
           await this.fetchUserData();
         } else {
           this.error = result.message || 'Error al guardar los cambios';
         }
-
       } catch (error) {
         console.error('Error al guardar cambios:', error);
         this.error = 'Error de conexión al servidor';
@@ -477,7 +458,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await fetch(`http://localhost:5011/api/ProfileEmployee/${this.id}`);
+        const response = await fetch(apiConfig.endpoints.profileEmployee(this.id));
         
         if (!response.ok) {
           throw new Error('Error al obtener los datos del usuario');
@@ -504,7 +485,6 @@ export default {
         }
       }
     },
-
 
     checkUserRole() {
       const userRaw = localStorage.getItem('user');

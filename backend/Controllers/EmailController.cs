@@ -1,5 +1,6 @@
 using backend.DTOs;
 using backend.Services;
+using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -52,7 +53,7 @@ namespace backend.Controllers
         [HttpGet("health")]
         public IActionResult HealthCheck()
         {
-            return Ok(new { Status = "Email service is running", Timestamp = DateTime.UtcNow });
+            return Ok(new { Status = ReturnMessagesConstants.Email.EmailServiceRunning, Timestamp = DateTime.UtcNow });
         }
     }
 }
