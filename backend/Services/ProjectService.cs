@@ -7,15 +7,15 @@ namespace backend.Services
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _projectRepository;
-        private readonly IDireccionRepository _direccionRepository;
+        private readonly IDirectionRepository _direccionRepository;
 
-        public ProjectService(IProjectRepository projectRepository, IDireccionRepository direccionRepository)
+        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository)
         {
             _projectRepository = projectRepository;
             _direccionRepository = direccionRepository;
         }
 
-        public async Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto)
+        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto)
         {
             // Validate unique constraints
             if (await _projectRepository.ExistsByNameAsync(createProjectDto.Nombre))
@@ -28,12 +28,12 @@ namespace backend.Services
                 throw new ArgumentException("Ya existe una empresa con este correo electrónico");
             }
 
-            if (await _projectRepository.ExistsByCedulaJuridicaAsync(createProjectDto.CedulaJuridica))
+            if (await _projectRepository.ExistsByLegalIdAsync(createProjectDto.CedulaJuridica.ToString()))
             {
                 throw new ArgumentException("Ya existe una empresa con esta cédula jurídica");
             }
 
-            // Create address using ProjectRepository (which delegates to DireccionRepository)
+            // Create address using ProjectRepository (which delegates to DirectionRepository)
             int direccionId = await _projectRepository.CreateDireccionAsync(
                 createProjectDto.Provincia,
                 createProjectDto.Canton,
@@ -63,7 +63,7 @@ namespace backend.Services
             var createdProject = await _projectRepository.CreateAsync(project);
             var direccion = await _direccionRepository.GetDireccionByIdAsync(direccionId);
 
-            return new ProjectResponseDto
+            return new ProjectResponseDTO
             {
                 Id = createdProject.Id,
                 Nombre = createdProject.Nombre,
@@ -93,13 +93,13 @@ namespace backend.Services
             }).ToList();
         }
 
-        public async Task<ProjectResponseDto?> GetProjectByIdAsync(int id)
+        public async Task<ProjectResponseDTO?> GetProjectByIdAsync(int id)
         {
             return await _projectRepository.GetProjectWithDireccionAsync(id);
         }
 
         // Métodos para compatibilidad
-        public async Task<ProjectResponseDto> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
+        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
         {
             // Ignora el employerId ya que no está en tu esquema
             return await CreateProjectAsync(createProjectDto);
@@ -116,35 +116,22 @@ namespace backend.Services
             if (project == null)
                 return new UpdateProjectResult { Success = false, ErrorMessage = "Empresa no encontrada." };
 
-            project.Nombre = dto.Nombre.Trim();
-            project.CedulaJuridica = dto.CedulaJuridica;
-            project.Email = dto.Email.Trim();
-            project.Telefono = dto.Telefono;
-            project.PeriodoPago = dto.PeriodoPago;
-            project.MaximoBeneficios = dto.MaximoBeneficios;
-
-            // Recupera la dirección como DTO
-            var direccionDto = await _direccionRepository.GetDireccionByIdAsync(project.IdDireccion);
-
-            // Convierte el DTO a modelo para actualizar
-            var direccionModel = direccionDto != null
-                ? new Direccion
+            // Update address first if it exists and dto.Direccion is provided
+            if (dto.Direccion != null)
+            {
+                var direccionModel = new Direccion
                 {
-                    Id = direccionDto.Id,
-                    Provincia = dto.Direccion.Provincia,
-                    Canton = dto.Direccion.Canton,
-                    Distrito = dto.Direccion.Distrito,
-                    DireccionParticular = dto.Direccion.DireccionParticular
-                }
-                : new Direccion
-                {
+                    Id = project.IdDireccion,
                     Provincia = dto.Direccion.Provincia,
                     Canton = dto.Direccion.Canton,
                     Distrito = dto.Direccion.Distrito,
                     DireccionParticular = dto.Direccion.DireccionParticular
                 };
 
-            await _direccionRepository.UpdateDireccionAsync(direccionModel);
+                await _projectRepository.UpdateDireccionAsync(project.IdDireccion, dto.Direccion);
+            }
+
+            // Update project using repository method
             await _projectRepository.UpdateAsync(id, dto);
 
             var updatedProject = await _projectRepository.GetProjectWithDireccionAsync(id);
@@ -154,6 +141,75 @@ namespace backend.Services
                 Success = true,
                 Project = updatedProject
             };
+        }
+
+       public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
+        {
+            try
+            {
+                var projects = await _projectRepository.GetProjectsForDashboardAsync(employerId);
+                
+                foreach (var project in projects)
+                {
+                    // project.ActiveEmployees = await GetActiveEmployeesCountAsync(project.Id);
+                    // project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id);
+                    // project.CurrentProfitability = await CalculateCurrentProfitabilityAsync(project.Id);
+                    // project.LastMonthProfitability = await CalculateLastMonthProfitabilityAsync(project.Id);
+                    // project.Notifications = await GetProjectNotificationsAsync(project.Id);
+
+                    project.ActiveEmployees = 0; // Placeholder si no se implementa
+                    project.MonthlyPayroll = 0; // Placeholder si no se implementa
+                    project.CurrentProfitability = 0; // Placeholder si no se implementa
+                    project.LastMonthProfitability = 0; // Placeholder si no se implementa
+                    project.Notifications = new List<NotificationDto>(); // Placeholder si no se implementa
+                }
+                
+                return projects;
+            }
+            catch (Exception)
+            {
+                // Log exception si necesario
+                return new List<ProjectResponseDTO>();
+            }
+        }
+
+        public async Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id)
+        {
+            return await _projectRepository.GetProjectWithDireccionAsync(id);
+        }
+
+        public async Task<bool> DeleteProjectAsync(int id)
+        {
+            return await _projectRepository.DeleteAsync(id);
+        }
+
+        public async Task<bool> ActivateProjectAsync(int id)
+        {
+            return await _projectRepository.ActivateAsync(id);
+        }
+
+        public async Task<bool> DeactivateProjectAsync(int id)
+        {
+            return await _projectRepository.DeactivateAsync(id);
+        }
+
+        // ======================================
+        // MÉTODOS DE VALIDACIÓN
+        // ======================================
+
+        public async Task<bool> ExistsByLegalIdAsync(string legalId)
+        {
+            return await _projectRepository.ExistsByLegalIdAsync(legalId);
+        }
+
+        public async Task<bool> ExistsByEmailAsync(string email)
+        {
+            return await _projectRepository.ExistsByEmailAsync(email);
+        }
+
+        public async Task<bool> ProjectExistsAsync(int id)
+        {
+            return await _projectRepository.ExistsAsync(id);
         }
     }
 }
