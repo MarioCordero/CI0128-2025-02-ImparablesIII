@@ -64,9 +64,9 @@ namespace backend.Services
             return await _employeeRepository.GetEmployeeCompanyIdAsync(employeeId);
         }
 
-        public async Task<Project?> GetEmployeeCompanyAsync(int employeeId)
+        public async Task<ProjectResponseDTO?> GetEmployeeCompanyAsync(int employeeId)
         {
-            _logger.LogInformation("Getting company for employee: {EmployeeId}", employeeId);
+            _logger.LogInformation("Getting whole company for employee: {EmployeeId}", employeeId);
 
             if (employeeId <= 0)
             {

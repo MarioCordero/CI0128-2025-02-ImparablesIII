@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
-
 namespace backend.Controllers
 {
     [ApiController]
@@ -17,7 +16,6 @@ namespace backend.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ILogger<ProjectController> _logger;
         private readonly IProjectService _projectService;
-
 
         public ProjectController(
             IProjectRepository projectRepository,
@@ -32,7 +30,7 @@ namespace backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProjectResponseDto>>> GetAll()
+        public async Task<ActionResult<List<ProjectResponseDTO>>> GetAll()
         {
             try
             {
@@ -46,7 +44,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProjectResponseDto>> GetById(int id)
+        public async Task<ActionResult<ProjectResponseDTO>> GetById(int id)
         {
             try
             {
@@ -64,7 +62,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("employer/{employerId}")]
-        public async Task<ActionResult<List<ProjectResponseDto>>> GetByEmployerId(int employerId)
+        public async Task<ActionResult<List<ProjectResponseDTO>>> GetByEmployerId(int employerId)
         {
             try
             {
@@ -77,17 +75,18 @@ namespace backend.Controllers
             }
         }
 
+        // CONSOLIDADO - Solo un método dashboard que usa el service
         [HttpGet("dashboard/{employerId}")]
-        public async Task<ActionResult<List<CompanyDashboardMainEmployerDto>>> GetProjectsForDashboard(int employerId)
+        public async Task<ActionResult<List<ProjectResponseDTO>>> GetProjectsForDashboard(int employerId)
         {
             try
             {
-                var projects = await _projectRepository.GetProjectsForDashboardAsync(employerId);
+                var projects = await _projectService.GetProjectsForDashboardAsync(employerId);
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorRetrievingProjects, error = ex.Message });
+                return StatusCode(500, new { message = "Error al obtener proyectos para dashboard", error = ex.Message });
             }
         }
 
@@ -96,19 +95,15 @@ namespace backend.Controllers
         {
             try
             {
-                // Validate if Legal ID already exists
-                if (await _projectRepository.ExistsByLegalIdAsync(projectDto.LegalId))
+                if (await _projectRepository.ExistsByLegalIdAsync(projectDto.CedulaJuridica.ToString()))
                 {
                     return BadRequest(new { message = ReturnMessagesConstants.Project.LegalIdAlreadyExists });
                 }
-
-                // Validate if Email already exists
                 if (await _projectRepository.ExistsByEmailAsync(projectDto.Email))
                 {
                     return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
                 }
 
-                // Crear el proyecto mapeando del DTO
                 var project = new backend.Models.Project
                 {
                     Nombre = projectDto.Nombre,
@@ -125,12 +120,7 @@ namespace backend.Controllers
                 };
 
                 var createdProject = await _projectRepository.CreateAsync(project);
-                if (createdProject.Id > 0)
-                {
-                    return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, new { id = createdProject.Id });
-                }
-
-                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorCreatingProject });
+                return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, new { id = createdProject.Id });
             }
             catch (Exception ex)
             {
@@ -143,7 +133,7 @@ namespace backend.Controllers
         {
             try
             {
-                if (!await _projectRepository.ExistsByIdAsync(id))
+                if (!await _projectRepository.ExistsAsync(id))
                 {
                     return NotFound(new { message = ReturnMessagesConstants.Project.ProjectNotFound });
                 }
@@ -162,19 +152,19 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("{id}/employees/count")]
-        public async Task<ActionResult<int>> GetActiveEmployeesCount(int id)
-        {
-            try
-            {
-                var count = await _projectRepository.CountActiveEmployeesAsync(id);
-                return Ok(new { count });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorCountingEmployees, error = ex.Message });
-            }
-        }
+        // [HttpGet("{id}/employees/count")]
+        // public async Task<ActionResult<int>> GetActiveEmployeesCount(int id)
+        // {
+        //     try
+        //     {
+        //         var count = await _projectService.GetActiveEmployeesCountAsync(id);
+        //         return Ok(new { count });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorCountingEmployees, error = ex.Message });
+        //     }
+        // }
 
         [HttpGet("{id}/payroll")]
         public async Task<ActionResult<decimal>> GetMonthlyPayroll(int id)
@@ -195,7 +185,7 @@ namespace backend.Controllers
         {
             try
             {
-                var success = await _projectRepository.ActivateAsync(id);
+                var success = await _projectService.ActivateProjectAsync(id);
                 if (success)
                 {
                     return Ok(new { message = ReturnMessagesConstants.Project.ProjectActivatedSuccessfully });
@@ -213,7 +203,7 @@ namespace backend.Controllers
         {
             try
             {
-                var success = await _projectRepository.DeactivateAsync(id);
+                var success = await _projectService.DeactivateProjectAsync(id);
                 if (success)
                 {
                     return Ok(new { message = ReturnMessagesConstants.Project.ProjectDeactivatedSuccessfully });
@@ -255,7 +245,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("by-company/{companyId}")]
-        public async Task<ActionResult<ProjectResponseDto>> GetByCompanyId(int companyId)
+        public async Task<ActionResult<ProjectResponseDTO>> GetByCompanyId(int companyId)
         {
             var project = await _projectRepository.GetProjectWithDireccionAsync(companyId);
             if (project == null)

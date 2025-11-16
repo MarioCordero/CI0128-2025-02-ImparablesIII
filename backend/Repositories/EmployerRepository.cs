@@ -8,11 +8,11 @@ namespace backend.Repositories
     public class EmployerRepository : IEmployerRepository
     {
         private readonly string _connectionString;
-        private readonly IDireccionRepository _direccionRepository;
+        private readonly IDirectionRepository _direccionRepository;
         private readonly IPersonaRepository _personaRepository;
         private readonly IUsuarioRepository _usuarioRepository;
 
-        public EmployerRepository(IConfiguration configuration, IDireccionRepository direccionRepository, IPersonaRepository personaRepository, IUsuarioRepository usuarioRepository)
+        public EmployerRepository(IConfiguration configuration, IDirectionRepository direccionRepository, IPersonaRepository personaRepository, IUsuarioRepository usuarioRepository)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
             _direccionRepository = direccionRepository;

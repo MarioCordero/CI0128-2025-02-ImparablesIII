@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flex justify-center">
+  <div class="w-full flex justify-center mt-24 position-fixed">
     <div class="flex w-1/2 h-12 items-center justify-between relative neumorfismo-subheader text-xs">
       <button
         class="self-stretch flex-auto px-3 py-3.5 neumorfismo-opcion-subheader-primero"
@@ -41,7 +41,6 @@
 </template>
 
 <script setup>
-// import '../../assets/Neumorfismo.css'
 import { defineProps, defineEmits } from 'vue'
 defineProps({
   selectedSection: String
