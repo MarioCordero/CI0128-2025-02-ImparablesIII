@@ -225,12 +225,10 @@
 <script>
 import axios from 'axios'
 import HeaderLandingPage from './common/HeaderLandingPage.vue'
+import apiConfig from '../config/api.js'
 
 export default {
-  // 1. Nombre del componente
   name: 'SignUpEmployer',
-
-  // 2. Componentes hijos locales
   components: {
     HeaderLandingPage
   },
@@ -284,7 +282,6 @@ export default {
       }
       this.form.cedula = value
     },
-
     formatTelefono(event) {
       let value = event.target.value.replace(/\D/g, '')
       if (value.length > 4) {
@@ -293,7 +290,6 @@ export default {
       this.formattedTelefono = value
       this.form.telefono = value.replace(/\s/g, '')
     },
-
     async submitForm() {
       if (this.validateForm()) {
         try {
@@ -307,7 +303,7 @@ export default {
 
           console.log("enviando al endpoint");
           const response = await axios.post(
-            'http://localhost:5011/api/SignUpEmployer',
+            apiConfig.endpoints.signUpEmployer,
             employerData,
             { headers: { 'Content-Type': 'application/json' } }
           )
@@ -334,8 +330,6 @@ export default {
     validateForm() {
       this.errors = {}
       let isValid = true
-
-      // Personal Information Validation
       if (!this.form.nombre || this.form.nombre.trim().length === 0) {
         this.errors.nombre = 'El nombre es requerido'
         isValid = false
@@ -343,7 +337,6 @@ export default {
         this.errors.nombre = 'El nombre no puede exceder 20 caracteres'
         isValid = false
       }
-
       if (!this.form.primerApellido || this.form.primerApellido.trim().length === 0) {
         this.errors.primerApellido = 'El primer apellido es requerido'
         isValid = false
@@ -351,12 +344,10 @@ export default {
         this.errors.primerApellido = 'El primer apellido no puede exceder 20 caracteres'
         isValid = false
       }
-
       if (this.form.segundoApellido && this.form.segundoApellido.length > 20) {
         this.errors.segundoApellido = 'El segundo apellido no puede exceder 20 caracteres'
         isValid = false
       }
-
       if (!this.form.cedula || this.form.cedula.trim().length === 0) {
         this.errors.cedula = 'La cédula es requerida'
         isValid = false
@@ -367,7 +358,6 @@ export default {
           isValid = false
         }
       }
-
       if (!this.form.email || this.form.email.trim().length === 0) {
         this.errors.email = 'El correo electrónico es requerido'
         isValid = false
@@ -381,7 +371,6 @@ export default {
           isValid = false
         }
       }
-
       if (!this.form.telefono || this.form.telefono.trim().length === 0) {
         this.errors.telefono = 'El teléfono es requerido'
         isValid = false
@@ -392,7 +381,6 @@ export default {
           isValid = false
         }
       }
-
       if (!this.form.fechaNacimiento) {
         this.errors.fechaNacimiento = 'La fecha de nacimiento es requerida'
         isValid = false
@@ -411,8 +399,6 @@ export default {
           isValid = false
         }
       }
-
-      // Address Validation
       if (!this.form.provincia || this.form.provincia.trim().length === 0) {
         this.errors.provincia = 'La provincia es requerida'
         isValid = false
@@ -420,7 +406,6 @@ export default {
         this.errors.provincia = 'La provincia no puede exceder 12 caracteres'
         isValid = false
       }
-
       if (!this.form.canton || this.form.canton.trim().length === 0) {
         this.errors.canton = 'El cantón es requerido'
         isValid = false
@@ -428,7 +413,6 @@ export default {
         this.errors.canton = 'El cantón no puede exceder 30 caracteres'
         isValid = false
       }
-
       if (!this.form.distrito || this.form.distrito.trim().length === 0) {
         this.errors.distrito = 'El distrito es requerido'
         isValid = false
@@ -436,7 +420,6 @@ export default {
         this.errors.distrito = 'El distrito no puede exceder 30 caracteres'
         isValid = false
       }
-
       if (!this.form.direccionParticular || this.form.direccionParticular.trim().length === 0) {
         this.errors.direccionParticular = 'La dirección particular es requerida'
         isValid = false
@@ -444,8 +427,6 @@ export default {
         this.errors.direccionParticular = 'La dirección no puede exceder 150 caracteres'
         isValid = false
       }
-
-      // Password Validation
       if (!this.form.password || this.form.password.trim().length === 0) {
         this.errors.password = 'La contraseña es requerida'
         isValid = false
@@ -456,7 +437,6 @@ export default {
         this.errors.password = 'La contraseña no puede exceder 16 caracteres'
         isValid = false
       }
-
       if (!this.form.confirmPassword || this.form.confirmPassword.trim().length === 0) {
         this.errors.confirmPassword = 'La confirmación de contraseña es requerida'
         isValid = false
@@ -464,10 +444,8 @@ export default {
         this.errors.confirmPassword = 'Las contraseñas no coinciden'
         isValid = false
       }
-
       return isValid
     },
-
     verifyCode() {
       if (/^\d{6}$/.test(this.verificationCode)) {
         window.location.href = '/login'

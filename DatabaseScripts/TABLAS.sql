@@ -1,12 +1,12 @@
 -- ===================================
--- (1) TABLA Dirección (Chris)
+-- (1) TABLA Dirección CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Direccion (
     id INT IDENTITY PRIMARY KEY NOT NULL,
-    Provincia NVARCHAR(12),
-    Canton NVARCHAR(30),
-    Distrito NVARCHAR(30),
-    DireccionParticular NVARCHAR(150),
+    Provincia NVARCHAR(24), -- CORREGIDO: 12 → 24
+    Canton NVARCHAR(60),    -- CORREGIDO: 30 → 60
+    Distrito NVARCHAR(60),  -- CORREGIDO: 30 → 60
+    DireccionParticular NVARCHAR(300), -- CORREGIDO: 150 → 300
     CONSTRAINT CK_Direccion_Provincia CHECK (
         Provincia IN (
             N'San José',
@@ -21,17 +21,17 @@ CREATE TABLE PlaniFy.Direccion (
 );
 
 -- ===================================
--- (2) TABLA Persona (Chris)
+-- (2) TABLA Persona CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Persona (
     Id INT IDENTITY PRIMARY KEY NOT NULL,
-    Correo NVARCHAR(50) NOT NULL,
-    Nombre NVARCHAR(20) NOT NULL,
-    SegundoNombre NVARCHAR(20),
-    Apellidos NVARCHAR(20) NOT NULL,
+    Correo NVARCHAR(100) NOT NULL, -- CORREGIDO: 50 → 100
+    Nombre NVARCHAR(40) NOT NULL,  -- CORREGIDO: 20 → 40
+    SegundoNombre NVARCHAR(40),    -- CORREGIDO: 20 → 40
+    Apellidos NVARCHAR(40) NOT NULL, -- CORREGIDO: 20 → 40
     FechaNacimiento DATE NOT NULL,
     Cedula CHAR(9) NOT NULL,
-    Rol NVARCHAR(20) NOT NULL,
+    Rol NVARCHAR(40),              -- CORREGIDO: 20 → 40, NULLABLE
     Telefono INT,
     idDireccion INT,
     FOREIGN KEY (idDireccion) REFERENCES PlaniFy.Direccion(id),
@@ -39,14 +39,13 @@ CREATE TABLE PlaniFy.Persona (
 );
 
 -- ===================================
--- (3) TABLA Usuario (Chino)
+-- (3) TABLA Usuario CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Usuario (
     idPersona INT PRIMARY KEY NOT NULL,
-    TipoUsuario NVARCHAR(20) NOT NULL,
-    Contrasena NVARCHAR(16) NOT NULL,
-    FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) 
-        ON DELETE CASCADE, -- Si se borra la persona, se borra el usuario
+    TipoUsuario NVARCHAR(40) NOT NULL, -- CORREGIDO: 20 → 40
+    Contrasena NVARCHAR(32) NOT NULL,  -- CORREGIDO: 16 → 32
+    FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) ON DELETE CASCADE,
     CONSTRAINT CK_Tipo_Usuario CHECK (
         TipoUsuario IN (
             N'Administrador',
@@ -58,16 +57,17 @@ CREATE TABLE PlaniFy.Usuario (
 );
 
 -- ===================================
--- (4) TABLA Empresa (Chris)
+-- (4) TABLA Empresa CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Empresa (
     Id INT IDENTITY PRIMARY KEY NOT NULL,
-    Nombre NVARCHAR(20) NOT NULL,
+    Nombre NVARCHAR(40) NOT NULL,      -- CORREGIDO: 20 → 40
     CedulaJuridica INT NOT NULL,
-    Email NVARCHAR(50) NOT NULL,
-    PeriodoPago NVARCHAR(20) NOT NULL,
+    Email NVARCHAR(100) NOT NULL,      -- CORREGIDO: 50 → 100
+    PeriodoPago NVARCHAR(40) NOT NULL, -- CORREGIDO: 20 → 40
     Telefono INT,
     idDireccion INT NOT NULL,
+    MaximoBeneficios INT,              -- AÑADIDO: Falta en tu script
     FOREIGN KEY (idDireccion) REFERENCES PlaniFy.Direccion(id),
     CONSTRAINT CK_Periodo_Pago CHECK (
         PeriodoPago IN (
@@ -78,21 +78,21 @@ CREATE TABLE PlaniFy.Empresa (
 );
 
 -- ===================================
--- (5) TABLA Empleado (Chino)
+-- (5) TABLA Empleado CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Empleado (
     idPersona INT PRIMARY KEY NOT NULL,
-    Departamento NVARCHAR(20) NOT NULL,
-    TipoContrato NVARCHAR(25) NOT NULL,
-    TipoSalario NVARCHAR(10),
-    Puesto NVARCHAR(20) NOT NULL,
+    Departamento NVARCHAR(40) NOT NULL, -- CORREGIDO: 20 → 40
+    TipoContrato NVARCHAR(50) NOT NULL, -- CORREGIDO: 25 → 50
+    TipoSalario NVARCHAR(20),           -- CORREGIDO: 10 → 20
+    Puesto NVARCHAR(40) NOT NULL,       -- CORREGIDO: 20 → 40
     FechaContratacion DATE NOT NULL,
     Salario INT NOT NULL,
-    iban NVARCHAR(30) NOT NULL,
-    Contrasena NVARCHAR(16),
-    idEmpresa INT NOT NULL,
-    FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) ON DELETE CASCADE, -- Si se borra la persona, se borra el empleado
-    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE, -- Si se borra la empresa, se borran los empleados
+    iban NVARCHAR(60) NOT NULL,         -- CORREGIDO: 30 → 60
+    Contrasena NVARCHAR(32),            -- CORREGIDO: 16 → 32
+    idEmpresa INT,                      -- CORREGIDO: NOT NULL → NULLABLE
+    FOREIGN KEY (idPersona) REFERENCES PlaniFy.Persona(Id) ON DELETE CASCADE,
+    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id),
     CONSTRAINT CK_Tipo_Contrato CHECK (
         TipoContrato IN (
             N'Tiempo Completo',
@@ -109,19 +109,18 @@ CREATE TABLE PlaniFy.Empleado (
 );
 
 -- ===================================
--- (6) TABLA EmpleadoEmpresa (Chino)
+-- (6) TABLA EmpleadoEmpresa CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.EmpleadoEmpresa (
     idEmpleado INT NOT NULL,
     idEmpresa INT NOT NULL,
     PRIMARY KEY (idEmpleado, idEmpresa),
-    FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona) ON DELETE CASCADE, -- Si se borra el empleado, se borra la relacion
-    -- VIEJO: FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE -- Si se borra la empresa, se borran las relaciones
-    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE NO ACTION -- Cambiar a NO ACTION para evitar ciclo de los ON CASCADE
+    FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona) ON DELETE CASCADE,
+    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id)
 );
 
 -- ===================================
--- (7) TABLA Planilla (Mario)
+-- (7) TABLA Planilla CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Planilla (
     id INT IDENTITY PRIMARY KEY,
@@ -134,79 +133,121 @@ CREATE TABLE PlaniFy.Planilla (
 );
 
 -- ===================================
--- (8) TABLA Beneficio (Chino)
+-- (8) TABLA Beneficio CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Beneficio (
     idEmpresa INT NOT NULL,
-    Nombre NVARCHAR(20) NOT NULL,
-    TipoCalculo NVARCHAR(20) NOT NULL,
-    Tipo NVARCHAR(20) NOT NULL,
+    Nombre NVARCHAR(100) NOT NULL,      -- CORREGIDO: 20 → 100
+    TipoCalculo NVARCHAR(40) NOT NULL,  -- CORREGIDO: 20 → 40
+    Tipo NVARCHAR(40) NOT NULL,         -- CORREGIDO: 20 → 40
     Valor INT,
     Porcentaje INT,
+    Descripcion VARCHAR(200),           -- AÑADIDO: Falta en tu script
     PRIMARY KEY (idEmpresa, Nombre),
-    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id)
-        ON DELETE CASCADE
+    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE
 );
 
 -- ===================================
--- (9) TABLA BeneficioEmpleado (Mario)
+-- (9) TABLA BeneficioEmpleado CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.BeneficioEmpleado (
     idEmpleado INT NOT NULL,
-    NombreBeneficio NVARCHAR(20) NOT NULL,
+    NombreBeneficio NVARCHAR(100) NOT NULL, -- CORREGIDO: 20 → 100
     idEmpresa INT NOT NULL,
-    TipoBeneficio NVARCHAR(20) NOT NULL,
+    TipoBeneficio NVARCHAR(40) NOT NULL,    -- CORREGIDO: 20 → 40
+    NumeroDependientes INT,                 -- AÑADIDO: Falta en tu script
+    TipoPension NVARCHAR(2),                -- AÑADIDO: Falta en tu script
     PRIMARY KEY (idEmpleado, NombreBeneficio, idEmpresa),
     FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona),
     FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id),
-    FOREIGN KEY (idEmpresa, NombreBeneficio) REFERENCES PlaniFy.Beneficio(idEmpresa, Nombre)
-        ON DELETE CASCADE
+    FOREIGN KEY (idEmpresa, NombreBeneficio) REFERENCES PlaniFy.Beneficio(idEmpresa, Nombre) ON DELETE CASCADE,
+    CONSTRAINT CHK_BeneficioEmpleado_NumeroDependientes CHECK (NumeroDependientes IS NULL OR NumeroDependientes >= 0),
+    CONSTRAINT CHK_BeneficioEmpleado_TipoPension CHECK (TipoPension IS NULL OR (TipoPension='C' OR TipoPension='B' OR TipoPension='A'))
 );
 
 -- ===================================
--- (10) TABLA HorasTrabajadas (Mario)
+-- (10) TABLA HorasTrabajadas CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.HorasTrabajadas (
-    -- id INT IDENTITY PRIMARY KEY NOT NULL,
-    id INT IDENTITY NOT NULL,
+    id INT IDENTITY PRIMARY KEY NOT NULL, -- CORREGIDO: PK simple (no compuesta)
     idEmpleado INT NOT NULL,
     Cantidad INT NOT NULL,
-    Detalle NVARCHAR(150) NOT NULL,
+    Detalle NVARCHAR(300) NOT NULL,       -- CORREGIDO: 150 → 300
     Estado BIT DEFAULT 0,
     idAprobador INT NOT NULL,
     FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona),
-    -- FOREIGN KEY (idAprobador) REFERENCES PlaniFy.Empleado(idPersona) -- SEGUN EL MODELO RELACIONAL EL ID VIENE REFERENCIADO DE PERSONA, NO DE EMPLEADO
-    -- CAMBIOS
-    PRIMARY KEY (id, idEmpleado),
     FOREIGN KEY (idAprobador) REFERENCES PlaniFy.Persona(Id)
 );
 
 -- ===================================
--- (11) TABLA DetallePlanilla (Diego)
+-- (11) TABLA DetallePlanilla CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.DetallePlanilla (
     idEmpleado INT,
     idPlanilla INT,
     salarioBruto INT,
     totalBeneficios INT,
+    DeduccionesEmpleado INT,              -- AÑADIDO: Falta en tu script
+    salarioNeto INT,                      -- AÑADIDO: Falta en tu script
+    DeduccionesEmpresa INT,               -- AÑADIDO: Falta en tu script
     PRIMARY KEY (idEmpleado, idPlanilla),
     FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona),
     FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id)
 );
 
 -- ===================================
--- (12) TABLA Deducciones (Diego)
+-- (12) TABLA Deducciones CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Deducciones (
     idPlanilla INT,
-    Nombre NVARCHAR(20),
+    Nombre NVARCHAR(40) NOT NULL,         -- CORREGIDO: 20 → 40
     Valor INT,
     idEmpresa INT,
-    Beneficio NVARCHAR(20),
+    Beneficio NVARCHAR(40),               -- CORREGIDO: 20 → 40
     PRIMARY KEY (idPlanilla, Nombre),
     FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id),
-    -- FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) -- SEGUN EL MODELO RELACIONAL EL ID VIENE REFERENCIADO DE BENEFICIO, NO DE EMPRESA
-    -- NUEVO
     FOREIGN KEY (idEmpresa, Beneficio) REFERENCES PlaniFy.Beneficio(idEmpresa, Nombre)
         ON DELETE SET NULL
+);
+
+-- ===================================
+-- (13) TABLA EmployeeDeductions (NUEVA)
+-- ===================================
+CREATE TABLE PlaniFy.EmployeeDeductions (
+    Id INT IDENTITY PRIMARY KEY NOT NULL,
+    Code NVARCHAR(64) NOT NULL,
+    Name NVARCHAR(256) NOT NULL,
+    Rate DECIMAL(8,5) NOT NULL,
+    MinAmount DECIMAL(18,2),
+    MaxAmount DECIMAL(18,2),
+    IsActive BIT DEFAULT 1 NOT NULL
+);
+
+-- ===================================
+-- (14) TABLA EmployerDeductions (NUEVA)
+-- ===================================
+CREATE TABLE PlaniFy.EmployerDeductions (
+    Id INT IDENTITY PRIMARY KEY NOT NULL,
+    Code NVARCHAR(64) NOT NULL,
+    Name NVARCHAR(256) NOT NULL,
+    Rate DECIMAL(8,5) NOT NULL,
+    MinAmount DECIMAL(18,2),
+    MaxAmount DECIMAL(18,2),
+    IsActive BIT DEFAULT 1 NOT NULL
+);
+
+-- ===================================
+-- (15) TABLA ResumenPlanilla (NUEVA)
+-- ===================================
+CREATE TABLE PlaniFy.ResumenPlanilla (
+    idPlanilla INT NOT NULL,
+    idEmpresa INT NOT NULL,
+    TotalSalarioBruto INT NOT NULL,
+    TotalDeduccionesEmpleado INT NOT NULL,
+    TotalDeduccionesEmpresa INT NOT NULL,
+    TotalBeneficios INT NOT NULL,
+    TotalSalarioNeto INT NOT NULL,
+    PRIMARY KEY (idPlanilla),
+    FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id),
+    FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id)
 );

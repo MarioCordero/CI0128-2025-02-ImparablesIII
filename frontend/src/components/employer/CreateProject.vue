@@ -238,23 +238,13 @@
 import axios from 'axios'
 import MainEmployerHeader from '../common/MainEmployerHeader.vue'
 //import '../../assets/neumorphismGlobal.css'
+import apiConfig from '../../config/api.js'
 
 export default {
-  // 1. Nombre del componente
   name: 'CompanyRegistration',
-
-  // 2. Componentes hijos locales
   components: {
     MainEmployerHeader
   },
-
-  // 3. Directivas locales
-  directives: {},
-
-  // 4. Props recibidas del padre
-  props: {},
-
-  // 5. Estado reactivo del componente
   data() {
     return {
       companies: [],
@@ -277,14 +267,6 @@ export default {
       errors: {}
     }
   },
-
-  // 6. Propiedades derivadas
-  computed: {},
-
-  // 7. Observadores de cambios
-  watch: {},
-
-  // 8. Métodos y lógica ejecutable
   methods: {
     formatTelefono(event) {
       let value = event.target.value.replace(/\D/g, '')
@@ -294,11 +276,9 @@ export default {
       this.formattedTelefono = value
       this.form.Telefono = value.replace('-', '')
     },
-
     validateForm() {
       this.errors = {}
       let isValid = true
-
       if (!this.form.Nombre || this.form.Nombre.trim().length === 0) {
         this.errors.Nombre = 'El nombre es requerido'
         isValid = false
@@ -306,12 +286,10 @@ export default {
         this.errors.Nombre = 'El nombre no puede exceder 20 caracteres'
         isValid = false
       }
-
       if (!this.form.CedulaJuridica || this.form.CedulaJuridica.toString().length !== 9) {
         this.errors.CedulaJuridica = 'La cédula jurídica debe tener 9 dígitos'
         isValid = false
       }
-
       if (!this.form.Email || this.form.Email.trim().length === 0) {
         this.errors.Email = 'El correo electrónico es requerido'
         isValid = false
@@ -325,56 +303,45 @@ export default {
           isValid = false
         }
       }
-
       if (this.form.Telefono && this.form.Telefono.toString().length !== 8) {
         this.errors.Telefono = 'El teléfono debe tener 8 dígitos'
         isValid = false
       }
-
       if (!this.form.PeriodoPago) {
         this.errors.PeriodoPago = 'El período de pago es requerido'
         isValid = false
       }
-
       if (!this.form.Provincia) {
         this.errors.Provincia = 'La provincia es requerida'
         isValid = false
       }
-
       if (this.form.Canton && this.form.Canton.length > 30) {
         this.errors.Canton = 'El cantón no puede exceder 30 caracteres'
         isValid = false
       }
-
       if (this.form.Distrito && this.form.Distrito.length > 30) {
         this.errors.Distrito = 'El distrito no puede exceder 30 caracteres'
         isValid = false
       }
-
       if (this.form.DireccionParticular && this.form.DireccionParticular.length > 150) {
         this.errors.DireccionParticular = 'La dirección no puede exceder 150 caracteres'
         isValid = false
       }
-
       if (!this.form.MaximoBeneficios || this.form.MaximoBeneficios < 1) {
         this.errors.MaximoBeneficios = 'El máximo de beneficios debe ser mayor a 0'
         isValid = false
       }
-
       return isValid
     },
-
     async handleSubmit() {
       this.loading = true
       this.errorMessage = ''
       this.successMessage = ''
-
       if (!this.validateForm()) {
         this.errorMessage = 'Por favor complete todos los campos obligatorios correctamente.'
         this.loading = false
         return
       }
-
       try {
         const dataToSend = {
           Nombre: this.form.Nombre.trim(),
@@ -388,12 +355,10 @@ export default {
           DireccionParticular: this.form.DireccionParticular || null,
           MaximoBeneficios: parseInt(this.form.MaximoBeneficios)
         }
-
-        await axios.post('http://localhost:5011/api/Project', dataToSend, {
+        await axios.post(apiConfig.endpoints.project, dataToSend, {
           headers: { 'Content-Type': 'application/json' },
           timeout: 10000
         })
-
         this.successMessage = `¡Empresa "${this.form.Nombre}" registrada exitosamente! Redirigiendo al dashboard...`
         window.scrollTo({ top: 0, behavior: 'smooth' })
         setTimeout(() => {
@@ -423,7 +388,6 @@ export default {
         this.loading = false
       }
     },
-
     handleCancel() {
       if (this.hasFormData() && !confirm('¿Está seguro que desea cancelar? Los datos no guardados se perderán.')) {
         return
@@ -431,7 +395,6 @@ export default {
       this.resetForm()
       this.$router.push('/dashboard-main-employer')
     },
-
     resetForm() {
       this.form = {
         Nombre: '',
@@ -449,38 +412,19 @@ export default {
       this.successMessage = ''
       this.errors = {}
     },
-
     hasFormData() {
       return Object.values(this.form).some(value =>
         value !== null && value !== undefined && value !== ''
       )
     }
   },
-
-  // 9. Ciclo de vida
-  beforeCreate() {},
-  created() {},
-  beforeMount() {},
-  mounted() {},
-  beforeUpdate() {},
-  updated() {},
-  beforeUnmount() {},
-  unmounted() {},
-
-  // 10. Opciones de inyección
   provide() {
     return {}
   },
   inject: [],
-
-  // 11. Eventos emitidos
   emits: [],
-
-  // 12. Reutilización de lógica
   mixins: [],
   extends: null,
-
-  // 13. Filtros
   filters: {}
 }
 </script>

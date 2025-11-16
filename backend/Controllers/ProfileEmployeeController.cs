@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using backend.Services;
 using backend.DTOs;
+using backend.Constants;
 
 namespace backend.Controllers
 {
@@ -47,7 +48,7 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "Error interno obteniendo perfil del empleado {EmployeeId}", id);
                 return StatusCode(500, new { 
-                    message = "Error interno del servidor",
+                    message = ReturnMessagesConstants.General.InternalServerError,
                     detail = ex.Message 
                 });
             }
@@ -81,7 +82,7 @@ namespace backend.Controllers
                 return StatusCode(500, new UpdateEmployeeProfileResponseDto
                 {
                     Success = false,
-                    Message = $"Error interno del servidor: {ex.Message}"
+                    Message = string.Format(ReturnMessagesConstants.General.InternalServerErrorWithDetail, ex.Message)
                 });
             }
         }
