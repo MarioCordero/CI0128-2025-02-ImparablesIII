@@ -26,6 +26,10 @@ namespace backend.Repositories
         Task<bool> ExistsPayrollForMonthAsync(int companyId, int year, int month);
         Task<bool> ExistsPayrollForFortnightAsync(int companyId, int year, int month, int fortnight);
         Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId);
-
+        Task<Dictionary<int, string>> GetEmployeePositionsByCompanyAsync(int companyId);
+        Task<List<EmployeePayrollReportDto>> GetEmployeePayrollReportsAsync(int employeeId, int? year, int? month, string? puesto);
+        Task<DetailedPayrollReportDto?> GetDetailedPayrollReportAsync(int employeeId, int payrollId);
+        Task<(string NombreCompleto, string TipoContrato)> GetEmployeeBasicInfoAsync(int employeeId);
+        Task<int?> GetCompanyIdFromPayrollAsync(int payrollId);
     }
 }
