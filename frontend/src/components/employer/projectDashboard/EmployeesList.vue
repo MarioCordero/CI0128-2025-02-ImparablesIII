@@ -62,27 +62,31 @@
           <button class="neumorfismo-boton p-[7px] rounded-full!" @click="editEmployee(empleado.id)">
             ✏️
           </button>
-
+          <button class="neumorfismo-boton p-[7px] rounded-full!" @click="deleteEmployee(empleado.id)">
+            ❌
+          </button>
         </div>
-
       </div>
-
     </div>
-
     <!-- Empty state -->
     <div v-if="!loading && !error && empleados.length === 0" class="text-center py-0 my-0">
-
       <p class="text-gray-600 text-[50px]">No hay empleados registrados en esta empresa.</p>
-
     </div>
-
+    <!-- Warning Modal -->
+    <WarningModal
+      :is-visible="showDeleteModal"
+      :title="`Eliminar Empleado`"
+      :message="`¿Estás seguro de que deseas eliminar a ${employeeToDelete?.nombreCompleto || 'este empleado'}? Esta acción eliminará permanentemente todos sus datos, incluido su historial de planillas y beneficios.`"
+      @confirm="confirmDeleteEmployee"
+      @cancel="cancelDeleteEmployee"
+      @close="showDeleteModal = false"
+    />
   </div>
 
 </template>
 
 <script>
-  // import "../assets/Neumorfismo.css"
-
+  import WarningModal from '../../common/WarningModal.vue'
   export default {
     name: 'ListaEmpleados',
     props: {
@@ -91,18 +95,20 @@
         required: true
       }
     },
-
+    components: {
+      WarningModal
+    },
     data() {
       return {
         empleados: [],
         loading: false,
-        error: null
+        error: null,
+        showDeleteModal: false,
+        employeeToDelete: null
       }
     },
-
     methods: {
-
-      obtenerIniciales(nombreCompleto) {
+      getInitials(nombreCompleto) {
         if (!nombreCompleto) return 'NN';
         return nombreCompleto
           .split(' ')
@@ -111,32 +117,23 @@
           .toUpperCase()
           .substring(0, 2);
       },
-
-      async fetchEmpleados() {
-
+      async fetchEmployees() {
         if (!this.projectId) {
           this.error = 'No se proporcionó ID de empresa';
           return;
         }
-
         this.loading = true;
         this.error = null;
-
         try {
-
-          const response = await fetch(`http://localhost:5011/api/Project/${this.projectId}/employees`);
-          
+          const response = await fetch(`http://localhost:5011/api/Project/${this.projectId}/employees`); // TODO: USE API CONFIG
           if (!response.ok) {
             throw new Error('Error al cargar los empleados');
           }
-          
           const data = await response.json();
-          
           const empleadosArray = data.employees || [];
-          
           this.empleados = empleadosArray.map(empleado => ({
             id: empleado.id,
-            iniciales: this.obtenerIniciales(empleado.nombreCompleto),
+            iniciales: this.getInitials(empleado.nombreCompleto),
             nombreCompleto: empleado.nombreCompleto,
             puesto: empleado.puesto,
             departamento: empleado.departamento,
@@ -144,32 +141,39 @@
             telefono: empleado.telefono,
             salario: empleado.salario,
             tipoContrato: empleado.tipoContrato,
-            estado: 'Activo' // Por defecto, aun no tenemos eliminacion ni desactivacion
+            estado: 'Activo' // TODO: Get the real state
           }));
-
         } catch (error) {
-
-          console.error('Error al cargar empleados:', error);
           this.error = error.message || 'Error al cargar los empleados';
-
         } finally {
-
           this.loading = false;
-
         }
       },
-
       editEmployee(employeeId) {
         this.$router.push(`/edit-employee/${employeeId}`);
       },
+      deleteEmployee(employeeId) {
+        const employee = this.empleados.find(emp => emp.id === employeeId)
+        this.employeeToDelete = employee
+        this.showDeleteModal = true
+      },
+      confirmDeleteEmployee() {
+        // TODO: Call API to delete employee
+        this.empleados = this.empleados.filter(emp => emp.id !== this.employeeToDelete.id)
+        this.showDeleteModal = false
+        this.employeeToDelete = null
+      },
+      cancelDeleteEmployee() {
+        this.showDeleteModal = false
+        this.employeeToDelete = null
+      }
   },
-
   watch: {
     projectId: {
       immediate: true,
       handler(newProjectId) {
         if (newProjectId) {
-          this.fetchEmpleados();
+          this.fetchEmployees();
         }
       }
     }
@@ -285,8 +289,5 @@
   padding-bottom: 3px;
   padding-right: 9px;
 }
-
-
-
 
 </style>
