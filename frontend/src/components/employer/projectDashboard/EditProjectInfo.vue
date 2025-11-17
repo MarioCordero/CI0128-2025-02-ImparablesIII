@@ -107,7 +107,7 @@
       <!-- Action Buttons -->
       <div class="mt-8 flex justify-center gap-4">
         <button 
-          class="neumorphism-button-normal-light px-6 py-3 text-red-600 hover:text-red-700"
+          class="neumorfismo-boton-rojo px-6 py-3"
           @click="showDeleteModal = true"
         >
           🗑️ Eliminar Empresa
