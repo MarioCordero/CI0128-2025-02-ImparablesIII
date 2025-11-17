@@ -17,7 +17,7 @@
       </div>
 
       <!-- Dashboard Section -->
-<div v-if="selectedSection === 'dashboard'">
+      <div v-if="selectedSection === 'dashboard'">
         <div>
           <h1 class="text-4xl font-bold text-gray-800">Dashboard de Empresa</h1>
         </div>
@@ -265,7 +265,7 @@
           <h1 class="text-4xl font-bold text-gray-800 mb-4">Información de la Empresa</h1>
         </div>
         <div>
-          <EditProjectInfo/>
+          <EditProjectInfo/> <!--TODO: Make the component prettier-->
         </div>
       </div>
 
