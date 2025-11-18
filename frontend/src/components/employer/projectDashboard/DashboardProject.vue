@@ -75,7 +75,7 @@
             <div class="grid grid-cols-2 gap-4">
               <button 
                 @click="selectedSection = 'employees'" 
-                class="neumorphism-button p-4 rounded-xl text-center hover:bg-blue-50 transition"
+                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
               >
                 <div class="text-2xl mb-2">👥</div>
                 <div class="text-sm font-medium">Gestionar Empleados</div>
@@ -83,7 +83,7 @@
 
               <button 
                 @click="selectedSection = 'reports'" 
-                class="neumorphism-button p-4 rounded-xl text-center hover:bg-blue-50 transition"
+                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
               >
                 <div class="text-2xl mb-2">📊</div>
                 <div class="text-sm font-medium">Ver Reportes</div>
@@ -91,7 +91,7 @@
 
               <button 
                 @click="selectedSection = 'benefits'" 
-                class="neumorphism-button p-4 rounded-xl text-center hover:bg-blue-50 transition"
+                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
               >
                 <div class="text-2xl mb-2">🎁</div>
                 <div class="text-sm font-medium">Gestionar Beneficios</div>
@@ -99,7 +99,7 @@
 
               <button 
                 @click="selectedSection = 'info'" 
-                class="neumorphism-button p-4 rounded-xl text-center hover:bg-blue-50 transition"
+                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
               >
                 <div class="text-2xl mb-2">⚙️</div>
                 <div class="text-sm font-medium">Configurar Empresa</div>
