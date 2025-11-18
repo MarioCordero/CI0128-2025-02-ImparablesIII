@@ -36,7 +36,7 @@ namespace backend.Tests
                 Percentage = 10
             };
 
-            var company = new Project { Id = 1, Nombre = "Test Company" };
+            var company = new ProjectResponseDTO { Id = 1, Nombre = "Test Company" };
             var createdBenefit = new Benefit
             {
                 CompanyId = 1,
@@ -47,7 +47,7 @@ namespace backend.Tests
                 Percentage = 10
             };
 
-            _mockProjectRepository.Setup(x => x.ExistsByIdAsync(1)).ReturnsAsync(true);
+            _mockProjectRepository.Setup(x => x.ExistsByLegalIdAsync("1")).ReturnsAsync(true);
             _mockBenefitRepository.Setup(x => x.ExistsAsync(1, "Vacaciones")).ReturnsAsync(false);
             _mockBenefitRepository.Setup(x => x.CreateAsync(It.IsAny<Benefit>())).ReturnsAsync(createdBenefit);
             _mockProjectRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(company);
@@ -65,7 +65,7 @@ namespace backend.Tests
             Assert.AreEqual(10, result.Percentage);
             Assert.IsNull(result.Value);
 
-            _mockProjectRepository.Verify(x => x.ExistsByIdAsync(1), Times.Once);
+            _mockProjectRepository.Verify(x => x.ExistsByLegalIdAsync("1"), Times.Once);
             _mockBenefitRepository.Verify(x => x.ExistsAsync(1, "Vacaciones"), Times.Once);
             _mockBenefitRepository.Verify(x => x.CreateAsync(It.IsAny<Benefit>()), Times.Once);
             _mockProjectRepository.Verify(x => x.GetByIdAsync(1), Times.Once);
@@ -83,14 +83,14 @@ namespace backend.Tests
                 Type = "Bonificación"
             };
 
-            _mockProjectRepository.Setup(x => x.ExistsByIdAsync(999)).ReturnsAsync(false);
+            _mockProjectRepository.Setup(x => x.ExistsByLegalIdAsync("999")).ReturnsAsync(false);
 
             // Act & Assert
             var exception = await Assert.ThrowsExceptionAsync<ArgumentException>(
                 () => _benefitService.CreateBenefitAsync(createBenefitDto));
 
             Assert.AreEqual("La empresa especificada no existe", exception.Message);
-            _mockProjectRepository.Verify(x => x.ExistsByIdAsync(999), Times.Once);
+            _mockProjectRepository.Verify(x => x.ExistsByLegalIdAsync("999"), Times.Once);
             _mockBenefitRepository.Verify(x => x.ExistsAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
@@ -106,7 +106,7 @@ namespace backend.Tests
                 Type = "Bonificación"
             };
 
-            _mockProjectRepository.Setup(x => x.ExistsByIdAsync(1)).ReturnsAsync(true);
+            _mockProjectRepository.Setup(x => x.ExistsByLegalIdAsync("1")).ReturnsAsync(true);
             _mockBenefitRepository.Setup(x => x.ExistsAsync(1, "Vacaciones")).ReturnsAsync(true);
 
             // Act & Assert
@@ -114,7 +114,7 @@ namespace backend.Tests
                 () => _benefitService.CreateBenefitAsync(createBenefitDto));
 
             Assert.AreEqual("Ya existe un beneficio con este nombre para esta empresa", exception.Message);
-            _mockProjectRepository.Verify(x => x.ExistsByIdAsync(1), Times.Once);
+            _mockProjectRepository.Verify(x => x.ExistsByLegalIdAsync("1"), Times.Once);
             _mockBenefitRepository.Verify(x => x.ExistsAsync(1, "Vacaciones"), Times.Once);
             _mockBenefitRepository.Verify(x => x.CreateAsync(It.IsAny<Benefit>()), Times.Never);
         }
@@ -131,7 +131,7 @@ namespace backend.Tests
                 Type = "Bonificación"
             };
 
-            var company = new Project { Id = 1, Nombre = "Test Company" };
+            var company = new ProjectResponseDTO { Id = 1, Nombre = "Test Company" };
             var createdBenefit = new Benefit
             {
                 CompanyId = 1,
@@ -140,7 +140,7 @@ namespace backend.Tests
                 Type = "Bonificación"
             };
 
-            _mockProjectRepository.Setup(x => x.ExistsByIdAsync(1)).ReturnsAsync(true);
+            _mockProjectRepository.Setup(x => x.ExistsByLegalIdAsync("1")).ReturnsAsync(true);
             _mockBenefitRepository.Setup(x => x.ExistsAsync(1, "Vacaciones")).ReturnsAsync(false);
             _mockBenefitRepository.Setup(x => x.CreateAsync(It.IsAny<Benefit>())).ReturnsAsync(createdBenefit);
             _mockProjectRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(company);
@@ -163,8 +163,8 @@ namespace backend.Tests
                 new Benefit { CompanyId = 2, Name = "Seguro", CalculationType = "Monto Fijo", Type = "Prestación", Value = 50000 }
             };
 
-            var company1 = new Project { Id = 1, Nombre = "Company 1" };
-            var company2 = new Project { Id = 2, Nombre = "Company 2" };
+            var company1 = new ProjectResponseDTO { Id = 1, Nombre = "Company 1" };
+            var company2 = new ProjectResponseDTO { Id = 2, Nombre = "Company 2" };
 
             _mockBenefitRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(benefits);
             _mockProjectRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(company1);
@@ -219,7 +219,7 @@ namespace backend.Tests
             };
 
             _mockBenefitRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(benefits);
-            _mockProjectRepository.Setup(x => x.GetByIdAsync(999)).ReturnsAsync((Project?)null);
+            _mockProjectRepository.Setup(x => x.GetByIdAsync(999)).ReturnsAsync((ProjectResponseDTO?)null);
 
             // Act
             var result = await _benefitService.GetAllBenefitsAsync();
@@ -240,7 +240,7 @@ namespace backend.Tests
                 new BenefitResponseDto { CompanyId = 1, Name = "Vacaciones", CompanyName = "Test Company" }
             };
 
-            _mockProjectRepository.Setup(x => x.ExistsByIdAsync(companyId)).ReturnsAsync(true);
+            _mockProjectRepository.Setup(x => x.ExistsAsync(companyId)).ReturnsAsync(true);
             _mockBenefitRepository.Setup(x => x.GetBenefitsWithCompanyNameAsync(companyId)).ReturnsAsync(expectedBenefits);
 
             // Act
@@ -252,7 +252,7 @@ namespace backend.Tests
             Assert.AreEqual("Vacaciones", result.First().Name);
             Assert.AreEqual("Test Company", result.First().CompanyName);
 
-            _mockProjectRepository.Verify(x => x.ExistsByIdAsync(companyId), Times.Once);
+            _mockProjectRepository.Verify(x => x.ExistsAsync(companyId), Times.Once);
             _mockBenefitRepository.Verify(x => x.GetBenefitsWithCompanyNameAsync(companyId), Times.Once);
         }
 
@@ -261,14 +261,14 @@ namespace backend.Tests
         {
             // Arrange
             var companyId = 999;
-            _mockProjectRepository.Setup(x => x.ExistsByIdAsync(companyId)).ReturnsAsync(false);
+            _mockProjectRepository.Setup(x => x.ExistsAsync(companyId)).ReturnsAsync(false);
 
             // Act & Assert
             var exception = await Assert.ThrowsExceptionAsync<ArgumentException>(
                 () => _benefitService.GetBenefitsByCompanyIdAsync(companyId));
 
             Assert.AreEqual("La empresa especificada no existe", exception.Message);
-            _mockProjectRepository.Verify(x => x.ExistsByIdAsync(companyId), Times.Once);
+            _mockProjectRepository.Verify(x => x.ExistsAsync(companyId), Times.Once);
             _mockBenefitRepository.Verify(x => x.GetBenefitsWithCompanyNameAsync(It.IsAny<int>()), Times.Never);
         }
 
@@ -286,7 +286,7 @@ namespace backend.Tests
                 Type = "Bonificación",
                 Percentage = 10
             };
-            var company = new Project { Id = 1, Nombre = "Test Company" };
+            var company = new ProjectResponseDTO { Id = 1, Nombre = "Test Company" };
 
             _mockBenefitRepository.Setup(x => x.GetByIdAsync(companyId, name)).ReturnsAsync(benefit);
             _mockProjectRepository.Setup(x => x.GetByIdAsync(companyId)).ReturnsAsync(company);
@@ -340,7 +340,7 @@ namespace backend.Tests
             };
 
             _mockBenefitRepository.Setup(x => x.GetByIdAsync(companyId, name)).ReturnsAsync(benefit);
-            _mockProjectRepository.Setup(x => x.GetByIdAsync(companyId)).ReturnsAsync((Project?)null);
+            _mockProjectRepository.Setup(x => x.GetByIdAsync(companyId)).ReturnsAsync((ProjectResponseDTO?)null);
 
             // Act
             var result = await _benefitService.GetBenefitByIdAsync(companyId, name);

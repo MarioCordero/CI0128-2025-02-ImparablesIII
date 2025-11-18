@@ -4,6 +4,7 @@ using backend.Services;
 using backend.Repositories;
 using backend.DTOs;
 using backend.Constants;
+using backend.Services.PaymentsCalculate;
 
 namespace backend.Tests
 {
@@ -12,6 +13,10 @@ namespace backend.Tests
     {
         private Mock<IPayrollRepository> _repoMock = null!;
         private Mock<IBenefitDeductionsService> _benefitsMock = null!;
+        private Mock<IEmployeeBenefitRepository> _employeeBenefitRepoMock = null!;
+        private EmployeeDeductionCalculatorFactory _employeeCalculatorFactory = null!;
+        private EmployerDeductionCalculatorFactory _employerCalculatorFactory = null!;
+        private IBenefitCodeParser _benefitCodeParser = null!;
         private PayrollService _service = null!;
 
         [TestInitialize]
@@ -19,7 +24,17 @@ namespace backend.Tests
         {
             _repoMock = new Mock<IPayrollRepository>(MockBehavior.Strict);
             _benefitsMock = new Mock<IBenefitDeductionsService>(MockBehavior.Strict);
-            _service = new PayrollService(_repoMock.Object, _benefitsMock.Object);
+            _employeeBenefitRepoMock = new Mock<IEmployeeBenefitRepository>(MockBehavior.Strict);
+            _employeeCalculatorFactory = new EmployeeDeductionCalculatorFactory();
+            _employerCalculatorFactory = new EmployerDeductionCalculatorFactory();
+            _benefitCodeParser = new BenefitCodeParser();
+            _service = new PayrollService(
+                _repoMock.Object, 
+                _benefitsMock.Object, 
+                _employeeBenefitRepoMock.Object,
+                _employeeCalculatorFactory,
+                _employerCalculatorFactory,
+                _benefitCodeParser);
         }
 
         [TestMethod]
@@ -143,6 +158,7 @@ namespace backend.Tests
             // The service internally calls GetEmployerPayrollWithDeductionsAsync, which uses repo.GetEmployeesForPayrollAsync and GetEmployerDeductionsAsync.
             // We shortcut by stubbing GetEmployerDeductionsAsync and rely on the service to compute employerResults.
             _repoMock.Setup(r => r.GetEmployerDeductionsAsync()).ReturnsAsync(new List<EmployerDeductionDto>());
+            _repoMock.Setup(r => r.GetEmployeePositionsByCompanyAsync(companyId)).ReturnsAsync(new Dictionary<int, string>());
 
             // However, the service maps employer results by IdEmpleado; to make it deterministic, we will bypass by stubbing the second method used inside service
             // by returning employees and zero employer deductions so TotalEmployerDeductions remains as provided in employerResults replacement path below.

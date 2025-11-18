@@ -64,7 +64,7 @@ namespace backend.Services
 
         public async Task<int> GeneratePayrollWithBenefitsAsync(int companyId, int responsibleEmployeeId, int hours, string? periodType = null, int? fortnight = null)
         {
-            ValidatePayrollPeriod(companyId, periodType, fortnight);
+            await ValidatePayrollPeriod(companyId, periodType, fortnight);
             
             var employees = await GetEmployeePayrollWithDeductionsAsync(companyId);
             var employerDeductions = await GetEmployerPayrollWithDeductionsAsync(companyId);
