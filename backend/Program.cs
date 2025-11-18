@@ -111,6 +111,9 @@ builder.Services.AddMemoryCache(); // Memory cache for password tokens
 
 // Payroll services
 builder.Services.AddScoped<IPayrollRepository, PayrollRepository>();
+builder.Services.AddScoped<backend.Services.PaymentsCalculate.EmployeeDeductionCalculatorFactory>();
+builder.Services.AddScoped<backend.Services.PaymentsCalculate.EmployerDeductionCalculatorFactory>();
+builder.Services.AddScoped<backend.Services.IBenefitCodeParser, backend.Services.BenefitCodeParser>();
 builder.Services.AddScoped<IPayrollService, PayrollService>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); // ASK
 builder.Services.AddScoped<IDbConnection>(_ => new SqlConnection(connectionString)); // ASK
