@@ -558,6 +558,9 @@
   transition: all 0.3s ease;
 }
 
+.payroll-reports-container {
+  max-width: 100%;
+}
 
 
 /* 
