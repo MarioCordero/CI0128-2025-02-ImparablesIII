@@ -193,4 +193,21 @@ namespace backend.DTOs
         public string Nombre { get; set; } = string.Empty;
         public decimal Monto { get; set; }
     }
+
+    public class EmployeePayrollReportDto
+    {
+        public int PayrollId { get; set; }
+        public DateTime FechaGeneracion { get; set; }
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int Day { get; set; }
+        public string Puesto { get; set; } = string.Empty;
+        public decimal SalarioBruto { get; set; }
+        public decimal DeduccionesEmpleado { get; set; }
+        public decimal DeduccionesEmpresa { get; set; }
+        public decimal TotalBeneficios { get; set; }
+        public decimal SalarioNeto { get; set; }
+        public int Horas { get; set; }
+        public string NombreEmpresa { get; set; } = string.Empty;
+    }
 }
