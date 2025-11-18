@@ -1,17 +1,28 @@
 using backend.DTOs;
+using backend.Services.PaymentsCalculate;
+using static backend.Constants.DeductionCodes;
+using static backend.Constants.DeductionRoleNames;
+
 namespace backend.Services.PaymentsCalculate.Employer
 {
     // Invalidez, Vejez y Muerte (patrono)
-    public class CcssIvmEmployerCalc
+    public class CcssIvmEmployerCalc : IEmployerDeductionCalculator
     {
         private readonly decimal _rate;
-        public CcssIvmEmployerCalc(decimal rate) { _rate = rate; }
+        
+        public CcssIvmEmployerCalc(decimal rate) 
+        { 
+            _rate = rate; 
+        }
+        
         public EmployerDeductionLineDto Calculate(decimal grossSalary)
-            => new EmployerDeductionLineDto
+        {
+            return new EmployerDeductionLineDto
             {
-                Code = "CCSS_IVM_ER",
+                Code = CcssIvmEmployer,
                 Amount = Math.Round(grossSalary * _rate, 2),
-                Role = "EmployerDeduction"
+                Role = EmployerDeduction
             };
+        }
     }
 }

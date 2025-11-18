@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../backend-lab.csproj" />
+    <ProjectReference Include="../backend/backend-lab.csproj" />
   </ItemGroup>
 
 </Project>
