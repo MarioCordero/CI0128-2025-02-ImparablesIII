@@ -1,10 +1,7 @@
 using backend.DTOs;
-using backend.Models;
 using backend.Repositories;
 using backend.Constants;
 using backend.Services.PaymentsCalculate;
-using backend.Services.PaymentsCalculate.Employee;
-using backend.Services.PaymentsCalculate.Employer;
 
 namespace backend.Services
 {
@@ -12,121 +9,54 @@ namespace backend.Services
     {
         private readonly IPayrollRepository _repo;
         private readonly IBenefitDeductionsService _benefitDeductionsService;
+        private readonly IEmployeeBenefitRepository _employeeBenefitRepository;
+        private readonly EmployeeDeductionCalculatorFactory _employeeCalculatorFactory;
+        private readonly EmployerDeductionCalculatorFactory _employerCalculatorFactory;
+        private readonly IBenefitCodeParser _benefitCodeParser;
         
-        public PayrollService(IPayrollRepository repo, IBenefitDeductionsService benefitDeductionsService)
+        public PayrollService(
+            IPayrollRepository repo, 
+            IBenefitDeductionsService benefitDeductionsService, 
+            IEmployeeBenefitRepository employeeBenefitRepository,
+            EmployeeDeductionCalculatorFactory employeeCalculatorFactory,
+            EmployerDeductionCalculatorFactory employerCalculatorFactory,
+            IBenefitCodeParser benefitCodeParser)
         {
             _repo = repo;
             _benefitDeductionsService = benefitDeductionsService;
-        }
-        private async Task<List<EmployeeDeductionDto>> GetEmployeeDeductionsAsync()
-        {
-            return await _repo.GetEmployeeDeductionsAsync();
+            _employeeBenefitRepository = employeeBenefitRepository;
+            _employeeCalculatorFactory = employeeCalculatorFactory;
+            _employerCalculatorFactory = employerCalculatorFactory;
+            _benefitCodeParser = benefitCodeParser;
         }
 
-        private async Task<List<EmployerDeductionDto>> GetEmployerDeductionsAsync()
-        {
-            return await _repo.GetEmployerDeductionsAsync();
-        }
         public async Task<List<EmployeePayrollDto>> GetEmployeePayrollWithDeductionsAsync(int companyId)
         {
-            var empleados = await _repo.GetEmployeesForPayrollAsync(companyId);
+            var employees = await _repo.GetEmployeesForPayrollAsync(companyId);
             var employeeDeductions = await _repo.GetEmployeeDeductionsAsync();
 
-            foreach (var emp in empleados)
+            foreach (var employee in employees)
             {
-                decimal totalDeductions = 0m;
-                var deductionLines = new List<EmployeeDeductionLineDto>();
-
-                foreach (var ded in employeeDeductions)
-                {
-                    EmployeeDeductionLineDto line = null;
-                    switch (ded.Code)
-                    {
-                        case "CCSS_SEM_EE":
-                            line = new CcssSemEmployeeCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "CCSS_IVM_EE":
-                            line = new CcssIvmEmployeeCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "BP_TRAB":
-                            line = new BancoPopularEmployeeCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "RENTA":
-                            line = new SalaryTaxEmployeeCalc(ded.Rate, ded.MinAmount, ded.MaxAmount).Calculate(emp.SalarioBruto);
-                            break;
-                    }
-                    if (line != null)
-                    {
-                        deductionLines.Add(line);
-                        totalDeductions += line.Amount;
-                    }
-                }
-
-                emp.TotalEmployeeDeductions = Math.Round(totalDeductions, 2);
-                emp.NetSalary = Math.Round(emp.SalarioBruto - totalDeductions, 2);
-                emp.DeductionLines = deductionLines;
+                var deductionResult = CalculateEmployeeDeductions(employee, employeeDeductions);
+                employee.TotalEmployeeDeductions = Math.Round(deductionResult.TotalDeductions, 2);
+                employee.NetSalary = Math.Round(employee.SalarioBruto - deductionResult.TotalDeductions, 2);
+                employee.DeductionLines = deductionResult.DeductionLines;
             }
 
-            return empleados;
+            return employees;
         }
-        // ----------------------------------------- EMPLOYER METHODS -----------------------------------------
+
         public async Task<List<EmployerDeductionResultDto>> GetEmployerPayrollWithDeductionsAsync(int companyId)
         {
-            var empleados = await _repo.GetEmployeesForPayrollAsync(companyId);
+            var employees = await _repo.GetEmployeesForPayrollAsync(companyId);
             var employerDeductions = await _repo.GetEmployerDeductionsAsync();
 
             var results = new List<EmployerDeductionResultDto>();
 
-            foreach (var emp in empleados)
+            foreach (var employee in employees)
             {
-                decimal totalEmployerDeductions = 0m;
-                var deductionLines = new List<EmployerDeductionLineDto>();
-
-                foreach (var ded in employerDeductions)
-                {
-                    EmployerDeductionLineDto line = null;
-                    switch (ded.Code)
-                    {
-                        case "CCSS_SEM_ER":
-                            line = new CcssSemEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "CCSS_IVM_ER":
-                            line = new CcssIvmEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "BP_PATRON":
-                            line = new BancoPopularEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "INA_PATR":
-                            line = new InaEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "FCL_PATR":
-                            line = new FclEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "FODESAF_PATR":
-                            line = new FodesafEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        case "FPC_PATR":
-                            line = new FpcEmployerCalc(ded.Rate).Calculate(emp.SalarioBruto);
-                            break;
-                        // Agrega otros casos si tienes más deducciones patronales
-                    }
-                    if (line != null)
-                    {
-                        deductionLines.Add(line);
-                        totalEmployerDeductions += line.Amount;
-                    }
-                }
-
-                results.Add(new EmployerDeductionResultDto
-                {
-                    IdEmpleado = emp.IdEmpleado,
-                    IdEmpresa = emp.IdEmpresa,
-                    Nombre = emp.Nombre,
-                    Apellidos = emp.Apellidos,
-                    SalarioBruto = emp.SalarioBruto,
-                    TotalEmployerDeductions = Math.Round(totalEmployerDeductions, 2),
-                    DeductionLines = deductionLines
-                });
+                var deductionResult = CalculateEmployerDeductions(employee, employerDeductions);
+                results.Add(CreateEmployerDeductionResult(employee, deductionResult));
             }
 
             return results;
@@ -134,8 +64,132 @@ namespace backend.Services
 
         public async Task<int> GeneratePayrollWithBenefitsAsync(int companyId, int responsibleEmployeeId, int hours, string? periodType = null, int? fortnight = null)
         {
+            ValidatePayrollPeriod(companyId, periodType, fortnight);
+            
+            var employees = await GetEmployeePayrollWithDeductionsAsync(companyId);
+            var employerDeductions = await GetEmployerPayrollWithDeductionsAsync(companyId);
+            var employeePositions = await _repo.GetEmployeePositionsByCompanyAsync(companyId);
+            
+            var payrollDetails = await BuildPayrollDetailsAsync(employees, employerDeductions, employeePositions, companyId);
+            
+            var payrollId = await CreatePayrollRecordAsync(companyId, responsibleEmployeeId, hours);
+            await _repo.InsertPayrollDetailsAsync(payrollId, payrollDetails);
+            
+            return payrollId;
+        }
+
+        public async Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId)
+        {
+            if (companyId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(companyId));
+            }
+            
+            return await _repo.GetLatestPayrollTotalsByCompanyAsync(companyId);
+        }
+
+        public async Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId)
+        {
+            if (companyId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(companyId));
+            }
+            
+            return await _repo.GetPayrollHistoryByCompanyAsync(companyId);
+        }
+
+        public async Task<DetailedPayrollReportDto?> GetDetailedPayrollReportAsync(int employeeId, int payrollId, int authenticatedEmployeeId)
+        {
+            ValidateEmployeeAccess(employeeId, authenticatedEmployeeId);
+
+            var report = await _repo.GetDetailedPayrollReportAsync(employeeId, payrollId);
+            if (report == null)
+            {
+                return null;
+            }
+
+            await EnrichReportWithEmployeeInfoAsync(report, employeeId);
+            await EnrichReportWithMandatoryDeductionsAsync(report);
+            await EnrichReportWithVoluntaryDeductionsAsync(report, employeeId, payrollId);
+
+            return report;
+        }
+
+        public async Task<List<EmployeePayrollReportDto>> GetEmployeePayrollReportsAsync(int employeeId, int authenticatedEmployeeId, int? year = null, int? month = null, string? puesto = null)
+        {
+            ValidateEmployeeAccess(employeeId, authenticatedEmployeeId);
+            return await _repo.GetEmployeePayrollReportsAsync(employeeId, year, month, puesto);
+        }
+
+        private EmployeeDeductionResult CalculateEmployeeDeductions(EmployeePayrollDto employee, List<EmployeeDeductionDto> deductions)
+        {
+            var deductionLines = new List<EmployeeDeductionLineDto>();
+            decimal totalDeductions = 0m;
+
+            foreach (var deduction in deductions)
+            {
+                var calculator = _employeeCalculatorFactory.CreateCalculator(deduction);
+                if (calculator == null)
+                {
+                    continue;
+                }
+
+                var line = calculator.Calculate(employee.SalarioBruto);
+                deductionLines.Add(line);
+                totalDeductions += line.Amount;
+            }
+
+            return new EmployeeDeductionResult
+            {
+                DeductionLines = deductionLines,
+                TotalDeductions = totalDeductions
+            };
+        }
+
+        private EmployerDeductionResult CalculateEmployerDeductions(EmployeePayrollDto employee, List<EmployerDeductionDto> deductions)
+        {
+            var deductionLines = new List<EmployerDeductionLineDto>();
+            decimal totalDeductions = 0m;
+
+            foreach (var deduction in deductions)
+            {
+                var calculator = _employerCalculatorFactory.CreateCalculator(deduction);
+                if (calculator == null)
+                {
+                    continue;
+                }
+
+                var line = calculator.Calculate(employee.SalarioBruto);
+                deductionLines.Add(line);
+                totalDeductions += line.Amount;
+            }
+
+            return new EmployerDeductionResult
+            {
+                DeductionLines = deductionLines,
+                TotalDeductions = totalDeductions
+            };
+        }
+
+        private EmployerDeductionResultDto CreateEmployerDeductionResult(EmployeePayrollDto employee, EmployerDeductionResult deductionResult)
+        {
+            return new EmployerDeductionResultDto
+            {
+                IdEmpleado = employee.IdEmpleado,
+                IdEmpresa = employee.IdEmpresa,
+                Nombre = employee.Nombre,
+                Apellidos = employee.Apellidos,
+                SalarioBruto = employee.SalarioBruto,
+                TotalEmployerDeductions = Math.Round(deductionResult.TotalDeductions, 2),
+                DeductionLines = deductionResult.DeductionLines
+            };
+        }
+
+        private async Task ValidatePayrollPeriod(int companyId, string? periodType, int? fortnight)
+        {
             var now = DateTime.Now;
             var isMonthly = string.Equals(periodType, "Mensual", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(periodType);
+            
             if (isMonthly)
             {
                 var exists = await _repo.ExistsPayrollForMonthAsync(companyId, now.Year, now.Month);
@@ -147,74 +201,212 @@ namespace backend.Services
             else
             {
                 var currentFortnight = fortnight ?? (now.Day <= 15 ? 1 : 2);
-                var existsQ = await _repo.ExistsPayrollForFortnightAsync(companyId, now.Year, now.Month, currentFortnight);
-                if (existsQ)
+                var exists = await _repo.ExistsPayrollForFortnightAsync(companyId, now.Year, now.Month, currentFortnight);
+                if (exists)
                 {
                     throw new InvalidOperationException("La planilla de esta quincena ya fue generada para esta empresa.");
                 }
             }
-            var employees = await GetEmployeePayrollWithDeductionsAsync(companyId);
-            var employerDeductions = await GetEmployerPayrollWithDeductionsAsync(companyId);
-            
+        }
+
+        private async Task<List<PayrollDetailInsertDto>> BuildPayrollDetailsAsync(
+            List<EmployeePayrollDto> employees,
+            List<EmployerDeductionResultDto> employerDeductions,
+            Dictionary<int, string> employeePositions,
+            int companyId)
+        {
             var payrollDetails = new List<PayrollDetailInsertDto>();
-            
-            foreach (var emp in employees)
+
+            foreach (var employee in employees)
             {
-                var employerResult = employerDeductions.FirstOrDefault(e => e.IdEmpleado == emp.IdEmpleado);
+                var employerResult = employerDeductions.FirstOrDefault(e => e.IdEmpleado == employee.IdEmpleado);
                 if (employerResult == null)
                 {
                     continue;
                 }
+
+                var benefitCalculation = await _benefitDeductionsService.CalculateBenefitDeductionsAsync(employee.IdEmpleado, companyId);
+                var benefitTotals = CalculateBenefitTotals(benefitCalculation);
                 
-                var benefitCalculation = await _benefitDeductionsService.CalculateBenefitDeductionsAsync(emp.IdEmpleado, companyId);
-                
-                var totalBenefits = (decimal)benefitCalculation.Deductions.Sum(d => d.Amount);
-                var employeeBenefitDeductions = (decimal)benefitCalculation.Deductions
-                    .Where(d => d.Role == DeductionRoleNames.EmployeeDeduction)
-                    .Sum(d => d.Amount);
-                var employerBenefitDeductions = (decimal)benefitCalculation.Deductions
-                    .Where(d => d.Role == DeductionRoleNames.EmployerDeduction)
-                    .Sum(d => d.Amount);
-                
-                var totalEmployeeDeductions = emp.TotalEmployeeDeductions + employeeBenefitDeductions;
-                var totalEmployerDeductions = employerResult.TotalEmployerDeductions + employerBenefitDeductions;
-                
-                var netSalary = emp.SalarioBruto - totalEmployeeDeductions;
-                
-                payrollDetails.Add(new PayrollDetailInsertDto
-                {
-                    IdEmpleado = emp.IdEmpleado,
-                    SalarioBruto = (int)emp.SalarioBruto,
-                    DeduccionesEmpleado = (int)Math.Round(totalEmployeeDeductions, 0),
-                    DeduccionesEmpresa = (int)Math.Round(totalEmployerDeductions, 0),
-                    TotalBeneficios = (int)Math.Round(totalBenefits, 0),
-                    SalarioNeto = (int)Math.Round(netSalary, 0)
-                });
+                var totalEmployeeDeductions = employee.TotalEmployeeDeductions + benefitTotals.EmployeeDeductions;
+                var totalEmployerDeductions = employerResult.TotalEmployerDeductions + benefitTotals.EmployerDeductions;
+                var netSalary = employee.SalarioBruto - totalEmployeeDeductions;
+                var position = employeePositions.GetValueOrDefault(employee.IdEmpleado, "Sin Puesto");
+
+                payrollDetails.Add(CreatePayrollDetail(employee, totalEmployeeDeductions, totalEmployerDeductions, benefitTotals.TotalBenefits, netSalary, position));
             }
-            
+
+            return payrollDetails;
+        }
+
+        private BenefitTotals CalculateBenefitTotals(BenefitDeductionCalculationDto benefitCalculation)
+        {
+            var totalBenefits = (decimal)benefitCalculation.Deductions.Sum(d => d.Amount);
+            var employeeBenefitDeductions = (decimal)benefitCalculation.Deductions
+                .Where(d => d.Role == DeductionRoleNames.EmployeeDeduction)
+                .Sum(d => d.Amount);
+            var employerBenefitDeductions = (decimal)benefitCalculation.Deductions
+                .Where(d => d.Role == DeductionRoleNames.EmployerDeduction)
+                .Sum(d => d.Amount);
+
+            return new BenefitTotals
+            {
+                TotalBenefits = totalBenefits,
+                EmployeeDeductions = employeeBenefitDeductions,
+                EmployerDeductions = employerBenefitDeductions
+            };
+        }
+
+        private PayrollDetailInsertDto CreatePayrollDetail(
+            EmployeePayrollDto employee,
+            decimal totalEmployeeDeductions,
+            decimal totalEmployerDeductions,
+            decimal totalBenefits,
+            decimal netSalary,
+            string position)
+        {
+            return new PayrollDetailInsertDto
+            {
+                IdEmpleado = employee.IdEmpleado,
+                SalarioBruto = (int)employee.SalarioBruto,
+                DeduccionesEmpleado = (int)Math.Round(totalEmployeeDeductions, 0),
+                DeduccionesEmpresa = (int)Math.Round(totalEmployerDeductions, 0),
+                TotalBeneficios = (int)Math.Round(totalBenefits, 0),
+                SalarioNeto = (int)Math.Round(netSalary, 0),
+                Puesto = position
+            };
+        }
+
+        private async Task<int> CreatePayrollRecordAsync(int companyId, int responsibleEmployeeId, int hours)
+        {
             var payrollId = await _repo.InsertPayrollAsync(new PayrollInsertDto
             {
-                FechaGeneracion = now,
+                FechaGeneracion = DateTime.Now,
                 Horas = hours,
                 IdResponsable = responsibleEmployeeId,
                 IdEmpresa = companyId
             });
-            
-            await _repo.InsertPayrollDetailsAsync(payrollId, payrollDetails);
-            
+
             return payrollId;
         }
 
-        public async Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId)
+        private void ValidateEmployeeAccess(int employeeId, int authenticatedEmployeeId)
         {
-            if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
-            return await _repo.GetLatestPayrollTotalsByCompanyAsync(companyId);
+            if (employeeId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(employeeId), "El ID del empleado debe ser mayor a 0");
+            }
+
+            if (employeeId != authenticatedEmployeeId)
+            {
+                throw new UnauthorizedAccessException("No tiene permiso para acceder a los reportes de otro empleado");
+            }
         }
 
-        public async Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId)
+        private async Task EnrichReportWithEmployeeInfoAsync(DetailedPayrollReportDto report, int employeeId)
         {
-            if (companyId <= 0) throw new ArgumentOutOfRangeException(nameof(companyId));
-            return await _repo.GetPayrollHistoryByCompanyAsync(companyId);
+            var employeeInfo = await _repo.GetEmployeeBasicInfoAsync(employeeId);
+            report.NombreCompletoEmpleado = employeeInfo.NombreCompleto;
+            report.TipoContrato = employeeInfo.TipoContrato;
+        }
+
+        private async Task EnrichReportWithMandatoryDeductionsAsync(DetailedPayrollReportDto report)
+        {
+            var employeeDeductions = await _repo.GetEmployeeDeductionsAsync();
+            var mandatoryDeductions = new List<MandatoryDeductionDto>();
+            decimal totalMandatory = 0m;
+
+            foreach (var deduction in employeeDeductions)
+            {
+                var calculator = _employeeCalculatorFactory.CreateCalculator(deduction);
+                if (calculator == null)
+                {
+                    continue;
+                }
+
+                var line = calculator.Calculate(report.SalarioBruto);
+                if (line.Amount > 0)
+                {
+                    var displayName = _employeeCalculatorFactory.GetDisplayName(deduction.Code);
+                    if (string.IsNullOrEmpty(displayName))
+                    {
+                        displayName = deduction.Name;
+                    }
+
+                    mandatoryDeductions.Add(new MandatoryDeductionDto
+                    {
+                        Nombre = displayName,
+                        Monto = line.Amount
+                    });
+                    totalMandatory += line.Amount;
+                }
+            }
+
+            report.DeduccionesObligatorias = mandatoryDeductions;
+            report.TotalDeduccionesObligatorias = Math.Round(totalMandatory, 2);
+        }
+
+        private async Task EnrichReportWithVoluntaryDeductionsAsync(DetailedPayrollReportDto report, int employeeId, int payrollId)
+        {
+            var companyId = await _repo.GetCompanyIdFromPayrollAsync(payrollId);
+            if (!companyId.HasValue)
+            {
+                report.DeduccionesVoluntarias = new List<VoluntaryDeductionDto>();
+                report.TotalDeduccionesVoluntarias = 0m;
+                return;
+            }
+
+            var benefitCalculation = await _benefitDeductionsService.CalculateBenefitDeductionsAsync(employeeId, companyId.Value);
+            var selectedBenefits = await _employeeBenefitRepository.GetSelectedBenefitsForEmployeeAsync(employeeId, companyId.Value);
+            var benefitNameMap = BuildBenefitNameMap(selectedBenefits);
+
+            var voluntaryDeductions = benefitCalculation.Deductions
+                .Where(d => d.Role == DeductionRoleNames.EmployeeDeduction)
+                .Select(d => new VoluntaryDeductionDto
+                {
+                    Nombre = GetBenefitDisplayName(d.Code, benefitNameMap),
+                    Monto = d.Amount
+                })
+                .ToList();
+
+            report.DeduccionesVoluntarias = voluntaryDeductions;
+            report.TotalDeduccionesVoluntarias = Math.Round(voluntaryDeductions.Sum(d => d.Monto), 2);
+        }
+
+        private Dictionary<string, string> BuildBenefitNameMap(List<EmployeeBenefitDto> selectedBenefits)
+        {
+            return selectedBenefits.ToDictionary(
+                b => _benefitCodeParser.GenerateBenefitCode(b.BenefitName, BenefitConstants.DeductionTypeEmployee),
+                b => b.BenefitName);
+        }
+
+        private string GetBenefitDisplayName(string code, Dictionary<string, string> benefitNameMap)
+        {
+            if (benefitNameMap.TryGetValue(code, out var benefitName))
+            {
+                return benefitName;
+            }
+
+            return _benefitCodeParser.ParseBenefitNameFromCode(code);
+        }
+
+        private class EmployeeDeductionResult
+        {
+            public List<EmployeeDeductionLineDto> DeductionLines { get; set; } = new();
+            public decimal TotalDeductions { get; set; }
+        }
+
+        private class EmployerDeductionResult
+        {
+            public List<EmployerDeductionLineDto> DeductionLines { get; set; } = new();
+            public decimal TotalDeductions { get; set; }
+        }
+
+        private class BenefitTotals
+        {
+            public decimal TotalBenefits { get; set; }
+            public decimal EmployeeDeductions { get; set; }
+            public decimal EmployerDeductions { get; set; }
         }
     }
 }
