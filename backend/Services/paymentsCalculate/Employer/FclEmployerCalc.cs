@@ -1,17 +1,28 @@
 using backend.DTOs;
+using backend.Services.PaymentsCalculate;
+using static backend.Constants.DeductionCodes;
+using static backend.Constants.DeductionRoleNames;
+
 namespace backend.Services.PaymentsCalculate.Employer
 {
     // Fondo de Capitalización Laboral (patrono)
-    public class FclEmployerCalc
+    public class FclEmployerCalc : IEmployerDeductionCalculator
     {
         private readonly decimal _rate;
-        public FclEmployerCalc(decimal rate) { _rate = rate; }
+        
+        public FclEmployerCalc(decimal rate) 
+        { 
+            _rate = rate; 
+        }
+        
         public EmployerDeductionLineDto Calculate(decimal grossSalary)
-            => new EmployerDeductionLineDto
+        {
+            return new EmployerDeductionLineDto
             {
-                Code = "FCL_PATR",
+                Code = FclEmployer,
                 Amount = Math.Round(grossSalary * _rate, 2),
-                Role = "EmployerDeduction"
+                Role = EmployerDeduction
             };
+        }
     }
 }
