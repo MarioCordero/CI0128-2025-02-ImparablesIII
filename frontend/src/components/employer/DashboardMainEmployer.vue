@@ -101,6 +101,7 @@ export default {
 
   mounted() {
     this.fetchCompanies()
+    localStorage.setItem('selectedProject', 'null')
   }
 }
 </script>
