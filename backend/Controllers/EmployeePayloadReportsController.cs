@@ -121,44 +121,6 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("{id:int}/payroll-reports/{payrollId:int}/download/excel")]
-        public async Task<IActionResult> DownloadExcelReport(
-            int id,
-            int payrollId,
-            [FromQuery] int authenticatedEmployeeId)
-        {
-            try
-            {
-                _logger.LogInformation("Descarga de reporte Excel para empleado {EmployeeId}, planilla {PayrollId}", id, payrollId);
-
-                var report = await _payrollService.GetDetailedPayrollReportAsync(id, payrollId, authenticatedEmployeeId);
-
-                if (report == null)
-                {
-                    return NotFound(new { message = ReturnMessagesConstants.Payroll.ReportNotFound });
-                }
-
-                var excelBytes = _reportGenerationService.GenerateExcelReport(report);
-                var fileName = $"Reporte_Planilla_{report.FechaGeneracion:yyyyMMdd}.xlsx";
-
-                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning("Acceso no autorizado para empleado {EmployeeId}: {Message}", id, ex.Message);
-                return Unauthorized(new { message = ReturnMessagesConstants.General.UnauthorizedAccess });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generando reporte Excel para empleado {EmployeeId}", id);
-                return StatusCode(500, new 
-                { 
-                    message = ReturnMessagesConstants.Payroll.ErrorGeneratingExcelReport,
-                    detail = ex.Message 
-                });
-            }
-        }
-
         [HttpGet("{id:int}/payroll-reports/{payrollId:int}/download/pdf")]
         public async Task<IActionResult> DownloadPdfReport(
             int id,
