@@ -1,8 +1,12 @@
 <template>
-  <div class="min-h-screen bg-[#E9F7FF] p-0">
-    <MainEmployerHeader :companies="companies" :current-project="selectedProject" />
+  <div class="page">
+    <MainEmployerHeader @project-changed="onProjectChanged"/>
+    <DashboardProjectSubHeader
+        :selected-section="selectedSection"
+        @section-change="selectedSection = $event"
+    />
 
-    <div class="mx-[171px] my-[41px] space-y-[41px]">
+    <div class="body mt-12">
       <!-- Success Message -->
       <div v-if="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-2xl mb-6 neumorphism-card">
         <div class="flex items-center">
@@ -24,7 +28,7 @@
       </div>
 
       <!-- Form -->
-      <div class="neumorphism-card bg-[#E9F7FF] p-8 my-20! rounded-2xl">
+      <div class="neumorphism-card w-[700px] mx-auto">
         <h1 class="text-5xl font-black mb-8! mt-2 text-black tracking-wide text-center py-2 px-4">
           Agregar Beneficio
         </h1>
@@ -40,7 +44,7 @@
               </label>
               <select
                 v-model="form.calculationType"
-                :class="['neumorphism-input w-full', errors.calculationType ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input neumorphism-input-select', errors.calculationType ? 'ring-2 ring-red-500' : '']"
                 @change="validateCalculationType"
               >
                 <option value="">Seleccione el tipo de cálculo</option>
@@ -61,7 +65,7 @@
                 v-model="form.name"
                 type="text"
                 maxlength="20"
-                :class="['neumorphism-input w-full', errors.name ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input', errors.name ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ej: Bono de Navidad"
                 @blur="validateName"
               />
@@ -69,7 +73,7 @@
               <select
                 v-else
                 v-model="form.name"
-                :class="['neumorphism-input w-full', errors.name ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input neumorphism-input-select', errors.name ? 'ring-2 ring-red-500' : '']"
                 @change="validateName"
               >
                 <option value="">Seleccione el beneficio</option>
@@ -91,7 +95,7 @@
                 v-model="computedType"
                 :disabled="form.calculationType === 'API'"
                 :class="[
-                  'neumorphism-input w-full', 
+                  'neumorphism-input neumorphism-input-select', 
                   errors.type ? 'ring-2 ring-red-500' : '',
                   form.calculationType === 'API' ? 'bg-gray-100 cursor-not-allowed' : ''
                 ]"
@@ -114,7 +118,7 @@
                 v-model="form.companyId"
                 :disabled="isProjectSelected"
                 :class="[
-                  'neumorphism-input w-full', 
+                  'neumorphism-input', 
                   errors.companyId ? 'ring-2 ring-red-500' : '',
                   isProjectSelected ? 'bg-gray-100 cursor-not-allowed' : ''
                 ]"
@@ -141,7 +145,7 @@
                   type="number"
                   min="0"
                   max="100"
-                  :class="['neumorphism-input w-full pr-8 no-spinner', errors.percentage ? 'ring-2 ring-red-500' : '']"
+                  :class="['neumorphism-input no-spinner', errors.percentage ? 'ring-2 ring-red-500' : '']"
                   placeholder="Ej: 15% "
                   @blur="validatePercentage"
                 />
@@ -160,7 +164,7 @@
                 <input
                   v-model="formattedValue"
                   type="text"
-                  :class="['neumorphism-input w-full pr-8', errors.value ? 'ring-2 ring-red-500' : '']"
+                  :class="['neumorphism-input', errors.value ? 'ring-2 ring-red-500' : '']"
                   placeholder="Ej: 50,000"
                   @input="handleValueInput"
                   @blur="validateValue"
@@ -174,9 +178,17 @@
 
           <div class="flex flex-col sm:flex-row gap-4 pt-6">
             <button
+              type="button"
+              @click="goBack"
+              class="flex-1 neumorphism-button-normal-light disabled:cursor-not-allowed"
+            >
+              Cancelar
+            </button>
+            
+            <button
               type="submit"
               :disabled="isSubmitting"
-              class="flex-1 neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex-1 neumorphism-button-normal-blue disabled:cursor-not-allowed"
             >
               <span v-if="isSubmitting" class="flex items-center justify-center">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -188,13 +200,6 @@
               <span v-else>Agregar Beneficio</span>
             </button>
 
-            <button
-              type="button"
-              @click="goBack"
-              class="flex-1 neumorphism-light px-6 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition"
-            >
-              Cancelar
-            </button>
           </div>
         </form>
       </div>
@@ -256,11 +261,13 @@
 <script>
 import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
 import { apiConfig } from '../../../config/api.js'
+import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
 
 export default {
   name: 'AddBenefit',
   components: {
-    MainEmployerHeader
+    MainEmployerHeader,
+    DashboardProjectSubHeader
   },
   data() {
     return {
@@ -279,7 +286,8 @@ export default {
       companies: [],
       benefits: [],
       selectedProject: null,
-      isLoadingBenefits: false
+      isLoadingBenefits: false,
+      selectedSection: 'benefits'
     }
   },
   computed: {
@@ -498,7 +506,10 @@ export default {
           // Auto-redirect after 2 seconds if coming from a project
           if (this.isProjectSelected) {
             setTimeout(() => {
-              this.$router.push(`/dashboard-project/${this.selectedProject.id}`);
+              this.$router.push({ 
+                path: `/dashboard-project/${this.selectedProject.id}`, 
+                query: { section: 'benefits' } 
+              });
             }, 2000);
           }
         } else {
@@ -521,7 +532,10 @@ export default {
     },
     goBack() {
       if (this.isProjectSelected) {
-        this.$router.push(`/dashboard-project/${this.selectedProject.id}`);
+        this.$router.push({ 
+          path: `/dashboard-project/${this.selectedProject.id}`,
+          query: { section: 'benefits' }
+        });
       } else {
         this.$router.push('/dashboard-main-employer');
       }

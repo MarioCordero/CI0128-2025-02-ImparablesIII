@@ -1,8 +1,12 @@
 <template>
-  <div class="min-h-screen bg-[#E9F7FF] p-0">
+  <div class="page">
     <MainEmployerHeader :companies="companies" />
+    <DashboardProjectSubHeader
+      :selected-section="selectedSection"
+      @section-change="selectedSection = $event"
+    />
 
-    <div class="mx-[171px] my-[41px] space-y-[41px]">
+    <div class="body mt-12">
       <!-- Success Message -->
       <div v-if="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-2xl mb-6 neumorphism-card">
         <div class="flex items-center">
@@ -24,10 +28,11 @@
       </div>
 
       <!-- Form -->
-      <div class="neumorphism-card bg-[#E9F7FF] p-8 my-20! rounded-2xl">
-        <h1 class="text-5xl font-black mb-8! mt-2 text-black tracking-wide text-center py-2 px-4">
+      <div class="neumorphism-card-modal w-[50%] mx-auto">
+        <h1 class="text-3xl font-black text-black text-center">
           Registro de proyecto
         </h1>
+        <div class="w-full h-[5px] mt-2 mb-6 rounded neumorphism-on-small-item"></div>
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Información Básica -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -41,7 +46,7 @@
                 type="text"
                 required
                 maxlength="20"
-                :class="['neumorphism-input w-full', errors.Nombre ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input', errors.Nombre ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ingrese el nombre de la empresa"
               />
               <span v-if="errors.Nombre" class="text-red-500 text-sm mt-1">{{ errors.Nombre }}</span>
@@ -58,7 +63,7 @@
                 required
                 min="100000000"
                 max="999999999"
-                :class="['neumorphism-input w-full', errors.CedulaJuridica ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input no-spinner', errors.CedulaJuridica ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ingrese la cédula jurídica (9 dígitos)"
               />
               <span v-if="errors.CedulaJuridica" class="text-red-500 text-sm mt-1">{{ errors.CedulaJuridica }}</span>
@@ -74,7 +79,7 @@
                 type="email"
                 required
                 maxlength="50"
-                :class="['neumorphism-input w-full', errors.Email ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input', errors.Email ? 'ring-2 ring-red-500' : '']"
                 placeholder="empresa@ejemplo.com"
               />
               <span v-if="errors.Email" class="text-red-500 text-sm mt-1">{{ errors.Email }}</span>
@@ -88,7 +93,7 @@
                 type="tel"
                 required
                 @input="formatTelefono"
-                :class="['neumorphism-input w-full', errors.Telefono ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input', errors.Telefono ? 'ring-2 ring-red-500' : '']"
                 placeholder="####-####"
                 maxlength="9"
               />
@@ -103,7 +108,7 @@
               <select
                 v-model="form.PeriodoPago"
                 required
-                :class="['neumorphism-input w-full', errors.PeriodoPago ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input neumorphism-input-select', errors.PeriodoPago ? 'ring-2 ring-red-500' : '']"
               >
                 <option value="">Seleccione período de pago</option>
                 <option value="Mensual">Mensual</option>
@@ -121,7 +126,7 @@
                 v-model="form.MaximoBeneficios"
                 type="number"
                 required
-                :class="['neumorphism-input w-full', errors.MaximoBeneficios ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input', errors.MaximoBeneficios ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ingrese el máximo de beneficios"
               />
               <span v-if="errors.MaximoBeneficios" class="text-red-500 text-sm mt-1">{{ errors.MaximoBeneficios }}</span>
@@ -130,7 +135,8 @@
 
           <!-- Dirección -->
           <div class="mt-8">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 neumorphism-card rounded-[12px] bg-[#E9F7FF] py-2 px-4">Dirección</h3>
+            <h3 class="text-3xl font-black text-black text-center">Dirección</h3>
+            <div class="w-full h-[5px] mt-2 mb-6 rounded neumorphism-on-small-item"></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Provincia -->
               <div>
@@ -140,7 +146,7 @@
                 <select
                   v-model="form.Provincia"
                   required
-                  :class="['neumorphism-input w-full', errors.Provincia ? 'ring-2 ring-red-500' : '']"
+                  :class="['neumorphism-input neumorphism-input-select', errors.Provincia ? 'ring-2 ring-red-500' : '']"
                 >
                   <option value="">Seleccione provincia</option>
                   <option value="San José">San José</option>
@@ -163,7 +169,7 @@
                   v-model="form.Canton"
                   type="text"
                   maxlength="30"
-                  :class="['neumorphism-input w-full', errors.Canton ? 'ring-2 ring-red-500' : '']"
+                  :class="['neumorphism-input', errors.Canton ? 'ring-2 ring-red-500' : '']"
                   placeholder="Ingrese el cantón"
                 />
                 <span v-if="errors.Canton" class="text-red-500 text-sm mt-1">{{ errors.Canton }}</span>
@@ -178,7 +184,7 @@
                   v-model="form.Distrito"
                   type="text"
                   maxlength="30"
-                  :class="['neumorphism-input w-full', errors.Distrito ? 'ring-2 ring-red-500' : '']"
+                  :class="['neumorphism-input', errors.Distrito ? 'ring-2 ring-red-500' : '']"
                   placeholder="Ingrese el distrito"
                 />
                 <span v-if="errors.Distrito" class="text-red-500 text-sm mt-1">{{ errors.Distrito }}</span>
@@ -193,7 +199,7 @@
                   v-model="form.DireccionParticular"
                   type="text"
                   maxlength="150"
-                  :class="['neumorphism-input w-full', errors.DireccionParticular ? 'ring-2 ring-red-500' : '']"
+                  :class="['neumorphism-input', errors.DireccionParticular ? 'ring-2 ring-red-500' : '']"
                   placeholder="Dirección específica (opcional)"
                 />
                 <span v-if="errors.DireccionParticular" class="text-red-500 text-sm mt-1">{{ errors.DireccionParticular }}</span>
@@ -202,29 +208,20 @@
           </div>
 
           <!-- Botones -->
-          <div class="flex justify-end space-x-4 pt-6">
+          <div class="flex justify-end gap-6 pt-6">
             <button
               type="button"
               @click="handleCancel"
-              class="neumorphism-light px-6 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition flex items-center space-x-2"
+              class="neumorphism-button-normal-light"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
               <span>Cancelar</span>
             </button>
             
             <button
               type="submit"
               :disabled="loading"
-              class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-600 disabled:opacity-50 transition flex items-center space-x-2"
+              class="neumorphism-button-normal-blue"
             >
-              <svg v-if="loading" class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m-15.357-2A8.001 8.001 0 0019.419 15m0 0H15"/>
-              </svg>
-              <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-              </svg>
               <span>{{ loading ? 'Registrando...' : 'Registrar Empresa' }}</span>
             </button>
           </div>
@@ -237,13 +234,14 @@
 <script>
 import axios from 'axios'
 import MainEmployerHeader from '../common/MainEmployerHeader.vue'
-//import '../../assets/neumorphismGlobal.css'
+import DashboardProjectSubHeader from './projectDashboard/DashboardProjectSubHeader.vue'
 import apiConfig from '../../config/api.js'
 
 export default {
   name: 'CompanyRegistration',
   components: {
-    MainEmployerHeader
+    MainEmployerHeader,
+    DashboardProjectSubHeader
   },
   data() {
     return {
@@ -252,6 +250,7 @@ export default {
       errorMessage: '',
       successMessage: '',
       formattedTelefono: '',
+      selectedSection: 'dashboard',
       form: {
         Nombre: '',
         CedulaJuridica: '',
@@ -393,7 +392,7 @@ export default {
         return
       }
       this.resetForm()
-      this.$router.push('/dashboard-main-employer')
+      this.$router.push({ path: '/dashboard-main-employer', query: { section: 'dashboard' } })
     },
     resetForm() {
       this.form = {

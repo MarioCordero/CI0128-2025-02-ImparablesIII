@@ -323,7 +323,7 @@ export default {
       companies: [],
       benefits: [],
       selectedSection: 'dashboard',
-      dashboardData: {}, // Para datos del backend cuando esté disponible
+      dashboardData: {},
       mockRecentActivities: [
         {
           id: 1,
@@ -370,6 +370,21 @@ export default {
           priority: 'low'
         }
       ]
+    }
+  },
+  watch: {
+    '$route.query.section': {
+      handler(newSection) {
+        if (newSection) {
+          this.selectedSection = newSection;
+          
+          this.$router.replace({ 
+            path: this.$route.path,
+            query: {} 
+          });
+        }
+      },
+      immediate: true
     }
   },
   methods: {
@@ -464,6 +479,17 @@ export default {
     this.fetchCompanies();
     await this.fetchProject();
     this.fetchBenefits();
+    
+    if (this.$route.query.section) {
+      this.selectedSection = this.$route.query.section;
+
+      this.$nextTick(() => {
+        this.$router.replace({ 
+          path: this.$route.path,
+          query: {} 
+        });
+      });
+    }
   }
 }
 </script>
