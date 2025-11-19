@@ -130,6 +130,31 @@
   transition: all 0.1s ease;
 }
 
+.neumorphism-button-normal-red {
+  background: #ff7474;
+  border-radius: 12px;
+  padding: 8px 16px;
+  box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-button-normal-red:hover {
+  background: #ff3737;
+  box-shadow: 2px 2px 4px #bebebe,
+              -2px -2px 4px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-button-normal-red:active {
+  background: #ff7474;
+  box-shadow: inset 3px 3px 6px #b95656,
+              inset -3px -3px 6px #ffa9a9;
+  transition: all 0.1s ease;
+}
+
+
 
 
 
@@ -432,7 +457,7 @@
   padding-right: 80px;
   margin-bottom: 0px;
   border-radius: 0px;
-  box-shadow: 8px 8px 16px #bebebe;
+  box-shadow: 8px 8px 16px #00000030;
   width: 100%;
   height: 95px;
   position: fixed;
@@ -467,6 +492,16 @@
 
 .neumorphism-input-select {
   cursor: pointer;
+
+
+    /* Espacio para la flecha */
+  padding-right: 40px;
+
+  /* Flecha SVG inline (editable en color) */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='none' stroke='%23666' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
 }
 
 
@@ -513,51 +548,46 @@
 
 
 /* ===================================== SubHeader ===================================== */
-.neumorfismo-subheader {
+
+.neumorphism-subheader {
+  margin-bottom: 0px;
+  width: 50%;
+  height: 48px;
+  position: fixed;
+  top: 95px;
+  left: 25%;
+  z-index: 49;
   background: #dbeafe;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
-  box-shadow: 8px 8px 16px #bebebe,
-              -8px 0px 16px #ffffff;
+  box-shadow: 0px 0px 16px #bebebe;
+  filter: drop-shadow(4px 4px 8px #bebebe);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
 }
 
-.neumorfismo-opcion-subheader {
-  border-radius: 0px;
+.neumorphism-subheader-option {
+  height: 100%;
+  width: 100%;
   background: #dbeafe;
   transition: all 0.3s ease;
 }
 
-.neumorfismo-opcion-subheader-primero {
-  background: #dbeafe;
+.nso-first {
   border-bottom-left-radius: 12px;
 }
 
-.neumorfismo-opcion-subheader-ultimo {
-  background: #dbeafe;
+.nso-last {
   border-bottom-right-radius: 12px;
 }
 
-.neumorfismo-opcion-subheader:hover {
+.neumorphism-subheader-option:hover {
   color: white;
   background: #7476ff;
-  transform: scale(1.01);
+  transform: scale(1.1);
   transition: all 0.3s ease;
 }
-
-.neumorfismo-opcion-subheader-primero:hover {
-  color: white;
-  background: #7476ff;
-  transform: scale(1.01);
-  transition: all 0.3s ease;
-}
-
-.neumorfismo-opcion-subheader-ultimo:hover {
-  color: white;
-  background: #7476ff;
-  transform: scale(1.01);
-  transition: all 0.3s ease;
-}
-
 
 
 /* 

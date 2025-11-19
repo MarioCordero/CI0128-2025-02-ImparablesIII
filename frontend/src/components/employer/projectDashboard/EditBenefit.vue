@@ -1,12 +1,12 @@
 <template>
-    <div class="bg-[#dbeafe] min-h-screen">
+    <div class="page">
         <MainEmployerHeader @project-changed="onProjectChanged"/>
         <DashboardProjectSubHeader
         :selected-section="selectedSection"
         @section-change="selectedSection = $event"
         />
-        <div class="mx-[171px] my-[41px] space-y-[41px] pb-[41px]">
-            <div class="neumorfismo-tarjeta w-[700px] space-y-[23px] p-[24px]">
+        <div class="body mt-12">
+            <div class="neumorphism-card w-[700px] space-y-[23px] mx-auto">
             
                 <!-- Nombre del beneficio -->
                 <div class="mb-4">
@@ -14,7 +14,7 @@
                 <input
                     type="text"
                     v-model="beneficio.nombre"
-                    class="neumorfismo-sobre-suave w-full p-2"
+                    class="neumorphism-input"
                 />
                 <small class="text-gray-400 text-sm">
                     El nombre debe ser único dentro de la empresa
@@ -31,31 +31,21 @@
                     <!-- Campo dinámico según el tipo de cálculo -->
                     <div v-if="beneficio.tipoCalculo === 'Monto Fijo'" class="mb-4">
                         <label class="block text-gray-700 mb-1">Valor del Beneficio</label>
-                        <input
-                            type="number"
-                            v-model.number="beneficio.valor"
-                            class="neumorfismo-sobre-suave w-full p-2"
-                            placeholder="Ingrese el monto"
-                            disabled
-                        />
+                        <p class="neumorphism-on-small-item px-4 py-2 w-fit!">
+                          ₡{{ beneficio.valor }} 
+                        </p>
                     </div>
 
                     <div v-else-if="beneficio.tipoCalculo === 'Porcentaje'" class="mb-4">
                         <label class="block text-gray-700 mb-1">Porcentaje del Beneficio</label>
-                        <input
-                            type="number"
-                            v-model.number="beneficio.porcentaje"
-                            class="neumorfismo-sobre-suave w-full p-2"
-                            placeholder="Ingrese el porcentaje"
-                            min="0"
-                            max="100"
-                            disabled
-                        />
+                        <p class="neumorphism-on-small-item px-4 py-2 w-fit!">
+                          {{ beneficio.porcentaje }}% 
+                        </p>
                     </div>
 
                     <div v-else-if="beneficio.tipoCalculo === 'API'" class="mb-4">
                         <label class="block text-gray-700 mb-1">Tipo de Beneficio</label>
-                        <p class="neumorfismo-sobre-suave px-4 py-2 w-fit!">API - Configuración Externa</p>
+                        <p class="neumorphism-on-small-item px-4 py-2 w-fit!">API - Configuración Externa</p>
                     </div>
                 </div>
         
@@ -66,18 +56,18 @@
                 <textarea
                     v-model="beneficio.descripcion"
                     rows="2"
-                    class="neumorfismo-sobre-suave w-full p-2"
+                    class="neumorphism-input"
                 ></textarea>
                 </div>
         
                 <!-- Botones -->
                 <div class="grid grid-cols-[1fr_1fr] gap-3">
-                <button class="neumorfismo-boton-azul px-5 py-2" @click="guardarCambios" :disabled="loading">
-                    {{ loading ? 'Guardando...' : 'Guardar Cambios' }}
-                </button>
-                <button class="neumorfismo-boton px-5 py-2" @click="cancelar" :disabled="loading">
-                    Cancelar
-                </button>
+                  <button class="neumorphism-button-normal-light" @click="cancelar" :disabled="loading">
+                      Cancelar
+                  </button>
+                  <button class="neumorphism-button-normal-blue" @click="guardarCambios" :disabled="loading">
+                      {{ loading ? 'Guardando...' : 'Guardar Cambios' }}
+                  </button>
                 </div>
 
                 <!-- Mensaje de error -->
@@ -161,15 +151,13 @@ export default {
           this.error = "La descripción no puede exceder 200 caracteres";
           return;
         }
-
-        console.log("Datos a guardar:", this.beneficio);
         
         const result = await this.actualizarBeneficio();
         
         if (result.success) {
           this.successMessage = result.message;
           setTimeout(() => {
-            this.$router.go(-1);
+            this.$router.push({ path: `/dashboard-project/${this.companyId}`, query: { section: 'benefits' } });
           }, 1500);
         } else {
           this.error = result.message;
@@ -184,7 +172,7 @@ export default {
     },
 
     cancelar() {
-      this.$router.go(-1);
+      this.$router.push({ path: `/dashboard-project/${this.companyId}`, query: { section: 'benefits' } });
     },
 
     async cargarBeneficio() {
