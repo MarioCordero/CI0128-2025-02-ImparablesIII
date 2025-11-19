@@ -504,7 +504,26 @@
   background-size: 18px;
 }
 
+input[type="radio"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background-color: #dbeafe;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
 
+input[type="radio"]:checked {
+  background-color: #7476ff;
+}
+
+input[type="radio"]:hover {
+  background-color: #373bff;
+  transform: scale(1.1);
+}
 
 
 
