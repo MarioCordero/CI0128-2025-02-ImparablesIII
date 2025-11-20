@@ -19,8 +19,8 @@
 
     <!-- Usuario info centrado -->
     <div class="flex justify-center">
-      <div v-if="user" class="bg-[#dbeafe] neumorphism-input shadow-[8px_8px_16px_#c1d5e8,-8px_-8px_16px_#ffffff] min-w-[300px] min-h-[40px] rounded px-3 py-2 flex items-center justify-center">
-        <span class="text-gray-700 font-medium">Bienvenido, {{ user.Nombre }} {{ user.Apellidos }}</span>
+      <div v-if="user" class="neumorphism-input flex items-center justify-center">
+        <span class="text-gray-700 font-medium">{{ user.nombre }} {{ user.apellidos }}</span>
       </div>
     </div>
 
@@ -28,7 +28,7 @@
     <div class="flex justify-end items-center gap-4">
       <button
         @click="logout"
-        class="neumorphism-dark px-6 py-2 rounded-xl text-white text-base font-semibold hover:bg-red-400 transition"
+        class="neumorphism-button-normal-blue"
       >
         Cerrar Sesión
       </button>
@@ -39,7 +39,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-//import '../../assets/neumorphismGlobal.css'
 
 const router = useRouter()
 const user = ref(null)
