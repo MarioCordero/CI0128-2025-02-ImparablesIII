@@ -279,7 +279,7 @@
         </div>
 
         <div>
-          <EditProjectInfo/>
+          <EditProjectInfo/> <!--TODO: Make the component prettier-->
         </div>
       </div>
 
