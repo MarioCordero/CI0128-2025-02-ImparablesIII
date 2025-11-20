@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-[#dbeafe] min-h-screen flex flex-col page">
+  <div class="page">
     <MainEmployerHeader @project-changed="onProjectChanged"/>
     
     <DashboardProjectSubHeader
@@ -7,7 +7,7 @@
       @section-change="selectedSection = $event"
     />
 
-    <div class="mx-[171px] my-[41px] space-y-[41px] pb-[41px] body">
+    <div class="mt-12">
       <div v-if="loading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 neumorphism-dark"></div>
       </div>
@@ -17,36 +17,37 @@
       </div>
 
       <!-- Dashboard Section -->
-      <div v-if="selectedSection === 'dashboard'">
-        <div>
+      <div v-if="selectedSection === 'dashboard'" class="body">
+        <div class="space-y-[18px]">
           <h1 class="text-4xl font-bold text-gray-800">Dashboard de Empresa</h1>
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
         </div>
-        
+
         <!-- Métricas Clave -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- Total Empleados -->
-          <div class="neumorphism-card p-6 rounded-2xl text-center">
+          <div class="neumorphism-card text-center">
             <div class="text-3xl font-bold text-blue-600 mb-2">{{ dashboardData.totalEmployees || 25 }}</div>
             <div class="text-gray-600 text-sm">Empleados Activos</div>
             <div class="text-green-500 text-xs mt-1">+5% vs mes anterior</div>
           </div>
 
           <!-- Planilla del Mes -->
-          <div class="neumorphism-card p-6 rounded-2xl text-center">
+          <div class="neumorphism-card text-center">
             <div class="text-3xl font-bold text-green-600 mb-2">₡{{ (dashboardData.currentPayroll || 2500000).toLocaleString() }}</div>
             <div class="text-gray-600 text-sm">Planilla Actual</div>
             <div class="text-red-500 text-xs mt-1">+3% vs mes anterior</div>
           </div>
 
           <!-- Departamentos -->
-          <div class="neumorphism-card p-6 rounded-2xl text-center">
+          <div class="neumorphism-card text-center">
             <div class="text-3xl font-bold text-purple-600 mb-2">{{ dashboardData.activeDepartments || 5 }}</div>
             <div class="text-gray-600 text-sm">Departamentos</div>
             <div class="text-gray-400 text-xs mt-1">Sin cambios</div>
           </div>
 
           <!-- Tareas Pendientes -->
-          <div class="neumorphism-card p-6 rounded-2xl text-center">
+          <div class="neumorphism-card text-center">
             <div class="text-3xl font-bold text-orange-600 mb-2">{{ dashboardData.pendingTasks || 3 }}</div>
             <div class="text-gray-600 text-sm">Tareas Pendientes</div>
             <div class="text-blue-500 text-xs mt-1">2 nuevas hoy</div>
@@ -54,7 +55,7 @@
         </div>
 
         <!-- Información de la Empresa y Acciones Rápidas -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Información de la Empresa -->
           <div class="neumorphism-card p-6 rounded-2xl">
             <h2 class="text-xl font-semibold mb-4">Información de la Empresa</h2>
@@ -74,7 +75,7 @@
             <div class="grid grid-cols-2 gap-4">
               <button 
                 @click="selectedSection = 'employees'" 
-                class="neumorphism-button p-4 rounded-xl text-center hover:bg-blue-50 transition"
+                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
               >
                 <div class="text-2xl mb-2">👥</div>
                 <div class="text-sm font-medium">Gestionar Empleados</div>
@@ -82,7 +83,7 @@
 
               <button 
                 @click="selectedSection = 'reports'" 
-                class="neumorphism-button p-4 rounded-xl text-center hover:bg-blue-50 transition"
+                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
               >
                 <div class="text-2xl mb-2">📊</div>
                 <div class="text-sm font-medium">Ver Reportes</div>
@@ -90,7 +91,7 @@
 
               <button 
                 @click="selectedSection = 'benefits'" 
-                class="neumorphism-button p-4 rounded-xl text-center hover:bg-blue-50 transition"
+                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
               >
                 <div class="text-2xl mb-2">🎁</div>
                 <div class="text-sm font-medium">Gestionar Beneficios</div>
@@ -98,7 +99,7 @@
 
               <button 
                 @click="selectedSection = 'info'" 
-                class="neumorphism-button p-4 rounded-xl text-center hover:bg-blue-50 transition"
+                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
               >
                 <div class="text-2xl mb-2">⚙️</div>
                 <div class="text-sm font-medium">Configurar Empresa</div>
@@ -108,7 +109,7 @@
         </div>
 
         <!-- Gráficos Placeholder -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Distribución por Departamentos -->
           <div class="neumorphism-card p-6 rounded-2xl">
             <h3 class="text-lg font-semibold mb-4">Empleados por Departamento</h3>
@@ -186,73 +187,84 @@
       </div>
 
       <!-- Benefits Section -->
-      <div v-else-if="selectedSection === 'benefits'">
-        <div>
-          <h1 class="text-4xl font-bold text-gray-800 mb-4">Gestión de Beneficios</h1>
+      <div v-else-if="selectedSection === 'benefits'" class="body">
+        <div class="space-y-[18px]">
+
+          <div class="flex justify-between items-center mb-0">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Gestión de Beneficios</h1>
+            
+            <button @click="addBenefit" class="neumorphism-button-normal-light">
+              Agregar beneficio
+            </button>
+          </div>
+
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
         </div>
-        <div>
-          <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addBenefit">
-            Agregar beneficio
-          </button>
-        </div>
-                  <div class="neumorphism-card p-6 rounded-2xl">
-            <h2 class="text-xl font-semibold mb-4">Beneficios Corporativos</h2>
-            <div v-if="!benefits || benefits.length === 0" class="text-gray-500 text-center py-8">
-              No hay beneficios registrados para esta empresa.
-            </div>
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div 
-                v-for="benefit in benefits" 
-                :key="`${benefit.companyId}-${benefit.name}`" 
-                class="neumorphism-card p-4 rounded-xl hover:shadow-lg transition-shadow duration-300"
-              >
-                <div class="flex flex-col space-y-2">
-                  <div class="flex justify-between items-start">
-                    <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
-                    <!-- Botón de editar -->
-                    <button class="neumorfismo-boton p-[7px] rounded-full!" @click="editBenefit(benefit)">
-                      ✏️
-                    </button>
+
+
+        <div class="neumorphism-card p-6 rounded-2xl">
+          <h2 class="text-xl font-semibold mb-4">Beneficios Corporativos</h2>
+          <div v-if="!benefits || benefits.length === 0" class="text-gray-500 text-center py-8">
+            No hay beneficios registrados para esta empresa.
+          </div>
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div 
+              v-for="benefit in benefits" 
+              :key="`${benefit.companyId}-${benefit.name}`" 
+              class="neumorphism-card p-4 rounded-xl hover:shadow-lg transition-shadow duration-300"
+            >
+              <div class="flex flex-col space-y-2">
+                <div class="flex justify-between items-start">
+                  <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
+                  <!-- Botón de editar -->
+                  <button class="neumorphism-button-normal-light p-[7px]! rounded-full!" @click="editBenefit(benefit)">
+                    ✏️
+                  </button>
+                </div>
+                <div class="space-y-1 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 font-medium">Tipo:</span>
+                    <span class="text-gray-800">{{ benefit.type }}</span>
                   </div>
-                  <div class="space-y-1 text-sm">
-                    <div class="flex justify-between">
-                      <span class="text-gray-600 font-medium">Tipo:</span>
-                      <span class="text-gray-800">{{ benefit.type }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-gray-600 font-medium">Cálculo:</span>
-                      <span class="text-gray-800">{{ benefit.calculationType }}</span>
-                    </div>
-                    <div v-if="benefit.value" class="flex justify-between">
-                      <span class="text-gray-600 font-medium">Valor:</span>
-                      <span class="text-gray-800">₡{{ benefit.value.toLocaleString() }}</span>
-                    </div>
-                    <div v-if="benefit.percentage" class="flex justify-between">
-                      <span class="text-gray-600 font-medium">Porcentaje:</span>
-                      <span class="text-gray-800">{{ benefit.percentage }}%</span>
-                    </div>
-                    <!-- Mostrar descripción si existe -->
-                    <div v-if="benefit.descripcion" class="mt-2 pt-2 border-t border-gray-200">
-                      <span class="text-gray-600 font-medium">Descripción:</span>
-                      <p class="text-gray-800 text-xs mt-1">{{ benefit.descripcion }}</p>
-                    </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600 font-medium">Cálculo:</span>
+                    <span class="text-gray-800">{{ benefit.calculationType }}</span>
+                  </div>
+                  <div v-if="benefit.value" class="flex justify-between">
+                    <span class="text-gray-600 font-medium">Valor:</span>
+                    <span class="text-gray-800">₡{{ benefit.value.toLocaleString() }}</span>
+                  </div>
+                  <div v-if="benefit.percentage" class="flex justify-between">
+                    <span class="text-gray-600 font-medium">Porcentaje:</span>
+                    <span class="text-gray-800">{{ benefit.percentage }}%</span>
+                  </div>
+                  <!-- Mostrar descripción si existe -->
+                  <div v-if="benefit.descripcion" class="mt-2 pt-2 border-t border-gray-200">
+                    <span class="text-gray-600 font-medium">Descripción:</span>
+                    <p class="text-gray-800 text-xs mt-1">{{ benefit.descripcion }}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
       </div>
 
       <!-- Employees Section -->
-      <div v-else-if="selectedSection === 'employees'">
-        <div>
-          <h1 class="text-4xl font-bold text-gray-800">Gestión de Empleados</h1>
+      <div v-else-if="selectedSection === 'employees'" class="body">
+        <div class="space-y-[18px]">
+
+          <div class="flex justify-between items-center mb-0">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Gestión de Empleados</h1>
+            
+            <button @click="addEmployee" class="neumorphism-button-normal-light">
+              Agregar empleado
+            </button>
+          </div>
+
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
         </div>
-        <div>
-          <button class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-700 transition" @click="addEmployee">
-            Agregar empleado
-          </button>
-        </div>
+
         <div class="grid grid-cols-[1fr_3fr] gap-[81px]">
           <EmployeesFilter/>
           <EmployeesSection :project-id="project.id" />
@@ -260,20 +272,24 @@
       </div>
 
       <!-- Information Section -->
-      <div v-else-if="selectedSection === 'info'">
-        <div>
-          <h1 class="text-4xl font-bold text-gray-800 mb-4">Información de la Empresa</h1>
+      <div v-else-if="selectedSection === 'info'" class="body">
+        <div class="space-y-[18px]">
+          <h1 class="text-4xl font-bold text-gray-800">Información de la Empresa</h1>
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
         </div>
+
         <div>
           <EditProjectInfo/> <!--TODO: Make the component prettier-->
         </div>
       </div>
 
       <!-- Reports Section -->
-      <div v-else-if="selectedSection === 'reports'">
-        <div>
-          <h1 class="text-4xl font-bold text-gray-800 mb-4">Reportes de Planilla</h1>
+      <div v-else-if="selectedSection === 'reports'" class="body">        
+        <div class="space-y-[18px]">
+          <h1 class="text-4xl font-bold text-gray-800">Reportes de Planilla</h1>
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
         </div>
+
         <PayrollReports />
       </div>
     </div>
@@ -307,7 +323,7 @@ export default {
       companies: [],
       benefits: [],
       selectedSection: 'dashboard',
-      dashboardData: {}, // Para datos del backend cuando esté disponible
+      dashboardData: {},
       mockRecentActivities: [
         {
           id: 1,
@@ -354,6 +370,21 @@ export default {
           priority: 'low'
         }
       ]
+    }
+  },
+  watch: {
+    '$route.query.section': {
+      handler(newSection) {
+        if (newSection) {
+          this.selectedSection = newSection;
+          
+          this.$router.replace({ 
+            path: this.$route.path,
+            query: {} 
+          });
+        }
+      },
+      immediate: true
     }
   },
   methods: {
@@ -448,6 +479,17 @@ export default {
     this.fetchCompanies();
     await this.fetchProject();
     this.fetchBenefits();
+    
+    if (this.$route.query.section) {
+      this.selectedSection = this.$route.query.section;
+
+      this.$nextTick(() => {
+        this.$router.replace({ 
+          path: this.$route.path,
+          query: {} 
+        });
+      });
+    }
   }
 }
 </script>
