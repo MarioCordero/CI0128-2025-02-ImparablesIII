@@ -9,7 +9,7 @@
         <div class="body mt-12">
             
           <button v-if="isEmployer" @click="goBack" class="neumorphism-button-normal-light">Volver</button>
-
+          <button v-else @click="goBackEmployee" class="neumorphism-button-normal-light">Volver</button>
             <!-- Primera parte 1x1 -->
             <div class="neumorphism-card flex items-center justify-between px-[39px] py-[37px]">
                 <div class="flex items-center gap-4">
@@ -537,6 +537,10 @@ export default {
       } else {
         this.$router.push('/dashboard-main-employer');
       }
+    },
+
+    goBackEmployee() {
+      this.$router.go(-1);
     }
 
   },
