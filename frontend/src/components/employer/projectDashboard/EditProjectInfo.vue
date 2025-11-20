@@ -19,7 +19,7 @@
           </h3>
           <div class="mb-3">
             <div class="font-bold text-gray-700 mb-1">ID Empresa</div>
-            <div class="text-gray-600">{{ project.id }}</div>
+            <div class="text-gray-600 text-lg">{{ project.id }}</div>
           </div>
           <div class="mb-3">
             <div class="font-bold text-gray-700 mb-1">Cédula jurídica</div>
@@ -59,6 +59,59 @@
           </div>
         </div>
       </div>
+
+      <!-- Address Section (if exists) -->
+      <div v-if="project.direccion" class="mt-8">
+        <div class="neumorphism-on p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+            📍 Dirección Completa
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="neumorfismo-sobre-suave">
+              <div class="font-bold text-gray-700 mb-1">Provincia</div>
+              <div class="text-gray-600">{{ project.direccion.provincia }}</div>
+            </div>
+
+            <div class="neumorfismo-sobre-suave">
+              <div class="font-bold text-gray-700 mb-1">Cantón</div>
+              <div class="text-gray-600">{{ project.direccion.canton }}</div>
+            </div>
+
+            <div class="neumorfismo-sobre-suave">
+              <div class="font-bold text-gray-700 mb-1">Distrito</div>
+              <div class="text-gray-600">{{ project.direccion.distrito }}</div>
+            </div>
+          </div>
+
+          <div class="mt-4 neumorfismo-sobre-suave">
+            <div class="font-bold text-gray-700 mb-1">Dirección Particular</div>
+            <div class="text-gray-600">{{ project.direccion.direccionParticular }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-8 flex justify-center gap-4">
+        <button 
+          class="neumorfismo-boton-rojo px-6 py-3"
+          @click="showDeleteModal = true"
+        >
+          🗑️ Eliminar Empresa
+        </button>
+      </div>
+
+      <!-- Delete Warning Modal -->
+      <WarningModal
+        :is-visible="showDeleteModal"
+        title="Eliminar Empresa"
+        :message="`¿Estás seguro de que deseas eliminar la empresa '${project?.nombre}'? Esta acción eliminará PERMANENTEMENTE todos los datos asociados incluyendo: empleados, planillas, beneficios, reportes y configuraciones. Esta acción NO se puede deshacer.`"
+        @confirm="confirmDeleteCompany"
+        @cancel="cancelDeleteCompany"
+        @close="showDeleteModal = false"
+      />
+
+      <!-- Edit Modal -->
       <EditCompanyModal
         :visible="showEditModal"
         :company="project"
@@ -72,42 +125,83 @@
 <script>
 import { apiConfig } from '../../../config/api.js'
 import EditCompanyModal from './EditCompanyModal.vue'
+import WarningModal from '../../common/WarningModal.vue'
+
 
 export default {
   name: 'EditProjectInfo',
-  components: { EditCompanyModal },
+  components: { 
+    EditCompanyModal, 
+    WarningModal 
+  },
   data() {
     return {
       project: null,
       isLoading: true,
       errorMessage: '',
-      showEditModal: false
+      showEditModal: false,
+      showDeleteModal: false
     }
   },
   mounted() {
-    this.fetchProjectInfo();
+    this.fetchProjectInfo()
   },
   methods: {
     async fetchProjectInfo() {
-      this.isLoading = true;
-      this.errorMessage = '';
+      this.isLoading = true
+      this.errorMessage = ''
       try {
-        const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
-        const companyId = selectedProject?.id;
-        if (!companyId) throw new Error('No se encontró el ID de empresa en localStorage');
-        const response = await fetch(apiConfig.endpoints.byCompany(companyId));
-        if (!response.ok) throw new Error('No se encontró la empresa');
-        this.project = await response.json();
+        const selectedProject = JSON.parse(localStorage.getItem('selectedProject'))
+        const companyId = selectedProject?.id
+        if (!companyId) {
+          throw new Error('No se encontró el ID de empresa en localStorage')
+        }
+        const response = await fetch(apiConfig.endpoints.byCompany(companyId))
+        if (!response.ok) {
+          throw new Error('No se encontró la empresa')
+        }
+        this.project = await response.json()
       } catch (error) {
-        this.errorMessage = 'Error al cargar la empresa';
+        this.errorMessage = 'Error al cargar la información de la empresa'
       } finally {
-        this.isLoading = false;
+        this.isLoading = false
       }
     },
     async handleSave(updatedCompany) {
       this.project = updatedCompany
       this.showEditModal = false
-    } 
+      const selectedProject = JSON.parse(localStorage.getItem('selectedProject'))
+      if (selectedProject && selectedProject.id === updatedCompany.id) {
+        localStorage.setItem('selectedProject', JSON.stringify(updatedCompany))
+      }
+    },
+    async confirmDeleteCompany() {
+      try {
+        // TODO: CALL API TO DELETE COMPANY
+        // const response = await fetch(apiConfig.endpoints.project, {
+        //   method: 'DELETE',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({ id: this.project.id })
+        // })
+        // if (!response.ok) {
+        //   throw new Error('Error al eliminar la empresa')
+        // }
+        // localStorage.removeItem('selectedProject')
+        this.$router.push('/dashboard-main-employer')
+        // TODO: Show success notification
+        
+      } catch (error) {
+        console.error('Error deleting company:', error)
+        this.errorMessage = 'Error al eliminar la empresa. Inténtalo de nuevo.'
+      } finally {
+        this.showDeleteModal = false
+      }
+    },
+    cancelDeleteCompany() {
+      this.showDeleteModal = false
+    }
   }
 }
 </script>
