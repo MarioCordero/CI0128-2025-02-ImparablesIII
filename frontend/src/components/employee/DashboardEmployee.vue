@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-[#E9F7FF] p-0">
+  <div class="page">
     <EmployeeHeader :user="user"/>
     <DashboardEmployeeSubHeader
       :selectedSection="selectedSection"
       @section-change="selectedSection = $event"
     />
-    <div class="mx-auto my-10 max-w-6xl px-4">      
+    <div class="body mt-12">      
       <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
         {{ error }}
       </div>
@@ -67,7 +67,7 @@ export default {
     EmployeeHeader,
     DashboardEmployeeSubHeader,
     BenefitsSelectionView,
-    PayrollReports
+    PayrollReports,
   },
   data() {
     return {
