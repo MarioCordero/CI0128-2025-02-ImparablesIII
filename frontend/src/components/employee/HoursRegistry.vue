@@ -1,14 +1,5 @@
 <template>
-  <div class="p-8 bg-gray-50 min-h-screen space-y-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <button class="text-gray-600 hover:text-black text-sm">&larr; Volver al Dashboard</button>
-        <h1 class="font-semibold text-lg">Agregar Horas Trabajadas</h1>
-      </div>
-      <p class="text-sm text-gray-500">Registra tus horas diarias</p>
-    </div>
-
+  <div class="body m-0! p-0!">
     <!-- Summary Cards -->
     <div class="grid grid-cols-3 gap-4">
       <div class="bg-white rounded-2xl shadow p-4">
@@ -103,80 +94,173 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
-import apiConfig from '../../config/api.js'
 
-const userId = '1212'
+/*
+  MODO MOCK:
+  - No hace llamadas a la API.
+  - Genera datos de resumen y registros recientes ficticios.
+  - El botón "Registrar Horas" agrega el registro al arreglo local y recalcula totales.
+  - Cambia MOCK_MODE a false si luego quieres volver a integrar con la API.
+*/
+const MOCK_MODE = true
 
-const summaries = ref({
-  week: { weekHours: 0, maxWeeklyHours: 40 },
-  month: { monthHours: 0 },
-  total: { totalRecords: 0 }
-})
+export default {
+  name: 'HoursRegistry',
+  setup() {
+    // Estado
+    const summaries = ref({
+      week: { weekHours: 0, maxWeeklyHours: 40 },
+      month: { monthHours: 0 },
+      total: { totalRecords: 0 }
+    })
 
-const recentRecords = ref([])
+    const recentRecords = ref([])
 
-const form = ref({
-  date: '',
-  sessions: [{ start: '', end: '' }]
-})
+    const form = ref({
+      date: '',
+      sessions: [{ start: '', end: '' }]
+    })
 
-function addSession() {
-  form.value.sessions.push({ start: '', end: '' })
-}
-
-function removeSession(index) {
-  form.value.sessions.splice(index, 1)
-}
-
-async function registerHours() {
-  try {
-    const payload = {
-      date: form.value.date,
-      sessions: form.value.sessions
+    // Utilidades de mock
+    function randomHourPair() {
+      // Genera un par (inicio, fin) entre 7:00 y 17:00 con duración 2-4 h
+      const startHour = 7 + Math.floor(Math.random() * 6) // 7-12
+      const duration = 2 + Math.floor(Math.random() * 3) // 2-4
+      const endHour = Math.min(startHour + duration, 18)
+      const pad = v => String(v).padStart(2, '0')
+      return {
+        start: `${pad(startHour)}:00`,
+        end: `${pad(endHour)}:00`
+      }
     }
-    await axios.post(apiConfig.endpoints.workHours, payload)
-    await loadSummaries()
-    await loadRecentRecords()
-    form.value.sessions = [{ start: '', end: '' }]
-  } catch (err) {
-    console.error(err.response?.data || err)
+
+    function calcHours(start, end) {
+      const [sh, sm] = start.split(':').map(Number)
+      const [eh, em] = end.split(':').map(Number)
+      return Math.max(0, (eh + em / 60) - (sh + sm / 60))
+    }
+
+    function weekdayName(dateStr) {
+      const d = new Date(dateStr)
+      return d.toLocaleDateString('es-CR', { weekday: 'long' })
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr)
+      return d.toLocaleDateString('es-CR', { day: '2-digit', month: 'long', year: 'numeric' })
+    }
+
+    // Mock: cargar resúmenes
+    function loadSummariesMock() {
+      // Simular horas con límites
+      summaries.value.week.weekHours = recentRecords.value
+        .slice(0, 5)
+        .reduce((acc, r) => acc + r.hours, 0)
+
+      summaries.value.month.monthHours = recentRecords.value
+        .reduce((acc, r) => acc + r.hours, 0)
+
+      summaries.value.total.totalRecords = recentRecords.value.length
+    }
+
+    // Mock: cargar registros recientes iniciales
+    function loadRecentRecordsMock() {
+      // Genera entre 3 y 6 días de registros
+      const today = new Date()
+      const count = 4 + Math.floor(Math.random() * 3)
+
+      recentRecords.value = Array.from({ length: count }).map((_, i) => {
+        const d = new Date(today)
+        d.setDate(d.getDate() - i)
+        const iso = d.toISOString().split('T')[0]
+
+        // Generar 1-2 sesiones
+        const sessionCount = 1 + Math.floor(Math.random() * 2)
+        const sessions = Array.from({ length: sessionCount }).map(() => randomHourPair())
+        const totalHours = sessions.reduce((acc, s) => acc + calcHours(s.start, s.end), 0)
+
+        return {
+          date: iso,
+          weekday: weekdayName(iso),
+            hours: totalHours,
+          sessions
+        }
+      }).sort((a, b) => new Date(b.date) - new Date(a.date))
+
+      loadSummariesMock()
+    }
+
+    // Acciones formulario
+    function addSession() {
+      form.value.sessions.push({ start: '', end: '' })
+    }
+
+    function removeSession(index) {
+      form.value.sessions.splice(index, 1)
+      if (!form.value.sessions.length) {
+        form.value.sessions.push({ start: '', end: '' })
+      }
+    }
+
+    function validateForm() {
+      if (!form.value.date) return 'Debe seleccionar una fecha.'
+      if (!form.value.sessions.every(s => s.start && s.end)) {
+        return 'Complete todas las horas de inicio y fin.'
+      }
+      const total = form.value.sessions.reduce((acc, s) => acc + calcHours(s.start, s.end), 0)
+      if (total <= 0) return 'Las horas totales deben ser mayores a 0.'
+      if (total > 12) return 'No se pueden registrar más de 12 horas totales en un día (mock).'
+      return null
+    }
+
+    function registerHours() {
+      if (!MOCK_MODE) return
+      const error = validateForm()
+      if (error) {
+        alert(error)
+        return
+      }
+
+      const totalHours = form.value.sessions.reduce((acc, s) => acc + calcHours(s.start, s.end), 0)
+
+      // Si ya existe un registro para la fecha, reemplazar
+      const existingIndex = recentRecords.value.findIndex(r => r.date === form.value.date)
+      const record = {
+        date: form.value.date,
+        weekday: weekdayName(form.value.date),
+        hours: totalHours,
+        sessions: JSON.parse(JSON.stringify(form.value.sessions))
+      }
+      if (existingIndex >= 0) {
+        recentRecords.value.splice(existingIndex, 1, record)
+      } else {
+        recentRecords.value.unshift(record)
+      }
+
+      // Limpiar formulario
+      form.value.sessions = [{ start: '', end: '' }]
+      form.value.date = ''
+
+      loadSummariesMock()
+    }
+
+    onMounted(() => {
+      loadRecentRecordsMock()
+    })
+
+    return {
+      summaries,
+      recentRecords,
+      form,
+      addSession,
+      removeSession,
+      registerHours,
+      formatDate
+    }
   }
 }
-
-async function loadSummaries() {
-  const [week, month, total] = await Promise.all([
-    axios.get(apiConfig.endpoints.workHoursSummary, { params: { userId, scope: 'week' } }),
-    axios.get(apiConfig.endpoints.workHoursSummary, { params: { userId, scope: 'month' } }),
-    axios.get(apiConfig.endpoints.workHoursSummary, { params: { userId, scope: 'total' } })
-  ])
-  summaries.value.week = week.data
-  summaries.value.month = month.data
-  summaries.value.total = total.data
-}
-
-async function loadRecentRecords() {
-  const res = await axios.get(apiConfig.endpoints.workHoursRecent, {
-    params: { userId, limit: 5 }
-  })
-  recentRecords.value = res.data.recentRecords
-}
-
-function formatDate(dateStr) {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('es-CR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  })
-}
-
-onMounted(() => {
-  loadSummaries()
-  loadRecentRecords()
-})
 </script>
 
 <style scoped>

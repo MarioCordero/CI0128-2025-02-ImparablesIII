@@ -1,8 +1,8 @@
 <template>
   <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-    <div class="bg-[#E9F7FF] rounded-2xl p-8 w-full max-w-2xl shadow-lg relative neumorphism-card">
-      <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" @click="$emit('close')">✕</button>
-      <h2 class="text-3xl font-black mb-6 text-black text-center">Editar Empresa</h2>
+    <div class="w-[700px] shadow-none relative neumorphism-card-modal">
+      <h2 class="text-3xl font-black text-black text-center">Editar Empresa</h2>
+      <div class="w-full h-[5px] mt-2 mb-6 rounded neumorphism-on-small-item"></div>
       <form @submit.prevent="submitEdit" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Nombre de la Empresa -->
@@ -13,7 +13,7 @@
               type="text"
               required
               maxlength="20"
-              :class="['neumorphism-input w-full', errors.nombre ? 'ring-2 ring-red-500' : '']"
+              :class="['neumorphism-input', errors.nombre ? 'ring-2 ring-red-500' : '']"
               placeholder="Ingrese el nombre de la empresa"
             />
             <span v-if="errors.nombre" class="text-red-500 text-sm mt-1">{{ errors.nombre }}</span>
@@ -27,7 +27,7 @@
               required
               min="100000000"
               max="999999999"
-              :class="['neumorphism-input w-full', errors.cedulaJuridica ? 'ring-2 ring-red-500' : '']"
+              :class="['neumorphism-input no-spinner', errors.cedulaJuridica ? 'ring-2 ring-red-500' : '']"
               placeholder="Ingrese la cédula jurídica (9 dígitos)"
             />
             <span v-if="errors.cedulaJuridica" class="text-red-500 text-sm mt-1">{{ errors.cedulaJuridica }}</span>
@@ -40,7 +40,7 @@
               type="email"
               required
               maxlength="50"
-              :class="['neumorphism-input w-full', errors.email ? 'ring-2 ring-red-500' : '']"
+              :class="['neumorphism-input', errors.email ? 'ring-2 ring-red-500' : '']"
               placeholder="empresa@ejemplo.com"
             />
             <span v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</span>
@@ -53,7 +53,7 @@
               type="tel"
               required
               @input="formatTelefono"
-              :class="['neumorphism-input w-full', errors.telefono ? 'ring-2 ring-red-500' : '']"
+              :class="['neumorphism-input', errors.telefono ? 'ring-2 ring-red-500' : '']"
               placeholder="####-####"
               maxlength="9"
             />
@@ -65,7 +65,7 @@
             <select
               v-model="form.periodoPago"
               required
-              :class="['neumorphism-input w-full', errors.periodoPago ? 'ring-2 ring-red-500' : '']"
+              :class="['neumorphism-input', errors.periodoPago ? 'ring-2 ring-red-500' : '']"
             >
               <option value="">Seleccione período de pago</option>
               <option value="Mensual">Mensual</option>
@@ -80,7 +80,7 @@
               v-model="form.maximoBeneficios"
               type="number"
               required
-              :class="['neumorphism-input w-full', errors.maximoBeneficios ? 'ring-2 ring-red-500' : '']"
+              :class="['neumorphism-input', errors.maximoBeneficios ? 'ring-2 ring-red-500' : '']"
               placeholder="Ingrese el máximo de beneficios"
             />
             <span v-if="errors.maximoBeneficios" class="text-red-500 text-sm mt-1">{{ errors.maximoBeneficios }}</span>
@@ -88,7 +88,8 @@
         </div>
         <!-- Dirección -->
         <div class="mt-8">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4 neumorphism-card rounded-[12px] bg-[#E9F7FF] py-2 px-4">Dirección</h3>
+          <h3 class="text-3xl font-black text-black text-center">Dirección</h3>
+          <div class="w-full h-[5px] mt-2 mb-6 rounded neumorphism-on-small-item"></div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Provincia -->
             <div>
@@ -96,7 +97,7 @@
               <select
                 v-model="form.provincia"
                 required
-                :class="['neumorphism-input w-full', errors.provincia ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input neumorphism-input-select', errors.provincia ? 'ring-2 ring-red-500' : '']"
               >
                 <option value="">Seleccione provincia</option>
                 <option value="San José">San José</option>
@@ -116,7 +117,7 @@
                 v-model="form.canton"
                 type="text"
                 maxlength="30"
-                :class="['neumorphism-input w-full', errors.canton ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input', errors.canton ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ingrese el cantón"
               />
               <span v-if="errors.canton" class="text-red-500 text-sm mt-1">{{ errors.canton }}</span>
@@ -128,7 +129,7 @@
                 v-model="form.distrito"
                 type="text"
                 maxlength="30"
-                :class="['neumorphism-input w-full', errors.distrito ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input', errors.distrito ? 'ring-2 ring-red-500' : '']"
                 placeholder="Ingrese el distrito"
               />
               <span v-if="errors.distrito" class="text-red-500 text-sm mt-1">{{ errors.distrito }}</span>
@@ -140,7 +141,7 @@
                 v-model="form.direccionParticular"
                 type="text"
                 maxlength="150"
-                :class="['neumorphism-input w-full', errors.direccionParticular ? 'ring-2 ring-red-500' : '']"
+                :class="['neumorphism-input', errors.direccionParticular ? 'ring-2 ring-red-500' : '']"
                 placeholder="Dirección específica (opcional)"
               />
               <span v-if="errors.direccionParticular" class="text-red-500 text-sm mt-1">{{ errors.direccionParticular }}</span>
@@ -148,17 +149,17 @@
           </div>
         </div>
         <!-- Botones -->
-        <div class="flex justify-end space-x-4 pt-6">
+        <div class="flex justify-end gap-6 pt-6">
           <button
             type="button"
             @click="$emit('close')"
-            class="neumorphism-light px-6 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition flex items-center space-x-2"
+            class="neumorphism-button-normal-light"
           >
             <span>Cancelar</span>
           </button>
           <button
             type="submit"
-            class="neumorphism-dark px-6 py-3 rounded-lg text-white hover:bg-blue-600 transition flex items-center space-x-2"
+            class="neumorphism-button-normal-blue"
           >
             <span>Guardar Cambios</span>
           </button>
