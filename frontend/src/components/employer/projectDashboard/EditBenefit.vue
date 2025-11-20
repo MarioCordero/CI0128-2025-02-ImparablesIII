@@ -25,7 +25,7 @@
                     <!-- Tipo de beneficio -->
                     <div class="mb-4">
                     <label class="block text-gray-700 mb-1">Tipo de Cálculo</label>
-                    <p class="neumorfismo-sobre-suave px-4 py-2 w-fit!"> {{ beneficio.tipoCalculo }} </p>
+                    <p class="neumorphism-on-small-item px-4 py-2 w-fit!"> {{ beneficio.tipoCalculo }} </p>
                     </div>
             
                     <!-- Campo dinámico según el tipo de cálculo -->

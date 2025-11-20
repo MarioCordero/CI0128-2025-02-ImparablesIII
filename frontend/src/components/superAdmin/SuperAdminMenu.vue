@@ -108,7 +108,7 @@
             </div>
 
             <!-- Benefits Section -->
-            <div v-if="expandedEmpresas.has(empresa.id)" class="mt-4 pt-4 border-t border-gray-200">
+            <div v-if="expandedEmpresas.has(empresa.id)" class="mt-4! pt-4! neumorphism-input">
               <h5 class="font-semibold text-gray-700 mb-3 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
