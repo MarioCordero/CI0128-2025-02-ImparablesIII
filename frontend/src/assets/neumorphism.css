@@ -154,7 +154,29 @@
   transition: all 0.1s ease;
 }
 
+.neumorphism-button-normal-green {
+  background: #74ff90;
+  border-radius: 12px;
+  padding: 8px 16px;
+  box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+  color: #000000;
+  transition: all 0.3s ease;
+}
 
+.neumorphism-button-normal-green:hover {
+  background: #52ff37;
+  box-shadow: 2px 2px 4px #bebebe,
+              -2px -2px 4px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-button-normal-green:active {
+  background: #74ff90;
+  box-shadow: inset 3px 3px 6px #66b956,
+              inset -3px -3px 6px #e0ffb9;
+  transition: all 0.1s ease;
+}
 
 
 
@@ -447,6 +469,19 @@
 
 /* ===================================== Dropdown menu ===================================== */
 
+
+
+/* ===================================== Elements ===================================== */
+.avatar {
+  background: #dbeafe;
+  border: none;
+  width: 64px; /*default size*/
+  height: 64px; /*default size*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+}
 
 
 

@@ -23,7 +23,7 @@
       >
         <!-- Columna izquierda -->
         <div class="flex items-center gap-3">
-          <div class="avatar neumorphism-on-small-item rounded-full!">{{ empleado.iniciales }}</div>
+          <div class="avatar neumorphism-on-small-item">{{ empleado.iniciales }}</div>
 
           <div class="flex flex-col gap-0">
             <p class=" text-[20px] text-black font-medium m-0 p-0">{{ empleado.nombreCompleto }}</p>
@@ -177,14 +177,6 @@
   margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 10px;
-}
-
-.avatar {
-  width: 64px;
-  height: 64px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 </style>
