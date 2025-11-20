@@ -58,7 +58,7 @@
           <button class="neumorphism-button-normal-light p-[7px]! rounded-full!" @click="editEmployee(empleado.id)">
             ✏️
           </button>
-          <button class="neumorfismo-boton p-[7px] rounded-full!" @click="deleteEmployee(empleado.id)">
+          <button class="neumorphism-button-normal-red p-[7px]! rounded-full!" @click="deleteEmployee(empleado.id)">
             ❌
           </button>
         </div>
