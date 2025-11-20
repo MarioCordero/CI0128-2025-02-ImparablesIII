@@ -217,7 +217,7 @@
                 <div class="flex justify-between items-start">
                   <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
                   <!-- Botón de editar -->
-                  <button class="neumorfismo-boton p-[7px] rounded-full!" @click="editBenefit(benefit)">
+                  <button class="neumorphism-button-normal-light p-[7px]! rounded-full!" @click="editBenefit(benefit)">
                     ✏️
                   </button>
                 </div>
