@@ -17,15 +17,7 @@ namespace backend.Controllers
             _employerService = employerService;
             _logger = logger;
         }
-
-        // GET endpoint (keep it for testing)
-        [HttpGet]
-        public string Get()
-        {
-            return "SignUpEmployerController is working!";
-        }
-
-        // POST endpoint to receive form data
+        
         [HttpPost]
         public async Task<IActionResult> RegisterEmployer([FromBody] SignUpEmployerDto form)
         {
@@ -35,7 +27,6 @@ namespace backend.Controllers
 
                 if (result.IsSuccess)
                 {
-                    // Return success with the response DTO
                     return Ok(new 
                     { 
                         message = result.Message,
@@ -54,7 +45,6 @@ namespace backend.Controllers
             }
         }
 
-        // Additional endpoints for validation
         [HttpGet("check-email/{email}")]
         public async Task<IActionResult> CheckEmail(string email)
         {
