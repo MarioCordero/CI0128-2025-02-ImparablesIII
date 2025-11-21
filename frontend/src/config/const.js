@@ -34,3 +34,28 @@ export const DEFAULT_FILTERS = {
   puesto: null
 }
 
+export const EMPLOYEE_STATUS = {
+  ACTIVE: 'Activo'
+}
+
+export const EMPLOYEE_MESSAGES = {
+  LOADING: 'Cargando empleados...',
+  NO_EMPLOYEES: 'No hay empleados registrados en esta empresa.',
+  NO_PROJECT_ID: 'No se proporcionó ID de empresa',
+  FETCH_ERROR: 'Error al cargar los empleados',
+  DELETE_SUCCESS: 'Empleado eliminado exitosamente',
+  DELETE_ERROR: 'Error al eliminar el empleado',
+  NO_EMPLOYER_ID: 'No se encontró el ID del empleador. Por favor, inicie sesión nuevamente.',
+  DELETION_INFO_ERROR: 'Error al obtener información de eliminación',
+  DELETE_CONFIRMATION_WITH_PAYROLL: (employeeName) => `¿Estás seguro de que deseas eliminar a ${employeeName}? El empleado será marcado como inactivo pero conservado en reportes históricos.`,
+  DELETE_CONFIRMATION_WITHOUT_PAYROLL: (employeeName) => `¿Estás seguro de que deseas eliminar a ${employeeName}? Esta acción eliminará permanentemente todos sus datos del sistema.`,
+  DELETE_TITLE: 'Eliminar Empleado',
+  DEFAULT_EMPLOYEE_NAME: 'este empleado',
+  NO_PHONE: 'Sin teléfono',
+  DEFAULT_INITIALS: 'NN'
+}
+
+export const INITIALS_CONFIG = {
+  MAX_LENGTH: 2
+}
+

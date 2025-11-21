@@ -2,6 +2,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using backend.Models;
 using backend.DTOs;
+using backend.Constants;
 using Dapper;
 
 namespace backend.Repositories
@@ -33,9 +34,12 @@ namespace backend.Repositories
                 FROM PlaniFy.Persona p
                 INNER JOIN PlaniFy.Usuario u ON p.Id = u.idPersona
                 LEFT JOIN PlaniFy.Empleado e ON p.Id = e.idPersona
-                WHERE p.Id = @IdPersona";
+                WHERE p.Id = @IdPersona
+                AND (e.Estado IS NULL OR e.Estado != @StatusInactive)";
 
-            return await connection.QueryFirstOrDefaultAsync<UserDataDto>(query, new { IdPersona = idPersona });
+            return await connection.QueryFirstOrDefaultAsync<UserDataDto>(
+                query, 
+                new { IdPersona = idPersona, StatusInactive = EmployeeConstants.StatusInactive });
         }
 
         public async Task<bool> CreateUserAsync(int personaId, string password, string tipoUsuario = "Empleado")
@@ -74,7 +78,13 @@ namespace backend.Repositories
                 using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@idPersona", personaId);
 
-                var count = (int)await command.ExecuteScalarAsync();
+                var result = await command.ExecuteScalarAsync();
+                if (result == null)
+                {
+                    return false;
+                }
+                
+                var count = Convert.ToInt32(result);
                 return count > 0;
             }
             catch (Exception)

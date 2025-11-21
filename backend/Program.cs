@@ -91,6 +91,7 @@ builder.Services.AddScoped<backend.Services.IEmployerService, backend.Services.E
 builder.Services.AddScoped<IProfileEmployeeService, ProfileEmployeeService>();
 builder.Services.AddScoped<IBenefitService, BenefitService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IEmployeeDeletionService, EmployeeDeletionService>();
 builder.Services.AddScoped<IEmployeeBenefitService, EmployeeBenefitService>();
 builder.Services.AddScoped<IBenefitDeductionsService, BenefitDeductionsService>();
 
