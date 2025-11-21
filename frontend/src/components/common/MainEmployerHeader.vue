@@ -18,7 +18,7 @@
     <!-- Project Selector -->
     <div class="flex flex-col justify-center items-center">
       <select
-        class="neumorphism-input neumorphism-input-select appearance-auto! min-w-[300px] min-h-[40px] text-center"
+        class="neumorphism-input neumorphism-input-select min-w-[300px] min-h-[40px] text-center"
         v-model="selectedProjectId"
         @change="onProjectChange"
       >

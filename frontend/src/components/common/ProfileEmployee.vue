@@ -1,27 +1,30 @@
 <template>
-    <div class="bg-[#dbeafe] min-h-screen">
+    <div class="page">
         <EmployeeHeader v-if="!isEmployer" :user="user" />
-        <MainEmployerHeader v-else />
+        <DashboardEmployeeSubHeader v-if="!isEmployer" :selected-section="'profile'" />
+
+        <MainEmployerHeader v-if="isEmployer" />
+        <DashboardProjectSubHeader v-if="isEmployer" :selected-section="'employees'" @section-change="selectedSection = $event" />
         
-        <div class="mx-[171px] my-[41px] space-y-[41px] pb-[41px]">
+        <div class="body mt-12">
             
+          <button v-if="isEmployer" @click="goBack" class="neumorphism-button-normal-light">Volver</button>
+          <button v-else @click="goBackEmployee" class="neumorphism-button-normal-light">Volver</button>
             <!-- Primera parte 1x1 -->
-            <div class="neumorfismo-tarjeta flex items-center justify-between px-[39px] py-[37px]">
+            <div class="neumorphism-card flex items-center justify-between px-[39px] py-[37px]">
                 <div class="flex items-center gap-4">
-                    <div class="neumorfismo-sobre w-[160px] h-[160px] rounded-full flex items-center justify-center">
-                        <!-- hay que meter logo o foto de perfil -->
-                    </div>
+                    <div class="avatar w-[160px]! h-[160px]! neumorphism-on text-[60px]">{{ getInitials(fullName) }}</div>
                     <div>
                         <p class="font-medium text-[44px]">{{ fullName }}</p>
                         <p class="text-[29px]">{{ userData.user.puesto }}</p>
                         <p class="text-[20px]">{{ userData.user.departamento }}</p>
                     </div>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-3">
                     <button 
                         v-if="!isEditing" 
                         @click="enableEditing" 
-                        class="neumorfismo-boton flex items-center gap-2 text-gray-800 px-4 py-2"
+                        class="neumorphism-button-normal-light"
                     >
                         Editar Perfil
                     </button>
@@ -29,7 +32,7 @@
                         v-if="isEditing" 
                         @click="saveChanges" 
                         :disabled="saving"
-                        class="neumorfismo-boton-verde flex items-center gap-2 text-gray-800 px-4 py-2"
+                        class="neumorphism-button-normal-green"
                     >
                         <span v-if="saving">Guardando...</span>
                         <span v-else>Guardar Cambios</span>
@@ -38,7 +41,7 @@
                         v-if="isEditing" 
                         @click="cancelEditing" 
                         :disabled="saving"
-                        class="neumorfismo-boton-rojo flex items-center gap-2 text-gray-800 px-4 py-2"
+                        class="neumorphism-button-normal-red"
                     >
                         Cancelar
                     </button>
@@ -57,31 +60,31 @@
             <div class="grid grid-cols-2 gap-[41px]">
 
                 <!-- Información Personal -->
-                <div class="neumorfismo-tarjeta px-[39px] py-[37px]">
+                <div class="neumorphism-card px-[39px] py-[37px]">
                     <p class="text-[32px] font-medium mb-4">Información Personal</p>
                     <div class="space-y-[25px]">
                         <!-- Nombre Completo -->
                         <div>
                             <label class="text-[23px] text-gray-600">Nombre Completo</label>
-                            <div v-if="!isEditing" class="neumorfismo-sobre-suave text-[20px] p-2">
+                            <div v-if="!isEditing" class="neumorphism-on-small-item text-[20px] p-2">
                                 {{ editedUserData.nombre }} {{ editedUserData.segundoNombre }} {{ editedUserData.apellidos }}
                             </div>
                             <div v-else class="grid grid-cols-3 gap-2">
                                 <input 
                                     v-model="editedUserData.nombre"
-                                    class="neumorfismo-input text-[16px] p-2 rounded"
+                                    class="neumorphism-input text-[16px]"
                                     placeholder="Primer nombre"
                                     :disabled="saving"
                                 />
                                 <input 
                                     v-model="editedUserData.segundoNombre"
-                                    class="neumorfismo-input text-[16px] p-2 rounded"
+                                    class="neumorphism-input text-[16px]"
                                     placeholder="Segundo nombre"
                                     :disabled="saving"
                                 />
                                 <input 
                                     v-model="editedUserData.apellidos"
-                                    class="neumorfismo-input text-[16px] p-2 rounded"
+                                    class="neumorphism-input text-[16px]"
                                     placeholder="Apellidos"
                                     :disabled="saving"
                                 />
@@ -90,20 +93,20 @@
 
                         <div>
                             <label class="text-[23px] text-gray-600">Correo Electrónico</label>
-                            <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.user.correo }} </p>
+                            <p class="neumorphism-on-small-item text-[20px] p-2"> {{ userData.user.correo }} </p>
                         </div>
 
                         <!-- Número de Teléfono -->
                         <div>
                             <label class="text-[23px] text-gray-600">Número de Teléfono</label>
-                            <div v-if="!isEditing" class="neumorfismo-sobre-suave text-[20px] p-2">
+                            <div v-if="!isEditing" class="neumorphism-on-small-item text-[20px] p-2">
                                 {{ editedUserData.telefono }}
                             </div>
                             <input 
                                 v-else
                                 v-model.number="editedUserData.telefono"
                                 type="number"
-                                class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                class="neumorphism-input text-[16px] no-spinner"
                                 placeholder="Número de teléfono"
                                 :disabled="saving"
                             />
@@ -112,13 +115,13 @@
                         <!-- Dirección -->
                         <div>
                             <label class="text-[23px] text-gray-600">Dirección</label>
-                            <div v-if="!isEditing" class="neumorfismo-sobre-suave text-[20px] p-2">
+                            <div v-if="!isEditing" class="neumorphism-on-small-item text-[20px] p-2">
                                 {{ editedUserData.direccion }}
                             </div>
-                            <div v-else class="space-y-2">
+                            <div v-else class="flex flex-col gap-3">
                                 <select 
                                     v-model="editedUserData.provincia"
-                                    class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                    class="neumorphism-input neumorphism-input-select text-[16px]"
                                     :disabled="saving"
                                 >
                                     <option value="">Seleccione provincia</option>
@@ -132,19 +135,19 @@
                                 </select>
                                 <input 
                                     v-model="editedUserData.canton"
-                                    class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                    class="neumorphism-input text-[16px]"
                                     placeholder="Cantón"
                                     :disabled="saving"
                                 />
                                 <input 
                                     v-model="editedUserData.distrito"
-                                    class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                    class="neumorphism-input text-[16px]"
                                     placeholder="Distrito"
                                     :disabled="saving"
                                 />
                                 <input 
                                     v-model="editedUserData.direccionParticular"
-                                    class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                    class="neumorphism-input text-[16px]"
                                     placeholder="Dirección particular"
                                     :disabled="saving"
                                 />
@@ -154,13 +157,13 @@
                         <!-- Cuenta IBAN -->
                         <div>
                             <label class="text-[23px] text-gray-600">Cuenta IBAN</label>
-                            <div v-if="!isEditing" class="neumorfismo-sobre-suave text-[20px] p-2">
+                            <div v-if="!isEditing" class="neumorphism-on-small-item text-[20px] p-2">
                                 {{ editedUserData.iban }}
                             </div>
                             <input 
                                 v-else
                                 v-model="editedUserData.iban"
-                                class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                                class="neumorphism-input text-[16px]"
                                 placeholder="IBAN"
                                 :disabled="saving"
                             />
@@ -169,24 +172,24 @@
                 </div>
 
                 <!-- Información Laboral -->
-                <div class="neumorfismo-tarjeta px-[39px] py-[37px]">
+                <div class="neumorphism-card px-[39px] py-[37px]">
                   <p class="text-[32px] font-medium mb-4">Información Laboral</p>
                   <div class="space-y-[25px]">
                     <div>
                       <label class="text-[23px] text-gray-600">Empresa</label>
-                      <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.project.nombreEmpresa }} </p>
+                      <p class="neumorphism-on-small-item text-[20px] p-2"> {{ userData.project.nombreEmpresa }} </p>
                     </div>
                     
                     <!-- Departamento - editable para empleadores -->
                     <div>
                       <label class="text-[23px] text-gray-600">Departamento</label>
-                      <p v-if="!isEditing || !isEmployer" class="neumorfismo-sobre-suave text-[20px] p-2">
+                      <p v-if="!isEditing || !isEmployer" class="neumorphism-on-small-item text-[20px] p-2">
                         {{ userData.user.departamento }}
                       </p>
                       <input 
                         v-else
                         v-model="editedUserData.departamento"
-                        class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                        class="neumorphism-input text-[16px]"
                         placeholder="Departamento"
                         :disabled="saving"
                       />
@@ -195,13 +198,13 @@
                     <!-- Puesto - editable para empleadores -->
                     <div>
                       <label class="text-[23px] text-gray-600">Puesto</label>
-                      <p v-if="!isEditing || !isEmployer" class="neumorfismo-sobre-suave text-[20px] p-2">
+                      <p v-if="!isEditing || !isEmployer" class="neumorphism-on-small-item text-[20px] p-2">
                         {{ userData.user.puesto }}
                       </p>
                       <input 
                         v-else
                         v-model="editedUserData.puesto"
-                        class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                        class="neumorphism-input text-[16px]"
                         placeholder="Puesto"
                         :disabled="saving"
                       />
@@ -210,14 +213,14 @@
                     <!-- Tipo de Contrato -->
                     <div>
                       <label class="text-[23px] text-gray-600">Tipo de Contrato</label>
-                      <p class="neumorfismo-sobre-suave text-[20px] p-2">
+                      <p class="neumorphism-on-small-item text-[20px] p-2">
                         {{ userData.user.tipoContrato }}
                       </p>
                     </div>
                     
                     <div>
                       <label class="text-[23px] text-gray-600">Fecha de Contratación</label>
-                      <p class="neumorfismo-sobre-suave text-[20px] p-2"> {{ formattedDate }} </p>
+                      <p class="neumorphism-on-small-item text-[20px] p-2"> {{ formattedDate }} </p>
                     </div>
                   </div>
                 </div>
@@ -225,25 +228,25 @@
 
             <!-- Tercera Parte 1x1 -->
             <!-- Información de Compensación -->
-            <div class="neumorfismo-tarjeta px-[34px] py-[41px]">
+            <div class="neumorphism-card px-[34px] py-[41px]">
                 <p class="text-[32px] font-medium mb-4">Información de Compensación</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="text-[23px] text-gray-600">Tipo de Salario</label>
-                        <p class="neumorfismo-sobre-suave text-[20px]"> {{ userData.project.periodoPago }} </p>
+                        <p class="neumorphism-on-small-item text-[20px] p-2"> {{ userData.project.periodoPago }} </p>
                     </div>
 
                     <!-- Salario - editable para empleadores -->
                     <div>
                       <label class="text-[23px] text-gray-600">Salario</label>
-                      <p v-if="!isEditing || !isEmployer" class="neumorfismo-sobre-suave text-[20px] p-2">
+                      <p v-if="!isEditing || !isEmployer" class="neumorphism-on-small-item text-[20px] p-2">
                         {{ formattedSalary }}
                       </p>
                       <input 
                         v-else
                         v-model.number="editedUserData.salario"
                         type="number"
-                        class="neumorfismo-input text-[16px] p-2 rounded w-full"
+                        class="neumorphism-input text-[16px]"
                         placeholder="Salario"
                         :disabled="saving"
                       />
@@ -260,13 +263,17 @@
 <script>
 import EmployeeHeader from '../common/EmployeeHeader.vue';
 import MainEmployerHeader from '../common/MainEmployerHeader.vue';
+import DashboardEmployeeSubHeader from '../employee/DashboardEmployeeSubHeader.vue';
+import DashboardProjectSubHeader from '../employer/projectDashboard/DashboardProjectSubHeader.vue';
 import apiConfig from '../../config/api.js';
 
 export default {
   name: 'EditInfoEmployee',
   components: { 
     EmployeeHeader,
-    MainEmployerHeader
+    MainEmployerHeader,
+    DashboardEmployeeSubHeader,
+    DashboardProjectSubHeader
   },
   props: {
     id: {
@@ -317,7 +324,8 @@ export default {
       saving: false,
       error: null,
       successMessage: null,
-      isEditing: false
+      isEditing: false,
+      selectedSection: 'employees'
     }
   },
 
@@ -498,6 +506,42 @@ export default {
       }
     },
 
+    getInitials(fullname) {
+      if (!fullname) return 'NN';
+      return fullname
+        .split(' ')
+        .map(word => word.charAt(0))
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    },
+
+    goBack() {
+      const projectData = localStorage.getItem('selectedProject');
+      let companyId = null;
+      
+      if (projectData) {
+        try {
+          const project = JSON.parse(projectData);
+          companyId = project.id;
+        } catch (e) {
+          console.error('Error parsing project:', e);
+        }
+      }
+      
+      if (companyId) {
+        this.$router.push({
+          path: `/dashboard-project/${companyId}`,
+          query: { section: 'employees' }
+        });
+      } else {
+        this.$router.push('/dashboard-main-employer');
+      }
+    },
+
+    goBackEmployee() {
+      this.$router.go(-1);
+    }
 
   },
 
