@@ -290,7 +290,7 @@
           <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
         </div>
 
-        <PayrollReports />
+        <PayrollReports user-type="employer" />
       </div>
     </div>
   </div>
@@ -299,7 +299,7 @@
 <script>
 import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
 import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
-import PayrollReports from './PayrollReports.vue'
+import PayrollReports from '../../common/PayrollReports.vue'
 import EmployeesSection from './EmployeesSection.vue'
 import EmployeesFilter from './EmployeesFilter.vue'
 import EditProjectInfo from './EditProjectInfo.vue'
