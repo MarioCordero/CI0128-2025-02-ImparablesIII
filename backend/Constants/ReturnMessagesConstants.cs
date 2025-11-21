@@ -33,6 +33,11 @@ namespace backend.Constants
             public const string EmployeeNotFoundOrNoCompany = "Empleado no encontrado o no tiene empresa asignada";
             public const string EmployeeRegisteredSuccessfully = "Empleado registrado exitosamente. Se ha enviado un correo para configurar la contraseña.";
             public const string CedulaAlreadyRegistered = "La cédula ya está registrada en el sistema.";
+            public const string InvalidPassword = "Contraseña incorrecta. Por favor, verifique su contraseña.";
+            public const string DeletionError = "Error al eliminar el empleado. Por favor, intente nuevamente.";
+            public const string LogicalDeletionSuccess = "El empleado ha sido marcado como inactivo. Se conservarán {0} registros históricos de planilla.";
+            public const string PhysicalDeletionSuccess = "El empleado ha sido eliminado permanentemente del sistema.";
+            public const string DefaultDeletionReason = "Sin motivo especificado";
         }
 
         // Benefit Messages
