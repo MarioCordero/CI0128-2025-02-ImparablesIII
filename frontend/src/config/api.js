@@ -36,7 +36,12 @@ export const apiConfig = {
     signUpEmployer: `${API_BASE_URL}/api/SignUpEmployer`,
 
     // ProjectList endpoint (nuevo)
-    projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`
+    projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`,
+
+    // Employee endpoints
+    projectEmployees: (projectId) => `${API_BASE_URL}/api/Project/${projectId}/employees`,
+    employeeDeletionInfo: (employeeId) => `${API_BASE_URL}/api/Employee/${employeeId}/deletion-info`,
+    deleteEmployee: (employeeId, employerId) => `${API_BASE_URL}/api/Employee/${employeeId}?employerId=${employerId}`
   }
 }
 
