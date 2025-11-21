@@ -136,4 +136,112 @@
   -moz-appearance: textfield;
 }
 
+.lista-empleados {
+  width: 100%;
+  height: 537px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.contenedor-empleados {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-gutter: stable;
+  padding-right: 40px;
+}
+
+.empleado-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 27px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 10px;
+}
+
+.empleado-izquierda {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.datos-personales {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.contacto {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.empleado-derecha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+
+.contenedor-empleados::-webkit-scrollbar { /* */
+  width: 20px;
+}
+
+.contenedor-empleados::-webkit-scrollbar-track { /* Fondo */
+  background: #dbeafe;
+  border-radius: 10px;
+  width: 15px;
+  box-shadow: inset 3px 3px 6px #bebebe,
+              inset -3px -3px 6px #ffffff;
+}
+
+.contenedor-empleados::-webkit-scrollbar-thumb { /* Barra */
+
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: inset 0 0 3px 1px rgba(16, 72, 255, 1);
+  transition: all 0.3s;
+
+}
+
+.jornada {
+  background: rgba(16, 72, 255, 1);
+  color: #ffffff;
+  border-radius: 100px;
+  padding-top: 3px;
+  padding-left: 9px;
+  padding-bottom: 3px;
+  padding-right: 9px;
+}
+
+.estado {
+  background: #b9ffbc;
+  color: #000000;
+  border-radius: 100px;
+  padding-top: 3px;
+  padding-left: 9px;
+  padding-bottom: 3px;
+  padding-right: 9px;
+}
+
 
