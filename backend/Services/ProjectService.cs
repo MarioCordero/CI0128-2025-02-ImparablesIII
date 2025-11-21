@@ -173,6 +173,11 @@ namespace backend.Services
             }
         }
 
+        public async Task<int> GetActiveEmployeesCountAsync(int projectId)
+        {
+            return await _projectRepository.CountActiveEmployeesAsync(projectId);
+        }
+
         public async Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id)
         {
             return await _projectRepository.GetProjectWithDireccionAsync(id);

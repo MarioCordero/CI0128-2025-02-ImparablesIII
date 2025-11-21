@@ -1,6 +1,5 @@
 
 /* ===================================== Buttons ===================================== */
-
 .neumorphism-button-xl-light {
   background: #dbeafe;
   border-radius: 12px;
@@ -26,7 +25,6 @@
               inset -5px -5px 10px #ffffff;
   transition: all 0.1s ease;
 }
-
 
 .neumorphism-button-xl-dark {
   background: #002556;
@@ -55,7 +53,6 @@
   transition: all 0.1s ease;;
 }
 
-
 .neumorphism-button-normal-light {
   background: #dbeafe;
   border-radius: 12px;
@@ -79,7 +76,6 @@
               inset -3px -3px 6px #ffffff;
   transition: all 0.1s ease;
 }
-
 
 .neumorphism-button-normal-dark {
   background: #002556;
@@ -105,7 +101,6 @@
   transition: all 0.1s ease;
 }
 
-
 .neumorphism-button-normal-blue {
   background: #7476ff;
   border-radius: 12px;
@@ -130,112 +125,53 @@
   transition: all 0.1s ease;
 }
 
-
-
-
-
-
-.neumorfismo-boton {
-  background: #dbeafe;
+.neumorphism-button-normal-red {
+  background: #ff7474;
   border-radius: 12px;
+  padding: 8px 16px;
   box-shadow: 4px 4px 8px #bebebe,
               -4px -4px 8px #ffffff;
+  color: #ffffff;
   transition: all 0.3s ease;
 }
 
-.neumorfismo-boton:hover {
-  background: #bfcddf;
-  border-radius: 12px;
+.neumorphism-button-normal-red:hover {
+  background: #ff3737;
   box-shadow: 2px 2px 4px #bebebe,
               -2px -2px 4px #ffffff;
   transition: all 0.3s ease;
 }
 
-.neumorfismo-boton:active {
-  background: #dbeafe;
-  box-shadow: inset 3px 3px 6px #bebebe,
-              inset -3px -3px 6px #ffffff;
+.neumorphism-button-normal-red:active {
+  background: #ff7474;
+  box-shadow: inset 3px 3px 6px #b95656,
+              inset -3px -3px 6px #ffa9a9;
   transition: all 0.1s ease;
 }
 
-.neumorfismo-boton-verde {
-  background: #bcf7c1;
+.neumorphism-button-normal-green {
+  background: #74ff90;
   border-radius: 12px;
-  color: #000000;
+  padding: 8px 16px;
   box-shadow: 4px 4px 8px #bebebe,
               -4px -4px 8px #ffffff;
+  color: #000000;
   transition: all 0.3s ease;
 }
 
-.neumorfismo-boton-verde:hover {
-  background: #8bb68f;
-  border-radius: 12px;
-  color:#ffffff;
+.neumorphism-button-normal-green:hover {
+  background: #52ff37;
   box-shadow: 2px 2px 4px #bebebe,
               -2px -2px 4px #ffffff;
   transition: all 0.3s ease;
 }
 
-.neumorfismo-boton-verde:active {
-  background: #bcf7c1;
-  color: #000000;
-  box-shadow: inset 3px 3px 6px #bebebe,
-              inset -3px -3px 6px #ffffff;
+.neumorphism-button-normal-green:active {
+  background: #74ff90;
+  box-shadow: inset 3px 3px 6px #66b956,
+              inset -3px -3px 6px #e0ffb9;
   transition: all 0.1s ease;
 }
-
-.neumorfismo-boton-rojo {
-  background: #f7bcbc;
-  border-radius: 12px;
-  color: #000000;
-  box-shadow: 4px 4px 8px #bebebe,
-              -4px -4px 8px #ffffff;
-  transition: all 0.3s ease;
-}
-
-.neumorfismo-boton-rojo:hover {
-  background: #b68b8b;
-  border-radius: 12px;
-  color:#ffffff;
-  box-shadow: 2px 2px 4px #bebebe,
-              -2px -2px 4px #ffffff;
-  transition: all 0.3s ease;
-}
-
-.neumorfismo-boton-rojo:active {
-  background: #f7bcbc;
-  color: #000000;
-  box-shadow: inset 3px 3px 6px #bebebe,
-              inset -3px -3px 6px #ffffff;
-  transition: all 0.1s ease;
-}
-
-.neumorfismo-boton-azul {
-  background: #7476ff;
-  border-radius: 12px;
-  color: #000000;
-  box-shadow: 4px 4px 8px #bebebe,
-              -4px -4px 8px #ffffff;
-  transition: all 0.3s ease;
-}
-
-.neumorfismo-boton-azul:hover {
-  background: #373bff;
-  border-radius: 12px;
-  color:#ffffff;
-  box-shadow: 2px 2px 4px #bebebe,
-              -2px -2px 4px #ffffff;
-  transition: all 0.3s ease;
-}
-
-.neumorfismo-boton-azul:active {
-  background: #7476ff;
-  color: #000000;
-  box-shadow: inset 3px 3px 6px #bebebe,
-              inset -3px -3px 6px #ffffff;
-  transition: all 0.1s ease;
-}
-
 
 
 /* ===================================== Cards ===================================== */
@@ -273,21 +209,20 @@
 .scrollable-card {
   width: 100%;
   height: 100%;
-  overflow-y: auto;           /* scroll vertical si se excede */
-  overflow-x: hidden;         /* sin scroll horizontal */
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 10px;
   scrollbar-gutter: stable;
   padding-right: 40px;
-
 }
 
-.scrollable-card::-webkit-scrollbar { /* */
+.scrollable-card::-webkit-scrollbar {
   width: 20px;
 }
 
-.scrollable-card::-webkit-scrollbar-track { /* Fondo */
+.scrollable-card::-webkit-scrollbar-track {
   background: #dbeafe;
   border-radius: 10px;
   width: 15px;
@@ -295,15 +230,12 @@
               inset -3px -3px 6px #ffffff;
 }
 
-.scrollable-card::-webkit-scrollbar-thumb { /* Barra */
-
+.scrollable-card::-webkit-scrollbar-thumb {
   background: #ffffff;
   border-radius: 10px;
   box-shadow: inset 0 0 3px 1px rgba(16, 72, 255, 1);
   transition: all 0.3s;
-
 }
-
 
 .neumorphism-card-project {
   background: #dbeafe;
@@ -328,78 +260,6 @@
 }
 
 
-
-
-.contenedor-empleados {
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  scrollbar-gutter: stable;
-  padding-right: 40px;
-}
-
-
-.contenedor-empleados::-webkit-scrollbar { /* */
-  width: 20px;
-}
-
-.contenedor-empleados::-webkit-scrollbar-track { /* Fondo */
-  background: #dbeafe;
-  border-radius: 10px;
-  width: 15px;
-  box-shadow: inset 3px 3px 6px #bebebe,
-              inset -3px -3px 6px #ffffff;
-}
-
-.contenedor-empleados::-webkit-scrollbar-thumb { /* Barra */
-
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: inset 0 0 3px 1px rgba(16, 72, 255, 1);
-  transition: all 0.3s;
-
-}
-
-
-
-
-
-.neumorfismo-tarjeta {
-  background: #dbeafe;
-  border-radius: 12px;
-  box-shadow: 8px 8px 16px #bebebe,
-              -8px -8px 16px #ffffff;
-  transition: all 0.3s ease;
-}
-
-.neumorfismo-sobre {
-  background: #dbeafe;
-  box-shadow: 8px 8px 16px #bebebe,
-              -8px -8px 16px #ffffff;
-}
-
-.neumorfismo-sobre-suave {
-    background: #dbeafe;
-    border-radius: 12px;
-    padding: 0.5rem 0.75rem;
-    width: 100%;
-    box-shadow: 4px 4px 8px #bebebe,
-              -4px -4px 8px #ffffff;
-}
-
-.neumorfismo-sobre-suave-np {
-    background: #dbeafe;
-    border-radius: 12px;
-    box-shadow: 4px 4px 8px #bebebe,
-              -4px -4px 8px #ffffff;
-}
-
-
-
 /* ===================================== Containers ===================================== */
 .page {
   min-height: 100vh;
@@ -419,10 +279,20 @@
 }
 
 
-
 /* ===================================== Dropdown menu ===================================== */
 
 
+/* ===================================== Elements ===================================== */
+.avatar {
+  background: #dbeafe;
+  border: none;
+  width: 64px; /*default size*/
+  height: 64px; /*default size*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+}
 
 
 /* ===================================== Header ===================================== */
@@ -432,7 +302,7 @@
   padding-right: 80px;
   margin-bottom: 0px;
   border-radius: 0px;
-  box-shadow: 8px 8px 16px #bebebe;
+  box-shadow: 8px 8px 16px #00000030;
   width: 100%;
   height: 95px;
   position: fixed;
@@ -440,7 +310,6 @@
   left: 0;
   z-index: 50;
 }
-
 
 
 /* ===================================== Inputs ===================================== */
@@ -467,44 +336,33 @@
 
 .neumorphism-input-select {
   cursor: pointer;
+  padding-right: 40px;
+  /* Flecha SVG inline (editable en color) */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='none' stroke='%23666' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
 }
 
-
-
-
-
-
-
-
-.neumorfismo-input {
-  background: #dbeafe;
-  border: none;
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
-  box-shadow: inset 3px 3px 6px #bebebe,
-              inset -3px -3px 6px #ffffff;
-  width: 100%;
-  color: #333;
-  cursor: text;
+input[type="radio"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background-color: #dbeafe;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
-.neumorfismo-input:focus {
-  outline: none;
-  box-shadow: 4px 4px 6px #1048ff,
-              -4px -4px 6px #1048ff,
-              4px -4px 6px #1048ff,
-              -4px 4px 6px #1048ff;
+input[type="radio"]:checked {
+  background-color: #7476ff;
 }
 
-.neumorfismo-input-select {
-  background: #dbeafe;
-  border: none;
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
-  box-shadow: inset 3px 3px 6px #bebebe,
-              inset -3px -3px 6px #ffffff;
-  width: 100%;
-  color: #333;
+input[type="radio"]:hover {
+  background-color: #373bff;
+  transform: scale(1.1);
 }
 
 
@@ -513,60 +371,42 @@
 
 
 /* ===================================== SubHeader ===================================== */
-.neumorfismo-subheader {
+.neumorphism-subheader {
+  margin-bottom: 0px;
+  width: 50%;
+  height: 48px;
+  position: fixed;
+  top: 95px;
+  left: 25%;
+  z-index: 49;
   background: #dbeafe;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
-  box-shadow: 8px 8px 16px #bebebe,
-              -8px 0px 16px #ffffff;
+  box-shadow: 0px 0px 16px #bebebe;
+  filter: drop-shadow(4px 4px 8px #bebebe);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
 }
 
-.neumorfismo-opcion-subheader {
-  border-radius: 0px;
+.neumorphism-subheader-option {
+  height: 100%;
+  width: 100%;
   background: #dbeafe;
   transition: all 0.3s ease;
 }
 
-.neumorfismo-opcion-subheader-primero {
-  background: #dbeafe;
+.nso-first {
   border-bottom-left-radius: 12px;
 }
 
-.neumorfismo-opcion-subheader-ultimo {
-  background: #dbeafe;
+.nso-last {
   border-bottom-right-radius: 12px;
 }
 
-.neumorfismo-opcion-subheader:hover {
+.neumorphism-subheader-option:hover {
   color: white;
   background: #7476ff;
-  transform: scale(1.01);
+  transform: scale(1.1);
   transition: all 0.3s ease;
 }
-
-.neumorfismo-opcion-subheader-primero:hover {
-  color: white;
-  background: #7476ff;
-  transform: scale(1.01);
-  transition: all 0.3s ease;
-}
-
-.neumorfismo-opcion-subheader-ultimo:hover {
-  color: white;
-  background: #7476ff;
-  transform: scale(1.01);
-  transition: all 0.3s ease;
-}
-
-
-
-/* 
-
-Color principal = #dbeafe 
-
-Body:
-  margen X = 171px
-  margen Y = 41px
-  espaciado Y = 41px
-
-*/

@@ -10,6 +10,7 @@ namespace backend.Constants
             public const string InvalidRequest = "Solicitud inválida";
             public const string NotFound = "Recurso no encontrado";
             public const string EmailAlreadyExists = "El correo electrónico se encuentra registrado en el sistema.";
+            public const string UnauthorizedAccess = "Acceso no autorizado";
         }
 
         // Validation Messages
@@ -22,6 +23,7 @@ namespace backend.Constants
             public const string HoursMustBeGreaterThanZero = "Horas deben ser mayor a cero.";
             public const string EmailAndPasswordRequired = "Correo y contraseña son requeridos";
             public const string InvalidOrMissingEmployerId = "Id de empresa inválido o faltante";
+            public const string InvalidArgument = "Argumento inválido";
         }
 
         // Employee Messages
@@ -31,6 +33,11 @@ namespace backend.Constants
             public const string EmployeeNotFoundOrNoCompany = "Empleado no encontrado o no tiene empresa asignada";
             public const string EmployeeRegisteredSuccessfully = "Empleado registrado exitosamente. Se ha enviado un correo para configurar la contraseña.";
             public const string CedulaAlreadyRegistered = "La cédula ya está registrada en el sistema.";
+            public const string InvalidPassword = "Contraseña incorrecta. Por favor, verifique su contraseña.";
+            public const string DeletionError = "Error al eliminar el empleado. Por favor, intente nuevamente.";
+            public const string LogicalDeletionSuccess = "El empleado ha sido marcado como inactivo. Se conservarán {0} registros históricos de planilla.";
+            public const string PhysicalDeletionSuccess = "El empleado ha sido eliminado permanentemente del sistema.";
+            public const string DefaultDeletionReason = "Sin motivo especificado";
         }
 
         // Benefit Messages
@@ -68,6 +75,8 @@ namespace backend.Constants
             public const string PayrollGeneratedSuccessfully = "Planilla generada exitosamente con beneficios y deducciones.";
             public const string ErrorGeneratingPayroll = "Error al generar la planilla.";
             public const string ReportNotFound = "Reporte no encontrado";
+            public const string ErrorGeneratingExcelReport = "Error al generar el reporte Excel";
+            public const string ErrorGeneratingPdfReport = "Error al generar el reporte PDF";
         }
 
         // User Messages
