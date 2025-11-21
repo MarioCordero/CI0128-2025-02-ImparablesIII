@@ -1,74 +1,61 @@
 <template>
-  <div class="neumorphism-card">
-    <div v-if="isLoading" class="text-center py-8 text-gray-500">
-      Cargando información de la empresa...
-    </div>
-    
-    <div v-else-if="errorMessage" class="text-center py-8 text-red-500">
-      {{ errorMessage }}
-    </div>
-    
+  <div class="neumorphism-card-modal mx-auto">
+    <div v-if="isLoading" class="text-center py-8 text-gray-500">Cargando información de la empresa...</div>
+    <div v-else-if="errorMessage" class="text-center py-8 text-red-500">{{ errorMessage }}</div>
     <div v-else-if="project">
-      <!-- Header Section -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-4xl font-bold text-gray-800">{{ project.nombre }}</h1>
+      <div class="flex justify-between items-center mb-3">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">{{ project.nombre }}</h1>
         <button
-          class="neumorphism-button-normal-blue"
+          class="neumorphism-button-normal-light"
           @click="showEditModal = true"
         >
           Editar Empresa
         </button>
       </div>
-
-      <!-- Main Content Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        <!-- Left Column -->
-        <div class="neumorphism-on p-6 space-y-4">
-          <h3 class="text-xl font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2">
-            Información General
+      <div class="bg-white rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-2xl font-semibold text-gray-800 mb-2">
+            <span class="ml-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold align-middle">Activo</span>
           </h3>
-          
-          <div class="neumorfismo-sobre-suave">
+          <div class="mb-3">
             <div class="font-bold text-gray-700 mb-1">ID Empresa</div>
             <div class="text-gray-600 text-lg">{{ project.id }}</div>
           </div>
-
-          <div class="neumorfismo-sobre-suave">
-            <div class="font-bold text-gray-700 mb-1">Cédula Jurídica</div>
-            <div class="text-gray-600 text-lg">{{ project.cedulaJuridica }}</div>
+          <div class="mb-3">
+            <div class="font-bold text-gray-700 mb-1">Cédula jurídica</div>
+            <div class="text-gray-600">{{ project.cedulaJuridica }}</div>
           </div>
-
-          <div class="neumorfismo-sobre-suave">
-            <div class="font-bold text-gray-700 mb-1">Correo Electrónico</div>
-            <div class="text-gray-600 text-lg">{{ project.email }}</div>
+          <div class="mb-3 ">
+            <div class="font-bold text-gray-700 mb-1">Correo electrónico</div>
+            <div class="text-gray-600">{{ project.email }}</div>
           </div>
-
-          <div class="neumorfismo-sobre-suave">
+          <div class="mb-3">
             <div class="font-bold text-gray-700 mb-1">Teléfono</div>
-            <div class="text-gray-600 text-lg">{{ project.telefono }}</div>
+            <div class="text-gray-600">{{ project.telefono }}</div>
+          </div>
+          <div class="mb-3">
+            <div class="font-bold text-gray-700 mb-1">ID Dirección</div>
+            <div class="text-gray-600">{{ project.idDireccion }}</div>
           </div>
         </div>
-
-        <!-- Right Column -->
-        <div class="neumorphism-on p-6 space-y-4">
-          <h3 class="text-xl font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2">
-            Configuración Empresarial
-          </h3>
-
-          <div class="neumorfismo-sobre-suave">
-            <div class="font-bold text-gray-700 mb-1">Período de Pago</div>
-            <div class="text-gray-600 text-lg">{{ project.periodoPago }}</div>
+        <div>
+          <div class="mb-3">
+            <div class="font-bold text-gray-700 mb-1">Periodo de pago</div>
+            <div class="text-gray-600">{{ project.periodoPago }}</div>
           </div>
-
-          <div class="neumorfismo-sobre-suave">
-            <div class="font-bold text-gray-700 mb-1">Máximo de Beneficios Elegibles</div>
-            <div class="text-gray-600 text-lg">{{ project.maximoBeneficios }}</div>
+          <div class="mb-3">
+            <div class="font-bold text-gray-700 mb-1">Máximo de beneficios elegibles</div>
+            <div class="text-gray-600">{{ project.maximoBeneficios }}</div>
           </div>
-
-          <div class="neumorfismo-sobre-suave">
-            <div class="font-bold text-gray-700 mb-1">ID Dirección</div>
-            <div class="text-gray-600 text-lg">{{ project.idDireccion }}</div>
+          <div v-if="project.direccion" class="mb-3">
+            <div class="font-bold text-gray-700 mb-1">Dirección</div>
+            <div class="text-gray-600">
+              <div><span class="font-bold">ID Dirección:</span> {{ project.direccion.id }}</div>
+              <div><span class="font-bold">Provincia:</span> {{ project.direccion.provincia }}</div>
+              <div><span class="font-bold">Cantón:</span> {{ project.direccion.canton }}</div>
+              <div><span class="font-bold">Distrito:</span> {{ project.direccion.distrito }}</div>
+              <div><span class="font-bold">Dirección Particular:</span> {{ project.direccion.direccionParticular }}</div>
+            </div>
           </div>
         </div>
       </div>

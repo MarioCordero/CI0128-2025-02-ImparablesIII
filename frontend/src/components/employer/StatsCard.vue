@@ -20,12 +20,12 @@
 
             <div class="flex flex-col items-end gap-2">
                 <span class="bg-green-500 text-white rounded px-3 py-1 font-bold text-base block w-fit neumorphism-on-small-item">
-                    {{ companies.length > 0 ? (companies.reduce((sum, c) => sum + c.CurrentProfitability, 0) / companies.length).toFixed(1) : 0 }}%
+                    {{ companies.length > 0 ? (companies.reduce((sum, c) => sum + c.currentProfitability, 0) / companies.length).toFixed(1) : 0 }}%
                 </span>
                 <span class="text-green-600 text-xs block">
                     {{ companies.length > 0 ? getProfitabilityChange(
-                    companies.reduce((sum, c) => sum + c.CurrentProfitability, 0) / companies.length,
-                    companies.reduce((sum, c) => sum + c.LastMonthProfitability, 0) / companies.length
+                    companies.reduce((sum, c) => sum + c.currentProfitability, 0) / companies.length,
+                    companies.reduce((sum, c) => sum + c.lastMonthProfitability, 0) / companies.length
                     ) : '+0% vs mes ant.' }}
                 </span>
             </div>
@@ -44,18 +44,18 @@
                                 {{ index + 1 }}
                             </div>
                             <div>
-                                <span class="font-bold">{{ company.name }}</span>
-                                <div class="text-gray-600 text-sm">{{ company.ActiveEmployees }} empleados</div>
+                                <span class="font-bold">{{ company.nombre }}</span>
+                                <div class="text-gray-600 text-sm">{{ company.activeEmployees }} empleados</div>
                             </div>
                     </div>
      
                     <!-- Derecha: rentabilidad -->
                     <div class="flex flex-col items-end">
-                        <span :class="`${getProfitabilityColor(company.CurrentProfitability)} text-white rounded px-3 py-1 font-bold text-base neumorphism-on-small-item`">
-                            {{ company.CurrentProfitability }}%
+                        <span :class="`${getProfitabilityColor(company.currentProfitability)} text-white rounded px-3 py-1 font-bold text-base neumorphism-on-small-item`">
+                            {{ company.currentProfitability }}%
                         </span>
                         <span :class="`${getProfitabilityTextColor(company.CurrentProfitability)} text-xs mt-1`">
-                            {{ getProfitabilityChange(company.CurrentProfitability, company.LastMonthProfitability) }}
+                            {{ getProfitabilityChange(company.currentProfitability, company.lastMonthProfitability) }}
                         </span>
                     </div>
                 </div>
@@ -122,6 +122,7 @@
                 if (!response.ok) throw new Error('No se pudieron cargar las empresas');
                 const data = await response.json();
                 this.companies = data;
+                console.log("📦 Empresas recibidas:", this.companies);
             } catch (err) {
                 this.error = err.message || 'Error al cargar las empresas';
             } finally {

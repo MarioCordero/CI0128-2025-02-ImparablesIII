@@ -1,5 +1,5 @@
 <template>
-  <div class="lista-empleados">
+  <div class="w-full h-[537px] flex flex-col gap-4 box-border">
 
     <h2>Lista de Empleados</h2>
 
@@ -14,55 +14,51 @@
     </div>
 
     <!-- Contenedor con scroll -->
-    <div v-if="!loading && !error" class="contenedor-empleados">
+    <div v-if="!loading && !error" class="scrollable-card">
       
       <div
         v-for="empleado in empleados"
         :key="empleado.id"
-        class="empleado-item neumorfismo-sobre-suave-np"
+        class="employee-item neumorphism-on-small-item"
       >
         <!-- Columna izquierda -->
-        <div class="empleado-izquierda">
-          
-          <div class="avatar neumorfismo-sobre rounded-full">{{ empleado.iniciales }}</div>
+        <div class="flex items-center gap-3">
+          <div class="avatar neumorphism-on-small-item">{{ empleado.iniciales }}</div>
 
-          <div class="datos-personales">
-
+          <div class="flex flex-col gap-0">
             <p class=" text-[20px] text-black font-medium m-0 p-0">{{ empleado.nombreCompleto }}</p>
             <p class=" text-[18px] text-gray-500 font-normal m-0 p-0">{{ empleado.puesto }}</p>
 
-            <div class="contacto text-[16px] text-gray-500 font-normal">
+            <div class="flex flex-row gap-2 text-[16px] text-gray-500 font-normal">
               <span class="mr-[5px]">{{ empleado.departamento }}</span>
               <span class="mr-[5px]">{{ empleado.correo }}</span>
               <span>{{ empleado.telefono }}</span>
             </div>
-
           </div>
-
         </div>
 
         <!-- Columna derecha -->
-        <div class="empleado-derecha">
-
-          <div class="datos-personales">
-
+        <div class="flex items-center gap-3">
+          <div class="flex flex-col gap-2">
             <p class=" text-[18px] text-gray-500 font-normal m-0 p-0 text-right">
               ₡{{ empleado.salario.toLocaleString() }}
             </p>
   
-            <div class="contacto text-[16px] font-normal">
+            <div class="flex flex-row gap-2 text-[16px] font-normal">
+              <span class="py-[3px] px-[9px] rounded-[100px] text-white bg-[#7476ff]">
+                {{ empleado.tipoContrato }}
+              </span>
 
-              <span class="jornada">{{ empleado.tipoContrato }}</span>
-              <span class="estado">{{ empleado.estado }}</span>
-
+              <span class="py-[3px] px-[9px] rounded-[100px] text-black bg-[#b9ffbc]">
+                {{ empleado.estado }}
+              </span>
             </div>
-
           </div>
 
-          <button class="neumorfismo-boton p-[7px] rounded-full!" @click="editEmployee(empleado.id)">
+          <button class="neumorphism-button-normal-light p-[7px]! rounded-full!" @click="editEmployee(empleado.id)">
             ✏️
           </button>
-          <button class="neumorfismo-boton p-[7px] rounded-full!" @click="deleteEmployee(empleado.id)">
+          <button class="neumorphism-button-normal-red p-[7px]! rounded-full!" @click="deleteEmployee(empleado.id)">
             ❌
           </button>
         </div>
@@ -83,7 +79,6 @@
       @close="showDeleteModal = false"
     />
   </div>
-
 </template>
 
 <script>
