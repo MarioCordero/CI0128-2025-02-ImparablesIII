@@ -288,28 +288,21 @@ export default {
     async submitForm() {
       if (this.validateForm()) {
         try {
-          console.log("form verificado");
           const employerData = {
             ...this.form,
             cedula: this.form.cedula.replace(/-/g, ''),
             telefono: parseInt(this.form.telefono),
             fechaNacimiento: new Date(this.form.fechaNacimiento).toISOString(),
           }
-
-          console.log("enviando al endpoint");
           const response = await axios.post(
             apiConfig.endpoints.signUpEmployer,
             employerData,
             { headers: { 'Content-Type': 'application/json' } }
           )
-          console.log("se envio al endpoint");
-
           if (response.data.message) {
-            console.log("el endpoint respondio " + response.data.message);
             alert(response.data.message)
             window.location.href = '/login'
           } else {
-            console.log("el endpoint dice que mostremos la verificacion");
             this.showVerification = true
           }
         } catch (error) {
