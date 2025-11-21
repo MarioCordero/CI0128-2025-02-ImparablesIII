@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using backend.Constants;
 
 namespace backend.Models
 {
@@ -37,7 +38,19 @@ namespace backend.Models
         
         public int? IdEmpresa { get; set; }
 
+        [MaxLength(20)]
+        public string Estado { get; set; } = EmployeeConstants.StatusActive;
+
+        public DateTime? FechaBaja { get; set; }
+
+        [MaxLength(500)]
+        public string? MotivoBaja { get; set; }
+
+        public int? UsuarioBajaId { get; set; }
+
         public Persona? Persona { get; set; }
+
+        public bool Activo => Estado == EmployeeConstants.StatusActive;
 
     }
 }
