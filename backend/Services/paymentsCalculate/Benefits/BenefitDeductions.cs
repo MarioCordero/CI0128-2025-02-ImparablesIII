@@ -47,7 +47,7 @@ namespace backend.Services
         var employee = await GetEmployeeAsync(userId);
         if (employee == null)
         {
-          throw new ArgumentException($"Employee with ID {userId} not found");
+          throw new ArgumentException(ReturnMessagesConstants.Employee.EmployeeNotFound);
         }
 
         var employeeBenefits = await GetEmployeeBenefitsAsync(userId, projectId, employee.Salario);
@@ -244,7 +244,7 @@ namespace backend.Services
       if (company == null)
       {
         _logger.LogWarning("Company with ID {CompanyId} not found", employeeBenefit.CompanyId);
-        throw new ArgumentException($"Company with ID {employeeBenefit.CompanyId} not found");
+        throw new ArgumentException(ReturnMessagesConstants.Project.ProjectNotFound);
       }
 
       var cedulaJuridica = company.CedulaJuridica.ToString();

@@ -1,5 +1,6 @@
 using backend.DTOs;
 using backend.Repositories;
+using backend.Constants;
 using System.Text;
 
 namespace backend.Services
@@ -7,11 +8,16 @@ namespace backend.Services
     public class LoginService : ILoginService
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly IConfiguration _configuration;
 
-        public LoginService(IUsuarioRepository usuarioRepository, IConfiguration configuration)
+        public LoginService(
+            IUsuarioRepository usuarioRepository, 
+            IEmployeeRepository employeeRepository,
+            IConfiguration configuration)
         {
             _usuarioRepository = usuarioRepository;
+            _employeeRepository = employeeRepository;
             _configuration = configuration;
         }
 
@@ -39,6 +45,20 @@ namespace backend.Services
                         Success = false,
                         Message = "Contraseña incorrecta"
                     };
+                }
+
+                // Check if employee is deleted (for employee users)
+                if (user.TipoUsuario == "Empleado")
+                {
+                    var isDeleted = await _employeeRepository.IsEmployeeDeletedAsync(user.IdPersona);
+                    if (isDeleted)
+                    {
+                        return new LoginResponseDto
+                        {
+                            Success = false,
+                            Message = "Esta cuenta ha sido desactivada y ya no tiene acceso al sistema."
+                        };
+                    }
                 }
 
                 // Get user data

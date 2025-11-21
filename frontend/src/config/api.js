@@ -19,6 +19,10 @@ export const apiConfig = {
     payrollSummary: (companyId) => `${API_BASE_URL}/api/payroll/summary?companyId=${companyId}`,
     payrollHistory: (companyId) => `${API_BASE_URL}/api/payroll/history?companyId=${companyId}`,
     projectEmployeeCount: (companyId) => `${API_BASE_URL}/api/Project/${companyId}/employees/count`,
+    employeePayrollReports: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports`,
+    employeePayrollReportDetailed: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/detailed`,
+    employeePayrollReportDownloadExcel: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/excel`,
+    employeePayrollReportDownloadPdf: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/pdf`,
 
     // Work-hours endpoints
     workHours: `${API_BASE_URL}/api/work-hours`,
@@ -32,7 +36,12 @@ export const apiConfig = {
     signUpEmployer: `${API_BASE_URL}/api/SignUpEmployer`,
 
     // ProjectList endpoint (nuevo)
-    projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`
+    projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`,
+
+    // Employee endpoints
+    projectEmployees: (projectId) => `${API_BASE_URL}/api/Project/${projectId}/employees`,
+    employeeDeletionInfo: (employeeId) => `${API_BASE_URL}/api/Employee/${employeeId}/deletion-info`,
+    deleteEmployee: (employeeId, employerId) => `${API_BASE_URL}/api/Employee/${employeeId}?employerId=${employerId}`
   }
 }
 

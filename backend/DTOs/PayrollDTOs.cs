@@ -136,6 +136,7 @@ namespace backend.DTOs
         public int DeduccionesEmpresa { get; set; }
         public int TotalBeneficios { get; set; }
         public int SalarioNeto { get; set; }
+        public string Puesto { get; set; } = string.Empty;
     }
 
     public class PayrollHistoryItemDto
@@ -164,5 +165,49 @@ namespace backend.DTOs
         public int PayrollId { get; set; }
         public string Message { get; set; } = "";
         public DateTime GeneratedAt { get; set; }
+    }
+
+    public class DetailedPayrollReportDto
+    {
+        public int PayrollId { get; set; }
+        public DateTime FechaGeneracion { get; set; }
+        public string NombreEmpresa { get; set; } = string.Empty;
+        public string NombreCompletoEmpleado { get; set; } = string.Empty;
+        public string TipoContrato { get; set; } = string.Empty;
+        public decimal SalarioBruto { get; set; }
+        public List<MandatoryDeductionDto> DeduccionesObligatorias { get; set; } = new();
+        public decimal TotalDeduccionesObligatorias { get; set; }
+        public List<VoluntaryDeductionDto> DeduccionesVoluntarias { get; set; } = new();
+        public decimal TotalDeduccionesVoluntarias { get; set; }
+        public decimal SalarioNeto { get; set; }
+    }
+
+    public class MandatoryDeductionDto
+    {
+        public string Nombre { get; set; } = string.Empty;
+        public decimal Monto { get; set; }
+    }
+
+    public class VoluntaryDeductionDto
+    {
+        public string Nombre { get; set; } = string.Empty;
+        public decimal Monto { get; set; }
+    }
+
+    public class EmployeePayrollReportDto
+    {
+        public int PayrollId { get; set; }
+        public DateTime FechaGeneracion { get; set; }
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int Day { get; set; }
+        public string Puesto { get; set; } = string.Empty;
+        public decimal SalarioBruto { get; set; }
+        public decimal DeduccionesEmpleado { get; set; }
+        public decimal DeduccionesEmpresa { get; set; }
+        public decimal TotalBeneficios { get; set; }
+        public decimal SalarioNeto { get; set; }
+        public int Horas { get; set; }
+        public string NombreEmpresa { get; set; } = string.Empty;
     }
 }

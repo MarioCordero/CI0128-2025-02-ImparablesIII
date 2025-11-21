@@ -287,8 +287,8 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                INSERT INTO PlaniFy.DetallePlanilla (idEmpleado, idPlanilla, salarioBruto, DeduccionesEmpleado, DeduccionesEmpresa, totalBeneficios, salarioNeto)
-                VALUES (@IdEmpleado, @IdPlanilla, @SalarioBruto, @DeduccionesEmpleado, @DeduccionesEmpresa, @TotalBeneficios, @SalarioNeto);";
+                INSERT INTO PlaniFy.DetallePlanilla (idEmpleado, idPlanilla, salarioBruto, DeduccionesEmpleado, DeduccionesEmpresa, totalBeneficios, salarioNeto, Puesto)
+                VALUES (@IdEmpleado, @IdPlanilla, @SalarioBruto, @DeduccionesEmpleado, @DeduccionesEmpresa, @TotalBeneficios, @SalarioNeto, @Puesto);";
 
             var parameters = details.Select(d => new
             {
@@ -298,7 +298,8 @@ namespace backend.Repositories
                 d.DeduccionesEmpleado,
                 d.DeduccionesEmpresa,
                 d.TotalBeneficios,
-                d.SalarioNeto
+                d.SalarioNeto,
+                d.Puesto
             });
 
             await connection.ExecuteAsync(query, parameters);
@@ -396,6 +397,123 @@ namespace backend.Repositories
 
             var rows = (await connection.QueryAsync<PayrollHistoryItemDto>(sql, new { CompanyId = companyId })).ToList();
             return rows;
+        }
+
+        public async Task<Dictionary<int, string>> GetEmployeePositionsByCompanyAsync(int companyId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var sql = @"
+                SELECT idPersona, Puesto
+                FROM PlaniFy.Empleado
+                WHERE idEmpresa = @CompanyId;";
+
+            var results = await connection.QueryAsync<(int IdPersona, string Puesto)>(sql, new { CompanyId = companyId });
+            return results.ToDictionary(r => r.IdPersona, r => r.Puesto);
+        }
+
+        public async Task<List<EmployeePayrollReportDto>> GetEmployeePayrollReportsAsync(int employeeId, int? year, int? month, string? puesto)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var sql = @"
+                SELECT 
+                    p.id AS PayrollId,
+                    p.FechaGeneracion,
+                    YEAR(p.FechaGeneracion) AS Year,
+                    MONTH(p.FechaGeneracion) AS Month,
+                    DAY(p.FechaGeneracion) AS Day,
+                    dp.Puesto,
+                    CAST(dp.salarioBruto AS DECIMAL(18,2)) AS SalarioBruto,
+                    CAST(dp.DeduccionesEmpleado AS DECIMAL(18,2)) AS DeduccionesEmpleado,
+                    CAST(dp.DeduccionesEmpresa AS DECIMAL(18,2)) AS DeduccionesEmpresa,
+                    CAST(dp.totalBeneficios AS DECIMAL(18,2)) AS TotalBeneficios,
+                    CAST(dp.salarioNeto AS DECIMAL(18,2)) AS SalarioNeto,
+                    p.Horas,
+                    emp.Nombre AS NombreEmpresa
+                FROM PlaniFy.DetallePlanilla dp
+                INNER JOIN PlaniFy.Planilla p ON dp.idPlanilla = p.id
+                INNER JOIN PlaniFy.Empresa emp ON p.idEmpresa = emp.Id
+                WHERE dp.idEmpleado = @EmployeeId
+                    AND (@Year IS NULL OR YEAR(p.FechaGeneracion) = @Year)
+                    AND (@Month IS NULL OR MONTH(p.FechaGeneracion) = @Month)
+                    AND (@Puesto IS NULL OR dp.Puesto = @Puesto)
+                ORDER BY p.FechaGeneracion DESC, p.id DESC;";
+
+            var results = await connection.QueryAsync<EmployeePayrollReportDto>(sql, new 
+            { 
+                EmployeeId = employeeId,
+                Year = year,
+                Month = month,
+                Puesto = puesto
+            });
+
+            return results.ToList();
+        }
+
+        public async Task<(string NombreCompleto, string TipoContrato)> GetEmployeeBasicInfoAsync(int employeeId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var sql = @"
+                SELECT 
+                    CONCAT(p.Nombre, ' ', COALESCE(p.SegundoNombre + ' ', ''), p.Apellidos) AS NombreCompleto,
+                    e.TipoContrato
+                FROM PlaniFy.Persona p
+                INNER JOIN PlaniFy.Empleado e ON p.Id = e.idPersona
+                WHERE p.Id = @EmployeeId;";
+
+            var result = await connection.QueryFirstOrDefaultAsync<(string NombreCompleto, string TipoContrato)>(
+                sql, 
+                new { EmployeeId = employeeId });
+
+            return result;
+        }
+
+        public async Task<DetailedPayrollReportDto?> GetDetailedPayrollReportAsync(int employeeId, int payrollId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var sql = @"
+                SELECT 
+                    p.id AS PayrollId,
+                    p.FechaGeneracion,
+                    emp.Nombre AS NombreEmpresa,
+                    CAST(dp.salarioBruto AS DECIMAL(18,2)) AS SalarioBruto,
+                    CAST(dp.DeduccionesEmpleado AS DECIMAL(18,2)) AS DeduccionesEmpleado,
+                    CAST(dp.totalBeneficios AS DECIMAL(18,2)) AS TotalBeneficios,
+                    CAST(dp.salarioNeto AS DECIMAL(18,2)) AS SalarioNeto
+                FROM PlaniFy.DetallePlanilla dp
+                INNER JOIN PlaniFy.Planilla p ON dp.idPlanilla = p.id
+                INNER JOIN PlaniFy.Empresa emp ON p.idEmpresa = emp.Id
+                WHERE dp.idEmpleado = @EmployeeId AND dp.idPlanilla = @PayrollId;";
+
+            var result = await connection.QueryFirstOrDefaultAsync<DetailedPayrollReportDto>(
+                sql, 
+                new { EmployeeId = employeeId, PayrollId = payrollId });
+
+            return result;
+        }
+
+        public async Task<int?> GetCompanyIdFromPayrollAsync(int payrollId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var sql = @"
+                SELECT idEmpresa
+                FROM PlaniFy.Planilla
+                WHERE id = @PayrollId;";
+
+            var result = await connection.QueryFirstOrDefaultAsync<int?>(
+                sql,
+                new { PayrollId = payrollId });
+
+            return result;
         }
     }
 }
