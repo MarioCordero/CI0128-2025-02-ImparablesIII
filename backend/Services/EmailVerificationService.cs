@@ -7,13 +7,13 @@ namespace backend.Services
     {
         private readonly IEmailService _emailService;
         private readonly ILogger<EmailVerificationService> _logger;
-        private readonly IEmailTemplates _emailTemplates; // agregado
+        private readonly IEmailTemplates _emailTemplates;
         private static Dictionary<string, (string token, DateTime expiry, int personaId)> _verificationTokens = new();
 
         public EmailVerificationService(
             IEmailService emailService,
             ILogger<EmailVerificationService> logger,
-            IEmailTemplates emailTemplates) // agregado
+            IEmailTemplates emailTemplates)
         {
             _emailService = emailService;
             _logger = logger;
