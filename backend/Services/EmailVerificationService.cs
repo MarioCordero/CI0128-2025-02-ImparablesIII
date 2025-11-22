@@ -1,4 +1,5 @@
 using backend.DTOs;
+using backend.Services;
 
 namespace backend.Services
 {
@@ -6,12 +7,17 @@ namespace backend.Services
     {
         private readonly IEmailService _emailService;
         private readonly ILogger<EmailVerificationService> _logger;
+        private readonly IEmailTemplates _emailTemplates; // agregado
         private static Dictionary<string, (string token, DateTime expiry, int personaId)> _verificationTokens = new();
 
-        public EmailVerificationService(IEmailService emailService, ILogger<EmailVerificationService> logger)
+        public EmailVerificationService(
+            IEmailService emailService,
+            ILogger<EmailVerificationService> logger,
+            IEmailTemplates emailTemplates) // agregado
         {
             _emailService = emailService;
             _logger = logger;
+            _emailTemplates = emailTemplates;
         }
 
         public async Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto)
