@@ -1,11 +1,8 @@
 namespace backend.Services
 {
-    /// <summary>
-    /// HTML email templates that match the EmployeeList component styling
-    /// </summary>
-    public static class EmailTemplates
+    public class EmailTemplates : IEmailTemplates
     {
-        private static string GetBaseTemplate(string title, string content)
+        private string GetBaseTemplate(string title, string content)
         {
             return $@"
             <!DOCTYPE html>
@@ -129,7 +126,7 @@ namespace backend.Services
             </html>";
         }
 
-        public static string GetWelcomeEmailTemplate(string userName)
+        public string GetWelcomeEmailTemplate(string userName)
         {
             var content = $@"
                 <div class=""greeting"">¡Bienvenido a Imparables, {userName}!</div>
@@ -160,7 +157,7 @@ namespace backend.Services
             return GetBaseTemplate("¡Bienvenido a Imparables!", content);
         }
 
-        public static string GetVerificationTemplate(string nombre, string token, string rol)
+        public string GetVerificationTemplate(string nombre, string token, string rol)
         {
             var content = $@"
                 <div class=""greeting"">¡Hola {nombre}!</div>
@@ -195,7 +192,7 @@ namespace backend.Services
             return GetBaseTemplate("Verifica tu Correo - Imparables", content);
         }
 
-        public static string GetPasswordResetTemplate(string resetToken)
+        public string GetPasswordResetTemplate(string resetToken)
         {
             var content = $@"
                 <div class=""greeting"">Solicitud de Restablecimiento de Contraseña</div>
@@ -228,7 +225,7 @@ namespace backend.Services
             return GetBaseTemplate("Restablecimiento de Contraseña - Imparables", content);
         }
 
-        public static string GetNotificationTemplate(string title, string message, string? actionUrl = null, string? actionText = null)
+        public string GetNotificationTemplate(string title, string message, string? actionUrl = null, string? actionText = null)
         {
             var actionButton = string.IsNullOrEmpty(actionUrl) ? "" : 
                 $@"<div style=""text-align: center;"">
@@ -243,7 +240,7 @@ namespace backend.Services
             return GetBaseTemplate(title, content);
         }
 
-        public static string GetEmployeeNotificationTemplate(string employeeName, string notificationType, string details)
+        public string GetEmployeeNotificationTemplate(string employeeName, string notificationType, string details)
         {
             var content = $@"
                 <div class=""greeting"">Notificación de Empleado</div>
@@ -268,7 +265,7 @@ namespace backend.Services
             return GetBaseTemplate($"Notificación de Empleado - {employeeName}", content);
         }
 
-        public static string GetPasswordSetupTemplate(string employeeName, string setupUrl)
+        public string GetPasswordSetupTemplate(string employeeName, string setupUrl)
         {
             var content = $@"
                 <div class=""greeting"">¡Bienvenido a Imparables, {employeeName}!</div>

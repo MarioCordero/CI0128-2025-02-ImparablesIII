@@ -25,9 +25,7 @@ namespace backend.Services
         {
             try
             {
-                // Get user by email
-                var user = await _usuarioRepository.GetUserByEmailAsync(loginRequest.Correo);
-                
+                var user = await _usuarioRepository.GetUserByEmailAsync(loginRequest.Correo);   
                 if (user == null)
                 {
                     return new LoginResponseDto
@@ -37,7 +35,6 @@ namespace backend.Services
                     };
                 }
 
-                // Verify password
                 if (!VerifyPassword(loginRequest.Contrasena, user.Contrasena))
                 {
                     return new LoginResponseDto
@@ -46,8 +43,14 @@ namespace backend.Services
                         Message = "Contraseña incorrecta"
                     };
                 }
-
-                // Check if employee is deleted (for employee users)
+                if (!user.IsVerified)
+                {
+                    return new LoginResponseDto
+                    {
+                        Success = false,
+                        Message = "Cuenta no verificada"
+                    };
+                }
                 if (user.TipoUsuario == "Empleado")
                 {
                     var isDeleted = await _employeeRepository.IsEmployeeDeletedAsync(user.IdPersona);
@@ -60,10 +63,7 @@ namespace backend.Services
                         };
                     }
                 }
-
-                // Get user data
                 var userData = await GetUserDataAsync(user.IdPersona);
-                
                 if (userData == null)
                 {
                     return new LoginResponseDto
@@ -72,7 +72,6 @@ namespace backend.Services
                         Message = "Error al obtener datos del usuario"
                     };
                 }
-
                 return new LoginResponseDto
                 {
                     Success = true,
