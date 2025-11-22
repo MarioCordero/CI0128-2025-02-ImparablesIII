@@ -41,20 +41,38 @@ namespace backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RegisterEmployee([FromBody] RegisterEmployeeDto employeeDto)
+        public async Task<ActionResult<RegisterEmployeeResponseDto>> RegisterEmployee([FromBody] RegisterEmployeeDto employeeDto)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => string.IsNullOrEmpty(e.ErrorMessage) ? "Dato inválido." : e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new RegisterEmployeeResponseDto
+                {
+                    Success = false,
+                    Message = "Errores de validación.",
+                    ValidationErrors = errors
+                });
+            }
+
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                if (await _employeeService.ValidateCedulaExistsAsync(employeeDto.Cedula))
+                    return BadRequest(new RegisterEmployeeResponseDto
+                    {
+                        Success = false,
+                        Message = ReturnMessagesConstants.Employee.CedulaAlreadyRegistered
+                    });
 
-                var cedulaExists = await _employeeService.ValidateCedulaExistsAsync(employeeDto.Cedula);
-                if (cedulaExists)
-                    return BadRequest(new { message = ReturnMessagesConstants.Employee.CedulaAlreadyRegistered });
-
-                var emailExists = await _employeeService.ValidateEmailExistsAsync(employeeDto.Correo);
-                if (emailExists)
-                    return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
+                if (await _employeeService.ValidateEmailExistsAsync(employeeDto.Correo))
+                    return BadRequest(new RegisterEmployeeResponseDto
+                    {
+                        Success = false,
+                        Message = ReturnMessagesConstants.General.EmailAlreadyExists
+                    });
 
                 var employeeId = await _employeeService.RegisterEmployeeAsync(employeeDto);
                 _logger.LogInformation("Employee registered successfully with ID: {EmployeeId}", employeeId);
@@ -62,16 +80,21 @@ namespace backend.Controllers
                 var token = await _passwordSetupService.GeneratePasswordSetupTokenAsync(employeeId, employeeDto.Correo);
                 await SendPasswordSetupEmailAsync(employeeDto.PrimerNombre, employeeDto.Correo, token);
 
-                return Ok(new
+                return Ok(new RegisterEmployeeResponseDto
                 {
-                    message = ReturnMessagesConstants.Employee.EmployeeRegisteredSuccessfully,
-                    employeeId
+                    Success = true,
+                    Message = ReturnMessagesConstants.Employee.EmployeeRegisteredSuccessfully,
+                    EmployeeId = employeeId
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while registering employee: {Message}", ex.Message);
-                return StatusCode(500, new { message = string.Format(ReturnMessagesConstants.General.InternalServerErrorWithDetail, ex.Message) });
+                return StatusCode(500, new RegisterEmployeeResponseDto
+                {
+                    Success = false,
+                    Message = string.Format(ReturnMessagesConstants.General.InternalServerErrorWithDetail, ex.Message)
+                });
             }
         }
 
@@ -108,39 +131,38 @@ namespace backend.Controllers
         [HttpDelete("{employeeId}")]
         public async Task<ActionResult<DeleteEmployeeResponseDto>> DeleteEmployee(
             int employeeId,
-            [FromBody] DeleteEmployeeRequestDto request,
-            [FromQuery] int employerId)
+            [FromBody] DeleteEmployeeRequestDto request)
         {
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                    return BadRequest(new DeleteEmployeeResponseDto { Success = false, Message = "Datos inválidos." });
+
+                if (request.EmployerId <= 0)
+                    return BadRequest(new DeleteEmployeeResponseDto { Success = false, Message = "EmployerId inválido." });
 
                 if (string.IsNullOrEmpty(request.Contrasena))
-                    return BadRequest(new DeleteEmployeeResponseDto { Success = false, Message = "La contraseña es requerida para confirmar la eliminación." });
+                    return BadRequest(new DeleteEmployeeResponseDto { Success = false, Message = "La contraseña es requerida." });
 
-                if (employerId <= 0)
-                    return BadRequest(new DeleteEmployeeResponseDto { Success = false, Message = "ID de empleador inválido." });
-
-                var employer = await _usuarioRepository.GetUserByIdAsync(employerId);
+                var employer = await _usuarioRepository.GetUserByIdAsync(request.EmployerId);
                 if (employer == null)
                 {
-                    _logger.LogWarning("Empleador {EmployerId} no encontrado", employerId);
+                    _logger.LogWarning("Empleador {EmployerId} no encontrado", request.EmployerId);
                     return NotFound(new DeleteEmployeeResponseDto { Success = false, Message = "Empleador no encontrado." });
                 }
 
                 if (employer.TipoUsuario != "Empleador" && employer.TipoUsuario != "Administrador")
                 {
-                    _logger.LogWarning("Usuario {EmployerId} sin permisos. Tipo: {Tipo}", employerId, employer.TipoUsuario);
+                    _logger.LogWarning("Usuario {EmployerId} sin permisos. Tipo: {Tipo}", request.EmployerId, employer.TipoUsuario);
                     return StatusCode(403, new DeleteEmployeeResponseDto
                     {
                         Success = false,
-                        Message = "No tiene permisos para eliminar empleados. Solo Empleador o Administrador."
+                        Message = "Permisos insuficientes."
                     });
                 }
 
-                _logger.LogInformation("Solicitud eliminación empleado {EmployeeId} por {EmployerId}", employeeId, employerId);
-                var result = await _employeeDeletionService.DeleteEmployeeAsync(employeeId, employerId, request);
+                _logger.LogInformation("Solicitud eliminación empleado {EmployeeId} por {EmployerId}", employeeId, request.EmployerId);
+                var result = await _employeeDeletionService.DeleteEmployeeAsync(employeeId, request.EmployerId, request);
 
                 if (result.Success)
                     return Ok(result);
