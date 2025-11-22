@@ -2,6 +2,7 @@ using backend.DTOs;
 using backend.Models;
 using backend.Repositories;
 using backend.Constants;
+using BCrypt.Net;
 
 namespace backend.Services
 {
@@ -53,13 +54,13 @@ namespace backend.Services
                 };
 
                 var createdPersona = await _personaRepository.CreatePersonaAsync(persona);
-                _logger.LogInformation($"Persona created with ID: {createdPersona.Id}");
+                _logger.LogInformation($"Persona created with ID: {createdPersona}");
 
                 var verificationEmailDto = new SendVerificationEmailDto
                 {
                     Email = form.Email,
                     Nombre = form.Nombre,
-                    PersonaId = createdPersona.Id,
+                    PersonaId = createdPersona,
                     Rol = "Empleador"
                 };
 
@@ -82,30 +83,39 @@ namespace backend.Services
 
         public async Task<bool> VerifyAndCreateUserAsync(int personaId, string password)
         {
+            if (personaId <= 0 || string.IsNullOrWhiteSpace(password))
+                return false;
+
             try
             {
                 var persona = await _personaRepository.GetByIdAsync(personaId);
                 if (persona == null)
-                    throw new Exception("Persona no encontrada");
+                {
+                    _logger.LogWarning("Persona no encontrada (ID {PersonaId})", personaId);
+                    return false;
+                }
 
-                // Crear Usuario
                 var usuario = new Usuario
                 {
-                    idPersona = personaId,
-                    NombreUsuario = persona.Email,
-                    Contraseña = BCrypt.Net.BCrypt.HashPassword(password),
-                    FechaCreacion = DateTime.UtcNow,
-                    Activo = true
+                    IdPersona = personaId,
+                    TipoUsuario = "Empleador",
+                    Contrasena = BCrypt.HashPassword(password)
                 };
 
-                await _usuarioRepository.AddAsync(usuario);
-                _logger.LogInformation($"User created for persona ID: {personaId}");
-                
+                var created = await _employerRepository.CreateUserAsync(usuario);
+
+                if (!created)
+                {
+                    _logger.LogError("No se pudo crear el usuario para la persona {PersonaId}", personaId);
+                    return false;
+                }
+
+                _logger.LogInformation("Usuario creado para la persona {PersonaId}", personaId);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating user for employer");
+                _logger.LogError(ex, "Error creando usuario para la persona {PersonaId}", personaId);
                 return false;
             }
         }
