@@ -11,3 +11,21 @@ SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, T
 FROM PlaniFy.Beneficio
 WHERE idEmpresa = @CompanyId
 ORDER BY Nombre;
+
+SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'EmpleadorProyecto';
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'EmpleadorProyecto';
+
+SELECT * FROM PlaniFy.Empresa
+
+DECLARE @EmployerId INT = 25;
+SELECT 
+    e.Id,
+    e.Nombre,
+    e.CedulaJuridica,
+    e.Email,
+    e.PeriodoPago,
+    e.Telefono,
+    e.MaximoBeneficios,
+    e.idEmpleador
+FROM PlaniFy.Empresa AS e
+WHERE e.idEmpleador = @EmployerId;

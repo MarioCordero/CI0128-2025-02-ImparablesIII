@@ -101,6 +101,7 @@ builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();
 // Email services
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 
 // External API services
 builder.Services.Configure<ExternalApiSettings>(builder.Configuration.GetSection("ExternalApiSettings"));
