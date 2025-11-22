@@ -3,6 +3,8 @@ using backend.Models;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace backend.Services
 {
