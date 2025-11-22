@@ -22,7 +22,5 @@ namespace backend.Controllers
             _verificationService = verificationService;
             _logger = logger;
         }
-        
-        
     }
 }
