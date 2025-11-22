@@ -81,6 +81,48 @@ namespace backend.Repositories
             }
         }
 
+        public async Task<Persona?> GetByEmailAsync(string email)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var sql = @"
+                    SELECT Id, Correo, Nombre, SegundoNombre, Apellidos, FechaNacimiento, Cedula, Rol, Telefono, idDireccion AS IdDireccion
+                    FROM PlaniFy.Persona
+                    WHERE Correo = @Correo";
+
+                return await connection.QueryFirstOrDefaultAsync<Persona>(sql, new { Correo = email });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
+        public async Task<Persona?> GetByCedulaAsync(string cedula)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var sql = @"
+                    SELECT p.Id, p.Correo, p.Nombre, p.SegundoNombre, p.Apellidos, p.FechaNacimiento,
+                        p.Cedula, p.Rol, p.Telefono, p.idDireccion AS IdDireccion
+                    FROM PlaniFy.Persona p
+                    WHERE p.Cedula = @Cedula";
+
+                return await connection.QueryFirstOrDefaultAsync<Persona>(sql, new { Cedula = cedula });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<bool> IsEmailAvailableAsync(string email)
         {
             try
