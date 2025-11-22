@@ -42,23 +42,18 @@ namespace backend.Controllers
             }
         }
 
+        // TODO: Refactor email verification to use a single endpoint for both verifying and creating the user
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyAndCreateUserDto dto)
         {
             try
             {
-                // Verificar token
-                var (isValid, personaId) = await _verificationService.VerifyTokenAsync(dto.Email, dto.Token);
-                
+                var (isValid, personaId) = await _verificationService.VerifyTokenAsync(dto.Email, dto.Token);   
                 if (!isValid)
                     return BadRequest(new { message = "Token inválido o expirado" });
-
-                // Crear Usuario
                 var userCreated = await _employerService.VerifyAndCreateUserAsync(personaId, dto.Password);
-                
                 if (!userCreated)
                     return StatusCode(500, new { message = "Error al crear usuario" });
-
                 return Ok(new
                 {
                     message = "Email verificado. Usuario creado exitosamente. Ya puedes ingresar.",
