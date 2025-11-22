@@ -24,4 +24,26 @@ namespace backend.DTOs
         public string Message { get; set; } = string.Empty;
         public DateTime SentAt { get; set; }
     }
+
+    public class SendVerificationEmailDto
+    {
+        public string Email { get; set; }
+        public string Nombre { get; set; }
+        public int PersonaId { get; set; }
+        public string Rol { get; set; } // 'Empleador' o 'Empleado'
+    }
+
+    public class VerifyEmailDto
+    {
+        public string Email { get; set; }
+        public string Token { get; set; }
+    }
+
+    public class VerifyAndCreateUserDto
+    {
+        public int PersonaId { get; set; }
+        public string Email { get; set; }
+        public string Token { get; set; }
+        public string Password { get; set; }
+    }
 }

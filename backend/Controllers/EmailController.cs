@@ -18,11 +18,6 @@ namespace backend.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Send an email to the specified recipient
-        /// </summary>
-        /// <param name="emailDto">Email details including recipient, subject, and body</param>
-        /// <returns>Response indicating success or failure of email sending</returns>
         [HttpPost("send")]
         public async Task<ActionResult<EmailResponseDto>> SendEmail([FromBody] SendEmailDto emailDto)
         {
@@ -46,10 +41,6 @@ namespace backend.Controllers
             }
         }
 
-        /// <summary>
-        /// Health check endpoint for the email service
-        /// </summary>
-        /// <returns>Status of the email service</returns>
         [HttpGet("health")]
         public IActionResult HealthCheck()
         {
