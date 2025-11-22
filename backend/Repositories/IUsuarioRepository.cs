@@ -14,5 +14,6 @@ namespace backend.Repositories
         Task<bool> DeleteUserAsync(int personaId);
         Usuario? GetByVerificationHash(string hash);
         void MarkVerified(Usuario usuario);
+        Task<bool> UpdateAsync(Usuario usuario);
     }
 }

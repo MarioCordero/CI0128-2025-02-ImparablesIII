@@ -50,13 +50,16 @@ namespace backend.Repositories
                 await connection.OpenAsync();
 
                 var query = @"
-                    INSERT INTO PlaniFy.Usuario (idPersona, TipoUsuario, Contrasena)
-                    VALUES (@idPersona, @tipoUsuario, @contrasena)";
+                    INSERT INTO PlaniFy.Usuario (idPersona, TipoUsuario, Contrasena, VerificationTokenHash, VerificationTokenExpires, IsVerified)
+                    VALUES (@idPersona, @tipoUsuario, @contrasena, @verificationTokenHash, @verificationTokenExpires, @isVerified)";
 
                 using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
                 command.Parameters.AddWithValue("@tipoUsuario", usuario.TipoUsuario);
                 command.Parameters.AddWithValue("@contrasena", usuario.Contrasena);
+                command.Parameters.AddWithValue("@verificationTokenHash", (object?)usuario.VerificationTokenHash ?? DBNull.Value);
+                command.Parameters.AddWithValue("@verificationTokenExpires", (object?)usuario.VerificationTokenExpires ?? DBNull.Value);
+                command.Parameters.AddWithValue("@isVerified", usuario.IsVerified);
 
                 var result = await command.ExecuteNonQueryAsync();
                 return result > 0;
@@ -101,7 +104,8 @@ namespace backend.Repositories
                 await connection.OpenAsync();
 
                 var query = @"
-                    SELECT u.idPersona as IdPersona, u.TipoUsuario, u.Contrasena
+                    SELECT u.idPersona as IdPersona, u.TipoUsuario, u.Contrasena,
+                           u.VerificationTokenHash, u.VerificationTokenExpires, u.IsVerified
                     FROM PlaniFy.Usuario u
                     WHERE u.idPersona = @idPersona";
 
@@ -183,15 +187,78 @@ namespace backend.Repositories
         
         public Usuario? GetByVerificationHash(string hash)
         {
-            return _context.Usuario.FirstOrDefault(u => u.VerificationTokenHash == hash && !u.IsVerified);
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                connection.Open();
+
+                var query = @"
+                    SELECT idPersona as IdPersona, TipoUsuario, Contrasena, 
+                           VerificationTokenHash, VerificationTokenExpires, IsVerified
+                    FROM PlaniFy.Usuario 
+                    WHERE VerificationTokenHash = @hash AND IsVerified = 0";
+
+                return connection.QueryFirstOrDefault<Usuario>(query, new { hash });
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public void MarkVerified(Usuario usuario)
         {
-            usuario.IsVerified = true;
-            usuario.VerificationTokenHash = null;
-            usuario.VerificationTokenExpires = null;
-            _context.SaveChanges();
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                connection.Open();
+
+                var query = @"
+                    UPDATE PlaniFy.Usuario 
+                    SET IsVerified = 1, VerificationTokenHash = NULL, VerificationTokenExpires = NULL
+                    WHERE idPersona = @idPersona";
+
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
+                command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                // Log error if needed
+            }
+        }
+
+        public async Task<bool> UpdateAsync(Usuario usuario)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    UPDATE PlaniFy.Usuario 
+                    SET TipoUsuario = @tipoUsuario, 
+                        Contrasena = @contrasena,
+                        VerificationTokenHash = @verificationTokenHash,
+                        VerificationTokenExpires = @verificationTokenExpires,
+                        IsVerified = @isVerified
+                    WHERE idPersona = @idPersona";
+
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
+                command.Parameters.AddWithValue("@tipoUsuario", usuario.TipoUsuario);
+                command.Parameters.AddWithValue("@contrasena", usuario.Contrasena);
+                command.Parameters.AddWithValue("@verificationTokenHash", (object?)usuario.VerificationTokenHash ?? DBNull.Value);
+                command.Parameters.AddWithValue("@verificationTokenExpires", (object?)usuario.VerificationTokenExpires ?? DBNull.Value);
+                command.Parameters.AddWithValue("@isVerified", usuario.IsVerified);
+
+                var result = await command.ExecuteNonQueryAsync();
+                return result > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
