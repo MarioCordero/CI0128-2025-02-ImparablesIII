@@ -3,95 +3,80 @@ using backend.Models;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace backend.Services
 {
-    /// <summary>
-    /// Static helper class for sending emails directly without going through the API
-    /// </summary>
-    public static class EmailHelper
+    public class EmailHelper : IEmailHelper
     {
-        /// <summary>
-        /// Send an email directly using the email settings
-        /// </summary>
-        /// <param name="receiverEmail">Recipient email address</param>
-        /// <param name="subject">Email subject</param>
-        /// <param name="body">Email body content</param>
-        /// <param name="emailSettings">Email configuration settings</param>
-        /// <param name="isHtml">Whether the body contains HTML content</param>
-        /// <returns>True if email was sent successfully, false otherwise</returns>
-        public static async Task<bool> SendEmailAsync(string receiverEmail, string subject, string body, EmailSettings emailSettings, bool isHtml = false)
+        private readonly EmailSettings _settings;
+
+        public EmailHelper(IOptions<EmailSettings> options)
+        {
+            _settings = options.Value;
+        }
+
+        public string GenerateVerificationToken()
+        {
+            return Guid.NewGuid().ToString("N"); // 32 chars
+        }
+
+        public string HashToken(string raw)
+        {
+            using var sha = SHA256.Create();
+            return Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(raw))); // 64 hex chars
+        }
+
+        public async Task<bool> SendVerificationLinkAsync(string email, string rawToken)
+        {
+            var link = $"http://localhost:5173/verify?token={rawToken}";
+            var body = $@"
+                <p>Verifica tu cuenta:</p>
+                <p><a href=""{link}"">Activar ahora</a></p>
+                <p>Si no funciona, copia y pega: {link}</p>
+                <p>El enlace expira en 24 horas.</p>";
+            return await SendEmailAsync(email, "Verificación de cuenta", body, true);
+        }
+
+        public async Task<bool> SendEmailAsync(string receiverEmail, string subject, string body, bool isHtml = false)
         {
             try
             {
                 var message = new MimeMessage();
-                
-                // Set sender
-                message.From.Add(new MailboxAddress(emailSettings.SenderName, emailSettings.SenderEmail));
-                
-                // Set recipient
+                message.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
                 message.To.Add(new MailboxAddress("", receiverEmail));
-                
-                // Set subject and body
                 message.Subject = subject;
-                message.Body = new TextPart(isHtml ? "html" : "plain")
-                {
-                    Text = body
-                };
+                message.Body = new TextPart(isHtml ? "html" : "plain") { Text = body };
 
-                // Send the email
-                using (var client = new SmtpClient())
-                {
-                    await client.ConnectAsync(emailSettings.SmtpServer, emailSettings.SmtpPort, true);
-                    await client.AuthenticateAsync(emailSettings.SenderEmail, emailSettings.SenderPassword);
-                    await client.SendAsync(message);
-                    await client.DisconnectAsync(true);
-                }
-
+                using var client = new SmtpClient();
+                await client.ConnectAsync(_settings.SmtpServer, _settings.SmtpPort, true);
+                await client.AuthenticateAsync(_settings.SenderEmail, _settings.SenderPassword);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
                 return true;
             }
-            catch (Exception)
+            catch
             {
                 return false;
             }
         }
 
-        /// <summary>
-        /// Send an email with detailed response information
-        /// </summary>
-        /// <param name="receiverEmail">Recipient email address</param>
-        /// <param name="subject">Email subject</param>
-        /// <param name="body">Email body content</param>
-        /// <param name="emailSettings">Email configuration settings</param>
-        /// <param name="isHtml">Whether the body contains HTML content</param>
-        /// <returns>EmailResponseDto with detailed result information</returns>
-        public static async Task<EmailResponseDto> SendEmailWithResponseAsync(string receiverEmail, string subject, string body, EmailSettings emailSettings, bool isHtml = false)
+        public async Task<EmailResponseDto> SendEmailWithResponseAsync(string receiverEmail, string subject, string body, bool isHtml = false)
         {
             try
             {
                 var message = new MimeMessage();
-                
-                // Set sender
-                message.From.Add(new MailboxAddress(emailSettings.SenderName, emailSettings.SenderEmail));
-                
-                // Set recipient
+                message.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
                 message.To.Add(new MailboxAddress("", receiverEmail));
-                
-                // Set subject and body
                 message.Subject = subject;
-                message.Body = new TextPart(isHtml ? "html" : "plain")
-                {
-                    Text = body
-                };
+                message.Body = new TextPart(isHtml ? "html" : "plain") { Text = body };
 
-                // Send the email
-                using (var client = new SmtpClient())
-                {
-                    await client.ConnectAsync(emailSettings.SmtpServer, emailSettings.SmtpPort, true);
-                    await client.AuthenticateAsync(emailSettings.SenderEmail, emailSettings.SenderPassword);
-                    await client.SendAsync(message);
-                    await client.DisconnectAsync(true);
-                }
+                using var client = new SmtpClient();
+                await client.ConnectAsync(_settings.SmtpServer, _settings.SmtpPort, true);
+                await client.AuthenticateAsync(_settings.SenderEmail, _settings.SenderPassword);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
 
                 return new EmailResponseDto
                 {
