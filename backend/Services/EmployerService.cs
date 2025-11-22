@@ -99,7 +99,7 @@ namespace backend.Services
                 {
                     IdPersona = personaId,
                     TipoUsuario = "Empleador",
-                    Contrasena = BCrypt.HashPassword(password)
+                    Contrasena = BCrypt.Net.BCrypt.HashPassword(password)
                 };
 
                 var created = await _employerRepository.CreateUserAsync(usuario);
