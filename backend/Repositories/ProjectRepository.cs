@@ -342,10 +342,10 @@ namespace backend.Repositories
                     e.Email,
                     e.PeriodoPago,
                     e.Telefono,
-                    e.MaximoBeneficios
-                FROM PlaniFy.Empresa e
-                INNER JOIN PlaniFy.EmpleadorProyecto ep ON e.Id = ep.idProyecto
-                WHERE ep.idEmpleador = @EmployerId";
+                    e.MaximoBeneficios,
+                    e.idEmpleador
+                FROM PlaniFy.Empresa AS e
+                WHERE e.idEmpleador = @EmployerId";
 
             var results = await connection.QueryAsync(query, new { EmployerId = employerId });
             
