@@ -29,4 +29,8 @@ ADD CONSTRAINT FK_Empresa_Empleador
 FOREIGN KEY (idEmpleador)
 REFERENCES PlaniFy.Persona(Id);
 
-SELECT * FROM PlaniFy.Empresa WHERE idEmpleador IS NOT NULL;
+-- ASOCIANDO EMPLEADOR A LAS EMPRESAS QUE CREÓ (Kevin Ramires ID = 25)
+
+UPDATE PlaniFy.Empresa
+SET idEmpleador = 25
+WHERE idEmpleador IS NULL;
