@@ -1,0 +1,28 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using backend.Services;
+using backend.DTOs;
+using backend.Constants;
+
+namespace backend.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class SignUpEmployerController : ControllerBase
+    {
+        private readonly IEmployerService _employerService;
+        private readonly IEmailVerificationService _verificationService;
+        private readonly ILogger<SignUpEmployerController> _logger;
+
+        public SignUpEmployerController(
+            IEmployerService employerService,
+            IEmailVerificationService verificationService,
+            ILogger<SignUpEmployerController> logger)
+        {
+            _employerService = employerService;
+            _verificationService = verificationService;
+            _logger = logger;
+        }
+        
+        
+    }
+}
