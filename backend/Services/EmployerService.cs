@@ -1,7 +1,6 @@
 using backend.DTOs;
 using backend.Models;
 using backend.Repositories;
-using BCrypt.Net;
 using Microsoft.Extensions.Logging;
 
 namespace backend.Services
@@ -11,14 +10,14 @@ namespace backend.Services
         private readonly IEmployerRepository _employerRepository;
         private readonly IPersonaRepository _personaRepository;
         private readonly IUsuarioRepository _usuarioRepository;
-        private readonly EmailHelper _emailHelper;
+        private readonly IEmailHelper _emailHelper;
         private readonly ILogger<EmployerService> _logger;
 
         public EmployerService(
             IEmployerRepository employerRepository,
             IPersonaRepository personaRepository,
             IUsuarioRepository usuarioRepository,
-            EmailHelper emailHelper,
+            IEmailHelper emailHelper,
             ILogger<EmployerService> logger)
         {
             _employerRepository = employerRepository;
@@ -37,10 +36,8 @@ namespace backend.Services
                     _logger.LogWarning("Password vacío");
                     return false;
                 }
-
                 if (!await IsEmailAvailableAsync(form.Email))
                     return false;
-
                 if (!await IsCedulaAvailableAsync(form.Cedula))
                     return false;
 
@@ -66,7 +63,6 @@ namespace backend.Services
                     return false;
                 }
 
-                // Token de verificación
                 var rawToken = _emailHelper.GenerateVerificationToken();
                 var hash = _emailHelper.HashToken(rawToken);
 
@@ -80,14 +76,14 @@ namespace backend.Services
                     IsVerified = false
                 };
 
-                var created = await _usuarioRepository.CreateAsync(usuario);
+                var created = await _usuarioRepository.CreateUserAsync(usuario);
                 if (!created)
                 {
                     _logger.LogError("Error creando Usuario para Persona {PersonaId}", personaId);
                     return false;
                 }
 
-                _emailHelper.SendVerificationLink(form.Email, rawToken);
+                await _emailHelper.SendVerificationLinkAsync(form.Email, rawToken);
                 _logger.LogInformation("Registro empleador OK Persona {PersonaId}", personaId);
                 return true;
             }
@@ -98,12 +94,42 @@ namespace backend.Services
             }
         }
 
+        // Implementación requerida por la interfaz
+        public async Task<bool> VerifyAndCreateUserAsync(int personaId, string password)
+        {
+            var persona = await _personaRepository.GetByIdAsync(personaId);
+            if (persona == null) return false;
+
+            var existing = await _usuarioRepository.GetUserByIdAsync(personaId);
+            if (existing != null)
+            {
+                if (!existing.IsVerified)
+                {
+                    existing.IsVerified = true;
+                    existing.VerificationTokenHash = null;
+                    existing.VerificationTokenExpires = null;
+                    return await _usuarioRepository.UpdateAsync(existing);
+                }
+                return true;
+            }
+
+            var usuario = new Usuario
+            {
+                IdPersona = personaId,
+                TipoUsuario = persona.Rol,
+                Contrasena = BCrypt.Net.BCrypt.HashPassword(password),
+                IsVerified = true
+            };
+
+            return await _usuarioRepository.CreateUserAsync(usuario);
+        }
+
         public async Task<bool> ResendVerificationAsync(string email)
         {
             var persona = await _personaRepository.GetByEmailAsync(email);
             if (persona == null) return false;
 
-            var usuario = await _usuarioRepository.GetByPersonaIdAsync(persona.Id);
+            var usuario = await _usuarioRepository.GetUserByIdAsync(persona.Id);
             if (usuario == null || usuario.IsVerified) return false;
 
             var rawToken = _emailHelper.GenerateVerificationToken();
@@ -113,7 +139,7 @@ namespace backend.Services
             var updated = await _usuarioRepository.UpdateAsync(usuario);
             if (!updated) return false;
 
-            _emailHelper.SendVerificationLink(email, rawToken);
+            await _emailHelper.SendVerificationLinkAsync(email, rawToken);
             return true;
         }
 
