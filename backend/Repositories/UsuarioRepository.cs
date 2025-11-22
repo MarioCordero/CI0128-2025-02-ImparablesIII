@@ -126,7 +126,13 @@ namespace backend.Repositories
                 await connection.OpenAsync();
 
                 var query = @"
-                    SELECT u.idPersona as IdPersona, u.TipoUsuario, u.Contrasena
+                    SELECT 
+                        u.idPersona AS IdPersona,
+                        u.TipoUsuario,
+                        u.Contrasena,
+                        u.VerificationTokenHash,
+                        u.VerificationTokenExpires,
+                        u.IsVerified
                     FROM PlaniFy.Usuario u
                     INNER JOIN PlaniFy.Persona p ON u.idPersona = p.Id
                     WHERE p.Correo = @email";
