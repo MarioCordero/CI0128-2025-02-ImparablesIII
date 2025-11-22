@@ -14,5 +14,8 @@ namespace backend.Models
         [Required]
         [MaxLength(16)]
         public string Contrasena { get; set; } = string.Empty;
+        public string? VerificationTokenHash { get; set; }
+        public DateTime? VerificationTokenExpires { get; set; }
+        public bool IsVerified { get; set; }
     }
 }
