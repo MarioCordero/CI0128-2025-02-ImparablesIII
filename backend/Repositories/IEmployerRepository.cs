@@ -11,5 +11,6 @@ namespace backend.Repositories
         Task<EmployerResponseDto?> GetEmployerByIdAsync(int personaId);
         Task<bool> IsEmailAvailableAsync(string email);
         Task<bool> IsCedulaAvailableAsync(string cedula);
+        Task<Persona?> GetByCedulaAsync(string cedula);
     }
 }
