@@ -88,7 +88,7 @@ namespace backend.Services
 
         private string GetVerificationEmailContent(string nombre, string token, string rol)
         {
-            return EmailTemplates.GetVerificationTemplate(nombre, token, rol);
+            return _emailTemplates.GetVerificationTemplate(nombre, token, rol);
         }
     }
 }

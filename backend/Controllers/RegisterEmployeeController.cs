@@ -36,37 +36,27 @@ namespace backend.Controllers
         {
             try
             {
-                // Validate the model
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
 
-                // Validate that cedula doesn't already exist
                 var cedulaExists = await _employeeService.ValidateCedulaExistsAsync(employeeDto.Cedula);
                 if (cedulaExists)
                 {
                     return BadRequest(new { message = ReturnMessagesConstants.Employee.CedulaAlreadyRegistered });
                 }
 
-                // Validate that email doesn't already exist
                 var emailExists = await _employeeService.ValidateEmailExistsAsync(employeeDto.Correo);
                 if (emailExists)
                 {
                     return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
                 }
 
-                // Register the employee
                 var employeeId = await _employeeService.RegisterEmployeeAsync(employeeDto);
-
                 _logger.LogInformation($"Employee registered successfully with ID: {employeeId}");
-
-                // Generate password setup token
                 var token = await _passwordSetupService.GeneratePasswordSetupTokenAsync(employeeId, employeeDto.Correo);
-
-                // Send password setup email
                 await SendPasswordSetupEmailAsync(employeeDto.PrimerNombre, employeeDto.Correo, token);
-
                 return Ok(new 
                 { 
                     message = ReturnMessagesConstants.Employee.EmployeeRegisteredSuccessfully, 
@@ -120,7 +110,7 @@ namespace backend.Controllers
                 var setupUrl = $"{frontendUrl}/password-setup?token={token}";
 
                 // Generate email content
-                var emailBody = EmailTemplates.GetPasswordSetupTemplate(employeeName, setupUrl);
+                var emailBody = _emailTemplates.GetPasswordSetupTemplate(employeeName, setupUrl);
 
                 var emailDto = new SendEmailDto
                 {
