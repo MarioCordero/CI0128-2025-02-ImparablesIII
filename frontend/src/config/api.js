@@ -23,6 +23,8 @@ export const apiConfig = {
     employeePayrollReportDetailed: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/detailed`,
     employeePayrollReportDownloadExcel: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/excel`,
     employeePayrollReportDownloadPdf: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/pdf`,
+    employeeHistoricalPayrollReport: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical`,
+    employeeHistoricalPayrollReportDownloadExcel: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical/download/excel`,
 
     // Work-hours endpoints
     workHours: `${API_BASE_URL}/api/work-hours`,
