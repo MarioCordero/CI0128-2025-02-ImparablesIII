@@ -75,7 +75,6 @@ namespace backend.Controllers
             }
         }
 
-        // CONSOLIDADO - Solo un método dashboard que usa el service
         [HttpGet("dashboard/{employerId}")]
         public async Task<ActionResult<List<ProjectResponseDTO>>> GetProjectsForDashboard(int employerId)
         {
