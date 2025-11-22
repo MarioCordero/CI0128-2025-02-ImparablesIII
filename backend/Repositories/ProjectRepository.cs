@@ -331,17 +331,33 @@ namespace backend.Repositories
 
         public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
-            var projects = await GetAllAsync();
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
 
-            return projects.Select(p => new ProjectResponseDTO
+            var query = @"
+                SELECT 
+                    e.Id,
+                    e.Nombre,
+                    e.CedulaJuridica,
+                    e.Email,
+                    e.PeriodoPago,
+                    e.Telefono,
+                    e.MaximoBeneficios
+                FROM PlaniFy.Empresa e
+                INNER JOIN PlaniFy.EmpleadorProyecto ep ON e.Id = ep.idProyecto
+                WHERE ep.idEmpleador = @EmployerId";
+
+            var results = await connection.QueryAsync(query, new { EmployerId = employerId });
+            
+            return results.Select(r => new ProjectResponseDTO
             {
-                Id = p.Id,
-                Nombre = p.Nombre,
-                CedulaJuridica = p.CedulaJuridica,
-                Email = p.Email,
-                PeriodoPago = p.PeriodoPago,
-                Telefono = p.Telefono,
-                MaximoBeneficios = p.MaximoBeneficios,
+                Id = r.Id,
+                Nombre = r.Nombre,
+                CedulaJuridica = r.CedulaJuridica,
+                Email = r.Email,
+                PeriodoPago = r.PeriodoPago,
+                Telefono = r.Telefono,
+                MaximoBeneficios = r.MaximoBeneficios,
                 ActiveEmployees = 0, // TODO: Implement
                 MonthlyPayroll = 0, // TODO: Implement
                 CurrentProfitability = 0, // TODO: Implement
