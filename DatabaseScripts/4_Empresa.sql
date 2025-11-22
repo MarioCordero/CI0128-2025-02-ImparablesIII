@@ -18,3 +18,15 @@ CREATE TABLE PlaniFy.Empresa (
         )
     )
 );
+
+-- MODIFICACIONES PARA RELACIONAR EMPRESA CON EMPLEADOR (Mario)
+
+ALTER TABLE PlaniFy.Empresa
+ADD idEmpleador INT NULL;
+
+ALTER TABLE PlaniFy.Empresa
+ADD CONSTRAINT FK_Empresa_Empleador
+FOREIGN KEY (idEmpleador)
+REFERENCES PlaniFy.Persona(Id);
+
+SELECT * FROM PlaniFy.Empresa WHERE idEmpleador IS NOT NULL;

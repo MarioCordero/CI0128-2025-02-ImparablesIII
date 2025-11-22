@@ -15,13 +15,3 @@ CREATE TABLE PlaniFy.Persona (
     FOREIGN KEY (idDireccion) REFERENCES PlaniFy.Direccion(id),
     CONSTRAINT CK_Persona_Cedula CHECK (Cedula NOT LIKE '%[^0-9]%')
 );
-
--- MODIFICACIONES PARA RELACIONAR EMPRESA CON EMPLEADOR (Mario)
-
-ALTER TABLE PlaniFy.Empresa
-ADD idEmpleador INT NULL;
-
-ALTER TABLE PlaniFy.Empresa
-ADD CONSTRAINT FK_Empresa_Empleador
-FOREIGN KEY (idEmpleador)
-REFERENCES PlaniFy.Persona(Id);
