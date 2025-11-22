@@ -180,5 +180,18 @@ namespace backend.Repositories
                 return false;
             }
         }
+        
+        public Usuario? GetByVerificationHash(string hash)
+        {
+            return _context.Usuario.FirstOrDefault(u => u.VerificationTokenHash == hash && !u.IsVerified);
+        }
+
+        public void MarkVerified(Usuario usuario)
+        {
+            usuario.IsVerified = true;
+            usuario.VerificationTokenHash = null;
+            usuario.VerificationTokenExpires = null;
+            _context.SaveChanges();
+        }
     }
 }
