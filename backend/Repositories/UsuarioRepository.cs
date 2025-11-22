@@ -42,7 +42,7 @@ namespace backend.Repositories
                 new { IdPersona = idPersona, StatusInactive = EmployeeConstants.StatusInactive });
         }
 
-        public async Task<bool> CreateUserAsync(int personaId, string password, string tipoUsuario = "Empleado")
+        public async Task<bool> CreateUserAsync(Usuario usuario)
         {
             try
             {
@@ -54,9 +54,9 @@ namespace backend.Repositories
                     VALUES (@idPersona, @tipoUsuario, @contrasena)";
 
                 using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@idPersona", personaId);
-                command.Parameters.AddWithValue("@tipoUsuario", tipoUsuario);
-                command.Parameters.AddWithValue("@contrasena", password);
+                command.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
+                command.Parameters.AddWithValue("@tipoUsuario", usuario.TipoUsuario);
+                command.Parameters.AddWithValue("@contrasena", usuario.Contrasena);
 
                 var result = await command.ExecuteNonQueryAsync();
                 return result > 0;

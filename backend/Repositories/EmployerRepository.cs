@@ -1,6 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using backend.DTOs;
+using backend.Models;
 using Dapper;
 
 namespace backend.Repositories
@@ -25,14 +26,15 @@ namespace backend.Repositories
             return await _direccionRepository.CreateDireccionAsync(provincia, canton, distrito, direccionParticular);
         }
 
-        public async Task<int> CreatePersonaAsync(string email, string nombre, string apellidos, DateTime fechaNacimiento, string cedula, string rol, int? telefono, int direccionId)
+        public async Task<int> CreatePersonaAsync(Persona persona)
         {
-            return await _personaRepository.CreatePersonaAsync(email, nombre, null, apellidos, fechaNacimiento, cedula, rol, telefono, direccionId);
+            var personaId = await _personaRepository.CreatePersonaAsync(persona);
+            return personaId;
         }
 
-        public async Task<bool> CreateUsuarioAsync(int personaId, string password, string tipoUsuario)
+        public async Task<bool> CreateUserAsync(Usuario usuario)
         {
-            return await _usuarioRepository.CreateUserAsync(personaId, password, tipoUsuario);
+            return await _usuarioRepository.CreateUserAsync(usuario);
         }
 
         public async Task<EmployerResponseDto?> GetEmployerByIdAsync(int personaId)

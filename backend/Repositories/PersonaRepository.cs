@@ -39,11 +39,45 @@ namespace backend.Repositories
                     IdDireccion = persona.IdDireccion
                 });
 
+                if (id == -1)
+                {
+                    throw new InvalidOperationException("Failed to create person");
+                }
                 return id;
             }
             catch (Exception)
             {
                 return -1;
+            }
+        }
+
+        public async Task<Persona?> GetByIdAsync(int id)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    SELECT 
+                        Id,
+                        Correo,
+                        Nombre,
+                        SegundoNombre,
+                        Apellidos,
+                        FechaNacimiento,
+                        Cedula,
+                        Rol,
+                        Telefono,
+                        idDireccion AS IdDireccion
+                    FROM PlaniFy.Persona
+                    WHERE Id = @Id";
+
+                return await connection.QueryFirstOrDefaultAsync<Persona>(query, new { Id = id });
+            }
+            catch
+            {
+                return null;
             }
         }
 

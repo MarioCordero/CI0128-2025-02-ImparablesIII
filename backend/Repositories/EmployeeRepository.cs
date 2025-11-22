@@ -41,7 +41,6 @@ namespace backend.Repositories
                 var direccionId = await CreateAddressAsync(employeeDto);
                 var personaId = await CreatePersonaAsync(employeeDto, direccionId);
                 await InsertEmpleadoAsync(connection, transaction, employeeDto, personaId);
-
                 transaction.Commit();
                 return personaId;
             }
@@ -71,23 +70,27 @@ namespace backend.Repositories
 
         private async Task<int> CreatePersonaAsync(RegisterEmployeeDto employeeDto, int direccionId)
         {
-            var personaId = await _personaRepository.CreatePersonaAsync(
-                employeeDto.Correo,
-                employeeDto.PrimerNombre,
-                employeeDto.SegundoNombre,
-                employeeDto.PrimerApellido,
-                employeeDto.FechaNacimiento,
-                employeeDto.Cedula,
-                EmployeeConstants.PersonTypeEmployee,
-                employeeDto.Telefono,
-                direccionId);
+            var persona = new Persona
+            {
+                Correo = employeeDto.Correo,
+                Nombre = employeeDto.PrimerNombre,
+                SegundoNombre = employeeDto.SegundoNombre,
+                Apellidos = employeeDto.PrimerApellido,
+                FechaNacimiento = employeeDto.FechaNacimiento,
+                Cedula = employeeDto.Cedula,
+                Rol = EmployeeConstants.PersonTypeEmployee,
+                Telefono = employeeDto.Telefono,
+                IdDireccion = direccionId
+            };
+
+            var createdPersona = await _personaRepository.CreatePersonaAsync(persona);
             
-            if (personaId == -1)
+            if (createdPersona == null)
             {
                 throw new InvalidOperationException("Failed to create person");
             }
 
-            return personaId;
+            return createdPersona;
         }
 
         private async Task InsertEmpleadoAsync(
