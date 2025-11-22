@@ -3,6 +3,7 @@ using backend.Models;
 using backend.Repositories;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Cryptography;
+using BCrypt.Net;
 
 namespace backend.Services
 {
@@ -32,7 +33,6 @@ namespace backend.Services
         {
             try
             {
-                // Generate a secure random token
                 var tokenBytes = new byte[32];
                 using (var rng = RandomNumberGenerator.Create())
                 {
@@ -40,7 +40,6 @@ namespace backend.Services
                 }
                 var token = Convert.ToBase64String(tokenBytes).Replace("+", "-").Replace("/", "_").Replace("=", "");
 
-                // Store token in cache with expiration (30 minutes)
                 var cacheKey = $"password_setup_{token}";
                 var tokenData = new { PersonaId = personaId, Email = email, CreatedAt = DateTime.UtcNow };
                 _cache.Set(cacheKey, tokenData, TimeSpan.FromMinutes(30));
@@ -74,63 +73,44 @@ namespace backend.Services
         {
             try
             {
-                // Validate token
                 var cacheKey = $"password_setup_{request.Token}";
-                var tokenData = _cache.Get(cacheKey);
-                
-                if (tokenData == null)
+                if (!_cache.TryGetValue(cacheKey, out var tokenData))
                 {
-                    return new PasswordSetupResponseDto
-                    {
-                        Success = false,
-                        Message = "Token inválido o expirado"
-                    };
+                    return new PasswordSetupResponseDto { Success = false, Message = "Token inválido o expirado" };
                 }
 
-                // Get token data
                 var tokenInfo = (dynamic)tokenData;
                 int personaId = tokenInfo.PersonaId;
                 string email = tokenInfo.Email;
 
-                // Save password without hash (as requested by user)
                 var plainPassword = request.Password;
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
 
-                // Create user in database
-                var userCreated = await _usuarioRepository.CreateUserAsync(personaId, plainPassword, "Empleado");
-
-                var updateEmployePassword = await _passwordRepository.UpdateEmployeePasswordAsync(personaId, plainPassword);
-                
-                if (!userCreated)
+                var usuario = new Usuario
                 {
-                    return new PasswordSetupResponseDto
-                    {
-                        Success = false,
-                        Message = "Error al crear el usuario en la base de datos"
-                    };
+                    IdPersona = personaId,
+                    TipoUsuario = "Empleado",
+                    Contrasena = hashedPassword
+                };
+
+                var userCreated = await _usuarioRepository.CreateUserAsync(usuario);
+                var passwordUpdated = await _passwordRepository.UpdateEmployeePasswordAsync(personaId, hashedPassword);
+
+                if (!userCreated || !passwordUpdated)
+                {
+                    return new PasswordSetupResponseDto { Success = false, Message = "Error al crear el usuario" };
                 }
 
-                // Remove token from cache
                 _cache.Remove(cacheKey);
+                _logger.LogInformation("Password setup completed for persona {PersonaId}", personaId);
 
-                _logger.LogInformation($"Password setup completed successfully for persona {personaId}");
-                
-                return new PasswordSetupResponseDto
-                {
-                    Success = true,
-                    Message = "Contraseña configurada exitosamente"
-                };
+                return new PasswordSetupResponseDto { Success = true, Message = "Contraseña configurada exitosamente" };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error setting up password for token {token}", request.Token);
-                return new PasswordSetupResponseDto
-                {
-                    Success = false,
-                    Message = "Error interno del servidor"
-                };
+                _logger.LogError(ex, "Error setting up password for token {Token}", request.Token);
+                return new PasswordSetupResponseDto { Success = false, Message = "Error interno del servidor" };
             }
         }
-
-
     }
 }
