@@ -10,11 +10,16 @@ namespace backend.Controllers
     public class SignUpEmployerController : ControllerBase
     {
         private readonly IEmployerService _employerService;
+        private readonly IEmailVerificationService _verificationService;
         private readonly ILogger<SignUpEmployerController> _logger;
 
-        public SignUpEmployerController(IEmployerService employerService, ILogger<SignUpEmployerController> logger)
+        public SignUpEmployerController(
+            IEmployerService employerService,
+            IEmailVerificationService verificationService,
+            ILogger<SignUpEmployerController> logger)
         {
             _employerService = employerService;
+            _verificationService = verificationService;
             _logger = logger;
         }
         
@@ -25,22 +30,44 @@ namespace backend.Controllers
             {
                 var result = await _employerService.RegisterEmployerAsync(form);
 
-                if (result.IsSuccess)
-                {
-                    return Ok(new 
-                    { 
-                        message = result.Message,
-                        employer = result.Data
-                    });
-                }
+                if (result)
+                    return Ok(new { message = "Registration successful" });
                 else
-                {
-                    return BadRequest(new { message = result.Message, errors = result.Errors });
-                }
+                    return BadRequest(new { message = "Registration failed" });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in RegisterEmployer endpoint");
+                return StatusCode(500, new { message = ReturnMessagesConstants.General.InternalServerError });
+            }
+        }
+
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyAndCreateUserDto dto)
+        {
+            try
+            {
+                // Verificar token
+                var (isValid, personaId) = await _verificationService.VerifyTokenAsync(dto.Email, dto.Token);
+                
+                if (!isValid)
+                    return BadRequest(new { message = "Token inválido o expirado" });
+
+                // Crear Usuario
+                var userCreated = await _employerService.VerifyAndCreateUserAsync(personaId, dto.Password);
+                
+                if (!userCreated)
+                    return StatusCode(500, new { message = "Error al crear usuario" });
+
+                return Ok(new
+                {
+                    message = "Email verificado. Usuario creado exitosamente. Ya puedes ingresar.",
+                    personaId = personaId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in VerifyEmail endpoint");
                 return StatusCode(500, new { message = ReturnMessagesConstants.General.InternalServerError });
             }
         }

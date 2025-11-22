@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using backend.Models;
 using Dapper;
 
 namespace backend.Repositories
@@ -13,7 +14,7 @@ namespace backend.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
 
-        public async Task<int> CreatePersonaAsync(string email, string nombre, string? segundoNombre, string apellidos, DateTime fechaNacimiento, string cedula, string rol, int? telefono, int direccionId)
+        public async Task<int> CreatePersonaAsync(Persona persona)
         {
             try
             {
@@ -25,20 +26,20 @@ namespace backend.Repositories
                     OUTPUT INSERTED.Id
                     VALUES (@Correo, @Nombre, @SegundoNombre, @Apellidos, @FechaNacimiento, @Cedula, @Rol, @Telefono, @IdDireccion)";
 
-                var parameters = new
+                var id = await connection.QuerySingleAsync<int>(query, new
                 {
-                    Correo = email,
-                    Nombre = nombre,
-                    SegundoNombre = segundoNombre,
-                    Apellidos = apellidos,
-                    FechaNacimiento = fechaNacimiento,
-                    Cedula = cedula,
-                    Rol = rol,
-                    Telefono = telefono,
-                    IdDireccion = direccionId
-                };
+                    Correo = persona.Correo,
+                    Nombre = persona.Nombre,
+                    SegundoNombre = persona.SegundoNombre,
+                    Apellidos = persona.Apellidos,
+                    FechaNacimiento = persona.FechaNacimiento,
+                    Cedula = persona.Cedula,
+                    Rol = persona.Rol,
+                    Telefono = persona.Telefono,
+                    IdDireccion = persona.IdDireccion
+                });
 
-                return await connection.QuerySingleAsync<int>(query, parameters);
+                return id;
             }
             catch (Exception)
             {
