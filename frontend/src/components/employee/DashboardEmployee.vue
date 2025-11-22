@@ -46,6 +46,7 @@
       <div v-else-if="selectedSection === 'reports'">
         <PayrollReports
           :employee-id="user?.idPersona"
+          user-type="employee"
           @error="handleError"
         />
       </div>
@@ -59,7 +60,7 @@
 import EmployeeHeader from '../common/EmployeeHeader.vue'
 import DashboardEmployeeSubHeader from './DashboardEmployeeSubHeader.vue'
 import BenefitsSelectionView from './BenefitsSelectionView.vue'
-import PayrollReports from './PayrollReports.vue'
+import PayrollReports from '../common/PayrollReports.vue'
 
 export default {
   name: 'DashboardEmployee',
