@@ -27,7 +27,7 @@ namespace backend.Controllers
             _usuarioRepository = usuarioRepository;
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterEmployer([FromBody] SignUpEmployerDto dto)
         {
             if (!ModelState.IsValid)
