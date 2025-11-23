@@ -1,10 +1,10 @@
 SELECT * FROM PlaniFy.Persona WHERE Rol = 'Empleador';
 
 SELECT * FROM PlaniFy.Direccion
-DELETE FROM PlaniFy.Persona WHERE Id = 47;
+DELETE FROM PlaniFy.Direccion WHERE Id = 48;
 
 SELECT * FROM PlaniFy.Persona;
-DELETE FROM PlaniFy.Persona WHERE Id = 57;
+DELETE FROM PlaniFy.Persona WHERE Id = 59;
 
 SELECT * FROM PlaniFy.Usuario;
 SELECT * FROM PlaniFy.Persona WHERE Id = 43;
