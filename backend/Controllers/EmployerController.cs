@@ -63,20 +63,6 @@ namespace backend.Controllers
             return Ok(new { available });
         }
 
-        // TODO
-        // [HttpPost("resend-verification")]
-        // public async Task<IActionResult> ResendVerification([FromBody] ResendVerificationRequestDto req)
-        // {
-        //     if (string.IsNullOrWhiteSpace(req.Email))
-        //         return BadRequest(new { success = false, message = EmployerConstants.Validation.EmailRequired });
-
-        //     var ok = await _employerService.ResendVerificationAsync(req.Email);
-        //     if (!ok)
-        //         return BadRequest(new { success = false, message = EmployerConstants.Employer.VerificationResentFailed });
-
-        //     return Ok(new { success = true, message = EmployerConstants.Employer.VerificationResentSuccess });
-        // }
-
         [HttpPost("verify")]
         public async Task<IActionResult> Verify([FromBody] VerifyEmployerRequestDto req)
         {

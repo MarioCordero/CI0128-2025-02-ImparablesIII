@@ -253,7 +253,7 @@ namespace backend.Services
                                 </div>
                                 
                                 <div style=""text-align: center;"">
-                                    <a href=""{verificationLink}"" class=""button"">Activar Cuenta</a>
+                                    <a href=""{verificationLink}"" class=""button"" style=""color: #ffffff;"">Activar Cuenta</a>
                                 </div>
                                 
                                 <div class=""highlight-box"">
