@@ -39,6 +39,7 @@ export const apiConfig = {
     resendVerificationEmployer: `${API_BASE_URL}/api/SignUpEmployer/resend-verification`,
     verifyEmployer: `${API_BASE_URL}/api/SignUpEmployer/verify`,
     verifyEmployerCode: `${API_BASE_URL}/api/employer/verify-email-token`,
+    verifyEmployerLinkToken: `${API_BASE_URL}/api/employer/verify-link-token`,
 
     // ProjectList endpoint (nuevo)
     projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`,

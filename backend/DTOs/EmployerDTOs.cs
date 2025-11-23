@@ -72,4 +72,9 @@ namespace backend.DTOs
         public string Email { get; set; } = string.Empty;
         public string Code { get; set; } = string.Empty;
     }
+    
+    public class VerifyLinkTokenRequestDto
+    {
+        public string Token { get; set; } = string.Empty;
+    }
 }

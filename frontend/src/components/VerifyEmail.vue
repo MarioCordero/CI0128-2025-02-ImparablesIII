@@ -18,7 +18,7 @@
           <p class="text-black text-2xl font-bold mb-2">¡Email Verificado!</p>
           <p class="text-gray-500 text-sm mb-6">Tu cuenta ha sido activada correctamente.</p>
           <button class="neumorphism-button-xl-dark w-full" @click="goToPasswordSetup">
-            Continuar con Setup de Contraseña
+            {{ rol === 'Empleador' ? 'Ir a Login' : 'Continuar con Setup de Contraseña' }}
           </button>
         </div>
 
@@ -60,7 +60,8 @@ export default {
       loading: false,
       verified: false,
       error: '',
-      personaId: null
+      personaId: null,
+      rol: null
     };
   },
   mounted() {
@@ -73,8 +74,8 @@ export default {
   },
   methods: {
     async verifyEmail() {
-      if (!this.email || !this.token) {
-        this.error = 'Email y token son requeridos';
+      if (!this.token) {
+        this.error = 'Token es requerido';
         return;
       }
 
@@ -82,14 +83,13 @@ export default {
       this.error = '';
 
       try {
-        const response = await fetch(apiConfig.endpoints.verifyEmployerCode, {
+        const response = await fetch(apiConfig.endpoints.verifyEmployerLinkToken, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email: this.email,
-            code: this.token
+            token: this.token
           })
         });
 
@@ -98,7 +98,9 @@ export default {
         if (response.ok && data.success) {
           this.verified = true;
           this.personaId = data.personaId;
+          this.rol = data.rol;
           sessionStorage.setItem('personaId', this.personaId);
+          sessionStorage.setItem('rol', this.rol);
         } else {
           this.error = data.message || 'Error al verificar el email';
         }
@@ -110,10 +112,14 @@ export default {
       }
     },
     goToPasswordSetup() {
-      this.$router.push({
-        name: 'PasswordSetup',
-        params: { personaId: this.personaId }
-      });
+      if (this.rol === 'Empleador') {
+        this.$router.push('/login');
+      } else {
+        this.$router.push({
+          name: 'PasswordSetup',
+          params: { personaId: this.personaId }
+        });
+      }
     }
   }
 };
