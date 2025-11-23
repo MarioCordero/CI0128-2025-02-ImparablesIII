@@ -2,6 +2,7 @@
 using backend.Services;
 using backend.DTOs;
 using backend.Constants;
+using backend.Repositories;
 
 namespace backend.Controllers
 {
@@ -12,15 +13,18 @@ namespace backend.Controllers
         private readonly IEmployerService _employerService;
         private readonly IEmailVerificationService _verificationService;
         private readonly ILogger<EmployerController> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
 
         public EmployerController(
             IEmployerService employerService,
             IEmailVerificationService verificationService,
-            ILogger<EmployerController> logger)
+            ILogger<EmployerController> logger,
+            IUsuarioRepository usuarioRepository)
         {
             _employerService = employerService;
             _verificationService = verificationService;
             _logger = logger;
+            _usuarioRepository = usuarioRepository;
         }
 
         [HttpPost]
@@ -76,17 +80,20 @@ namespace backend.Controllers
             return Ok(new { success = true, message = EmployerConstants.Employer.VerificationSuccess });
         }
 
-        [HttpPost("verify-email-token")]
-        public async Task<IActionResult> VerifyEmailToken([FromBody] VerifyCodeRequestDto req)
+        [HttpPost("verify-link-token")]
+        public async Task<IActionResult> VerifyLinkToken([FromBody] VerifyLinkTokenRequestDto req)
         {
-            if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Code))
-                return BadRequest(new { success = false, message = EmployerConstants.Validation.EmailAndTokenRequired });
+            var (success, personaId, rol) = await _verificationService.VerifyLinkTokenAsync(req.Token);
+            
+            if (!success)
+                return BadRequest(new { success = false, message = "Token inválido o expirado" });
 
-            var (isValid, personaId) = await _verificationService.VerifyTokenAsync(req.Email, req.Code);
-            if (!isValid)
-                return BadRequest(new { success = false, message = EmployerConstants.Employer.TokenInvalidOrExpired });
-
-            return Ok(new { success = true, personaId, message = EmployerConstants.Employer.EmailVerified });
+            return Ok(new { 
+                success = true, 
+                personaId = personaId, 
+                rol = rol,
+                message = "Token válido" 
+            });
         }
     }
 }
