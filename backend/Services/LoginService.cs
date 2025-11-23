@@ -3,6 +3,7 @@ using backend.Repositories;
 using backend.Constants;
 using System.Text;
 using System.Security.Cryptography;
+using BCrypt.Net;
 
 namespace backend.Services
 {
@@ -105,9 +106,7 @@ namespace backend.Services
 
         private bool VerifyPassword(string inputPassword, string storedHash)
         {
-            using var sha = SHA256.Create();
-            var inputHash = Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(inputPassword)));
-            return inputHash == storedHash;
+            return BCrypt.Net.BCrypt.Verify(inputPassword, storedHash);
         }
 
         private string GenerateToken(string userId)
