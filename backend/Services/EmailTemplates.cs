@@ -126,6 +126,32 @@ namespace backend.Services
             </html>";
         }
 
+        public string GetVerificationLinkTemplate(string verificationLink)
+        {
+            var content = $@"
+                <div class=""greeting"">Verifica tu Cuenta</div>
+                <div class=""message"">
+                    Haz clic en el botón de abajo para activar tu cuenta en Imparables.
+                </div>
+                
+                <div style=""text-align: center;"">
+                    <a href=""{verificationLink}"" class=""button"" style=""color: #ffffff;"">Activar Cuenta</a>
+                </div>
+                
+                <div class=""highlight-box"">
+                    <p style=""color: #6b7280; font-size: 14px; margin-top: 0; margin-bottom: 12px;"">
+                        Si el botón no funciona, copia y pega este enlace en tu navegador:
+                    </p>
+                    <div class=""token-link"">{verificationLink}</div>
+                </div>
+                
+                <div class=""expiry-warning"">
+                    <strong>⏰ Importante:</strong> Este enlace expira en 24 horas por seguridad.
+                </div>";
+
+            return GetBaseTemplate("Verifica tu Cuenta - Imparables", content);
+        }
+
         public string GetWelcomeEmailTemplate(string userName)
         {
             var content = $@"

@@ -2,6 +2,8 @@ using backend.DTOs;
 using backend.Repositories;
 using backend.Constants;
 using System.Text;
+using System.Security.Cryptography;
+using BCrypt.Net;
 
 namespace backend.Services
 {
@@ -102,9 +104,9 @@ namespace backend.Services
             }
         }
 
-        private bool VerifyPassword(string inputPassword, string storedPassword)
+        private bool VerifyPassword(string inputPassword, string storedHash)
         {
-            return inputPassword == storedPassword;
+            return BCrypt.Net.BCrypt.Verify(inputPassword, storedHash);
         }
 
         private string GenerateToken(string userId)

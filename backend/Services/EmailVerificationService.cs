@@ -1,5 +1,6 @@
 using backend.DTOs;
 using backend.Services;
+using backend.Repositories;
 
 namespace backend.Services
 {
@@ -7,14 +8,17 @@ namespace backend.Services
     {
         private readonly IEmailService _emailService;
         private readonly ILogger<EmailVerificationService> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
         private readonly IEmailTemplates _emailTemplates;
         private static Dictionary<string, (string token, DateTime expiry, int personaId)> _verificationTokens = new();
 
         public EmailVerificationService(
+            IUsuarioRepository usuarioRepository,
             IEmailService emailService,
             ILogger<EmailVerificationService> logger,
             IEmailTemplates emailTemplates)
         {
+            _usuarioRepository = usuarioRepository;
             _emailService = emailService;
             _logger = logger;
             _emailTemplates = emailTemplates;
@@ -95,6 +99,36 @@ namespace backend.Services
         private string GetVerificationEmailContent(string nombre, string token, string rol)
         {
             return _emailTemplates.GetVerificationTemplate(nombre, token, rol);
+        }
+
+        public async Task<(bool Success, int PersonaId, string Rol)> VerifyLinkTokenAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                return (false, 0, string.Empty);
+
+            // Hash the token to compare with stored hash
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var hashedToken = Convert.ToHexString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(token)));
+            
+            var usuario = _usuarioRepository.GetByVerificationHash(hashedToken);
+            if (usuario == null || usuario.IsVerified)
+            {
+                _logger.LogWarning($"Invalid or already verified token");
+                return (false, 0, string.Empty);
+            }
+
+            if (usuario.VerificationTokenExpires < DateTime.UtcNow)
+            {
+                _logger.LogWarning($"Verification token expired");
+                return (false, 0, string.Empty);
+            }
+
+            usuario.IsVerified = true;
+            usuario.VerificationTokenExpires = null;
+            await _usuarioRepository.UpdateAsync(usuario);
+
+            _logger.LogInformation($"Email verified successfully for PersonaId: {usuario.IdPersona}");
+            return (true, usuario.IdPersona, usuario.TipoUsuario);
         }
     }
 }

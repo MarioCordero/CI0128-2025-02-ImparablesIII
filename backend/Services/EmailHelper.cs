@@ -11,32 +11,32 @@ namespace backend.Services
     public class EmailHelper : IEmailHelper
     {
         private readonly EmailSettings _settings;
+        private readonly IEmailTemplates _emailTemplates;
 
-        public EmailHelper(IOptions<EmailSettings> options)
+
+        public EmailHelper(IOptions<EmailSettings> options, IEmailTemplates emailTemplates)
         {
             _settings = options.Value;
+            _emailTemplates = emailTemplates;
         }
 
         public string GenerateVerificationToken()
         {
-            return Guid.NewGuid().ToString("N"); // 32 chars
+            return Guid.NewGuid().ToString("N");
         }
 
         public string HashToken(string raw)
         {
             using var sha = SHA256.Create();
-            return Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(raw))); // 64 hex chars
+            return Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(raw)));
         }
 
         public async Task<bool> SendVerificationLinkAsync(string email, string rawToken)
         {
-            var link = $"http://localhost:5173/verify?token={rawToken}";
-            var body = $@"
-                <p>Verifica tu cuenta:</p>
-                <p><a href=""{link}"">Activar ahora</a></p>
-                <p>Si no funciona, copia y pega: {link}</p>
-                <p>El enlace expira en 24 horas.</p>";
-            return await SendEmailAsync(email, "Verificación de cuenta", body, true);
+            // RECORDAR CAMBIAR POR HOST DE FRONTEND
+            var link = $"http://localhost:8080/verify?token={rawToken}";
+            var body = _emailTemplates.GetVerificationLinkTemplate(link);
+            return await SendEmailAsync(email, "Verifica tu Cuenta - Imparables", body, true);
         }
 
         public async Task<bool> SendEmailAsync(string receiverEmail, string subject, string body, bool isHtml = false)
