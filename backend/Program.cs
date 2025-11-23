@@ -83,6 +83,7 @@ builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
 builder.Services.AddScoped<IProfileEmployeeRepository, ProfileEmployeeRepository>();
 builder.Services.AddScoped<IBenefitRepository, BenefitRepository>();
 builder.Services.AddScoped<IEmployeeBenefitRepository, EmployeeBenefitRepository>();
+builder.Services.AddScoped<IHoursRepository, HoursRepository>();
 
 // Core services
 builder.Services.AddScoped<IProjectService, ProjectService>();
@@ -94,6 +95,7 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeDeletionService, EmployeeDeletionService>();
 builder.Services.AddScoped<IEmployeeBenefitService, EmployeeBenefitService>();
 builder.Services.AddScoped<IBenefitDeductionsService, BenefitDeductionsService>();
+builder.Services.AddScoped<IHoursService, HoursService>();
 
 // Authentication & Security services
 builder.Services.AddScoped<IPasswordSetupService, PasswordSetupService>();

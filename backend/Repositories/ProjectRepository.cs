@@ -366,6 +366,15 @@ namespace backend.Repositories
             }).ToList();
         }
 
+        public async Task<int?> GetEmployerIdByCompanyIdAsync(int companyId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            const string query = @"SELECT idEmpleador FROM PlaniFy.Empresa WHERE Id = @CompanyId";
+            return await connection.QueryFirstOrDefaultAsync<int?>(query, new { CompanyId = companyId });
+        }
+
         public async Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion)
         {
             return await _direccionRepository.UpdateDireccionAsync(id, direccion);
