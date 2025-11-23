@@ -27,9 +27,10 @@ export const apiConfig = {
     employeeHistoricalPayrollReportDownloadExcel: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical/download/excel`,
 
     // Work-hours endpoints
-    workHours: `${API_BASE_URL}/api/work-hours`,
-    workHoursSummary: `${API_BASE_URL}/api/work-hours/summary`,
-    workHoursRecent: `${API_BASE_URL}/api/work-hours/recent`,
+    hours: `${API_BASE_URL}/api/hours`,
+    hoursSummary: (employeeId) => `${API_BASE_URL}/api/hours/${employeeId}/summary`,
+    hoursRecent: (employeeId, limit = 6) => `${API_BASE_URL}/api/hours/${employeeId}/recent?limit=${limit}`,
+    hoursLastEntry: (employeeId) => `${API_BASE_URL}/api/hours/${employeeId}/last-entry`,
   
     // Profile Employee endpoints
     profileEmployee: (employeeId) => `${API_BASE_URL}/api/ProfileEmployee/${employeeId}`,

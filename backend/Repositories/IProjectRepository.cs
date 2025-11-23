@@ -13,6 +13,7 @@ namespace backend.Repositories
         Task<int> CountActiveEmployeesAsync(int projectId);
         Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id);
         Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId);
+        Task<int?> GetEmployerIdByCompanyIdAsync(int companyId);
 
         Task<ProjectResponseDTO> CreateAsync(Project project);
         Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular);
