@@ -2,6 +2,7 @@ using backend.DTOs;
 using backend.Repositories;
 using backend.Constants;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace backend.Services
 {
@@ -102,9 +103,11 @@ namespace backend.Services
             }
         }
 
-        private bool VerifyPassword(string inputPassword, string storedPassword)
+        private bool VerifyPassword(string inputPassword, string storedHash)
         {
-            return inputPassword == storedPassword;
+            using var sha = SHA256.Create();
+            var inputHash = Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(inputPassword)));
+            return inputHash == storedHash;
         }
 
         private string GenerateToken(string userId)
