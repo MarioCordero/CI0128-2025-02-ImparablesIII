@@ -1,8 +1,7 @@
 using backend.DTOs;
 using backend.Models;
 using backend.Repositories;
-using backend.Constants;
-using BCrypt.Net;
+using Microsoft.Extensions.Logging;
 
 namespace backend.Services
 {
@@ -11,20 +10,23 @@ namespace backend.Services
         private readonly IEmployerRepository _employerRepository;
         private readonly IPersonaRepository _personaRepository;
         private readonly IUsuarioRepository _usuarioRepository;
-        private readonly IEmailVerificationService _verificationService;
+        private readonly IDirectionRepository _directionRepository;
+        private readonly IEmailHelper _emailHelper;
         private readonly ILogger<EmployerService> _logger;
 
         public EmployerService(
             IEmployerRepository employerRepository,
             IPersonaRepository personaRepository,
             IUsuarioRepository usuarioRepository,
-            IEmailVerificationService verificationService,
+            IDirectionRepository directionRepository,
+            IEmailHelper emailHelper,
             ILogger<EmployerService> logger)
         {
             _employerRepository = employerRepository;
             _personaRepository = personaRepository;
             _usuarioRepository = usuarioRepository;
-            _verificationService = verificationService;
+            _directionRepository = directionRepository;
+            _emailHelper = emailHelper;
             _logger = logger;
         }
 
@@ -32,11 +34,28 @@ namespace backend.Services
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(form.Password))
+                {
+                    _logger.LogWarning("Password vacío");
+                    return false;
+                }
                 if (!await IsEmailAvailableAsync(form.Email))
                     return false;
-
                 if (!await IsCedulaAvailableAsync(form.Cedula))
                     return false;
+
+                var direccionId = await _directionRepository.CreateDireccionAsync(
+                    form.Provincia,
+                    form.Canton,
+                    form.Distrito,
+                    form.DireccionParticular
+                );
+                
+                if (direccionId <= 0)
+                {
+                    _logger.LogError("Error creando Dirección");
+                    return false;
+                }
 
                 var apellidos = form.PrimerApellido;
                 if (!string.IsNullOrEmpty(form.SegundoApellido))
@@ -45,79 +64,100 @@ namespace backend.Services
                 var persona = new Persona
                 {
                     Nombre = form.Nombre,
-                    Apellidos = apellidos,
+                    SegundoNombre = form.SegundoNombre,
+                    Apellidos = form.PrimerApellido,
                     Correo = form.Email,
                     Cedula = form.Cedula,
                     Telefono = form.Telefono,
                     FechaNacimiento = form.FechaNacimiento,
-                    Rol = "Empleador"
+                    Rol = "Empleador",  
+                    IdDireccion = direccionId
                 };
 
-                var createdPersona = await _personaRepository.CreatePersonaAsync(persona);
-                _logger.LogInformation($"Persona created with ID: {createdPersona}");
-
-                var verificationEmailDto = new SendVerificationEmailDto
+                var personaId = await _personaRepository.CreatePersonaAsync(persona);
+                if (personaId <= 0)
                 {
-                    Email = form.Email,
-                    Nombre = form.Nombre,
-                    PersonaId = createdPersona,
-                    Rol = "Empleador"
-                };
-
-                var emailSent = await _verificationService.SendVerificationEmailAsync(verificationEmailDto);
-                
-                if (!emailSent)
-                {
-                    _logger.LogError($"Failed to send verification email to {form.Email}");
+                    _logger.LogError("Error creando Persona");
                     return false;
                 }
 
+                var rawToken = _emailHelper.GenerateVerificationToken();
+                var hash = _emailHelper.HashToken(rawToken);
+
+                var usuario = new Usuario
+                {
+                    IdPersona = personaId,
+                    TipoUsuario = "Empleador",
+                    Contrasena = BCrypt.Net.BCrypt.HashPassword(form.Password),
+                    VerificationTokenHash = hash,
+                    VerificationTokenExpires = DateTime.UtcNow.AddHours(24),
+                    IsVerified = false
+                };
+
+                var created = await _usuarioRepository.CreateUserAsync(usuario);
+                if (!created)
+                {
+                    _logger.LogError("Error creando Usuario para Persona {PersonaId}", personaId);
+                    return false;
+                }
+
+                await _emailHelper.SendVerificationLinkAsync(form.Email, rawToken);
+                _logger.LogInformation("Registro empleador OK Persona {PersonaId}", personaId);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering employer");
+                _logger.LogError(ex, "Error registrando empleador");
                 return false;
             }
         }
 
         public async Task<bool> VerifyAndCreateUserAsync(int personaId, string password)
         {
-            if (personaId <= 0 || string.IsNullOrWhiteSpace(password))
-                return false;
+            var persona = await _personaRepository.GetByIdAsync(personaId);
+            if (persona == null) return false;
 
-            try
+            var existing = await _usuarioRepository.GetUserByIdAsync(personaId);
+            if (existing != null)
             {
-                var persona = await _personaRepository.GetByIdAsync(personaId);
-                if (persona == null)
+                if (!existing.IsVerified)
                 {
-                    _logger.LogWarning("Persona no encontrada (ID {PersonaId})", personaId);
-                    return false;
+                    existing.IsVerified = true;
+                    existing.VerificationTokenHash = null;
+                    existing.VerificationTokenExpires = null;
+                    return await _usuarioRepository.UpdateAsync(existing);
                 }
-
-                var usuario = new Usuario
-                {
-                    IdPersona = personaId,
-                    TipoUsuario = "Empleador",
-                    Contrasena = BCrypt.Net.BCrypt.HashPassword(password)
-                };
-
-                var created = await _employerRepository.CreateUserAsync(usuario);
-
-                if (!created)
-                {
-                    _logger.LogError("No se pudo crear el usuario para la persona {PersonaId}", personaId);
-                    return false;
-                }
-
-                _logger.LogInformation("Usuario creado para la persona {PersonaId}", personaId);
                 return true;
             }
-            catch (Exception ex)
+
+            var usuario = new Usuario
             {
-                _logger.LogError(ex, "Error creando usuario para la persona {PersonaId}", personaId);
-                return false;
-            }
+                IdPersona = personaId,
+                TipoUsuario = persona.Rol,
+                Contrasena = BCrypt.Net.BCrypt.HashPassword(password),
+                IsVerified = true
+            };
+
+            return await _usuarioRepository.CreateUserAsync(usuario);
+        }
+
+        public async Task<bool> ResendVerificationAsync(string email)
+        {
+            var persona = await _personaRepository.GetByEmailAsync(email);
+            if (persona == null) return false;
+
+            var usuario = await _usuarioRepository.GetUserByIdAsync(persona.Id);
+            if (usuario == null || usuario.IsVerified) return false;
+
+            var rawToken = _emailHelper.GenerateVerificationToken();
+            usuario.VerificationTokenHash = _emailHelper.HashToken(rawToken);
+            usuario.VerificationTokenExpires = DateTime.UtcNow.AddHours(24);
+
+            var updated = await _usuarioRepository.UpdateAsync(usuario);
+            if (!updated) return false;
+
+            await _emailHelper.SendVerificationLinkAsync(email, rawToken);
+            return true;
         }
 
         public async Task<bool> IsEmailAvailableAsync(string email)
@@ -128,7 +168,7 @@ namespace backend.Services
 
         public async Task<bool> IsCedulaAvailableAsync(string cedula)
         {
-            var empresa = await _employerRepository.GetByCedulaAsync(cedula);
+            var empresa = await _personaRepository.GetByCedulaAsync(cedula);
             return empresa == null;
         }
     }

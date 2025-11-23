@@ -12,6 +12,8 @@ namespace backend.Repositories
         Task<Usuario?> GetUserByIdAsync(int personaId);
         Task<bool> UpdateUserPasswordAsync(int personaId, string password);
         Task<bool> DeleteUserAsync(int personaId);
-        Task<bool> TestConnectionAsync();
+        Usuario? GetByVerificationHash(string hash);
+        void MarkVerified(Usuario usuario);
+        Task<bool> UpdateAsync(Usuario usuario);
     }
 }
