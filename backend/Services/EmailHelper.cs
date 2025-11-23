@@ -33,7 +33,8 @@ namespace backend.Services
 
         public async Task<bool> SendVerificationLinkAsync(string email, string rawToken)
         {
-            var link = $"http://localhost:5173/verify?token={rawToken}";
+            // RECORDAR CAMBIAR POR HOST DE FRONTEND
+            var link = $"http://localhost:8080/verify?token={rawToken}";
             var body = _emailTemplates.GetVerificationLinkTemplate(link);
             return await SendEmailAsync(email, "Verifica tu Cuenta - Imparables", body, true);
         }

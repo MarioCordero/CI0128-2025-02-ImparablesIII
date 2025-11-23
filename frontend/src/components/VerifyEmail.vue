@@ -49,6 +49,8 @@
 </template>
 
 <script>
+import { apiConfig } from '../config/api';
+
 export default {
   name: 'VerifyEmail',
   data() {
@@ -62,10 +64,7 @@ export default {
     };
   },
   mounted() {
-    // Extraer token de la URL
     this.token = this.$route.query.token;
-    
-    // Si viene del registro, usar email guardado en sessionStorage
     const storedEmail = sessionStorage.getItem('registeredEmail');
     if (storedEmail) {
       this.email = storedEmail;
@@ -83,7 +82,7 @@ export default {
       this.error = '';
 
       try {
-        const response = await fetch('/api/employer/verify-email-token', {
+        const response = await fetch(apiConfig.endpoints.verifyEmployerCode, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
