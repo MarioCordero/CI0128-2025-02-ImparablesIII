@@ -126,159 +126,30 @@ namespace backend.Services
             </html>";
         }
 
-
         public string GetVerificationLinkTemplate(string verificationLink)
         {
-            var body = $@"
-                <!DOCTYPE html>
-                    <html lang=""es"">
-                    <head>
-                        <meta charset=""UTF-8"">
-                        <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                        <title>Verifica tu Cuenta - Imparables</title>
-                        <style>
-                            body {{
-                                margin: 0;
-                                padding: 0;
-                                background-color: #dbeafe;
-                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-                                line-height: 1.6;
-                            }}
-                            .email-container {{
-                                max-width: 600px;
-                                margin: 40px auto;
-                                background-color: #eaf4fa;
-                                border-radius: 40px;
-                                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                                padding: 40px;
-                            }}
-                            .header {{
-                                text-align: center;
-                                margin-bottom: 32px;
-                            }}
-                            .logo {{
-                                font-size: 48px;
-                                font-weight: 900;
-                                color: #000000;
-                                margin-bottom: 8px;
-                                letter-spacing: 0.05em;
-                            }}
-                            .subtitle {{
-                                color: #6b7280;
-                                font-size: 18px;
-                                margin: 0;
-                            }}
-                            .content {{
-                                background-color: #ffffff;
-                                border-radius: 20px;
-                                padding: 32px;
-                                margin: 24px 0;
-                                box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-                            }}
-                            .greeting {{
-                                font-size: 20px;
-                                font-weight: 600;
-                                color: #2d384b;
-                                margin-bottom: 16px;
-                            }}
-                            .message {{
-                                color: #4b5563;
-                                font-size: 16px;
-                                margin-bottom: 20px;
-                            }}
-                            .highlight-box {{
-                                background-color: #dbeafe;
-                                border-radius: 16px;
-                                padding: 20px;
-                                margin: 24px 0;
-                                text-align: center;
-                            }}
-                            .button {{
-                                display: inline-block;
-                                background-color: #2d384b;
-                                color: #ffffff;
-                                text-decoration: none;
-                                font-weight: 600;
-                                border-radius: 9999px;
-                                padding: 12px 32px;
-                                margin: 16px 0;
-                                transition: background-color 0.3s;
-                            }}
-                            .button:hover {{
-                                background-color: #1e293b;
-                            }}
-                            .token-link {{
-                                background-color: #f3f4f6;
-                                border-radius: 12px;
-                                padding: 16px;
-                                margin: 20px 0;
-                                word-break: break-all;
-                                color: #4b5563;
-                                font-size: 13px;
-                                font-family: 'Courier New', monospace;
-                            }}
-                            .footer {{
-                                text-align: center;
-                                margin-top: 32px;
-                                padding-top: 24px;
-                                border-top: 1px solid #e5e7eb;
-                                color: #6b7280;
-                                font-size: 14px;
-                            }}
-                            .team-signature {{
-                                color: #2d384b;
-                                font-weight: 600;
-                            }}
-                            .expiry-warning {{
-                                background-color: #fef3c7;
-                                border-radius: 12px;
-                                padding: 16px;
-                                border-left: 4px solid #f59e0b;
-                                color: #4b5563;
-                                font-size: 14px;
-                            }}
-                        </style>
-                    </head>
-                    <body>
-                        <div class=""email-container"">
-                            <div class=""header"">
-                                <div class=""logo"">Imparables</div>
-                                <p class=""subtitle"">Tu plataforma de gestión empresarial</p>
-                            </div>
-                            
-                            <div class=""content"">
-                                <div class=""greeting"">Verifica tu Cuenta</div>
-                                <div class=""message"">
-                                    Haz clic en el botón de abajo para activar tu cuenta en Imparables.
-                                </div>
-                                
-                                <div style=""text-align: center;"">
-                                    <a href=""{verificationLink}"" class=""button"" style=""color: #ffffff;"">Activar Cuenta</a>
-                                </div>
-                                
-                                <div class=""highlight-box"">
-                                    <p style=""color: #6b7280; font-size: 14px; margin-top: 0; margin-bottom: 12px;"">
-                                        Si el botón no funciona, copia y pega este enlace en tu navegador:
-                                    </p>
-                                    <div class=""token-link"">{verificationLink}</div>
-                                </div>
-                                
-                                <div class=""expiry-warning"">
-                                    <strong>⏰ Importante:</strong> Este enlace expira en 24 horas por seguridad.
-                                </div>
-                            </div>
-                            
-                            <div class=""footer"">
-                                <p>Este correo fue enviado automáticamente desde la plataforma Imparables.</p>
-                                <p class=""team-signature"">Equipo Imparables</p>
-                                <p style=""font-size: 12px; margin-top: 16px;"">
-                                    © 2025 Imparables. Todos los derechos reservados.
-                                </p>
-                            </div>
-                        </div>
-                    </body>
-                </html>";
-            return GetBaseTemplate("Verifica tu Cuenta - Imparables", body);
+            var content = $@"
+                <div class=""greeting"">Verifica tu Cuenta</div>
+                <div class=""message"">
+                    Haz clic en el botón de abajo para activar tu cuenta en Imparables.
+                </div>
+                
+                <div style=""text-align: center;"">
+                    <a href=""{verificationLink}"" class=""button"" style=""color: #ffffff;"">Activar Cuenta</a>
+                </div>
+                
+                <div class=""highlight-box"">
+                    <p style=""color: #6b7280; font-size: 14px; margin-top: 0; margin-bottom: 12px;"">
+                        Si el botón no funciona, copia y pega este enlace en tu navegador:
+                    </p>
+                    <div class=""token-link"">{verificationLink}</div>
+                </div>
+                
+                <div class=""expiry-warning"">
+                    <strong>⏰ Importante:</strong> Este enlace expira en 24 horas por seguridad.
+                </div>";
+
+            return GetBaseTemplate("Verifica tu Cuenta - Imparables", content);
         }
 
         public string GetWelcomeEmailTemplate(string userName)
