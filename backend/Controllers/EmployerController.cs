@@ -7,16 +7,16 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SignUpEmployerController : ControllerBase
+    public class EmployerController : ControllerBase
     {
         private readonly IEmployerService _employerService;
         private readonly IEmailVerificationService _verificationService;
-        private readonly ILogger<SignUpEmployerController> _logger;
+        private readonly ILogger<EmployerController> _logger;
 
-        public SignUpEmployerController(
+        public EmployerController(
             IEmployerService employerService,
             IEmailVerificationService verificationService,
-            ILogger<SignUpEmployerController> logger)
+            ILogger<EmployerController> logger)
         {
             _employerService = employerService;
             _verificationService = verificationService;
@@ -90,17 +90,18 @@ namespace backend.Controllers
             return Ok(new { success = true, message = EmployerConstants.Employer.VerificationSuccess });
         }
 
-        [HttpPost("verify-code")]
-        public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeRequestDto req)
-        {
-            if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Code))
-                return BadRequest(new { success = false, message = EmployerConstants.Validation.EmailAndCodeRequired });
+        // TODO
+        // [HttpPost("verify-code")]
+        // public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeRequestDto req)
+        // {
+        //     if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Code))
+        //         return BadRequest(new { success = false, message = EmployerConstants.Validation.EmailAndCodeRequired });
 
-            var ok = await _verificationService.VerifyCodeAsync(req.Email, req.Code);
-            if (!ok)
-                return BadRequest(new { success = false, message = EmployerConstants.Employer.CodeInvalidOrExpired });
+        //     var ok = await _verificationService.VerifyCodeAsync(req.Email, req.Code);
+        //     if (!ok)
+        //         return BadRequest(new { success = false, message = EmployerConstants.Employer.CodeInvalidOrExpired });
 
-            return Ok(new { success = true, message = EmployerConstants.Employer.CodeVerified });
-        }
+        //     return Ok(new { success = true, message = EmployerConstants.Employer.CodeVerified });
+        // }
     }
 }
