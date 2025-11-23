@@ -10,22 +10,23 @@ namespace backend.Services
     {
         private readonly EmailSettings _emailSettings;
         private readonly ILogger<EmailService> _logger;
+        private readonly IEmailHelper _emailHelper;
 
-        public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
+        public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger, IEmailHelper emailHelper)
         {
             _emailSettings = emailSettings.Value;
             _logger = logger;
+            _emailHelper = emailHelper;
         }
 
         public async Task<EmailResponseDto> SendEmailAsync(SendEmailDto emailDto)
         {
             _logger.LogInformation($"Attempting to send email to {emailDto.ReceiverEmail} with subject: {emailDto.Subject}");
             
-            var result = await EmailHelper.SendEmailWithResponseAsync(
+            var result = await _emailHelper.SendEmailWithResponseAsync(
                 emailDto.ReceiverEmail, 
                 emailDto.Subject, 
                 emailDto.Body, 
-                _emailSettings,
                 emailDto.IsHtml
             );
 
