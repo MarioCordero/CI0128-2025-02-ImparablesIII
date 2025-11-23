@@ -48,7 +48,8 @@ namespace backend.Services
                 var persona = new Persona
                 {
                     Nombre = form.Nombre,
-                    Apellidos = apellidos,
+                    SegundoNombre = form.SegundoNombre,
+                    Apellidos = form.PrimerApellido,
                     Correo = form.Email,
                     Cedula = form.Cedula,
                     Telefono = form.Telefono,

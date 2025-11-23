@@ -8,6 +8,9 @@ namespace backend.DTOs
       [MaxLength(20)]
       public string Nombre { get; set; } = string.Empty;
 
+      [MaxLength(20)]
+      public string? SegundoNombre { get; set; }
+
       [Required]
       [MaxLength(20)]
       public string PrimerApellido { get; set; } = string.Empty;

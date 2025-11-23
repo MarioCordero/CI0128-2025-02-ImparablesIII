@@ -21,6 +21,17 @@
               />
               <span v-if="errors.nombre" class="text-red-500 text-sm mt-1">{{ errors.nombre }}</span>
             </div>
+
+            <div>
+              <label class="block mb-1 font-medium text-gray-700">Segundo Nombre (opcional)</label>
+              <input
+                v-model="form.segundoNombre"
+                :class="['neumorphism-input', errors.segundoNombre ? 'ring-2 ring-red-500' : '']"
+                placeholder="Ingresa tu segundo nombre"
+              />
+              <span v-if="errors.segundoNombre" class="text-red-500 text-sm mt-1">{{ errors.segundoNombre }}</span>
+            </div>
+
             <div>
               <label class="block mb-1 font-medium text-gray-700">Primer Apellido*</label>
               <input
@@ -232,6 +243,7 @@ export default {
     return {
       form: {
         nombre: '',
+        segundoNombre: '',
         primerApellido: '',
         segundoApellido: '',
         cedula: '',
