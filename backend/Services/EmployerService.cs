@@ -10,6 +10,7 @@ namespace backend.Services
         private readonly IEmployerRepository _employerRepository;
         private readonly IPersonaRepository _personaRepository;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IDirectionRepository _directionRepository;
         private readonly IEmailHelper _emailHelper;
         private readonly ILogger<EmployerService> _logger;
 
@@ -17,12 +18,14 @@ namespace backend.Services
             IEmployerRepository employerRepository,
             IPersonaRepository personaRepository,
             IUsuarioRepository usuarioRepository,
+            IDirectionRepository directionRepository,
             IEmailHelper emailHelper,
             ILogger<EmployerService> logger)
         {
             _employerRepository = employerRepository;
             _personaRepository = personaRepository;
             _usuarioRepository = usuarioRepository;
+            _directionRepository = directionRepository;
             _emailHelper = emailHelper;
             _logger = logger;
         }
@@ -41,6 +44,19 @@ namespace backend.Services
                 if (!await IsCedulaAvailableAsync(form.Cedula))
                     return false;
 
+                var direccionId = await _directionRepository.CreateDireccionAsync(
+                    form.Provincia,
+                    form.Canton,
+                    form.Distrito,
+                    form.DireccionParticular
+                );
+                
+                if (direccionId <= 0)
+                {
+                    _logger.LogError("Error creando Dirección");
+                    return false;
+                }
+
                 var apellidos = form.PrimerApellido;
                 if (!string.IsNullOrEmpty(form.SegundoApellido))
                     apellidos += $" {form.SegundoApellido}";
@@ -54,7 +70,8 @@ namespace backend.Services
                     Cedula = form.Cedula,
                     Telefono = form.Telefono,
                     FechaNacimiento = form.FechaNacimiento,
-                    Rol = "Empleador"
+                    Rol = "Empleador",  
+                    IdDireccion = direccionId
                 };
 
                 var personaId = await _personaRepository.CreatePersonaAsync(persona);
