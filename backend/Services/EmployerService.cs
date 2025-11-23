@@ -94,7 +94,6 @@ namespace backend.Services
             }
         }
 
-        // Implementación requerida por la interfaz
         public async Task<bool> VerifyAndCreateUserAsync(int personaId, string password)
         {
             var persona = await _personaRepository.GetByIdAsync(personaId);
@@ -151,7 +150,7 @@ namespace backend.Services
 
         public async Task<bool> IsCedulaAvailableAsync(string cedula)
         {
-            var empresa = await _employerRepository.GetByCedulaAsync(cedula);
+            var empresa = await _personaRepository.GetByCedulaAsync(cedula);
             return empresa == null;
         }
     }

@@ -24,3 +24,7 @@ ALTER TABLE PlaniFy.Usuario
         IsVerified BIT NOT NULL DEFAULT 0;
 GO
 CREATE INDEX IX_Usuario_VerificationTokenHash ON PlaniFy.Usuario (VerificationTokenHash);
+
+-- Modificar longitud de la columna Contrasena para soportar hashes más largos
+ALTER TABLE PlaniFy.Usuario
+ALTER COLUMN Contrasena NVARCHAR(100);
