@@ -12,6 +12,8 @@ namespace backend.Constants
             public const string VerificationSuccess = "Cuenta verificada correctamente.";
             public const string CodeInvalidOrExpired = "Código inválido o expirado.";
             public const string CodeVerified = "Código verificado.";
+            public const string TokenInvalidOrExpired = "Token inválido o expirado.";
+            public const string EmailVerified = "Email verificado exitosamente.";
         }
 
         public static class Validation
@@ -21,6 +23,7 @@ namespace backend.Constants
             public const string EmailRequired = "Email requerido.";
             public const string PersonaIdPasswordRequired = "PersonaId y password son requeridos.";
             public const string EmailAndCodeRequired = "Email y código son requeridos.";
+            public const string EmailAndTokenRequired = "Email y token son requeridos.";
         }
 
         public static class General

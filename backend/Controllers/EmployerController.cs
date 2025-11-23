@@ -90,18 +90,17 @@ namespace backend.Controllers
             return Ok(new { success = true, message = EmployerConstants.Employer.VerificationSuccess });
         }
 
-        // TODO
-        // [HttpPost("verify-code")]
-        // public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeRequestDto req)
-        // {
-        //     if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Code))
-        //         return BadRequest(new { success = false, message = EmployerConstants.Validation.EmailAndCodeRequired });
+        [HttpPost("verify-email-token")]
+        public async Task<IActionResult> VerifyEmailToken([FromBody] VerifyCodeRequestDto req)
+        {
+            if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Code))
+                return BadRequest(new { success = false, message = EmployerConstants.Validation.EmailAndTokenRequired });
 
-        //     var ok = await _verificationService.VerifyCodeAsync(req.Email, req.Code);
-        //     if (!ok)
-        //         return BadRequest(new { success = false, message = EmployerConstants.Employer.CodeInvalidOrExpired });
+            var (isValid, personaId) = await _verificationService.VerifyTokenAsync(req.Email, req.Code);
+            if (!isValid)
+                return BadRequest(new { success = false, message = EmployerConstants.Employer.TokenInvalidOrExpired });
 
-        //     return Ok(new { success = true, message = EmployerConstants.Employer.CodeVerified });
-        // }
+            return Ok(new { success = true, personaId, message = EmployerConstants.Employer.EmailVerified });
+        }
     }
 }
