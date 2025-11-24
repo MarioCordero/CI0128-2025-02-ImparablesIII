@@ -277,6 +277,7 @@ namespace backend.Repositories
             var rowsAffected = await connection.ExecuteAsync(query, new { Id = id });
             return rowsAffected > 0;
         }
+        
         public async Task<bool> ExistsByIdAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
