@@ -111,25 +111,25 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <tr v-for="item in report.items" :key="item.payrollId" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ item.tipoContrato }}
+              {{ item.contractType }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ item.puesto }}
+              {{ item.position }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ formatDate(item.fechaPago) }}
+              {{ formatDate(item.paymentDate) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(item.salarioBruto) }}
+              ₡{{ formatCurrency(item.grossSalary) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(item.deduccionesObligatoriasEmpleado) }}
+              ₡{{ formatCurrency(item.mandatoryEmployeeDeductions) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(item.deduccionesVoluntarias) }}
+              ₡{{ formatCurrency(item.voluntaryDeductions) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(item.salarioNeto) }}
+              ₡{{ formatCurrency(item.netSalary) }}
             </td>
           </tr>
           <!-- Total Row -->
@@ -138,16 +138,16 @@
               Total
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(report.totals.totalSalarioBruto) }}
+              ₡{{ formatCurrency(report.totals.totalGrossSalary) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(report.totals.totalDeduccionesObligatoriasEmpleado) }}
+              ₡{{ formatCurrency(report.totals.totalMandatoryEmployeeDeductions) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(report.totals.totalDeduccionesVoluntarias) }}
+              ₡{{ formatCurrency(report.totals.totalVoluntaryDeductions) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(report.totals.totalSalarioNeto) }}
+              ₡{{ formatCurrency(report.totals.totalNetSalary) }}
             </td>
           </tr>
         </tbody>

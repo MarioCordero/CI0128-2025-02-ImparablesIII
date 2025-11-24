@@ -215,6 +215,7 @@
 <script>
 import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
 import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
+import { apiConfig } from '../../../config/api.js'
 
 export default {
   name: 'RegisterEmployee',
@@ -295,7 +296,7 @@ export default {
     async initializeProject() {
       if (this.projectId) {
         try {
-          const response = await fetch(`http://localhost:5011/api/Project/${this.projectId}`)
+          const response = await fetch(apiConfig.endpoints.projectById(this.projectId))
           if (!response.ok) throw new Error('No se pudo cargar el proyecto')
           this.project = await response.json()
         } catch (err) {
@@ -305,7 +306,7 @@ export default {
     },
     async fetchCompanies() {
       try {
-        const response = await fetch('http://localhost:5011/api/Project')
+        const response = await fetch(apiConfig.endpoints.project)
         if (!response.ok) throw new Error('No se pudo cargar las empresas')
         this.companies = await response.json()
       } catch (err) {
@@ -540,7 +541,7 @@ export default {
         projectId: this.project.id
       }
       try {
-        const response = await fetch('http://localhost:5011/api/RegisterEmployee', {
+        const response = await fetch(apiConfig.endpoints.registerEmployee, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(employeeData)
