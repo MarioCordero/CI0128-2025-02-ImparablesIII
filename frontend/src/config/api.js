@@ -41,7 +41,7 @@ export const apiConfig = {
     verifyEmployerCode: `${API_BASE_URL}/api/employer/verify-email-token`,
     verifyEmployerLinkToken: `${API_BASE_URL}/api/employer/verify-link-token`,
 
-    // ProjectList endpoint (nuevo)
+    // ProjectList endpoint
     projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`,
 
     // Employee endpoints
