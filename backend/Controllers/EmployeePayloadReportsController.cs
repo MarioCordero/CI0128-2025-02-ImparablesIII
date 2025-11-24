@@ -158,5 +158,95 @@ namespace backend.Controllers
                 });
             }
         }
+
+        [HttpGet("{id:int}/payroll-reports/historical")]
+        public async Task<ActionResult<HistoricalPayrollReportDto>> GetHistoricalPayrollReport(
+            int id,
+            [FromQuery] int authenticatedEmployeeId,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            try
+            {
+                _logger.LogInformation("Solicitud de reporte histórico de planilla para empleado {EmployeeId}", id);
+
+                if (id <= 0)
+                {
+                    return BadRequest(new { message = ReturnMessagesConstants.Validation.EmployeeIdMustBeGreaterThanZero });
+                }
+
+                if (authenticatedEmployeeId <= 0)
+                {
+                    return BadRequest(new { message = ReturnMessagesConstants.Validation.AuthenticatedEmployeeIdRequired });
+                }
+
+                var report = await _payrollService.GetHistoricalPayrollReportAsync(id, authenticatedEmployeeId, startDate, endDate);
+
+                _logger.LogInformation("Reporte histórico enviado exitosamente para empleado {EmployeeId}. Total de registros: {Count}", id, report.Items.Count);
+                return Ok(report);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning("Acceso no autorizado para empleado {EmployeeId}: {Message}", id, ex.Message);
+                return Unauthorized(new { message = ReturnMessagesConstants.General.UnauthorizedAccess });
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                _logger.LogWarning("Argumento inválido para empleado {EmployeeId}: {Message}", id, ex.Message);
+                return BadRequest(new { message = ReturnMessagesConstants.Validation.InvalidArgument });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error interno obteniendo reporte histórico para empleado {EmployeeId}", id);
+                return StatusCode(500, new 
+                { 
+                    message = ReturnMessagesConstants.General.InternalServerError,
+                    detail = ex.Message 
+                });
+            }
+        }
+
+        [HttpGet("{id:int}/payroll-reports/historical/download/excel")]
+        public async Task<IActionResult> DownloadHistoricalExcelReport(
+            int id,
+            [FromQuery] int authenticatedEmployeeId,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            try
+            {
+                _logger.LogInformation("Descarga de reporte histórico Excel para empleado {EmployeeId}", id);
+
+                if (id <= 0)
+                {
+                    return BadRequest(new { message = ReturnMessagesConstants.Validation.EmployeeIdMustBeGreaterThanZero });
+                }
+
+                if (authenticatedEmployeeId <= 0)
+                {
+                    return BadRequest(new { message = ReturnMessagesConstants.Validation.AuthenticatedEmployeeIdRequired });
+                }
+
+                var report = await _payrollService.GetHistoricalPayrollReportAsync(id, authenticatedEmployeeId, startDate, endDate);
+                var excelBytes = _reportGenerationService.GenerateExcelReport(report);
+                var fileName = $"Reporte_Historico_Planilla_{DateTime.Now:yyyyMMdd}.xlsx";
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning("Acceso no autorizado para empleado {EmployeeId}: {Message}", id, ex.Message);
+                return Unauthorized(new { message = ReturnMessagesConstants.General.UnauthorizedAccess });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generando reporte Excel histórico para empleado {EmployeeId}", id);
+                return StatusCode(500, new 
+                { 
+                    message = ReturnMessagesConstants.Payroll.ErrorGeneratingExcelReport,
+                    detail = ex.Message 
+                });
+            }
+        }
     }
 }
