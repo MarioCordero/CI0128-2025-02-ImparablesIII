@@ -24,6 +24,7 @@ namespace backend.Controllers
             _logger = logger;
         }
 
+        // DELETE
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationDto registrationDto)
         {

@@ -479,7 +479,6 @@ export default {
           Value: this.form.calculationType === 'Monto Fijo' && this.form.value ? parseInt(this.form.value) : null,
           Percentage: this.form.calculationType === 'Porcentaje' && this.form.percentage ? parseInt(this.form.percentage) : null
         };
-        
         const response = await fetch(apiConfig.endpoints.benefit, {
           method: 'POST',
           headers: {

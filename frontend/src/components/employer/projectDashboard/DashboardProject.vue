@@ -299,7 +299,8 @@
 <script>
 import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
 import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
-import PayrollReports from '../../common/PayrollReports.vue'
+// import PayrollReports from '../../common/PayrollReports.vue'
+import PayrollReports from '../projectDashboard/PayrollReports.vue'
 import EmployeesSection from './EmployeesSection.vue'
 import EmployeesFilter from './EmployeesFilter.vue'
 import EditProjectInfo from './EditProjectInfo.vue'

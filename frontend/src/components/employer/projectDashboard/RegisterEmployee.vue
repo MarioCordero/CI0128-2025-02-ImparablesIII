@@ -215,7 +215,7 @@
 <script>
 import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
 import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
-import { apiConfig } from '../../../config/api.js'
+import apiConfig from '../../../config/api.js'
 
 export default {
   name: 'RegisterEmployee',
@@ -562,7 +562,6 @@ export default {
     },
     onSectionChange(section) {
       this.selectedSection = section
-      // opcional: actualizar URL sin duplicar historial
       this.$router.replace({ path: this.$route.path, query: { section } })
     },
     goBack() {
