@@ -18,7 +18,7 @@ namespace backend.Services
         public async Task<BenefitResponseDto> CreateBenefitAsync(CreateBenefitDto createBenefitDto)
         {
             // Validate that the company exists
-            if (!await _projectRepository.ExistsByLegalIdAsync(createBenefitDto.CompanyId.ToString()))
+            if (!await _projectRepository.ExistsAsync(createBenefitDto.CompanyId))
             {
                 throw new ArgumentException("La empresa especificada no existe");
             }

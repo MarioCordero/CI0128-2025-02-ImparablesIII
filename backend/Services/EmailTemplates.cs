@@ -152,32 +152,41 @@ namespace backend.Services
             return GetBaseTemplate("Verifica tu Cuenta - Imparables", content);
         }
 
-        public string GetWelcomeEmailTemplate(string userName)
+        public string GetWelcomeEmailTemplate(string verificationLink)
         {
             var content = $@"
-                <div class=""greeting"">¡Bienvenido a Imparables, {userName}!</div>
+                <div class=""greeting"">¡Bienvenido a Imparables!</div>
                 <div class=""message"">
-                    Nos alegra tenerte en nuestra plataforma. Tu registro ha sido completado exitosamente 
-                    y ya puedes comenzar a utilizar todas las funcionalidades disponibles.
+                    Has sido registrado exitosamente como empleado en nuestra plataforma. 
+                    Para comenzar a utilizar todas las funcionalidades, necesitas configurar tu contraseña.
                 </div>
                 
                 <div class=""highlight-box"">
-                    <h3 style=""margin-top: 0; color: #2d384b;"">¿Qué puedes hacer ahora?</h3>
-                    <ul style=""text-align: left; color: #4b5563; margin: 0;"">
-                        <li>Gestionar información de empleados</li>
-                        <li>Acceder a herramientas de administración</li>
-                        <li>Configurar tu perfil empresarial</li>
-                        <li>Explorar todas nuestras funcionalidades</li>
-                    </ul>
+                    <h3 style=""margin-top: 0; color: #2d384b;"">Configura tu contraseña</h3>
+                    <p style=""color: #4b5563; margin: 16px 0;"">
+                        Haz clic en el botón de abajo para configurar tu contraseña y activar tu cuenta.
+                    </p>
+                    <div style=""text-align: center;"">
+                        <a href=""{verificationLink}"" class=""button"" style=""color: #ffffff;"">Configurar Contraseña</a>
+                    </div>
+                    <p style=""color: #6b7280; font-size: 14px; margin-top: 16px; margin-bottom: 0;"">
+                        Este enlace expira en 24 horas por seguridad
+                    </p>
                 </div>
                 
                 <div class=""message"">
-                    Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos. 
-                    Estamos aquí para apoyarte en cada paso del camino.
+                    <strong>¿Qué podrás hacer una vez configurada tu contraseña?</strong>
+                    <ul style=""text-align: left; color: #4b5563; margin: 0; padding-left: 20px;"">
+                        <li>Registrar tus horas trabajadas</li>
+                        <li>Ver tu información de planilla</li>
+                        <li>Actualizar tu perfil personal</li>
+                        <li>Acceder a beneficios disponibles</li>
+                    </ul>
                 </div>
                 
-                <div style=""text-align: center;"">
-                    <a href=""#"" class=""button"">Explorar Plataforma</a>
+                <div class=""message"" style=""background-color: #fef3c7; border-radius: 12px; padding: 16px; border-left: 4px solid #f59e0b;"">
+                    <strong>⚠️ Importante:</strong> Si no reconoces este registro, 
+                    contacta inmediatamente con tu empleador o administrador del sistema.
                 </div>";
 
             return GetBaseTemplate("¡Bienvenido a Imparables!", content);
@@ -306,7 +315,7 @@ namespace backend.Services
                         Haz clic en el botón de abajo para configurar tu contraseña y activar tu cuenta.
                     </p>
                     <div style=""text-align: center;"">
-                        <a href=""{setupUrl}"" class=""button"">Configurar Contraseña</a>
+                        <a href=""{setupUrl}"" class=""button"" style=""color: #ffffff;"">Configurar Contraseña</a>
                     </div>
                     <p style=""color: #6b7280; font-size: 14px; margin-top: 16px; margin-bottom: 0;"">
                         Este enlace expira en 30 minutos por seguridad
