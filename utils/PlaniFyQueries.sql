@@ -13,6 +13,8 @@ SELECT * FROM PlaniFy.Empleado;
 
 SELECT * FROM PlaniFy.Empresa;
 
+SELECT * FROM PlaniFy.Beneficio
+
 
 DECLARE @CompanyId INT = 6;
 
