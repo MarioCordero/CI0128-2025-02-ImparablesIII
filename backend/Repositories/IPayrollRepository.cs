@@ -31,5 +31,6 @@ namespace backend.Repositories
         Task<DetailedPayrollReportDto?> GetDetailedPayrollReportAsync(int employeeId, int payrollId);
         Task<(string NombreCompleto, string TipoContrato)> GetEmployeeBasicInfoAsync(int employeeId);
         Task<int?> GetCompanyIdFromPayrollAsync(int payrollId);
+        Task<HistoricalPayrollReportDto> GetHistoricalPayrollReportAsync(int employeeId, DateTime? startDate, DateTime? endDate);
     }
 }
