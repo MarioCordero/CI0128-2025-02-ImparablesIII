@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using backend.Models;
 using Dapper;
 
 namespace backend.Repositories
@@ -13,7 +14,7 @@ namespace backend.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
 
-        public async Task<int> CreatePersonaAsync(string email, string nombre, string? segundoNombre, string apellidos, DateTime fechaNacimiento, string cedula, string rol, int? telefono, int direccionId)
+        public async Task<int> CreatePersonaAsync(Persona persona)
         {
             try
             {
@@ -25,24 +26,100 @@ namespace backend.Repositories
                     OUTPUT INSERTED.Id
                     VALUES (@Correo, @Nombre, @SegundoNombre, @Apellidos, @FechaNacimiento, @Cedula, @Rol, @Telefono, @IdDireccion)";
 
-                var parameters = new
+                var id = await connection.QuerySingleAsync<int>(query, new
                 {
-                    Correo = email,
-                    Nombre = nombre,
-                    SegundoNombre = segundoNombre,
-                    Apellidos = apellidos,
-                    FechaNacimiento = fechaNacimiento,
-                    Cedula = cedula,
-                    Rol = rol,
-                    Telefono = telefono,
-                    IdDireccion = direccionId
-                };
+                    Correo = persona.Correo,
+                    Nombre = persona.Nombre,
+                    SegundoNombre = persona.SegundoNombre,
+                    Apellidos = persona.Apellidos,
+                    FechaNacimiento = persona.FechaNacimiento,
+                    Cedula = persona.Cedula,
+                    Rol = persona.Rol,
+                    Telefono = persona.Telefono,
+                    IdDireccion = persona.IdDireccion
+                });
 
-                return await connection.QuerySingleAsync<int>(query, parameters);
+                if (id == -1)
+                {
+                    throw new InvalidOperationException("Failed to create person");
+                }
+                return id;
             }
             catch (Exception)
             {
                 return -1;
+            }
+        }
+
+        public async Task<Persona?> GetByIdAsync(int id)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    SELECT 
+                        Id,
+                        Correo,
+                        Nombre,
+                        SegundoNombre,
+                        Apellidos,
+                        FechaNacimiento,
+                        Cedula,
+                        Rol,
+                        Telefono,
+                        idDireccion AS IdDireccion
+                    FROM PlaniFy.Persona
+                    WHERE Id = @Id";
+
+                return await connection.QueryFirstOrDefaultAsync<Persona>(query, new { Id = id });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<Persona?> GetByEmailAsync(string email)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var sql = @"
+                    SELECT Id, Correo, Nombre, SegundoNombre, Apellidos, FechaNacimiento, Cedula, Rol, Telefono, idDireccion AS IdDireccion
+                    FROM PlaniFy.Persona
+                    WHERE Correo = @Correo";
+
+                return await connection.QueryFirstOrDefaultAsync<Persona>(sql, new { Correo = email });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
+        public async Task<Persona?> GetByCedulaAsync(string cedula)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var sql = @"
+                    SELECT p.Id, p.Correo, p.Nombre, p.SegundoNombre, p.Apellidos, p.FechaNacimiento,
+                        p.Cedula, p.Rol, p.Telefono, p.idDireccion AS IdDireccion
+                    FROM PlaniFy.Persona p
+                    WHERE p.Cedula = @Cedula";
+
+                return await connection.QueryFirstOrDefaultAsync<Persona>(sql, new { Cedula = cedula });
+            }
+            catch
+            {
+                return null;
             }
         }
 

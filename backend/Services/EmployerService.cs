@@ -1,243 +1,175 @@
 using backend.DTOs;
+using backend.Models;
 using backend.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace backend.Services
 {
-    public interface IEmployerService
-    {
-        Task<ServiceResult<EmployerResponseDto>> RegisterEmployerAsync(SignUpEmployerDto employerDto);
-        Task<bool> IsEmailAvailableAsync(string email);
-        Task<bool> IsCedulaAvailableAsync(string cedula);
-    }
-
     public class EmployerService : IEmployerService
     {
         private readonly IEmployerRepository _employerRepository;
-        private readonly IEmailService _emailService;
+        private readonly IPersonaRepository _personaRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IDirectionRepository _directionRepository;
+        private readonly IEmailHelper _emailHelper;
         private readonly ILogger<EmployerService> _logger;
 
-        public EmployerService(IEmployerRepository employerRepository, IEmailService emailService, ILogger<EmployerService> logger)
+        public EmployerService(
+            IEmployerRepository employerRepository,
+            IPersonaRepository personaRepository,
+            IUsuarioRepository usuarioRepository,
+            IDirectionRepository directionRepository,
+            IEmailHelper emailHelper,
+            ILogger<EmployerService> logger)
         {
             _employerRepository = employerRepository;
-            _emailService = emailService;
+            _personaRepository = personaRepository;
+            _usuarioRepository = usuarioRepository;
+            _directionRepository = directionRepository;
+            _emailHelper = emailHelper;
             _logger = logger;
         }
 
-        public async Task<ServiceResult<EmployerResponseDto>> RegisterEmployerAsync(SignUpEmployerDto employerDto)
+        public async Task<bool> RegisterEmployerAsync(SignUpEmployerDto form)
         {
             try
             {
-                // Validate the input
-                var validationResult = await ValidateEmployerDataAsync(employerDto);
-                if (!validationResult.IsSuccess)
+                if (string.IsNullOrWhiteSpace(form.Password))
                 {
-                    return ServiceResult<EmployerResponseDto>.Failure(validationResult.Message, validationResult.Errors);
+                    _logger.LogWarning("Password vacío");
+                    return false;
                 }
+                if (!await IsEmailAvailableAsync(form.Email))
+                    return false;
+                if (!await IsCedulaAvailableAsync(form.Cedula))
+                    return false;
 
-                // Check for duplicates
-                if (!await _employerRepository.IsEmailAvailableAsync(employerDto.Email))
-                {
-                    return ServiceResult<EmployerResponseDto>.Failure("Email already exists");
-                }
-
-                if (!await _employerRepository.IsCedulaAvailableAsync(employerDto.Cedula))
-                {
-                    return ServiceResult<EmployerResponseDto>.Failure("Cedula already exists");
-                }
-
-                // 1. Create Direccion record first
-                var direccionId = await _employerRepository.CreateDireccionAsync(
-                    employerDto.Provincia,
-                    employerDto.Canton,
-                    employerDto.Distrito,
-                    employerDto.DireccionParticular
+                var direccionId = await _directionRepository.CreateDireccionAsync(
+                    form.Provincia,
+                    form.Canton,
+                    form.Distrito,
+                    form.DireccionParticular
                 );
-
-                if (direccionId == -1)
+                
+                if (direccionId <= 0)
                 {
-                    return ServiceResult<EmployerResponseDto>.Failure("Failed to create address");
+                    _logger.LogError("Error creando Dirección");
+                    return false;
                 }
 
-                // 2. Create Persona record
-                var apellidos = !string.IsNullOrEmpty(employerDto.SegundoApellido) 
-                    ? $"{employerDto.PrimerApellido} {employerDto.SegundoApellido}" 
-                    : employerDto.PrimerApellido;
+                var apellidos = form.PrimerApellido;
+                if (!string.IsNullOrEmpty(form.SegundoApellido))
+                    apellidos += $" {form.SegundoApellido}";
 
-                var personaId = await _employerRepository.CreatePersonaAsync(
-                    employerDto.Email,
-                    employerDto.Nombre,
-                    apellidos,
-                    employerDto.FechaNacimiento,
-                    employerDto.Cedula,
-                    "Empleador", // Set as Empleador
-                    employerDto.Telefono,
-                    direccionId
-                );
-
-                if (personaId == -1)
+                var persona = new Persona
                 {
-                    return ServiceResult<EmployerResponseDto>.Failure("Failed to create person record");
+                    Nombre = form.Nombre,
+                    SegundoNombre = form.SegundoNombre,
+                    Apellidos = form.PrimerApellido,
+                    Correo = form.Email,
+                    Cedula = form.Cedula,
+                    Telefono = form.Telefono,
+                    FechaNacimiento = form.FechaNacimiento,
+                    Rol = "Empleador",  
+                    IdDireccion = direccionId
+                };
+
+                var personaId = await _personaRepository.CreatePersonaAsync(persona);
+                if (personaId <= 0)
+                {
+                    _logger.LogError("Error creando Persona");
+                    return false;
                 }
 
-                // 3. Create Usuario record
-                var usuarioCreated = await _employerRepository.CreateUsuarioAsync(
-                    personaId,
-                    employerDto.Password,
-                    "Empleador" // Set as Empleador
-                );
+                var rawToken = _emailHelper.GenerateVerificationToken();
+                var hash = _emailHelper.HashToken(rawToken);
 
-                if (!usuarioCreated)
+                var usuario = new Usuario
                 {
-                    return ServiceResult<EmployerResponseDto>.Failure("Failed to create user record");
+                    IdPersona = personaId,
+                    TipoUsuario = "Empleador",
+                    Contrasena = BCrypt.Net.BCrypt.HashPassword(form.Password),
+                    VerificationTokenHash = hash,
+                    VerificationTokenExpires = DateTime.UtcNow.AddHours(24),
+                    IsVerified = false
+                };
+
+                var created = await _usuarioRepository.CreateUserAsync(usuario);
+                if (!created)
+                {
+                    _logger.LogError("Error creando Usuario para Persona {PersonaId}", personaId);
+                    return false;
                 }
 
-                _logger.LogInformation("New employer registered with Persona ID: {PersonaId}", personaId);
-
-                // 4. Get the created employer data
-                var responseDto = await _employerRepository.GetEmployerByIdAsync(personaId);
-                if (responseDto == null)
-                {
-                    return ServiceResult<EmployerResponseDto>.Failure("Failed to retrieve created employer data");
-                }
-
-                // 5. Send welcome email
-                await SendWelcomeEmailAsync(responseDto);
-
-                return ServiceResult<EmployerResponseDto>.Success(responseDto, "Employer registered successfully");
+                await _emailHelper.SendVerificationLinkAsync(form.Email, rawToken);
+                _logger.LogInformation("Registro empleador OK Persona {PersonaId}", personaId);
+                return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering employer: {Error}", ex.Message);
-                return ServiceResult<EmployerResponseDto>.Failure("An error occurred while registering the employer");
-            }
-        }
-
-        public async Task<bool> IsEmailAvailableAsync(string email)
-        {
-            return await _employerRepository.IsEmailAvailableAsync(email);
-        }
-
-        public async Task<bool> IsCedulaAvailableAsync(string cedula)
-        {
-            return await _employerRepository.IsCedulaAvailableAsync(cedula);
-        }
-
-        private Task<ServiceResult<EmployerResponseDto>> ValidateEmployerDataAsync(SignUpEmployerDto employerDto)
-        {
-            var errors = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(employerDto.Nombre))
-                errors.Add("Name is required");
-
-            if (string.IsNullOrWhiteSpace(employerDto.PrimerApellido))
-                errors.Add("First surname is required");
-
-            if (string.IsNullOrWhiteSpace(employerDto.Cedula))
-                errors.Add("Cedula is required");
-
-            if (employerDto.Cedula.Length != 9)
-                errors.Add("Cedula must be exactly 9 characters");
-
-            if (string.IsNullOrWhiteSpace(employerDto.Email) || !IsValidEmail(employerDto.Email))
-                errors.Add("Valid email is required");
-
-            if (employerDto.FechaNacimiento > DateTime.Now.AddYears(-18))
-                errors.Add("Must be at least 18 years old");
-
-            if (string.IsNullOrWhiteSpace(employerDto.Password))
-                errors.Add("Password is required");
-
-            if (employerDto.Password.Length < 8)
-                errors.Add("Password must be at least 8 characters");
-
-            if (employerDto.Password != employerDto.ConfirmPassword)
-                errors.Add("Passwords do not match");
-
-            if (string.IsNullOrWhiteSpace(employerDto.Provincia))
-                errors.Add("Provincia is required");
-
-            if (string.IsNullOrWhiteSpace(employerDto.Canton))
-                errors.Add("Canton is required");
-
-            if (string.IsNullOrWhiteSpace(employerDto.Distrito))
-                errors.Add("Distrito is required");
-
-            if (errors.Any())
-            {
-                return Task.FromResult(ServiceResult<EmployerResponseDto>.Failure("Validation failed", errors));
-            }
-
-            return Task.FromResult(ServiceResult<EmployerResponseDto>.Success(null!, "Validation passed"));
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
+                _logger.LogError(ex, "Error registrando empleador");
                 return false;
             }
         }
 
-        private async Task SendWelcomeEmailAsync(EmployerResponseDto employer)
+        public async Task<bool> VerifyAndCreateUserAsync(int personaId, string password)
         {
-            try
+            var persona = await _personaRepository.GetByIdAsync(personaId);
+            if (persona == null) return false;
+
+            var existing = await _usuarioRepository.GetUserByIdAsync(personaId);
+            if (existing != null)
             {
-                var fullName = $"{employer.Nombre} {employer.Apellidos}";
-                var emailBody = EmailTemplates.GetWelcomeEmailTemplate(fullName);
-                
-                var emailDto = new SendEmailDto
+                if (!existing.IsVerified)
                 {
-                    ReceiverEmail = employer.Correo,
-                    Subject = "¡Bienvenido a Imparables!",
-                    Body = emailBody,
-                    IsHtml = true
-                };
-
-                var emailResult = await _emailService.SendEmailAsync(emailDto);
-                
-                if (emailResult.Success)
-                {
-                    _logger.LogInformation("Welcome email sent successfully to {Email}", employer.Correo);
+                    existing.IsVerified = true;
+                    existing.VerificationTokenHash = null;
+                    existing.VerificationTokenExpires = null;
+                    return await _usuarioRepository.UpdateAsync(existing);
                 }
-                else
-                {
-                    _logger.LogWarning("Failed to send welcome email to {Email}: {Message}", employer.Correo, emailResult.Message);
-                }
+                return true;
             }
-            catch (Exception ex)
+
+            var usuario = new Usuario
             {
-                _logger.LogError(ex, "Error sending welcome email to {Email}", employer.Correo);
-            }
-        }
-    }
-
-    // Service result wrapper
-    public class ServiceResult<T>
-    {
-        public bool IsSuccess { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public T? Data { get; set; }
-        public List<string> Errors { get; set; } = new();
-
-        public static ServiceResult<T> Success(T data, string message = "")
-        {
-            return new ServiceResult<T> { IsSuccess = true, Data = data, Message = message };
-        }
-
-        public static ServiceResult<T> Failure(string message, List<string>? errors = null)
-        {
-            return new ServiceResult<T> 
-            { 
-                IsSuccess = false, 
-                Message = message, 
-                Errors = errors ?? new List<string>() 
+                IdPersona = personaId,
+                TipoUsuario = persona.Rol,
+                Contrasena = BCrypt.Net.BCrypt.HashPassword(password),
+                IsVerified = true
             };
+
+            return await _usuarioRepository.CreateUserAsync(usuario);
+        }
+
+        public async Task<bool> ResendVerificationAsync(string email)
+        {
+            var persona = await _personaRepository.GetByEmailAsync(email);
+            if (persona == null) return false;
+
+            var usuario = await _usuarioRepository.GetUserByIdAsync(persona.Id);
+            if (usuario == null || usuario.IsVerified) return false;
+
+            var rawToken = _emailHelper.GenerateVerificationToken();
+            usuario.VerificationTokenHash = _emailHelper.HashToken(rawToken);
+            usuario.VerificationTokenExpires = DateTime.UtcNow.AddHours(24);
+
+            var updated = await _usuarioRepository.UpdateAsync(usuario);
+            if (!updated) return false;
+
+            await _emailHelper.SendVerificationLinkAsync(email, rawToken);
+            return true;
+        }
+
+        public async Task<bool> IsEmailAvailableAsync(string email)
+        {
+            var persona = await _personaRepository.GetByEmailAsync(email);
+            return persona == null;
+        }
+
+        public async Task<bool> IsCedulaAvailableAsync(string cedula)
+        {
+            var empresa = await _personaRepository.GetByCedulaAsync(cedula);
+            return empresa == null;
         }
     }
-
 }

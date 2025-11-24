@@ -42,7 +42,8 @@ const routes = [
   { path: '/dashboard-employee', name: 'DashboardEmployee', component: DashboardEmployee },
   { path: '/add-benefit', name: 'AddBenefit', component: AddBenefit },
   { path: '/edit-employee/:id', name: 'EditEmployee', component: ProfileEmployee, props: true },
-  { path: '/edit-benefit/:companyId/:name', name: 'EditBenefit', component: EditBenefit, props: true }
+  { path: '/edit-benefit/:companyId/:name', name: 'EditBenefit', component: EditBenefit, props: true },
+  { path: '/verify',  name: 'VerifyEmail',  component: () => import('@/components/VerifyEmail.vue')  }
 ]
 
 const router = createRouter({

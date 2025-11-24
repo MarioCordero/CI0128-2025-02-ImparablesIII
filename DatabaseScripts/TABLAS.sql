@@ -60,22 +60,27 @@ CREATE TABLE PlaniFy.Usuario (
 -- (4) TABLA Empresa CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.Empresa (
-    Id INT IDENTITY PRIMARY KEY NOT NULL,
-    Nombre NVARCHAR(40) NOT NULL,      -- CORREGIDO: 20 → 40
+    Id INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    -- Datos básicos de la empresa
+    Nombre NVARCHAR(40) NOT NULL,
     CedulaJuridica INT NOT NULL,
-    Email NVARCHAR(100) NOT NULL,      -- CORREGIDO: 50 → 100
-    PeriodoPago NVARCHAR(40) NOT NULL, -- CORREGIDO: 20 → 40
+    Email NVARCHAR(100) NOT NULL,
+    PeriodoPago NVARCHAR(40) NOT NULL,  -- ('Mensual', 'Quincenal')
     Telefono INT,
-    idDireccion INT NOT NULL,
-    MaximoBeneficios INT,              -- AÑADIDO: Falta en tu script
-    FOREIGN KEY (idDireccion) REFERENCES PlaniFy.Direccion(id),
+    -- Relaciones
+    idDireccion INT NOT NULL,           -- FK a Direccion
+    idEmpleador INT NOT NULL,           -- FK a Persona (rol: Empleador)
+    -- Configuración interna
+    MaximoBeneficios INT,
+    -- Foreign Keys
+    FOREIGN KEY (idDireccion) REFERENCES PlaniFy.Direccion(Id),
+    FOREIGN KEY (idEmpleador) REFERENCES PlaniFy.Persona(Id),
+    -- Restricciones
     CONSTRAINT CK_Periodo_Pago CHECK (
-        PeriodoPago IN (
-            N'Mensual',
-            N'Quincenal'
-        )
+        PeriodoPago IN (N'Mensual', N'Quincenal')
     )
 );
+
 
 -- ===================================
 -- (5) TABLA Empleado CORREGIDA

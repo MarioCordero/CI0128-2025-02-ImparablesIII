@@ -15,3 +15,16 @@ CREATE TABLE PlaniFy.Usuario (
         )
     )
 );
+
+-- Índice para optimizar búsquedas por TipoUsuario
+-- TODO: Probar eficiencia
+ALTER TABLE PlaniFy.Usuario
+    ADD VerificationTokenHash NVARCHAR(64) NULL,
+        VerificationTokenExpires DATETIME2 NULL,
+        IsVerified BIT NOT NULL DEFAULT 0;
+GO
+CREATE INDEX IX_Usuario_VerificationTokenHash ON PlaniFy.Usuario (VerificationTokenHash);
+
+-- Modificar longitud de la columna Contrasena para soportar hashes más largos
+ALTER TABLE PlaniFy.Usuario
+ALTER COLUMN Contrasena NVARCHAR(100);

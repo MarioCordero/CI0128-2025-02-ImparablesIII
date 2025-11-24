@@ -15,6 +15,7 @@ namespace backend.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
 
+        // TODO: Hacer SOLID  
         public async Task<int> CreateDireccionAsync(string provincia, string canton, string distrito, string? direccionParticular)
         {
             try

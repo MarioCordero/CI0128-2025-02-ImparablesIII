@@ -151,6 +151,7 @@ namespace backend.Services
                 
                 foreach (var project in projects)
                 {
+                    // TODO
                     // project.ActiveEmployees = await GetActiveEmployeesCountAsync(project.Id);
                     // project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id);
                     // project.CurrentProfitability = await CalculateCurrentProfitabilityAsync(project.Id);
@@ -168,7 +169,6 @@ namespace backend.Services
             }
             catch (Exception)
             {
-                // Log exception si necesario
                 return new List<ProjectResponseDTO>();
             }
         }
@@ -197,10 +197,6 @@ namespace backend.Services
         {
             return await _projectRepository.DeactivateAsync(id);
         }
-
-        // ======================================
-        // MÉTODOS DE VALIDACIÓN
-        // ======================================
 
         public async Task<bool> ExistsByLegalIdAsync(string legalId)
         {
