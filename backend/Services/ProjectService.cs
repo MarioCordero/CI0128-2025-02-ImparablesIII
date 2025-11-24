@@ -17,36 +17,28 @@ namespace backend.Services
 
         public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto)
         {
-            // Validate unique constraints
             if (await _projectRepository.ExistsByNameAsync(createProjectDto.Nombre))
             {
                 throw new ArgumentException("Ya existe una empresa con este nombre");
             }
-
             if (await _projectRepository.ExistsByEmailAsync(createProjectDto.Email))
             {
                 throw new ArgumentException("Ya existe una empresa con este correo electrónico");
             }
-
             if (await _projectRepository.ExistsByLegalIdAsync(createProjectDto.CedulaJuridica.ToString()))
             {
                 throw new ArgumentException("Ya existe una empresa con esta cédula jurídica");
             }
-
-            // Create address using ProjectRepository (which delegates to DirectionRepository)
             int direccionId = await _projectRepository.CreateDireccionAsync(
                 createProjectDto.Provincia,
                 createProjectDto.Canton,
                 createProjectDto.Distrito,
                 createProjectDto.DireccionParticular
             );
-
             if (direccionId <= 0)
             {
                 throw new Exception("Error al crear la dirección");
             }
-
-            // Create project entity
             var project = new Project
             {
                 Nombre = createProjectDto.Nombre.Trim(),
@@ -59,10 +51,8 @@ namespace backend.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-
             var createdProject = await _projectRepository.CreateAsync(project);
             var direccion = await _direccionRepository.GetDireccionByIdAsync(direccionId);
-
             return new ProjectResponseDTO
             {
                 Id = createdProject.Id,
@@ -80,7 +70,6 @@ namespace backend.Services
         public async Task<List<ProjectListDto>> GetAllProjectsAsync()
         {
             var projects = await _projectRepository.GetAllAsync();
-
             return projects.Select(p => new ProjectListDto
             {
                 Id = p.Id,
@@ -143,7 +132,7 @@ namespace backend.Services
             };
         }
 
-       public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
+        public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             try
             {
@@ -151,23 +140,16 @@ namespace backend.Services
                 
                 foreach (var project in projects)
                 {
-                    // TODO
-                    // project.ActiveEmployees = await GetActiveEmployeesCountAsync(project.Id);
-                    // project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id);
-                    // project.CurrentProfitability = await CalculateCurrentProfitabilityAsync(project.Id);
-                    // project.LastMonthProfitability = await CalculateLastMonthProfitabilityAsync(project.Id);
-                    // project.Notifications = await GetProjectNotificationsAsync(project.Id);
-
-                    project.ActiveEmployees = 0; // Placeholder si no se implementa
-                    project.MonthlyPayroll = 0; // Placeholder si no se implementa
-                    project.CurrentProfitability = 0; // Placeholder si no se implementa
-                    project.LastMonthProfitability = 0; // Placeholder si no se implementa
-                    project.Notifications = new List<NotificationDto>(); // Placeholder si no se implementa
+                    project.ActiveEmployees = await _projectRepository.CountActiveEmployeesAsync(project.Id);
+                    project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id); // Cuanto se pagó, si quincena o mes y el ultimo monto  
+                    project.CedulaJuridica = project.CedulaJuridica; // Mantener la cédula jurídica
+                    project.MaximoBeneficios = project.MaximoBeneficios; // Mantener el máximo de beneficios
+                    project.PeriodoPago = project.PeriodoPago; // Mantener el período de pago
                 }
                 
                 return projects;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return new List<ProjectResponseDTO>();
             }
@@ -211,6 +193,13 @@ namespace backend.Services
         public async Task<bool> ProjectExistsAsync(int id)
         {
             return await _projectRepository.ExistsAsync(id);
+        }
+
+        // Dashboard helper methods
+        private async Task<decimal> GetMonthlyPayrollAsync(int projectId)
+        {
+            // Implementar usando PayrollRepository
+            return 0; // Placeholder
         }
     }
 }
