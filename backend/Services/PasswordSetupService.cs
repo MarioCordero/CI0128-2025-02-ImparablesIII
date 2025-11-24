@@ -105,7 +105,6 @@ namespace backend.Services
                 var plainPassword = request.Password;
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
 
-                // Solo actualizar la contraseña, ya que VerifyLinkTokenAsync ya marcó como verificado
                 var passwordUpdated = await _passwordRepository.UpdateEmployeePasswordAsync(personaId, hashedPassword);
 
                 if (!passwordUpdated)

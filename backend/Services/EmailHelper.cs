@@ -40,7 +40,7 @@ namespace backend.Services
             if (userType == "Empleador")
             {
                 // RECORDAR CAMBIAR POR HOST DE FRONTEND PARA EMPLEADORES
-                link = $"http://localhost:8080/employer/verify?token={rawToken}";
+                link = $"http://localhost:8080/verify?token={rawToken}";
                 body = _emailTemplates.GetVerificationLinkTemplate(link);
                 subject = "Verifica tu Cuenta de Empleador - Imparables";
             }

@@ -1,17 +1,17 @@
 SELECT * FROM PlaniFy.Persona WHERE Rol = 'Empleador';
 
-SELECT * FROM PlaniFy.Direccion
+SELECT * FROM PlaniFy.Direccion;
+
 DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 53 AND 61;
 
 SELECT * FROM PlaniFy.Persona;
-DELETE FROM PlaniFy.Persona WHERE Id = 71;
+DELETE FROM PlaniFy.Persona WHERE Id = 74;
 
 SELECT * FROM PlaniFy.Usuario;
 
 SELECT * FROM PlaniFy.Empleado;
 
-DELETE FROM PlaniFy.Usuario WHERE IdPersona IN (SELECT Id FROM PlaniFy.Persona);
-DELETE FROM PlaniFy.Persona;
+SELECT * FROM PlaniFy.Empresa;
 
 
 DECLARE @CompanyId INT = 6;
