@@ -31,12 +31,28 @@ namespace backend.Services
             return Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(raw)));
         }
 
-        public async Task<bool> SendVerificationLinkAsync(string email, string rawToken)
+        public async Task<bool> SendVerificationLinkAsync(string email, string rawToken, string userType)
         {
-            // RECORDAR CAMBIAR POR HOST DE FRONTEND
-            var link = $"http://localhost:8080/verify?token={rawToken}";
-            var body = _emailTemplates.GetVerificationLinkTemplate(link);
-            return await SendEmailAsync(email, "Verifica tu Cuenta - Imparables", body, true);
+            string link;
+            string body;
+            string subject;
+
+            if (userType == "Empleador")
+            {
+                // RECORDAR CAMBIAR POR HOST DE FRONTEND PARA EMPLEADORES
+                link = $"http://localhost:8080/verify?token={rawToken}";
+                body = _emailTemplates.GetVerificationLinkTemplate(link);
+                subject = "Verifica tu Cuenta de Empleador - Imparables";
+            }
+            else
+            {
+                // RECORDAR CAMBIAR POR HOST DE FRONTEND PARA EMPLEADOS
+                link = $"http://localhost:8080/password-setup?token={rawToken}";
+                body = _emailTemplates.GetWelcomeEmailTemplate(link);
+                subject = "Verifica tu Cuenta de Empleado - Imparables";
+            }
+
+            return await SendEmailAsync(email, subject, body, true);
         }
 
         public async Task<bool> SendEmailAsync(string receiverEmail, string subject, string body, bool isHtml = false)
