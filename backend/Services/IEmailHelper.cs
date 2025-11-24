@@ -6,7 +6,7 @@ namespace backend.Services
     {
         string GenerateVerificationToken();
         string HashToken(string raw);
-        Task<bool> SendVerificationLinkAsync(string email, string rawToken);
+        Task<bool> SendVerificationLinkAsync(string email, string rawToken, string userType);
         Task<bool> SendEmailAsync(string receiverEmail, string subject, string body, bool isHtml = false);
         Task<EmailResponseDto> SendEmailWithResponseAsync(string receiverEmail, string subject, string body, bool isHtml = false);
     }

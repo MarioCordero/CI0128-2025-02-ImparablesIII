@@ -212,23 +212,5 @@ namespace backend.Services
             // Implementar usando PayrollRepository
             return 0; // Placeholder
         }
-
-        private async Task<decimal> CalculateCurrentProfitabilityAsync(int projectId)
-        {
-            // Implementar cálculo de rentabilidad actual
-            return 0; // Placeholder
-        }
-
-        private async Task<decimal> CalculateLastMonthProfitabilityAsync(int projectId)
-        {
-            // Implementar cálculo de rentabilidad mes anterior
-            return 0; // Placeholder
-        }
-
-        private async Task<List<NotificationDto>> GetProjectNotificationsAsync(int projectId)
-        {
-            // Implementar obtención de notificaciones
-            return new List<NotificationDto>(); // Placeholder
-        }
     }
 }

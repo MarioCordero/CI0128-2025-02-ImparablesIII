@@ -360,9 +360,6 @@ namespace backend.Repositories
                 MaximoBeneficios = r.MaximoBeneficios,
                 ActiveEmployees = 0, // TODO: Implement
                 MonthlyPayroll = 0, // TODO: Implement
-                CurrentProfitability = 0, // TODO: Implement
-                LastMonthProfitability = 0, // TODO: Implement
-                Notifications = new List<NotificationDto>()
             }).ToList();
         }
 
@@ -422,24 +419,6 @@ namespace backend.Repositories
         public async Task<DirectionDTO?> GetDireccionByIdAsync(int id)
         {
             return await _direccionRepository.GetDireccionByIdAsync(id);
-        }
-
-        private decimal CalculateProfitability(decimal payroll)
-        {
-            // Implementación temporal - ajustar según tu lógica
-            return payroll > 0 ? 15.5m : 0m;
-        }
-
-        private decimal CalculateLastMonthProfitability(int projectId)
-        {
-            // Implementación temporal - ajustar según tu lógica
-            return 12.3m;
-        }
-
-        private List<NotificationDto> GetProjectNotifications(int projectId)
-        {
-            // Implementación temporal - ajustar según tu lógica
-            return new List<NotificationDto>();
         }
     }
 }
