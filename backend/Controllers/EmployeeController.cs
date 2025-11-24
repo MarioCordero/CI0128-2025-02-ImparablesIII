@@ -40,7 +40,6 @@ namespace backend.Controllers
             _emailTemplates = emailTemplates;
         }
 
-        // Register Employee
         [HttpPost]
         public async Task<ActionResult<RegisterEmployeeResponseDto>> RegisterEmployee([FromBody] RegisterEmployeeDto employeeDto)
         {
@@ -125,6 +124,7 @@ namespace backend.Controllers
         {
             try
             {
+                _logger.LogInformation("Iniciando proceso de eliminación para empleado {EmployeeId} solicitado por {EmployerId}", employeeId, request.EmployerId);
                 if (!ModelState.IsValid)
                     return BadRequest(new DeleteEmployeeResponseDto { Success = false, Message = "Datos inválidos." });
 

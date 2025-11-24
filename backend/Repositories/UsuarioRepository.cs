@@ -157,6 +157,24 @@ namespace backend.Repositories
             }
         }
 
+        public async Task<bool> VerifyUserPasswordAsync(int personaId, string plainTextPassword)
+        {
+            try
+            {
+                var user = await GetUserByIdAsync(personaId);
+                if (user?.Contrasena == null)
+                {
+                    return false;
+                }
+
+                return VerifyPassword(plainTextPassword, user.Contrasena);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> UpdateUserPasswordAsync(int personaId, string password)
         {
             try
@@ -241,7 +259,7 @@ namespace backend.Repositories
             }
             catch (Exception)
             {
-                // Log error if needed
+                // Log error
             }
         }
 
@@ -277,5 +295,17 @@ namespace backend.Repositories
                 return false;
             }
         }
-    }
+
+        private bool VerifyPassword(string plainTextPassword, string hashedPassword)
+        {
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(plainTextPassword, hashedPassword);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+            }
 }
