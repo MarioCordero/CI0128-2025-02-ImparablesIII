@@ -41,6 +41,42 @@ namespace backend.Controllers
                     return BadRequest(ModelState);
                 }
 
+                // Check if email exists and if it's an inactive employee that can be reactivated
+                var emailExists = await _employeeService.ValidateEmailExistsAsync(employeeDto.Correo);
+                var inactiveEmployee = emailExists 
+                    ? await _employeeService.GetInactiveEmployeeByEmailAsync(employeeDto.Correo)
+                    : null;
+                
+                if (inactiveEmployee != null)
+                {
+                    // Reactivate and update the employee
+                    _logger.LogInformation("Reactivating inactive employee with email: {Email}", employeeDto.Correo);
+                    
+                    var employeeId = await _employeeService.ReactivateAndUpdateEmployeeAsync(employeeDto, inactiveEmployee.PersonaId);
+
+                    _logger.LogInformation("Employee reactivated successfully with ID: {EmployeeId}", employeeId);
+
+                    // Generate password setup token
+                    var token = await _passwordSetupService.GeneratePasswordSetupTokenAsync(employeeId, employeeDto.Correo);
+
+                    // Send password setup email
+                    await SendPasswordSetupEmailAsync(employeeDto.PrimerNombre, employeeDto.Correo, token);
+
+                    return Ok(new 
+                    { 
+                        message = ReturnMessagesConstants.Employee.EmployeeRegisteredSuccessfully, 
+                        employeeId = employeeId,
+                        reactivated = true
+                    });
+                }
+
+                if (emailExists)
+                {
+                    // Email exists but employee is active or not an employee
+                    return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
+                }
+
+                // Validate that cedula doesn't already exist
                 var cedulaExists = await _employeeService.ValidateCedulaExistsAsync(employeeDto.Cedula);
                 if (cedulaExists)
                 {
@@ -53,14 +89,20 @@ namespace backend.Controllers
                     return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
                 }
 
-                var employeeId = await _employeeService.RegisterEmployeeAsync(employeeDto);
-                _logger.LogInformation($"Employee registered successfully with ID: {employeeId}");
-                var token = await _passwordSetupService.GeneratePasswordSetupTokenAsync(employeeId, employeeDto.Correo);
+                // Register the employee
+                var newEmployeeId = await _employeeService.RegisterEmployeeAsync(employeeDto);
+
+                _logger.LogInformation($"Employee registered successfully with ID: {newEmployeeId}");
+
+                // Generate password setup token
+                var newToken = await _passwordSetupService.GeneratePasswordSetupTokenAsync(newEmployeeId, employeeDto.Correo);
+
+                // Send password setup email
                 await SendPasswordSetupEmailAsync(employeeDto.PrimerNombre, employeeDto.Correo, token);
                 return Ok(new 
                 { 
                     message = ReturnMessagesConstants.Employee.EmployeeRegisteredSuccessfully, 
-                    employeeId = employeeId 
+                    employeeId = newEmployeeId
                 });
             }
             catch (Exception ex)
