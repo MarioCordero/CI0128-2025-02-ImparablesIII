@@ -143,7 +143,7 @@ namespace backend.Services
             };
         }
 
-       public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
+        public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             try
             {
@@ -151,23 +151,16 @@ namespace backend.Services
                 
                 foreach (var project in projects)
                 {
-                    // TODO
-                    // project.ActiveEmployees = await GetActiveEmployeesCountAsync(project.Id);
-                    // project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id);
-                    // project.CurrentProfitability = await CalculateCurrentProfitabilityAsync(project.Id);
-                    // project.LastMonthProfitability = await CalculateLastMonthProfitabilityAsync(project.Id);
-                    // project.Notifications = await GetProjectNotificationsAsync(project.Id);
-
-                    project.ActiveEmployees = 0; // Placeholder si no se implementa
-                    project.MonthlyPayroll = 0; // Placeholder si no se implementa
-                    project.CurrentProfitability = 0; // Placeholder si no se implementa
-                    project.LastMonthProfitability = 0; // Placeholder si no se implementa
-                    project.Notifications = new List<NotificationDto>(); // Placeholder si no se implementa
+                    project.ActiveEmployees = await _projectRepository.CountActiveEmployeesAsync(project.Id);
+                    project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id); // Cuanto se pagó, si quincena o mes y el ultimo monto  
+                    project.CedulaJuridica = project.CedulaJuridica; // Mantener la cédula jurídica
+                    project.MaximoBeneficios = project.MaximoBeneficios; // Mantener el máximo de beneficios
+                    project.PeriodoPago = project.PeriodoPago; // Mantener el período de pago
                 }
                 
                 return projects;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return new List<ProjectResponseDTO>();
             }
@@ -211,6 +204,31 @@ namespace backend.Services
         public async Task<bool> ProjectExistsAsync(int id)
         {
             return await _projectRepository.ExistsAsync(id);
+        }
+
+        // Dashboard helper methods
+        private async Task<decimal> GetMonthlyPayrollAsync(int projectId)
+        {
+            // Implementar usando PayrollRepository
+            return 0; // Placeholder
+        }
+
+        private async Task<decimal> CalculateCurrentProfitabilityAsync(int projectId)
+        {
+            // Implementar cálculo de rentabilidad actual
+            return 0; // Placeholder
+        }
+
+        private async Task<decimal> CalculateLastMonthProfitabilityAsync(int projectId)
+        {
+            // Implementar cálculo de rentabilidad mes anterior
+            return 0; // Placeholder
+        }
+
+        private async Task<List<NotificationDto>> GetProjectNotificationsAsync(int projectId)
+        {
+            // Implementar obtención de notificaciones
+            return new List<NotificationDto>(); // Placeholder
         }
     }
 }
