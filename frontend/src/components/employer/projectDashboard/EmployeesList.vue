@@ -233,8 +233,9 @@ export default {
       return userData.idPersona || localStorage.getItem('employerId')
     },
     
-    buildDeleteRequestBody(credentials) {
+    buildDeleteRequestBody(employerId, credentials) {
       return {
+        employerId: employerId,
         contrasena: credentials.password,
         motivoBaja: credentials.motivoBaja
       }
@@ -242,13 +243,13 @@ export default {
     
     async performEmployeeDeletion(employerId, credentials) {
       const response = await fetch(
-        apiConfig.endpoints.deleteEmployee(this.employeeToDelete.id, employerId),
+        apiConfig.endpoints.deleteEmployee(this.employeeToDelete.id),
         {
           method: 'DELETE',
           headers: {
             'Content-Type': CONTENT_TYPES.JSON
           },
-          body: JSON.stringify(this.buildDeleteRequestBody(credentials))
+          body: JSON.stringify(this.buildDeleteRequestBody(employerId, credentials))
         }
       )
       
