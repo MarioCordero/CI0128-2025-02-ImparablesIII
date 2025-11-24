@@ -4,7 +4,6 @@ namespace backend.Services
 {
     public interface IProjectService
     {
-        // Métodos existentes - mantener tal como están
         Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto);
         Task<List<ProjectListDto>> GetAllProjectsAsync();
         Task<ProjectResponseDTO?> GetProjectByIdAsync(int id);
