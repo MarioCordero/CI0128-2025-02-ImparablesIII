@@ -15,10 +15,10 @@ namespace backend.Controllers
         private readonly IPasswordSetupService _passwordSetupService;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
-        private readonly IEmailTemplates _emailTemplates; // Asegúrese de tener esta interfaz registrada
+        private readonly IEmailTemplates _emailTemplates;
         private readonly IEmployeeDeletionService _employeeDeletionService;
-        private readonly IUsuarioRepository _usuarioRepository;
         private readonly ILogger<EmployeeController> _logger;
+        private readonly IUsuarioRepository _usuarioRepository; // QUITAR DE AQUIII
 
         public EmployeeController(
             IEmployeeDeletionService employeeDeletionService,
@@ -40,6 +40,7 @@ namespace backend.Controllers
             _emailTemplates = emailTemplates;
         }
 
+        // Register Employee
         [HttpPost]
         public async Task<ActionResult<RegisterEmployeeResponseDto>> RegisterEmployee([FromBody] RegisterEmployeeDto employeeDto)
         {
@@ -60,40 +61,29 @@ namespace backend.Controllers
 
             try
             {
-                if (await _employeeService.ValidateCedulaExistsAsync(employeeDto.Cedula))
-                    return BadRequest(new RegisterEmployeeResponseDto
-                    {
-                        Success = false,
-                        Message = ReturnMessagesConstants.Employee.CedulaAlreadyRegistered
-                    });
-
-                if (await _employeeService.ValidateEmailExistsAsync(employeeDto.Correo))
-                    return BadRequest(new RegisterEmployeeResponseDto
-                    {
-                        Success = false,
-                        Message = ReturnMessagesConstants.General.EmailAlreadyExists
-                    });
-
                 var employeeId = await _employeeService.RegisterEmployeeAsync(employeeDto);
-                _logger.LogInformation("Employee registered successfully with ID: {EmployeeId}", employeeId);
-
-                var token = await _passwordSetupService.GeneratePasswordSetupTokenAsync(employeeId, employeeDto.Correo);
-                await SendPasswordSetupEmailAsync(employeeDto.PrimerNombre, employeeDto.Correo, token);
-
+                if (employeeId <= 0)
+                {
+                    return BadRequest(new RegisterEmployeeResponseDto
+                    {
+                        Success = false,
+                        Message = EmployeeConstants.Employee.EmployeeRegistrationFailed
+                    });
+                }
                 return Ok(new RegisterEmployeeResponseDto
                 {
                     Success = true,
-                    Message = ReturnMessagesConstants.Employee.EmployeeRegisteredSuccessfully,
+                    Message = EmployeeConstants.Employee.EmployeeRegisteredSuccessfully,
                     EmployeeId = employeeId
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while registering employee: {Message}", ex.Message);
+                _logger.LogError(ex, "Error registering employee");
                 return StatusCode(500, new RegisterEmployeeResponseDto
                 {
                     Success = false,
-                    Message = string.Format(ReturnMessagesConstants.General.InternalServerErrorWithDetail, ex.Message)
+                    Message = ReturnMessagesConstants.General.InternalServerError
                 });
             }
         }
