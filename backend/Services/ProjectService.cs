@@ -17,36 +17,28 @@ namespace backend.Services
 
         public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto)
         {
-            // Validate unique constraints
             if (await _projectRepository.ExistsByNameAsync(createProjectDto.Nombre))
             {
                 throw new ArgumentException("Ya existe una empresa con este nombre");
             }
-
             if (await _projectRepository.ExistsByEmailAsync(createProjectDto.Email))
             {
                 throw new ArgumentException("Ya existe una empresa con este correo electrónico");
             }
-
             if (await _projectRepository.ExistsByLegalIdAsync(createProjectDto.CedulaJuridica.ToString()))
             {
                 throw new ArgumentException("Ya existe una empresa con esta cédula jurídica");
             }
-
-            // Create address using ProjectRepository (which delegates to DirectionRepository)
             int direccionId = await _projectRepository.CreateDireccionAsync(
                 createProjectDto.Provincia,
                 createProjectDto.Canton,
                 createProjectDto.Distrito,
                 createProjectDto.DireccionParticular
             );
-
             if (direccionId <= 0)
             {
                 throw new Exception("Error al crear la dirección");
             }
-
-            // Create project entity
             var project = new Project
             {
                 Nombre = createProjectDto.Nombre.Trim(),
@@ -59,10 +51,8 @@ namespace backend.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-
             var createdProject = await _projectRepository.CreateAsync(project);
             var direccion = await _direccionRepository.GetDireccionByIdAsync(direccionId);
-
             return new ProjectResponseDTO
             {
                 Id = createdProject.Id,
@@ -80,7 +70,6 @@ namespace backend.Services
         public async Task<List<ProjectListDto>> GetAllProjectsAsync()
         {
             var projects = await _projectRepository.GetAllAsync();
-
             return projects.Select(p => new ProjectListDto
             {
                 Id = p.Id,
