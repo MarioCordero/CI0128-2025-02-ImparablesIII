@@ -29,9 +29,7 @@ namespace backend.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-
                 var result = await _passwordSetupService.SetupPasswordAsync(request);
-
                 if (result.Success)
                 {
                     return Ok(result);
