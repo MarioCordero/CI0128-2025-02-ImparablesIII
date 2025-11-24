@@ -20,8 +20,11 @@ namespace backend.Repositories
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
 
+                // Cambiar de tabla Empleado a Usuario
                 var query = @"
-                    UPDATE PlaniFy.Empleado SET Contrasena = @contrasena WHERE idPersona = @idPersona";
+                    UPDATE PlaniFy.Usuario 
+                    SET Contrasena = @contrasena 
+                    WHERE idPersona = @idPersona";
 
                 using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@idPersona", personaId);
@@ -30,8 +33,10 @@ namespace backend.Repositories
                 var result = await command.ExecuteNonQueryAsync();
                 return result > 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // Agregar logging para debug
+                Console.WriteLine($"Error updating password: {ex.Message}");
                 return false;
             }
         }

@@ -101,7 +101,7 @@ namespace backend.Services
                     return false;
                 }
 
-                await _emailHelper.SendVerificationLinkAsync(form.Email, rawToken);
+                await _emailHelper.SendVerificationLinkAsync(form.Email, rawToken, "Empleador");
                 _logger.LogInformation("Registro empleador OK Persona {PersonaId}", personaId);
                 return true;
             }
@@ -156,7 +156,7 @@ namespace backend.Services
             var updated = await _usuarioRepository.UpdateAsync(usuario);
             if (!updated) return false;
 
-            await _emailHelper.SendVerificationLinkAsync(email, rawToken);
+            await _emailHelper.SendVerificationLinkAsync(email, rawToken, "Empleador");
             return true;
         }
 

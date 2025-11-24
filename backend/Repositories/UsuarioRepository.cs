@@ -48,7 +48,14 @@ namespace backend.Repositories
             {
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
-
+                var existsQuery = "SELECT COUNT(1) FROM PlaniFy.Usuario WHERE idPersona = @idPersona";
+                using var checkCommand = new SqlCommand(existsQuery, connection);
+                checkCommand.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
+                var userExists = Convert.ToInt32(await checkCommand.ExecuteScalarAsync()) > 0;
+                if (userExists)
+                {
+                    throw new InvalidOperationException($"User already exists for PersonaId: {usuario.IdPersona}");
+                }
                 var query = @"
                     INSERT INTO PlaniFy.Usuario (idPersona, TipoUsuario, Contrasena, VerificationTokenHash, VerificationTokenExpires, IsVerified)
                     VALUES (@idPersona, @tipoUsuario, @contrasena, @verificationTokenHash, @verificationTokenExpires, @isVerified)";
@@ -56,7 +63,7 @@ namespace backend.Repositories
                 using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
                 command.Parameters.AddWithValue("@tipoUsuario", usuario.TipoUsuario);
-                command.Parameters.AddWithValue("@contrasena", usuario.Contrasena);
+                command.Parameters.AddWithValue("@contrasena", (object?)usuario.Contrasena ?? DBNull.Value);
                 command.Parameters.AddWithValue("@verificationTokenHash", (object?)usuario.VerificationTokenHash ?? DBNull.Value);
                 command.Parameters.AddWithValue("@verificationTokenExpires", (object?)usuario.VerificationTokenExpires ?? DBNull.Value);
                 command.Parameters.AddWithValue("@isVerified", usuario.IsVerified);
@@ -64,9 +71,13 @@ namespace backend.Repositories
                 var result = await command.ExecuteNonQueryAsync();
                 return result > 0;
             }
-            catch (Exception)
+            catch (SqlException sqlEx)
             {
-                return false;
+                throw new InvalidOperationException($"Database error creating user for PersonaId {usuario.IdPersona}: {sqlEx.Message}", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error creating user for PersonaId {usuario.IdPersona}: {ex.Message}", ex);
             }
         }
 
@@ -143,6 +154,24 @@ namespace backend.Repositories
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public async Task<bool> VerifyUserPasswordAsync(int personaId, string plainTextPassword)
+        {
+            try
+            {
+                var user = await GetUserByIdAsync(personaId);
+                if (user?.Contrasena == null)
+                {
+                    return false;
+                }
+
+                return VerifyPassword(plainTextPassword, user.Contrasena);
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
@@ -230,7 +259,7 @@ namespace backend.Repositories
             }
             catch (Exception)
             {
-                // Log error if needed
+                // Log error
             }
         }
 
@@ -266,5 +295,17 @@ namespace backend.Repositories
                 return false;
             }
         }
-    }
+
+        private bool VerifyPassword(string plainTextPassword, string hashedPassword)
+        {
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(plainTextPassword, hashedPassword);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+            }
 }
