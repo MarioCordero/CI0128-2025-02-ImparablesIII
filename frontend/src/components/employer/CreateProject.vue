@@ -352,7 +352,8 @@ export default {
           Canton: this.form.Canton || null,
           Distrito: this.form.Distrito || null,
           DireccionParticular: this.form.DireccionParticular || null,
-          MaximoBeneficios: parseInt(this.form.MaximoBeneficios)
+          MaximoBeneficios: parseInt(this.form.MaximoBeneficios),
+          employerId: parseInt(localStorage.getItem('employerId'))
         }
         await axios.post(apiConfig.endpoints.project, dataToSend, {
           headers: { 'Content-Type': 'application/json' },
