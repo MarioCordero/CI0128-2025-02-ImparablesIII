@@ -7,7 +7,8 @@ export const apiConfig = {
     login: `${API_BASE_URL}/api/login`,
     passwordSetup: `${API_BASE_URL}/api/PasswordSetup/setup`,
     benefit: `${API_BASE_URL}/api/Benefit`,
-    project: `${API_BASE_URL}/api/Project`,
+    project: `${API_BASE_URL}/api/Project`, // BORRAR
+    projectsByEmployer: (employerId) => `${API_BASE_URL}/api/Project/employer/${employerId}`,
     benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
     benefitByCompanyAndName: (companyId, benefitName) => `${API_BASE_URL}/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`,
     projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,

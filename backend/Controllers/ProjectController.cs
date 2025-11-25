@@ -62,12 +62,13 @@ namespace backend.Controllers
             }
         }
 
+        // GET projects by employer ID
         [HttpGet("employer/{employerId}")]
         public async Task<ActionResult<List<ProjectResponseDTO>>> GetByEmployerId(int employerId)
         {
             try
             {
-                var projects = await _projectRepository.GetByEmployerIdAsync(employerId);
+                var projects = await _projectService.GetProjectsByEmployerIdAsync(employerId);
                 return Ok(projects);
             }
             catch (Exception ex)
