@@ -1,6 +1,4 @@
 <template>
-
-
   <div class="body m-0! p-0!">
     <div class="grid grid-cols-4 gap-7 w-full"> 
       <!-- Card con horas trabajadas esta semana -->
@@ -8,52 +6,56 @@
         <p class="font-bold text-[16px]">Horas esta semana</p>
         <p class="font-bold text-[28px] mb-1">{{ hoursThisWeek }} horas</p>
         <p class="text-[15px]">trabajadas</p>
-       </div>
+      </div>
     
       <!-- Card con horas trabajadas este mes -->
-        <div class="neumorphism-card-project flex flex-col justify-between">
-          <p class="font-bold text-[16px]">Horas este mes</p>
-          <p class="font-bold text-[28px] mb-1">{{ hoursThisMonth }} horas</p>
-          <p class="text-[15px]">trabajadas</p>
-        </div>
+      <div class="neumorphism-card-project flex flex-col justify-between">
+        <p class="font-bold text-[16px]">Horas este mes</p>
+        <p class="font-bold text-[28px] mb-1">{{ hoursThisMonth }} horas</p>
+        <p class="text-[15px]">trabajadas</p>
+      </div>
     
       <!-- Card con registros totales -->
-        <div class="neumorphism-card-project flex flex-col justify-between">
-          <p class="font-bold text-[16px]">Registros totales</p>
-          <p class="font-bold text-[28px] mb-1">{{ totalEntries }} registros</p>
-          <p class="text-[15px]">en total</p>
-        </div>
-    
-      <!-- Card ultimo registro -->
-        <div class="neumorphism-card-project flex flex-col justify-between" v-if="lastEnt">
-          <p class="font-bold text-[16px]">Último registro</p>
-          <p class="font-bold text-[28px] mb-1">{{ lastEnt.quantity }} horas</p>
-          <p class="text-[15px]">{{ formatDate(lastEnt.date) }}</p>
-        </div>
-        <div class="neumorphism-card-project flex flex-col justify-between" v-else>
-          <p class="font-bold text-[16px]">Último registro</p>
-          <p class="font-bold text-[28px] mb-1">0 horas</p>
-          <p class="text-[15px]">No hay registros</p>
-        </div>
-      
-    </div>
+      <div class="neumorphism-card-project flex flex-col justify-between">
+        <p class="font-bold text-[16px]">Registros totales</p>
+        <p class="font-bold text-[28px] mb-1">{{ totalEntries }} registros</p>
+        <p class="text-[15px]">en total</p>
+      </div>
   
+      <!-- Card ultimo registro -->
+      <div class="neumorphism-card-project flex flex-col justify-between" v-if="lastEnt">
+        <p class="font-bold text-[16px]">Último registro</p>
+        <p class="font-bold text-[28px] mb-1">{{ lastEnt.quantity }} horas</p>
+        <p class="text-[15px]">{{ formatDate(lastEnt.date) }}</p>
+      </div>
+      <div class="neumorphism-card-project flex flex-col justify-between" v-else>
+        <p class="font-bold text-[16px]">Último registro</p>
+        <p class="font-bold text-[28px] mb-1">0 horas</p>
+        <p class="text-[15px]">No hay registros</p>
+      </div>
+    </div>
+
   
     <div class="grid grid-cols-2 gap-9 w-full">
       <!-- Card que registra horas -->
-        <div class="neumorphism-card">
+        <div class="neumorphism-card flex flex-col">
           <h2>Registrar Horas</h2>
-          <form @submit.prevent="submitHours">
-            <label for="date">Fecha:</label>
-            <input type="date" id="date" class="neumorphism-input" v-model="dateToRegister" required />
+          <form @submit.prevent="submitHours" class="flex flex-col flex-1 justify-between gap-4 mt-3">
+            <div class="flex flex-col gap-1">
+              <label for="date" class="text-[20px]!">Fecha:</label>
+              <input type="date" id="date" class="neumorphism-input h-15 px-[20px]! py-[10px]! text-[20px]!" v-model="dateToRegister" required />
+            </div>
     
-            <label for="startHour">Hora de inicio:</label>
-            <input type="time" id="startHour" class="neumorphism-input" v-model="startHourToRegister" min="00:00" max="23:59" required />
+            <div class="flex flex-col gap-1">
+              <label for="startHour" class="text-[20px]!">Hora de inicio:</label>
+              <input type="time" id="startHour" class="neumorphism-input h-15 px-[20px]! py-[10px]! text-[20px]!" v-model="startHourToRegister" min="00:00" max="23:59" required />
+            </div>
     
-            <label for="endHour">Hora de fin:</label>
-            <input type="time" id="endHour" class="neumorphism-input" v-model="endHourToRegister" min="00:00" max="23:59" required />
-            
-            <button type="submit" class="neumorphism-button-normal-blue" :disabled="submitting">
+            <div class="flex flex-col gap-1">
+              <label for="endHour" class="text-[20px]!">Hora de fin:</label>
+              <input type="time" id="endHour" class="neumorphism-input h-15 px-[20px]! py-[10px]! text-[20px]!" v-model="endHourToRegister" min="00:00" max="23:59" required />
+            </div>
+            <button type="submit" class="neumorphism-button-normal-blue w-full h-15" :disabled="submitting">
               {{ submitting ? 'Registrando...' : 'Registrar' }}
             </button>
           </form>
@@ -62,33 +64,35 @@
       <!-- Card que muestra los ultimos 6 registros -->
         <div class="neumorphism-card">
           <h2>Últimos Registros</h2>
-          <ul v-if="recentEntries.length">
-            <li v-for="entry in recentEntries" :key="entry.id">
-              {{ formatDate(entry.date) }} • {{ entry.quantity }} horas · Estado: {{ entry.status }}
-            </li>
-          </ul>
+          <div v-if="recentEntries.length" class="flex flex-col gap-3 mt-3">
+            <div
+              v-for="entry in recentEntries"
+              :key="entry.id"
+              class="neumorphism-on-small-item register-item"
+              :class="getStatusClass(entry.status)"
+            >
+              <span><span class="font-semibold">Fecha:</span> {{ formatDate(entry.date) }}</span>
+              <span><span class="font-semibold">Horas:</span> {{ entry.quantity }}</span>
+              <span><span class="font-semibold">Estado:</span> {{ entry.status }}</span>
+            </div>
+          </div>
           <p v-else class="text-gray-500">Sin registros recientes.</p>
         </div>
     </div>
   
-  
-  
     <!-- Card con informacion importante -->
       <div class="info-card">
         <h2>Información Importante</h2>
-        <ul>
-          <li>Recuerda que los registros no pueden ser modificados una vez guardados.</li>
-          <li>La hora de salida no puede ser anterior a la hora de entrada.</li>
-          <li>Puedes registar un maximo de 8 horas por día.</li>
-          <li>Solo seran tomadas en cuenta las horas completas.</li>
-        </ul>
+        <div class=" rounded-[24px] border-6 border-dashed border-gray-300 p-4 bg-[#e5f0ff]">
+          <p><strong>•</strong>  Recuerda que los registros no pueden ser modificados una vez guardados.</p>
+          <p><strong>•</strong>  La hora de salida no puede ser anterior a la hora de entrada.</p>
+          <p><strong>•</strong>  Puedes registar un maximo de 8 horas por día.</p>
+          <p><strong>•</strong>  Solo seran tomadas en cuenta las horas completas. Si haces minutos extra, no serán contabilizados.</p>
+          <p><strong>•</strong>  El formato de hora debe ser {HH}:{MM} {a.m. o p.m.}.</p>
+        </div>
       </div>
 
   </div>
-
-
-
-
 </template>
 
 <script>
@@ -179,6 +183,20 @@ export default {
       this.startHourToRegister = ''
       this.endHourToRegister = ''
     },
+    getStatusClass(status) {
+      if (!status) {
+        return 'status-pending'
+      }
+
+      const normalized = status.toLowerCase()
+      if (normalized === 'aprobado') {
+        return 'status-approved'
+      }
+      if (normalized === 'rechazado') {
+        return 'status-rejected'
+      }
+      return 'status-pending'
+    },
     async submitHours() {
       if (!this.employeeId) {
         this.$emit('error', 'No se pudo identificar al empleado.')
@@ -199,12 +217,13 @@ export default {
       }
 
       const difference = endMinutes - startMinutes
-      if (difference % 60 !== 0) {
-        this.$emit('error', 'Solo se permiten horas completas.')
+      const quantity = Math.floor(difference / 60)
+
+      if (quantity <= 0) {
+        this.$emit('error', 'Debes registrar al menos 1 hora completa.')
         return
       }
 
-      const quantity = difference / 60
       if (quantity > 8) {
         this.$emit('error', 'Solo puedes registrar un máximo de 8 horas por día.')
         return
@@ -230,8 +249,22 @@ export default {
         })
 
         if (!response.ok) {
-          const errorBody = await response.text()
-          throw new Error(errorBody || 'Ocurrió un error al registrar las horas.')
+          let errorMessage = 'Ocurrió un error al registrar las horas.'
+          const contentType = response.headers.get('content-type') || ''
+
+          try {
+            if (contentType.includes('application/json')) {
+              const errorBody = await response.json()
+              errorMessage = errorBody?.message || errorMessage
+            } else {
+              const rawText = await response.text()
+              errorMessage = rawText || errorMessage
+            }
+          } catch (parseError) {
+            console.error('Error parsing response', parseError)
+          }
+
+          throw new Error(errorMessage)
         }
 
         this.$emit('error', null)
@@ -247,3 +280,35 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.register-item {
+  width: 100%;
+  height: 60px;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 10px 20px;
+  font-size: 20px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  transition: all 0.3s ease;
+}
+
+.register-item:hover {
+  transform: scale(1.03);
+  transition: all 0.3s ease;
+}
+
+.status-pending {
+  background-color: #f6fedb66;
+}
+
+.status-approved {
+  background-color: #e1fedb;
+}
+
+.status-rejected {
+  background-color: #fedbdb;
+}
+</style>

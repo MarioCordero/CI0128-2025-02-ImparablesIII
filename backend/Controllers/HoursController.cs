@@ -46,6 +46,12 @@ namespace backend.Controllers
 			}
 			catch (InvalidOperationException ex)
 			{
+				if (string.Equals(ex.Message, ReturnMessagesConstants.Hours.DailyLimitExceeded, StringComparison.OrdinalIgnoreCase))
+				{
+					_logger.LogWarning(ex, "Daily hours limit exceeded for employee {EmployeeId}", request.EmployeeId);
+					return BadRequest(new { message = ex.Message });
+				}
+
 				_logger.LogWarning(ex, "Cannot resolve approver for employee {EmployeeId}", request.EmployeeId);
 				return StatusCode(409, new { message = ex.Message });
 			}

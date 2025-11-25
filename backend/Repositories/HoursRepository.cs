@@ -1,3 +1,5 @@
+using System;
+using backend.Constants;
 using backend.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -8,7 +10,10 @@ namespace backend.Repositories
 	public class HoursRepository : IHoursRepository
 	{
 		private readonly string _connectionString;
-        private const int DefaultRecentLimit = 6;
+		private const int DefaultRecentLimit = 6;
+		private const int UserDefinedErrorNumber = 50000;
+		private const string DailyLimitSqlMessage = "No se pueden registrar más de 8 horas por día";
+		private static readonly string DailyLimitFriendlyMessage = ReturnMessagesConstants.Hours.DailyLimitExceeded;
 
 		public HoursRepository(IConfiguration configuration)
 		{
@@ -26,18 +31,37 @@ namespace backend.Repositories
 			await using var connection = new SqlConnection(_connectionString);
 			await connection.OpenAsync();
 
-			var id = await connection.ExecuteScalarAsync<int>(query, new
+			try
 			{
-				entry.EmployeeId,
-				entry.Quantity,
-				entry.Detail,
-				entry.Date,
-				entry.Status,
-				entry.ApproverId
-			});
+				var id = await connection.ExecuteScalarAsync<int>(query, new
+				{
+					entry.EmployeeId,
+					entry.Quantity,
+					entry.Detail,
+					entry.Date,
+					entry.Status,
+					entry.ApproverId
+				});
 
-			entry.Id = id;
-			return entry;
+				entry.Id = id;
+				return entry;
+			}
+			catch (SqlException ex) when (IsDailyLimitExceeded(ex))
+			{
+				throw new InvalidOperationException(DailyLimitFriendlyMessage, ex);
+			}
+		}
+
+		private static bool IsDailyLimitExceeded(SqlException ex)
+		{
+			if (ex == null)
+			{
+				return false;
+			}
+
+			var message = ex.Message ?? string.Empty;
+			return ex.Number == UserDefinedErrorNumber &&
+				message.IndexOf(DailyLimitSqlMessage, StringComparison.OrdinalIgnoreCase) >= 0;
 		}
 
 		public async Task<List<Hours>> GetRecentEntriesAsync(int employeeId, int limit = DefaultRecentLimit)
