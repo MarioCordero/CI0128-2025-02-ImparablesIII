@@ -530,3 +530,4 @@ $RECYCLE.BIN/
 *.swp
 emailconfig.json
 Tests/TodoModelosYDtos.cs
+Tests/TodoModelosYDtos.cs.txt
