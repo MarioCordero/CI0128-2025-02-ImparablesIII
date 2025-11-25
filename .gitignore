@@ -529,3 +529,4 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 emailconfig.json
+Tests/TodoModelosYDtos.cs
