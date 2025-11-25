@@ -8,13 +8,14 @@
       <section class="p-0">
         <!-- TODO: Agregar la inicial -->
         <h1 class="text-2xl font-bold mb-1">¡Hola, {{ user?.nombre || 'Usuario' }}!</h1>
-        <p class="text-gray-600 text-[19px] font-medium">Administra los beneficios de tu organización</p>
+        <p class="text-gray-600 text-[19px] font-medium">Aquí aparecen datos generales de tus organizaciones:</p>
       </section>
     
       <!-- Stats & Notifications -->
-      <section class="grid md:grid-cols-2 gap-6 mb-6">
-        <StatsCard v-if="!loading && !error" :userId="user?.idPersona"/>
-        <NotificationsCard/>
+      <section class="grid md:grid-cols-3 gap-6 mb-6">
+        <KPICards :userId="user?.idPersona"/>
+        <EmployeeDistributionChart :userId="user?.idPersona"/>
+        <PayrollCostsChart :userId="user?.idPersona"/>
       </section>
     
       <!-- Seccion Mis Empresas -->
@@ -46,62 +47,66 @@
 </template>
 
 <script>
-import MainEmployerHeader from '../common/MainEmployerHeader.vue'
-import ProjectList from './ProjectList.vue'
-import apiConfig from '../../config/api.js'
-import StatsCard from './StatsCard.vue'
-import NotificationsCard from './projectDashboard/NotificationsCard.vue'
+  import MainEmployerHeader from '../common/MainEmployerHeader.vue'
+  import ProjectList from './ProjectList.vue'
+  import apiConfig from '../../config/api.js'
 
-export default {
-  name: 'DashboardMainEmployer',
+  // STATS COMPONENTS
+  import KPICards from './KPICards.vue'
+  import EmployeeDistributionChart from './EmployeeDistributionChart.vue'
+  import PayrollCostsChart from './PayrollCostsChart.vue'
 
-  components: {
-    MainEmployerHeader,
-    ProjectList,
-    StatsCard,
-    NotificationsCard
-  },
-  data() {
-    return {
-      companies: [],
-      loading: false,
-      error: null,
-      user: null
-    }
-  },
+  export default {
+    name: 'DashboardMainEmployer',
 
-  methods: {
-    navigateToCreateProject() {
-      this.$router.push('/create-project')
+    components: {
+      MainEmployerHeader,
+      ProjectList,
+      KPICards,
+      EmployeeDistributionChart,
+      PayrollCostsChart
     },
-    async fetchCompanies() {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await fetch(apiConfig.endpoints.project)
-        if (!response.ok) throw new Error('No se pudo cargar las empresas')
-        this.companies = await response.json()
-      } catch (err) {
-        this.error = err.message || 'Error al cargar las empresas'
-      } finally {
-        this.loading = false
+    data() {
+      return {
+        companies: [],
+        loading: false,
+        error: null,
+        user: null
       }
-    }
-  },
-  created() {
-    const userRaw = localStorage.getItem('user')
-    if (userRaw) {
-      try {
-        this.user = JSON.parse(userRaw)
-      } catch {
-        this.user = null
-      }
-    }
-  },
+    },
 
-  mounted() {
-    this.fetchCompanies()
-    localStorage.setItem('selectedProject', 'null')
+    methods: {
+      navigateToCreateProject() {
+        this.$router.push('/create-project')
+      },
+      async fetchCompanies() {
+        this.loading = true
+        this.error = null
+        try {
+          const response = await fetch(apiConfig.endpoints.project)
+          if (!response.ok) throw new Error('No se pudo cargar las empresas')
+          this.companies = await response.json()
+        } catch (err) {
+          this.error = err.message || 'Error al cargar las empresas'
+        } finally {
+          this.loading = false
+        }
+      }
+    },
+    created() {
+      const userRaw = localStorage.getItem('user')
+      if (userRaw) {
+        try {
+          this.user = JSON.parse(userRaw)
+        } catch {
+          this.user = null
+        }
+      }
+    },
+
+    mounted() {
+      this.fetchCompanies()
+      localStorage.setItem('selectedProject', 'null')
+    }
   }
-}
 </script>

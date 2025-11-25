@@ -38,8 +38,18 @@
 
       <!-- Hours Registry Section -->
       <div v-else-if="selectedSection === 'hours'">
-        <h2 class="text-xl font-bold mb-2">Registro de Horas</h2>
-        <p class="text-gray-600 mb-2">Aquí puedes registrar tus horas trabajadas.</p>
+        <div class="space-y-[18px]">
+          <h1 class="text-4xl font-bold text-gray-800">Registro de Horas</h1>
+          <p class="text-gray-600">Aquí puedes registrar tus horas trabajadas.</p>
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
+        </div>
+
+        <div class="mt-[41px]">
+          <HoursRegistry
+            :employee-id="user?.idPersona"
+            @error="handleError"
+          />
+        </div>
       </div>
 
       <!-- Payroll Reports Section -->
@@ -61,6 +71,7 @@ import EmployeeHeader from '../common/EmployeeHeader.vue'
 import DashboardEmployeeSubHeader from './DashboardEmployeeSubHeader.vue'
 import BenefitsSelectionView from './BenefitsSelectionView.vue'
 import PayrollReports from '../common/PayrollReports.vue'
+import HoursRegistry from './HoursRegistry.vue'
 
 export default {
   name: 'DashboardEmployee',
@@ -69,6 +80,7 @@ export default {
     DashboardEmployeeSubHeader,
     BenefitsSelectionView,
     PayrollReports,
+    HoursRegistry
   },
   data() {
     return {

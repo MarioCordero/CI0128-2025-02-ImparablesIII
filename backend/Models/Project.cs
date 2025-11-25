@@ -12,6 +12,9 @@ namespace backend.Models
         
         [Required]
         public int CedulaJuridica { get; set; }
+
+        [Required]
+        public int EmployerId { get; set; }
         
         [Required]
         [MaxLength(50)]

@@ -13,6 +13,9 @@ namespace backend.Services
 
         public byte[] BuildPdf(DetailedPayrollReportDto report)
         {
+            if (report == null)
+                throw new ArgumentNullException(nameof(report));
+
             var document = Document.Create(container =>
             {
                 container.Page(page =>

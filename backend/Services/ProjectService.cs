@@ -15,6 +15,7 @@ namespace backend.Services
             _direccionRepository = direccionRepository;
         }
 
+        // CREATE A PROJECT
         public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto)
         {
             if (await _projectRepository.ExistsByNameAsync(createProjectDto.Nombre))
@@ -67,6 +68,7 @@ namespace backend.Services
             };
         }
 
+        // GET ALL PROJECTS ON THE APP
         public async Task<List<ProjectListDto>> GetAllProjectsAsync()
         {
             var projects = await _projectRepository.GetAllAsync();
@@ -82,30 +84,24 @@ namespace backend.Services
             }).ToList();
         }
 
+        // GET A PROJECT BY ID
         public async Task<ProjectResponseDTO?> GetProjectByIdAsync(int id)
         {
             return await _projectRepository.GetProjectWithDireccionAsync(id);
         }
 
-        // Métodos para compatibilidad
-        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
+        // GET A PROJECTS BY EMPLOYER ID
+        public async Task<List<ProjectResponseDTO>> GetProjectsByEmployerIdAsync(int employerId)
         {
-            // Ignora el employerId ya que no está en tu esquema
-            return await CreateProjectAsync(createProjectDto);
+            return await _projectRepository.GetByEmployerIdAsync(employerId);
         }
 
-        public async Task<List<ProjectListDto>> GetProjectsByEmployerAsync(int employerId)
-        {
-            // Devuelve todos los proyectos ya que no hay relación con empleador
-            return await GetAllProjectsAsync();
-        }
         public async Task<UpdateProjectResult> UpdateProjectAsync(int id, UpdateProjectDTO dto)
         {
             var project = await _projectRepository.GetByIdAsync(id);
             if (project == null)
                 return new UpdateProjectResult { Success = false, ErrorMessage = "Empresa no encontrada." };
 
-            // Update address first if it exists and dto.Direccion is provided
             if (dto.Direccion != null)
             {
                 var direccionModel = new Direccion
@@ -120,11 +116,8 @@ namespace backend.Services
                 await _projectRepository.UpdateDireccionAsync(project.IdDireccion, dto.Direccion);
             }
 
-            // Update project using repository method
             await _projectRepository.UpdateAsync(id, dto);
-
             var updatedProject = await _projectRepository.GetProjectWithDireccionAsync(id);
-            
             return new UpdateProjectResult
             {
                 Success = true,
@@ -132,12 +125,12 @@ namespace backend.Services
             };
         }
 
+        // DASHBOARD METHODS
         public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             try
             {
                 var projects = await _projectRepository.GetProjectsForDashboardAsync(employerId);
-                
                 foreach (var project in projects)
                 {
                     project.ActiveEmployees = await _projectRepository.CountActiveEmployeesAsync(project.Id);
@@ -146,13 +139,18 @@ namespace backend.Services
                     project.MaximoBeneficios = project.MaximoBeneficios; // Mantener el máximo de beneficios
                     project.PeriodoPago = project.PeriodoPago; // Mantener el período de pago
                 }
-                
                 return projects;
             }
             catch (Exception ex)
             {
                 return new List<ProjectResponseDTO>();
             }
+        }
+
+        // METHODS FOR COMPABILITY WITH EMPLOYER SERVICE
+        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
+        {
+            return await CreateProjectAsync(createProjectDto);
         }
 
         public async Task<int> GetActiveEmployeesCountAsync(int projectId)
@@ -195,10 +193,8 @@ namespace backend.Services
             return await _projectRepository.ExistsAsync(id);
         }
 
-        // Dashboard helper methods
         private async Task<decimal> GetMonthlyPayrollAsync(int projectId)
         {
-            // Implementar usando PayrollRepository
             return 0; // Placeholder
         }
     }

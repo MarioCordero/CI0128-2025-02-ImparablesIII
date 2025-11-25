@@ -5,6 +5,7 @@ using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using backend.Models;
 
 namespace backend.Controllers
 {
@@ -61,12 +62,13 @@ namespace backend.Controllers
             }
         }
 
+        // GET projects by employer ID
         [HttpGet("employer/{employerId}")]
         public async Task<ActionResult<List<ProjectResponseDTO>>> GetByEmployerId(int employerId)
         {
             try
             {
-                var projects = await _projectRepository.GetByEmployerIdAsync(employerId);
+                var projects = await _projectService.GetProjectsByEmployerIdAsync(employerId);
                 return Ok(projects);
             }
             catch (Exception ex)
@@ -103,10 +105,11 @@ namespace backend.Controllers
                     return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
                 }
 
-                var project = new backend.Models.Project
+                var project = new Project
                 {
                     Nombre = projectDto.Nombre,
                     CedulaJuridica = projectDto.CedulaJuridica,
+                    EmployerId = projectDto.EmployerId,
                     Email = projectDto.Email,
                     PeriodoPago = projectDto.PeriodoPago,
                     Telefono = projectDto.Telefono,
