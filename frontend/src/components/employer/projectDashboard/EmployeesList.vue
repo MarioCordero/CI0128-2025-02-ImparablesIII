@@ -324,3 +324,17 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.employee-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 27px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 10px;
+}
+</style>
