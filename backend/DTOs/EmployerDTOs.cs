@@ -8,6 +8,9 @@ namespace backend.DTOs
       [MaxLength(20)]
       public string Nombre { get; set; } = string.Empty;
 
+      [MaxLength(20)]
+      public string? SegundoNombre { get; set; }
+
       [Required]
       [MaxLength(20)]
       public string PrimerApellido { get; set; } = string.Empty;
@@ -55,5 +58,26 @@ namespace backend.DTOs
       [MaxLength(150)]
       public string? DireccionParticular { get; set; }
     }
+    
+    public class ResendVerificationRequestDto
+    {
+        public string Email { get; set; } = string.Empty;
+    }
 
+    public class VerifyEmployerRequestDto
+    {
+        public int PersonaId { get; set; }
+        public string Password { get; set; } = string.Empty;
+    }
+
+    public class VerifyCodeRequestDto
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+    }
+    
+    public class VerifyLinkTokenRequestDto
+    {
+        public string Token { get; set; } = string.Empty;
+    }
 }

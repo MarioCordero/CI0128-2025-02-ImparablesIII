@@ -1,11 +1,8 @@
 namespace backend.Services
 {
-    /// <summary>
-    /// HTML email templates that match the EmployeeList component styling
-    /// </summary>
-    public static class EmailTemplates
+    public class EmailTemplates : IEmailTemplates
     {
-        private static string GetBaseTemplate(string title, string content)
+        private string GetBaseTemplate(string title, string content)
         {
             return $@"
             <!DOCTYPE html>
@@ -129,38 +126,73 @@ namespace backend.Services
             </html>";
         }
 
-        public static string GetWelcomeEmailTemplate(string userName)
+        public string GetVerificationLinkTemplate(string verificationLink)
         {
             var content = $@"
-                <div class=""greeting"">¡Bienvenido a Imparables, {userName}!</div>
+                <div class=""greeting"">Verifica tu Cuenta</div>
                 <div class=""message"">
-                    Nos alegra tenerte en nuestra plataforma. Tu registro ha sido completado exitosamente 
-                    y ya puedes comenzar a utilizar todas las funcionalidades disponibles.
-                </div>
-                
-                <div class=""highlight-box"">
-                    <h3 style=""margin-top: 0; color: #2d384b;"">¿Qué puedes hacer ahora?</h3>
-                    <ul style=""text-align: left; color: #4b5563; margin: 0;"">
-                        <li>Gestionar información de empleados</li>
-                        <li>Acceder a herramientas de administración</li>
-                        <li>Configurar tu perfil empresarial</li>
-                        <li>Explorar todas nuestras funcionalidades</li>
-                    </ul>
-                </div>
-                
-                <div class=""message"">
-                    Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos. 
-                    Estamos aquí para apoyarte en cada paso del camino.
+                    Haz clic en el botón de abajo para activar tu cuenta en Imparables.
                 </div>
                 
                 <div style=""text-align: center;"">
-                    <a href=""#"" class=""button"">Explorar Plataforma</a>
+                    <a href=""{verificationLink}"" class=""button"" style=""color: #ffffff;"">Activar Cuenta</a>
+                </div>
+                
+                <div class=""highlight-box"">
+                    <p style=""color: #6b7280; font-size: 14px; margin-top: 0; margin-bottom: 12px;"">
+                        Si el botón no funciona, copia y pega este enlace en tu navegador:
+                    </p>
+                    <div class=""token-link"">{verificationLink}</div>
+                </div>
+                
+                <div class=""expiry-warning"">
+                    <strong>⏰ Importante:</strong> Este enlace expira en 24 horas por seguridad.
+                </div>";
+
+            return GetBaseTemplate("Verifica tu Cuenta - Imparables", content);
+        }
+
+        public string GetWelcomeEmailTemplate(string verificationLink)
+        {
+            var content = $@"
+                <div class=""greeting"">¡Bienvenido a Imparables!</div>
+                <div class=""message"">
+                    Has sido registrado exitosamente como empleado en nuestra plataforma. 
+                    Para comenzar a utilizar todas las funcionalidades, necesitas configurar tu contraseña.
+                </div>
+                
+                <div class=""highlight-box"">
+                    <h3 style=""margin-top: 0; color: #2d384b;"">Configura tu contraseña</h3>
+                    <p style=""color: #4b5563; margin: 16px 0;"">
+                        Haz clic en el botón de abajo para configurar tu contraseña y activar tu cuenta.
+                    </p>
+                    <div style=""text-align: center;"">
+                        <a href=""{verificationLink}"" class=""button"" style=""color: #ffffff;"">Configurar Contraseña</a>
+                    </div>
+                    <p style=""color: #6b7280; font-size: 14px; margin-top: 16px; margin-bottom: 0;"">
+                        Este enlace expira en 24 horas por seguridad
+                    </p>
+                </div>
+                
+                <div class=""message"">
+                    <strong>¿Qué podrás hacer una vez configurada tu contraseña?</strong>
+                    <ul style=""text-align: left; color: #4b5563; margin: 0; padding-left: 20px;"">
+                        <li>Registrar tus horas trabajadas</li>
+                        <li>Ver tu información de planilla</li>
+                        <li>Actualizar tu perfil personal</li>
+                        <li>Acceder a beneficios disponibles</li>
+                    </ul>
+                </div>
+                
+                <div class=""message"" style=""background-color: #fef3c7; border-radius: 12px; padding: 16px; border-left: 4px solid #f59e0b;"">
+                    <strong>⚠️ Importante:</strong> Si no reconoces este registro, 
+                    contacta inmediatamente con tu empleador o administrador del sistema.
                 </div>";
 
             return GetBaseTemplate("¡Bienvenido a Imparables!", content);
         }
 
-        public static string GetVerificationTemplate(string nombre, string token, string rol)
+        public string GetVerificationTemplate(string nombre, string token, string rol)
         {
             var content = $@"
                 <div class=""greeting"">¡Hola {nombre}!</div>
@@ -195,7 +227,7 @@ namespace backend.Services
             return GetBaseTemplate("Verifica tu Correo - Imparables", content);
         }
 
-        public static string GetPasswordResetTemplate(string resetToken)
+        public string GetPasswordResetTemplate(string resetToken)
         {
             var content = $@"
                 <div class=""greeting"">Solicitud de Restablecimiento de Contraseña</div>
@@ -228,7 +260,7 @@ namespace backend.Services
             return GetBaseTemplate("Restablecimiento de Contraseña - Imparables", content);
         }
 
-        public static string GetNotificationTemplate(string title, string message, string? actionUrl = null, string? actionText = null)
+        public string GetNotificationTemplate(string title, string message, string? actionUrl = null, string? actionText = null)
         {
             var actionButton = string.IsNullOrEmpty(actionUrl) ? "" : 
                 $@"<div style=""text-align: center;"">
@@ -243,7 +275,7 @@ namespace backend.Services
             return GetBaseTemplate(title, content);
         }
 
-        public static string GetEmployeeNotificationTemplate(string employeeName, string notificationType, string details)
+        public string GetEmployeeNotificationTemplate(string employeeName, string notificationType, string details)
         {
             var content = $@"
                 <div class=""greeting"">Notificación de Empleado</div>
@@ -268,7 +300,7 @@ namespace backend.Services
             return GetBaseTemplate($"Notificación de Empleado - {employeeName}", content);
         }
 
-        public static string GetPasswordSetupTemplate(string employeeName, string setupUrl)
+        public string GetPasswordSetupTemplate(string employeeName, string setupUrl)
         {
             var content = $@"
                 <div class=""greeting"">¡Bienvenido a Imparables, {employeeName}!</div>
@@ -283,7 +315,7 @@ namespace backend.Services
                         Haz clic en el botón de abajo para configurar tu contraseña y activar tu cuenta.
                     </p>
                     <div style=""text-align: center;"">
-                        <a href=""{setupUrl}"" class=""button"">Configurar Contraseña</a>
+                        <a href=""{setupUrl}"" class=""button"" style=""color: #ffffff;"">Configurar Contraseña</a>
                     </div>
                     <p style=""color: #6b7280; font-size: 14px; margin-top: 16px; margin-bottom: 0;"">
                         Este enlace expira en 30 minutos por seguridad

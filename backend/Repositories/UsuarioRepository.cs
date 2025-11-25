@@ -48,22 +48,36 @@ namespace backend.Repositories
             {
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
-
+                var existsQuery = "SELECT COUNT(1) FROM PlaniFy.Usuario WHERE idPersona = @idPersona";
+                using var checkCommand = new SqlCommand(existsQuery, connection);
+                checkCommand.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
+                var userExists = Convert.ToInt32(await checkCommand.ExecuteScalarAsync()) > 0;
+                if (userExists)
+                {
+                    throw new InvalidOperationException($"User already exists for PersonaId: {usuario.IdPersona}");
+                }
                 var query = @"
-                    INSERT INTO PlaniFy.Usuario (idPersona, TipoUsuario, Contrasena)
-                    VALUES (@idPersona, @tipoUsuario, @contrasena)";
+                    INSERT INTO PlaniFy.Usuario (idPersona, TipoUsuario, Contrasena, VerificationTokenHash, VerificationTokenExpires, IsVerified)
+                    VALUES (@idPersona, @tipoUsuario, @contrasena, @verificationTokenHash, @verificationTokenExpires, @isVerified)";
 
                 using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
                 command.Parameters.AddWithValue("@tipoUsuario", usuario.TipoUsuario);
-                command.Parameters.AddWithValue("@contrasena", usuario.Contrasena);
+                command.Parameters.AddWithValue("@contrasena", (object?)usuario.Contrasena ?? DBNull.Value);
+                command.Parameters.AddWithValue("@verificationTokenHash", (object?)usuario.VerificationTokenHash ?? DBNull.Value);
+                command.Parameters.AddWithValue("@verificationTokenExpires", (object?)usuario.VerificationTokenExpires ?? DBNull.Value);
+                command.Parameters.AddWithValue("@isVerified", usuario.IsVerified);
 
                 var result = await command.ExecuteNonQueryAsync();
                 return result > 0;
             }
-            catch (Exception)
+            catch (SqlException sqlEx)
             {
-                return false;
+                throw new InvalidOperationException($"Database error creating user for PersonaId {usuario.IdPersona}: {sqlEx.Message}", sqlEx);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error creating user for PersonaId {usuario.IdPersona}: {ex.Message}", ex);
             }
         }
 
@@ -101,7 +115,8 @@ namespace backend.Repositories
                 await connection.OpenAsync();
 
                 var query = @"
-                    SELECT u.idPersona as IdPersona, u.TipoUsuario, u.Contrasena
+                    SELECT u.idPersona as IdPersona, u.TipoUsuario, u.Contrasena,
+                           u.VerificationTokenHash, u.VerificationTokenExpires, u.IsVerified
                     FROM PlaniFy.Usuario u
                     WHERE u.idPersona = @idPersona";
 
@@ -122,7 +137,13 @@ namespace backend.Repositories
                 await connection.OpenAsync();
 
                 var query = @"
-                    SELECT u.idPersona as IdPersona, u.TipoUsuario, u.Contrasena
+                    SELECT 
+                        u.idPersona AS IdPersona,
+                        u.TipoUsuario,
+                        u.Contrasena,
+                        u.VerificationTokenHash,
+                        u.VerificationTokenExpires,
+                        u.IsVerified
                     FROM PlaniFy.Usuario u
                     INNER JOIN PlaniFy.Persona p ON u.idPersona = p.Id
                     WHERE p.Correo = @email";
@@ -133,6 +154,24 @@ namespace backend.Repositories
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public async Task<bool> VerifyUserPasswordAsync(int personaId, string plainTextPassword)
+        {
+            try
+            {
+                var user = await GetUserByIdAsync(personaId);
+                if (user?.Contrasena == null)
+                {
+                    return false;
+                }
+
+                return VerifyPassword(plainTextPassword, user.Contrasena);
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
@@ -180,19 +219,93 @@ namespace backend.Repositories
                 return false;
             }
         }
+        
+        public Usuario? GetByVerificationHash(string hash)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                connection.Open();
 
-        public async Task<bool> TestConnectionAsync()
+                var query = @"
+                    SELECT idPersona as IdPersona, TipoUsuario, Contrasena, 
+                           VerificationTokenHash, VerificationTokenExpires, IsVerified
+                    FROM PlaniFy.Usuario 
+                    WHERE VerificationTokenHash = @hash AND IsVerified = 0";
+
+                return connection.QueryFirstOrDefault<Usuario>(query, new { hash });
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public void MarkVerified(Usuario usuario)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                connection.Open();
+
+                var query = @"
+                    UPDATE PlaniFy.Usuario 
+                    SET IsVerified = 1, VerificationTokenHash = NULL, VerificationTokenExpires = NULL
+                    WHERE idPersona = @idPersona";
+
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
+                command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                // Log error
+            }
+        }
+
+        public async Task<bool> UpdateAsync(Usuario usuario)
         {
             try
             {
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
-                return true;
+
+                var query = @"
+                    UPDATE PlaniFy.Usuario 
+                    SET TipoUsuario = @tipoUsuario, 
+                        Contrasena = @contrasena,
+                        VerificationTokenHash = @verificationTokenHash,
+                        VerificationTokenExpires = @verificationTokenExpires,
+                        IsVerified = @isVerified
+                    WHERE idPersona = @idPersona";
+
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@idPersona", usuario.IdPersona);
+                command.Parameters.AddWithValue("@tipoUsuario", usuario.TipoUsuario);
+                command.Parameters.AddWithValue("@contrasena", usuario.Contrasena);
+                command.Parameters.AddWithValue("@verificationTokenHash", (object?)usuario.VerificationTokenHash ?? DBNull.Value);
+                command.Parameters.AddWithValue("@verificationTokenExpires", (object?)usuario.VerificationTokenExpires ?? DBNull.Value);
+                command.Parameters.AddWithValue("@isVerified", usuario.IsVerified);
+
+                var result = await command.ExecuteNonQueryAsync();
+                return result > 0;
             }
-            catch
+            catch (Exception)
             {
                 return false;
             }
         }
-    }
+
+        private bool VerifyPassword(string plainTextPassword, string hashedPassword)
+        {
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(plainTextPassword, hashedPassword);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+            }
 }

@@ -36,15 +36,20 @@ export const apiConfig = {
     profileEmployee: (employeeId) => `${API_BASE_URL}/api/ProfileEmployee/${employeeId}`,
 
     // SignUp Employer endpoint (nuevo)
-    signUpEmployer: `${API_BASE_URL}/api/SignUpEmployer`,
+    signUpEmployer: `${API_BASE_URL}/api/Employer/register`,
+    resendVerificationEmployer: `${API_BASE_URL}/api/SignUpEmployer/resend-verification`,
+    verifyEmployer: `${API_BASE_URL}/api/SignUpEmployer/verify`,
+    verifyEmployerCode: `${API_BASE_URL}/api/employer/verify-email-token`,
+    verifyEmployerLinkToken: `${API_BASE_URL}/api/employer/verify-link-token`,
 
-    // ProjectList endpoint (nuevo)
+    // ProjectList endpoint
     projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`,
 
     // Employee endpoints
     projectEmployees: (projectId) => `${API_BASE_URL}/api/Project/${projectId}/employees`,
     employeeDeletionInfo: (employeeId) => `${API_BASE_URL}/api/Employee/${employeeId}/deletion-info`,
-    deleteEmployee: (employeeId, employerId) => `${API_BASE_URL}/api/Employee/${employeeId}?employerId=${employerId}`
+    deleteEmployee: (employeeId, employerId) => `${API_BASE_URL}/api/Employee/${employeeId}?employerId=${employerId}`,
+    registerEmployee: `${API_BASE_URL}/api/Employee`
   }
 }
 

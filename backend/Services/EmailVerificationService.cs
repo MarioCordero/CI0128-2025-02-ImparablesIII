@@ -1,4 +1,6 @@
 using backend.DTOs;
+using backend.Services;
+using backend.Repositories;
 
 namespace backend.Services
 {
@@ -6,12 +8,20 @@ namespace backend.Services
     {
         private readonly IEmailService _emailService;
         private readonly ILogger<EmailVerificationService> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IEmailTemplates _emailTemplates;
         private static Dictionary<string, (string token, DateTime expiry, int personaId)> _verificationTokens = new();
 
-        public EmailVerificationService(IEmailService emailService, ILogger<EmailVerificationService> logger)
+        public EmailVerificationService(
+            IUsuarioRepository usuarioRepository,
+            IEmailService emailService,
+            ILogger<EmailVerificationService> logger,
+            IEmailTemplates emailTemplates)
         {
+            _usuarioRepository = usuarioRepository;
             _emailService = emailService;
             _logger = logger;
+            _emailTemplates = emailTemplates;
         }
 
         public async Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto)
@@ -88,7 +98,49 @@ namespace backend.Services
 
         private string GetVerificationEmailContent(string nombre, string token, string rol)
         {
-            return EmailTemplates.GetVerificationTemplate(nombre, token, rol);
+            return _emailTemplates.GetVerificationTemplate(nombre, token, rol);
+        }
+
+        // Updates the user 0 to 1 if the token is valid
+        public async Task<(bool Success, int PersonaId, string Rol)> VerifyLinkTokenAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                _logger.LogWarning("Token is null or empty");
+                return (false, 0, string.Empty);
+            }
+
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var hashedToken = Convert.ToHexString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(token)));
+            
+            _logger.LogInformation("Searching for token hash: {HashedToken}", hashedToken);
+            
+            var usuario = _usuarioRepository.GetByVerificationHash(hashedToken);
+            
+            if (usuario == null)
+            {
+                _logger.LogWarning("No user found with verification hash: {HashedToken}", hashedToken);
+                return (false, 0, string.Empty);
+            }
+            
+            if (usuario.IsVerified)
+            {
+                _logger.LogWarning("User {PersonaId} is already verified", usuario.IdPersona);
+                return (false, 0, string.Empty);
+            }
+
+            if (usuario.VerificationTokenExpires != null && usuario.VerificationTokenExpires < DateTime.UtcNow)
+            {
+                _logger.LogWarning("Verification token expired for user {PersonaId}", usuario.IdPersona);
+                return (false, 0, string.Empty);
+            }
+
+            usuario.IsVerified = true;
+            usuario.VerificationTokenExpires = null;
+            await _usuarioRepository.UpdateAsync(usuario);
+
+            _logger.LogInformation("Email verified successfully for PersonaId: {PersonaId}", usuario.IdPersona);
+            return (true, usuario.IdPersona, usuario.TipoUsuario);
         }
     }
 }
