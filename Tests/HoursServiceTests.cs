@@ -1,4 +1,5 @@
 using System;
+using backend.Constants;
 using backend.DTOs;
 using backend.Models;
 using backend.Repositories;
@@ -111,6 +112,35 @@ namespace backend.Tests
 
 			// Act & Assert
 			await Assert.ThrowsExceptionAsync<ArgumentException>(() => _hoursService.RegisterHoursAsync(request));
+		}
+
+		[TestMethod]
+		public async Task RegisterHoursAsync_DailyLimitExceeded_ThrowsInvalidOperationException()
+		{
+			// Arrange
+			var request = new RegisterHoursRequestDto
+			{
+				EmployeeId = 9,
+				Quantity = 4,
+				Detail = "Soporte vespertino",
+				Date = DateTime.UtcNow
+			};
+
+			_employeeRepository
+				.Setup(repo => repo.GetEmployeeCompanyIdAsync(request.EmployeeId))
+				.ReturnsAsync(21);
+
+			_projectRepository
+				.Setup(repo => repo.GetEmployerIdByCompanyIdAsync(21))
+				.ReturnsAsync(11);
+
+			_hoursRepository
+				.Setup(repo => repo.RegisterHoursAsync(It.IsAny<Hours>()))
+				.ThrowsAsync(new InvalidOperationException(ReturnMessagesConstants.Hours.DailyLimitExceeded));
+
+			// Act & Assert
+			var ex = await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _hoursService.RegisterHoursAsync(request));
+			Assert.AreEqual(ReturnMessagesConstants.Hours.DailyLimitExceeded, ex.Message);
 		}
 
 		[TestMethod]
