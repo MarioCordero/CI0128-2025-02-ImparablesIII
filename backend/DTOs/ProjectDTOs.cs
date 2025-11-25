@@ -13,6 +13,8 @@ namespace backend.DTOs
         [Range(100000000, 999999999, ErrorMessage = "La cédula jurídica debe tener exactamente 9 dígitos")]
         public int CedulaJuridica { get; set; }
 
+        public int EmployerId { get; set; }
+
         [Required(ErrorMessage = "El correo electrónico es obligatorio")]
         [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
         [StringLength(50, ErrorMessage = "El correo no puede exceder los 50 caracteres")]
