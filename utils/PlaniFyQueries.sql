@@ -12,6 +12,7 @@ SELECT * FROM PlaniFy.Usuario;
 SELECT * FROM PlaniFy.Empleado;
 
 SELECT * FROM PlaniFy.Empresa;
+DELETE FROM PlaniFy.Empresa WHERE Id = 18;
 
 SELECT * FROM PlaniFy.Beneficio
 
