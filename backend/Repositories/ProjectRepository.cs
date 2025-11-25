@@ -22,9 +22,9 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                INSERT INTO PlaniFy.Empresa (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios)
+                INSERT INTO PlaniFy.Empresa (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios, idEmpleador)
                 OUTPUT INSERTED.Id
-                VALUES (@Nombre, @CedulaJuridica, @Email, @PeriodoPago, @Telefono, @IdDireccion, @MaximoBeneficios)";
+                VALUES (@Nombre, @CedulaJuridica, @Email, @PeriodoPago, @Telefono, @IdDireccion, @MaximoBeneficios, @EmployerId)";
 
             var parameters = new
             {
@@ -34,7 +34,8 @@ namespace backend.Repositories
                 PeriodoPago = project.PeriodoPago,
                 Telefono = project.Telefono,
                 IdDireccion = project.IdDireccion,
-                MaximoBeneficios = project.MaximoBeneficios
+                MaximoBeneficios = project.MaximoBeneficios,
+                EmployerId = project.EmployerId
             };
 
             var id = await connection.QuerySingleAsync<int>(query, parameters);
