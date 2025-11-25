@@ -11,6 +11,8 @@ namespace backend.Services
         Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId);
         Task<int> GetActiveEmployeesCountAsync(int projectId);
         Task<List<ProjectResponseDTO>> GetProjectsByEmployerIdAsync(int employerId);
+        Task<DirectionDTO?> GetProjectDirectionByDirectionId(int id);
+
 
         // Nuevos métodos para consolidar funcionalidad del dashboard
         Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId);

@@ -452,9 +452,9 @@ namespace backend.Repositories
             return await _direccionRepository.CreateDireccionAsync(provincia, canton ?? string.Empty, distrito ?? string.Empty, direccionParticular);
         }
 
-        public async Task<DirectionDTO?> GetDireccionByIdAsync(int id)
+        public async Task<DirectionDTO?> GetDirectionByIdAsync(int id)
         {
-            return await _direccionRepository.GetDireccionByIdAsync(id);
+            return await _direccionRepository.GetDirectionByIdAsync(id);
         }
     }
 }
