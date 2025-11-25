@@ -5,6 +5,7 @@ using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using backend.Models;
 
 namespace backend.Controllers
 {
@@ -103,10 +104,11 @@ namespace backend.Controllers
                     return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
                 }
 
-                var project = new backend.Models.Project
+                var project = new Project
                 {
                     Nombre = projectDto.Nombre,
                     CedulaJuridica = projectDto.CedulaJuridica,
+                    EmployerId = projectDto.EmployerId,
                     Email = projectDto.Email,
                     PeriodoPago = projectDto.PeriodoPago,
                     Telefono = projectDto.Telefono,
