@@ -46,62 +46,62 @@
 </template>
 
 <script>
-import MainEmployerHeader from '../common/MainEmployerHeader.vue'
-import ProjectList from './ProjectList.vue'
-import apiConfig from '../../config/api.js'
-import StatsCard from './StatsCard.vue'
-import NotificationsCard from './projectDashboard/NotificationsCard.vue'
+  import MainEmployerHeader from '../common/MainEmployerHeader.vue'
+  import ProjectList from './ProjectList.vue'
+  import apiConfig from '../../config/api.js'
+  import StatsCard from './StatsCard.vue'
+  import NotificationsCard from './projectDashboard/NotificationsCard.vue'
 
-export default {
-  name: 'DashboardMainEmployer',
+  export default {
+    name: 'DashboardMainEmployer',
 
-  components: {
-    MainEmployerHeader,
-    ProjectList,
-    StatsCard,
-    NotificationsCard
-  },
-  data() {
-    return {
-      companies: [],
-      loading: false,
-      error: null,
-      user: null
-    }
-  },
-
-  methods: {
-    navigateToCreateProject() {
-      this.$router.push('/create-project')
+    components: {
+      MainEmployerHeader,
+      ProjectList,
+      StatsCard,
+      NotificationsCard
     },
-    async fetchCompanies() {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await fetch(apiConfig.endpoints.project)
-        if (!response.ok) throw new Error('No se pudo cargar las empresas')
-        this.companies = await response.json()
-      } catch (err) {
-        this.error = err.message || 'Error al cargar las empresas'
-      } finally {
-        this.loading = false
+    data() {
+      return {
+        companies: [],
+        loading: false,
+        error: null,
+        user: null
       }
-    }
-  },
-  created() {
-    const userRaw = localStorage.getItem('user')
-    if (userRaw) {
-      try {
-        this.user = JSON.parse(userRaw)
-      } catch {
-        this.user = null
-      }
-    }
-  },
+    },
 
-  mounted() {
-    this.fetchCompanies()
-    localStorage.setItem('selectedProject', 'null')
+    methods: {
+      navigateToCreateProject() {
+        this.$router.push('/create-project')
+      },
+      async fetchCompanies() {
+        this.loading = true
+        this.error = null
+        try {
+          const response = await fetch(apiConfig.endpoints.project)
+          if (!response.ok) throw new Error('No se pudo cargar las empresas')
+          this.companies = await response.json()
+        } catch (err) {
+          this.error = err.message || 'Error al cargar las empresas'
+        } finally {
+          this.loading = false
+        }
+      }
+    },
+    created() {
+      const userRaw = localStorage.getItem('user')
+      if (userRaw) {
+        try {
+          this.user = JSON.parse(userRaw)
+        } catch {
+          this.user = null
+        }
+      }
+    },
+
+    mounted() {
+      this.fetchCompanies()
+      localStorage.setItem('selectedProject', 'null')
+    }
   }
-}
 </script>

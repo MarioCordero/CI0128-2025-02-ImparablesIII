@@ -1,7 +1,4 @@
-SELECT * FROM PlaniFy.Persona WHERE Rol = 'Empleador';
-
 SELECT * FROM PlaniFy.Direccion;
-
 DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 53 AND 61;
 
 SELECT * FROM PlaniFy.Persona;
