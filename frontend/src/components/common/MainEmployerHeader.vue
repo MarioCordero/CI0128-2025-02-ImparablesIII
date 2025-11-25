@@ -59,7 +59,13 @@ export default {
   methods: {
     async fetchCompanies() {
       try {
-        const response = await fetch(apiConfig.endpoints.project)
+        const employerId = localStorage.getItem('employerId')
+        if (!employerId) {
+          this.companies = []
+          return
+        }
+        
+        const response = await fetch(apiConfig.endpoints.projectsByEmployer(employerId))
         if (response.ok) {
           this.companies = await response.json()
         }

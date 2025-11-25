@@ -195,7 +195,6 @@ namespace backend.Repositories
 
             try
             {
-                // Update company information
                 var updateCompanyQuery = @"
                     UPDATE PlaniFy.Empresa 
                     SET 
@@ -215,16 +214,11 @@ namespace backend.Repositories
                     Telefono = dto.Telefono,
                     MaximoBeneficios = dto.MaximoBeneficios
                 };
-
                 var rowsAffected = await connection.ExecuteAsync(updateCompanyQuery, companyParameters, transaction);
-
-                // If address information is provided, update it as well
                 if (dto.Direccion != null)
                 {
-                    // Get the current address ID
                     var getAddressIdQuery = "SELECT idDireccion FROM PlaniFy.Empresa WHERE Id = @Id";
                     var addressId = await connection.QuerySingleOrDefaultAsync<int?>(getAddressIdQuery, new { Id = id }, transaction);
-
                     if (addressId.HasValue)
                     {
                         var updateAddressQuery = @"
@@ -248,7 +242,6 @@ namespace backend.Repositories
                         await connection.ExecuteAsync(updateAddressQuery, addressParameters, transaction);
                     }
                 }
-
                 await transaction.CommitAsync();
                 return rowsAffected > 0;
             }
@@ -319,10 +312,41 @@ namespace backend.Repositories
             return count > 0;
         }
 
+        // GET PROJECTS BY EMPLOYER ID
         public async Task<List<ProjectResponseDTO>> GetByEmployerIdAsync(int employerId)
         {
-            // TODO: Implementar relación employer-project según esquema BD
-            return await GetAllAsync();
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                SELECT 
+                    e.Id,
+                    e.Nombre,
+                    e.CedulaJuridica,
+                    e.Email,
+                    e.PeriodoPago,
+                    e.Telefono,
+                    e.idDireccion,
+                    e.MaximoBeneficios,
+                    e.idEmpleador
+                FROM PlaniFy.Empresa e
+                WHERE e.idEmpleador = @EmployerId";
+
+            var results = await connection.QueryAsync(query, new { EmployerId = employerId });
+            
+            return results.Select(r => new ProjectResponseDTO
+            {
+                Id = r.Id,
+                Nombre = r.Nombre,
+                CedulaJuridica = r.CedulaJuridica,
+                Email = r.Email,
+                PeriodoPago = r.PeriodoPago,
+                Telefono = r.Telefono,
+                IdDireccion = r.idDireccion,
+                MaximoBeneficios = r.MaximoBeneficios,
+                ActiveEmployees = 0, // TODO: Implement count query
+                MonthlyPayroll = 0 // TODO: Implement payroll calculation
+            }).ToList();
         }
 
         public async Task<List<ProjectResponseDTO>> GetByCompanyIdAsync(int companyId)
@@ -331,6 +355,7 @@ namespace backend.Repositories
             return project != null ? new List<ProjectResponseDTO> { project } : new List<ProjectResponseDTO>();
         }
 
+        // GET PROJECTS FOR MAIN DASHBOARD
         public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             using var connection = new SqlConnection(_connectionString);

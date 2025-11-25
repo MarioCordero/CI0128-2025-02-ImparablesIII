@@ -1,9 +1,0 @@
-{
-  "EmailSettings": {
-    "SmtpServer": "smtp.gmail.com",
-    "SmtpPort": 465,
-    "SenderEmail": "imparables111111@gmail.com",
-    "SenderPassword": "rnmy coof vomc owsg",
-    "SenderName": "Imparables Team"
-  }
-}
