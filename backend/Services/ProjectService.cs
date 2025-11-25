@@ -7,12 +7,12 @@ namespace backend.Services
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _projectRepository;
-        private readonly IDirectionRepository _direccionRepository;
+        private readonly IDirectionRepository _directionRepository;
 
         public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository)
         {
             _projectRepository = projectRepository;
-            _direccionRepository = direccionRepository;
+            _directionRepository = direccionRepository;
         }
 
         // CREATE A PROJECT
@@ -53,7 +53,7 @@ namespace backend.Services
                 UpdatedAt = DateTime.UtcNow
             };
             var createdProject = await _projectRepository.CreateAsync(project);
-            var direccion = await _direccionRepository.GetDireccionByIdAsync(direccionId);
+            var direccion = await _directionRepository.GetDirectionByIdAsync(direccionId);
             return new ProjectResponseDTO
             {
                 Id = createdProject.Id,
@@ -88,6 +88,12 @@ namespace backend.Services
         public async Task<ProjectResponseDTO?> GetProjectByIdAsync(int id)
         {
             return await _projectRepository.GetProjectWithDireccionAsync(id);
+        }
+
+        // GET A PROJECT'S DIRECTION BY DIRECTION ID
+        public async Task<DirectionDTO?> GetProjectDirectionByDirectionId(int id)
+        {
+            return await _directionRepository.GetDirectionByIdAsync(id);
         }
 
         // GET A PROJECTS BY EMPLOYER ID

@@ -77,6 +77,26 @@ namespace backend.Controllers
             }
         }
 
+        // GET THE PROJECT'S DIRECTION BY DIRECTION ID
+        [HttpGet("direction/{directionId}")]
+        public async Task<ActionResult<DirectionDTO>> GetDirectionById(int directionId)
+        {
+            try
+            {
+                var direction = await _projectService.GetProjectDirectionByDirectionId(directionId);
+                if (direction == null)
+                {
+                    return NotFound(new { message = "Dirección no encontrada" });
+                }
+
+                return Ok(direction);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener la dirección", error = ex.Message });
+            }
+        }
+
         [HttpGet("dashboard/{employerId}")]
         public async Task<ActionResult<List<ProjectResponseDTO>>> GetProjectsForDashboard(int employerId)
         {

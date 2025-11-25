@@ -44,7 +44,7 @@ namespace backend.Repositories
             }
         }
 
-        public async Task<DirectionDTO?> GetDireccionByIdAsync(int id)
+        public async Task<DirectionDTO?> GetDirectionByIdAsync(int id)
         {
             try
             {

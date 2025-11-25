@@ -64,7 +64,7 @@ namespace backend.Tests
             )).ReturnsAsync(expectedDirectionId);
             _projectRepoMock.Setup(r => r.CreateAsync(It.IsAny<Project>()))
                           .ReturnsAsync(expectedProjectResponse);
-            _directionRepoMock.Setup(r => r.GetDireccionByIdAsync(expectedDirectionId))
+            _directionRepoMock.Setup(r => r.GetDirectionByIdAsync(expectedDirectionId))
                             .ReturnsAsync(expectedDirection);
 
             // Act
@@ -388,7 +388,7 @@ namespace backend.Tests
                           .ReturnsAsync(1);
             _projectRepoMock.Setup(r => r.CreateAsync(It.IsAny<Project>()))
                           .ReturnsAsync(expectedProjectResponse);
-            _directionRepoMock.Setup(r => r.GetDireccionByIdAsync(It.IsAny<int>()))
+            _directionRepoMock.Setup(r => r.GetDirectionByIdAsync(It.IsAny<int>()))
                             .ReturnsAsync(new DirectionDTO());
 
             // Act
