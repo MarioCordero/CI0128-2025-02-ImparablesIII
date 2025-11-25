@@ -8,6 +8,8 @@ SELECT * FROM PlaniFy.Usuario;
 
 SELECT * FROM PlaniFy.Empleado;
 
+SELECT * FROM PlaniFy.Planilla;
+
 SELECT * FROM PlaniFy.Empresa;
 DELETE FROM PlaniFy.Empresa WHERE Id = 18;
 
