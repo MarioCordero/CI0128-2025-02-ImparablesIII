@@ -86,8 +86,8 @@
                 </svg>
               </div>
               <div>
-                <p class="font-bold text-[28px] mb-1">{{ company.currentProfitability }}%</p>
-                <p class="text-[15px]">del mes actual</p>
+                <p class="font-bold text-[28px] mb-1 text-gray-400">Próximamente</p>
+                <p class="text-[15px] text-gray-500">Implementación futura</p>
               </div>
             </div>
           </div>
