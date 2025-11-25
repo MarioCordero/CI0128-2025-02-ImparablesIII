@@ -124,7 +124,7 @@ namespace backend.Services
         public async Task<HistoricalPayrollReportDto> GetHistoricalPayrollReportAsync(int employeeId, int authenticatedEmployeeId, DateTime? startDate, DateTime? endDate)
         {
             ValidateEmployeeAccess(employeeId, authenticatedEmployeeId);
-            report = await _repo.GetHistoricalPayrollReportAsync(employeeId, startDate, endDate);
+            var report = await _repo.GetHistoricalPayrollReportAsync(employeeId, startDate, endDate);
             
             if (report == null)
             {
