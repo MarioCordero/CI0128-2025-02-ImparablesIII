@@ -8,13 +8,14 @@
       <section class="p-0">
         <!-- TODO: Agregar la inicial -->
         <h1 class="text-2xl font-bold mb-1">¡Hola, {{ user?.nombre || 'Usuario' }}!</h1>
-        <p class="text-gray-600 text-[19px] font-medium">Administra los beneficios de tu organización</p>
+        <p class="text-gray-600 text-[19px] font-medium">Aquí aparecen datos generales de tus organizaciones:</p>
       </section>
     
       <!-- Stats & Notifications -->
-      <section class="grid md:grid-cols-2 gap-6 mb-6">
-        <StatsCard v-if="!loading && !error" :userId="user?.idPersona"/>
-        <NotificationsCard/>
+      <section class="grid md:grid-cols-3 gap-6 mb-6">
+        <KPICards :userId="user?.idPersona"/>
+        <EmployeeDistributionChart :userId="user?.idPersona"/>
+        <PayrollCostsChart :userId="user?.idPersona"/>
       </section>
     
       <!-- Seccion Mis Empresas -->
@@ -49,8 +50,11 @@
   import MainEmployerHeader from '../common/MainEmployerHeader.vue'
   import ProjectList from './ProjectList.vue'
   import apiConfig from '../../config/api.js'
-  import StatsCard from './StatsCard.vue'
-  import NotificationsCard from './projectDashboard/NotificationsCard.vue'
+
+  // STATS COMPONENTS
+  import KPICards from './KPICards.vue'
+  import EmployeeDistributionChart from './EmployeeDistributionChart.vue'
+  import PayrollCostsChart from './PayrollCostsChart.vue'
 
   export default {
     name: 'DashboardMainEmployer',
@@ -58,8 +62,9 @@
     components: {
       MainEmployerHeader,
       ProjectList,
-      StatsCard,
-      NotificationsCard
+      KPICards,
+      EmployeeDistributionChart,
+      PayrollCostsChart
     },
     data() {
       return {
