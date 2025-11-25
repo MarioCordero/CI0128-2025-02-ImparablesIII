@@ -259,6 +259,14 @@
   transition: all 0.3s ease;
 }
 
+.info-card {
+  background: #d2e5ff;
+  box-shadow: 8px 8px 16px #bebebe,
+              -8px -8px 16px #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  border: none;
+}
 
 /* ===================================== Containers ===================================== */
 .page {
