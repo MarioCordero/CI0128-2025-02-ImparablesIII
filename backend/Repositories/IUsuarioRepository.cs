@@ -10,8 +10,11 @@ namespace backend.Repositories
         Task<bool> CreateUserAsync(Usuario usuario);
         Task<bool> UserExistsAsync(int personaId);
         Task<Usuario?> GetUserByIdAsync(int personaId);
+        Task<bool> VerifyUserPasswordAsync(int personaId, string plainTextPassword);
         Task<bool> UpdateUserPasswordAsync(int personaId, string password);
         Task<bool> DeleteUserAsync(int personaId);
-        Task<bool> TestConnectionAsync();
+        Usuario? GetByVerificationHash(string hash);
+        void MarkVerified(Usuario usuario);
+        Task<bool> UpdateAsync(Usuario usuario);
     }
 }

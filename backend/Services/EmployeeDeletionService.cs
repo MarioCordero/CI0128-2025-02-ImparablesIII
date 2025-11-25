@@ -63,14 +63,14 @@ namespace backend.Services
         {
             try
             {
-                var user = await _usuarioRepository.GetUserByIdAsync(employerId);
-                if (user == null)
+                var isValidPassword = await _usuarioRepository.VerifyUserPasswordAsync(employerId, password);
+                if (!isValidPassword)
                 {
-                    _logger.LogWarning("Usuario {EmployerId} no encontrado para validación de contraseña", employerId);
+                    _logger.LogWarning("Contraseña inválida para empleador {EmployerId}", employerId);
                     return false;
                 }
 
-                return password == user.Contrasena;
+                return true;
             }
             catch (Exception ex)
             {
@@ -94,7 +94,8 @@ namespace backend.Services
             var isPasswordValid = await ValidateEmployerPasswordAsync(employerId, request.Contrasena);
             if (!isPasswordValid)
             {
-                _logger.LogWarning("Contraseña inválida para empleador {EmployerId}", employerId);
+
+                _logger.LogWarning("Contraseña inválida para empleador {EmployerId}", employerId, ':', request.Contrasena);
                 return CreateErrorResponse(ReturnMessagesConstants.Employee.InvalidPassword);
             }
 

@@ -8,22 +8,77 @@ namespace backend.Services
     {
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IEmailHelper _emailHelper;
         private readonly ILogger<EmployeeService> _logger;
 
         public EmployeeService(
             IEmployeeRepository employeeRepository,
             IProjectRepository projectRepository,
+            IUsuarioRepository usuarioRepository,
+            IEmailHelper emailHelper,
             ILogger<EmployeeService> logger)
         {
             _employeeRepository = employeeRepository;
             _projectRepository = projectRepository;
+            _usuarioRepository = usuarioRepository;
+            _emailHelper = emailHelper;
             _logger = logger;
         }
 
         public async Task<int> RegisterEmployeeAsync(RegisterEmployeeDto employeeDto)
         {
-            _logger.LogInformation("Registering new employee");
-            return await _employeeRepository.RegisterEmployeeAsync(employeeDto);
+            try
+            {
+                var employeeId = await _employeeRepository.RegisterEmployeeAsync(employeeDto);   
+                if (employeeId <= 0)
+                {
+                    _logger.LogError("Error creating employee");
+                    return 0;
+                }
+
+                _logger.LogInformation("Employee created successfully with ID: {EmployeeId}", employeeId);
+
+                var rawToken = _emailHelper.GenerateVerificationToken();
+                var hash = _emailHelper.HashToken(rawToken);
+                var usuario = new Usuario
+                {
+                    IdPersona = employeeId,
+                    TipoUsuario = "Empleado",
+                    Contrasena = null,
+                    VerificationTokenHash = hash,
+                    VerificationTokenExpires = DateTime.UtcNow.AddHours(24),
+                    IsVerified = false
+                };
+
+                _logger.LogInformation("Attempting to create user for Employee {EmployeeId} with token hash", employeeId);
+
+                try
+                {
+                    var userCreated = await _usuarioRepository.CreateUserAsync(usuario);
+                    if (!userCreated)
+                    {
+                        _logger.LogError("CreateUserAsync returned false for Employee {EmployeeId}", employeeId);
+                        return 0;
+                    }
+                    
+                    _logger.LogInformation("User created successfully for Employee {EmployeeId}", employeeId);
+                }
+                catch (Exception userEx)
+                {
+                    _logger.LogError(userEx, "Exception occurred while creating user for Employee {EmployeeId}: {Message}", employeeId, userEx.Message);
+                    return 0;
+                }
+
+                await _emailHelper.SendVerificationLinkAsync(employeeDto.Correo, rawToken, "Empleado");                
+                _logger.LogInformation("Employee registration completed successfully for Employee {EmployeeId}", employeeId);
+                return employeeId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error registering employee: {Message}", ex.Message);
+                return 0;
+            }
         }
 
         public async Task<bool> ValidateCedulaExistsAsync(string cedula)

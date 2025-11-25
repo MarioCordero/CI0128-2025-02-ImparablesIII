@@ -2,6 +2,7 @@ using backend.Extensions;
 using backend.Services;
 using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
+using backend.DTOs;
 
 namespace backend.Controllers
 {
@@ -10,33 +11,27 @@ namespace backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly IEmailTemplates _emailTemplates;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(IServiceProvider serviceProvider, ILogger<UserController> logger)
+        public UserController(
+            IServiceProvider serviceProvider, 
+            IEmailTemplates emailTemplates,
+            ILogger<UserController> logger)
         {
             _serviceProvider = serviceProvider;
+            _emailTemplates = emailTemplates;
             _logger = logger;
         }
 
-        /// <summary>
-        /// Example endpoint demonstrating how to send emails using the class method approach
-        /// This simulates a user registration process that sends a welcome email
-        /// </summary>
-        /// <param name="userEmail">User's email address</param>
-        /// <param name="userName">User's name</param>
-        /// <returns>Registration result</returns>
+        // DELETE
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationDto registrationDto)
         {
             try
             {
-                // Simulate user registration logic here
                 _logger.LogInformation($"Registering user: {registrationDto.UserName} with email: {registrationDto.UserEmail}");
-                
-                // Example of using the class method to send welcome email with HTML template
-                var htmlEmailBody = EmailTemplates.GetWelcomeEmailTemplate(registrationDto.UserName);
-
-                // Using the extension method with HTML support
+                var htmlEmailBody = _emailTemplates.GetWelcomeEmailTemplate(registrationDto.UserName);
                 var emailSent = await _serviceProvider.SendEmailAsync(
                     registrationDto.UserEmail,
                     "¡Bienvenido a la plataforma Imparables!",
@@ -80,25 +75,14 @@ namespace backend.Controllers
             }
         }
 
-        /// <summary>
-        /// Example endpoint for password reset that uses the detailed response method
-        /// </summary>
-        /// <param name="email">User's email address</param>
-        /// <returns>Password reset result</returns>
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
             try
             {
-                // Simulate password reset logic here
-                var resetToken = GenerateAlphanumericToken(8); // Generate alphanumeric token in caps
-                
+                var resetToken = GenerateAlphanumericToken(8);
                 _logger.LogInformation($"Processing password reset for: {forgotPasswordDto.Email}");
-                
-                // Generate HTML email using template
-                var htmlEmailBody = EmailTemplates.GetPasswordResetTemplate(resetToken);
-
-                // Using the detailed response method with HTML support
+                var htmlEmailBody = _emailTemplates.GetPasswordResetTemplate(resetToken);
                 var emailResult = await _serviceProvider.SendEmailWithResponseAsync(
                     forgotPasswordDto.Email,
                     "Restablecimiento de Contraseña - Plataforma Imparables",
@@ -130,11 +114,6 @@ namespace backend.Controllers
             }
         }
 
-        /// <summary>
-        /// Generate an alphanumeric token in all caps
-        /// </summary>
-        /// <param name="length">Length of the token</param>
-        /// <returns>Alphanumeric token in uppercase</returns>
         private string GenerateAlphanumericToken(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -142,17 +121,5 @@ namespace backend.Controllers
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
-    }
-
-    // DTOs for the example endpoints
-    public class UserRegistrationDto
-    {
-        public string UserName { get; set; } = string.Empty;
-        public string UserEmail { get; set; } = string.Empty;
-    }
-
-    public class ForgotPasswordDto
-    {
-        public string Email { get; set; } = string.Empty;
     }
 }

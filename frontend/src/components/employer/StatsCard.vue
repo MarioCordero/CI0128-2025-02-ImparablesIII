@@ -67,7 +67,9 @@
 </template>
 
 <script>
-  export default {
+import apiConfig from '../../config/api.js';
+
+export default {
     name: 'TarjetaEstadisticas',
 
     props: {
@@ -118,11 +120,10 @@
             try {
                 this.loading = true;
                 this.error = null;
-                const response = await fetch(`http://localhost:5011/api/Project/dashboard/${userId}`);
+                const response = await fetch(apiConfig.endpoints.projectDashboard(userId));
                 if (!response.ok) throw new Error('No se pudieron cargar las empresas');
                 const data = await response.json();
                 this.companies = data;
-                console.log("📦 Empresas recibidas:", this.companies);
             } catch (err) {
                 this.error = err.message || 'Error al cargar las empresas';
             } finally {

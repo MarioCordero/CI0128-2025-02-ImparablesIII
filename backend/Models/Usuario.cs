@@ -12,7 +12,10 @@ namespace backend.Models
         public string TipoUsuario { get; set; } = string.Empty;
         
         [Required]
-        [MaxLength(16)]
+        [MaxLength(100)] // BCrypt Requirements
         public string Contrasena { get; set; } = string.Empty;
+        public string? VerificationTokenHash { get; set; }
+        public DateTime? VerificationTokenExpires { get; set; }
+        public bool IsVerified { get; set; }
     }
 }

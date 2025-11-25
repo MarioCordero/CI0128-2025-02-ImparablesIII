@@ -62,17 +62,6 @@ namespace backend.DTOs
         // DASHBOARD FIELDS
         public int ActiveEmployees { get; set; }
         public decimal MonthlyPayroll { get; set; }
-        public decimal CurrentProfitability { get; set; }
-        public decimal LastMonthProfitability { get; set; }
-        public List<NotificationDto> Notifications { get; set; } = new List<NotificationDto>();
-    }
-
-    public class NotificationDto
-    {
-        public string Title { get; set; } = string.Empty;
-        public string Message { get; set; } = string.Empty;
-        public DateTime Date { get; set; }
-        public string Type { get; set; } = string.Empty;
     }
 
     public class UpdateProjectDto

@@ -21,6 +21,17 @@
               />
               <span v-if="errors.nombre" class="text-red-500 text-sm mt-1">{{ errors.nombre }}</span>
             </div>
+
+            <div>
+              <label class="block mb-1 font-medium text-gray-700">Segundo Nombre (opcional)</label>
+              <input
+                v-model="form.segundoNombre"
+                :class="['neumorphism-input', errors.segundoNombre ? 'ring-2 ring-red-500' : '']"
+                placeholder="Ingresa tu segundo nombre"
+              />
+              <span v-if="errors.segundoNombre" class="text-red-500 text-sm mt-1">{{ errors.segundoNombre }}</span>
+            </div>
+
             <div>
               <label class="block mb-1 font-medium text-gray-700">Primer Apellido*</label>
               <input
@@ -228,11 +239,11 @@ export default {
     HeaderLandingPage
   },
 
-  // 5. Estado reactivo del componente
   data() {
     return {
       form: {
         nombre: '',
+        segundoNombre: '',
         primerApellido: '',
         segundoApellido: '',
         cedula: '',
@@ -264,7 +275,6 @@ export default {
     }
   },
 
-  // 8. Métodos y lógica ejecutable
   methods: {
     formatCedula(event) {
       let value = event.target.value.replace(/\D/g, '')
@@ -434,11 +444,23 @@ export default {
       }
       return isValid
     },
-    verifyCode() {
-      if (/^\d{6}$/.test(this.verificationCode)) {
-        window.location.href = '/login'
-      } else {
-        this.verificationError = 'El código debe ser de 6 dígitos.'
+    async verifyCode() {
+      this.verificationError = ''
+      if (!/^\w{4,10}$/.test(this.verificationCode)) {
+        this.verificationError = 'Formato de código inválido.'
+        return
+      }
+      try {
+        const payload = { email: this.form.email, code: this.verificationCode }
+        const res = await axios.post(apiConfig.endpoints.verifyEmployerCode, payload)
+        if (res.data.success) {
+          alert('Código verificado. Ya puedes iniciar sesión.')
+          window.location.href = '/login'
+        } else {
+          this.verificationError = res.data.message || 'Código inválido.'
+        }
+      } catch {
+        this.verificationError = 'Error verificando código.'
       }
     }
   }
