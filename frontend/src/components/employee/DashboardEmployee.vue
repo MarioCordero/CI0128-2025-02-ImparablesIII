@@ -38,12 +38,18 @@
 
       <!-- Hours Registry Section -->
       <div v-else-if="selectedSection === 'hours'">
-        <h2 class="text-xl font-bold mb-2">Registro de Horas</h2>
-        <p class="text-gray-600 mb-2">Aquí puedes registrar tus horas trabajadas.</p>
-        <HoursRegistry
-          :employee-id="user?.idPersona"
-          @error="handleError"
-        />
+        <div class="space-y-[18px]">
+          <h1 class="text-4xl font-bold text-gray-800">Registro de Horas</h1>
+          <p class="text-gray-600">Aquí puedes registrar tus horas trabajadas.</p>
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
+        </div>
+
+        <div class="mt-[41px]">
+          <HoursRegistry
+            :employee-id="user?.idPersona"
+            @error="handleError"
+          />
+        </div>
       </div>
 
       <!-- Payroll Reports Section -->
