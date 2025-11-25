@@ -7,7 +7,8 @@ export const apiConfig = {
     login: `${API_BASE_URL}/api/login`,
     passwordSetup: `${API_BASE_URL}/api/PasswordSetup/setup`,
     benefit: `${API_BASE_URL}/api/Benefit`,
-    project: `${API_BASE_URL}/api/Project`,
+    project: `${API_BASE_URL}/api/Project`, // BORRAR
+    projectsByEmployer: (employerId) => `${API_BASE_URL}/api/Project/employer/${employerId}`,
     benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
     benefitByCompanyAndName: (companyId, benefitName) => `${API_BASE_URL}/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`,
     projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
@@ -27,9 +28,10 @@ export const apiConfig = {
     employeeHistoricalPayrollReportDownloadExcel: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical/download/excel`,
 
     // Work-hours endpoints
-    workHours: `${API_BASE_URL}/api/work-hours`,
-    workHoursSummary: `${API_BASE_URL}/api/work-hours/summary`,
-    workHoursRecent: `${API_BASE_URL}/api/work-hours/recent`,
+    hours: `${API_BASE_URL}/api/hours`,
+    hoursSummary: (employeeId) => `${API_BASE_URL}/api/hours/${employeeId}/summary`,
+    hoursRecent: (employeeId, limit = 6) => `${API_BASE_URL}/api/hours/${employeeId}/recent?limit=${limit}`,
+    hoursLastEntry: (employeeId) => `${API_BASE_URL}/api/hours/${employeeId}/last-entry`,
   
     // Profile Employee endpoints
     profileEmployee: (employeeId) => `${API_BASE_URL}/api/ProfileEmployee/${employeeId}`,

@@ -121,6 +121,12 @@ namespace backend.Constants
         {
             public const string EmailServiceRunning = "Servicio de correo electrónico funcionando correctamente";
         }
+
+        // Hours Messages
+        public static class Hours
+        {
+            public const string DailyLimitExceeded = "No puedes exceder el limite de 8 horas diarias";
+        }
     }
 }
 

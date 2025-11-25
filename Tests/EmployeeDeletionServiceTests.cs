@@ -6,6 +6,9 @@ using backend.DTOs;
 using backend.Models;
 using backend.Constants;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace backend.Tests
 {
@@ -48,21 +51,16 @@ namespace backend.Tests
                 Estado = EmployeeConstants.StatusActive
             };
 
-            var employer = new Usuario
-            {
-                IdPersona = employerId,
-                Contrasena = "correctPassword",
-                TipoUsuario = "Empleador"
-            };
-
             var payrollCount = 5;
 
             _mockEmployeeRepository
                 .Setup(x => x.GetEmployeeByIdAsync(employeeId))
                 .ReturnsAsync(employee);
+
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync(employer);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena))
+                .ReturnsAsync(true);
+
             _mockEmployeeRepository
                 .Setup(x => x.HasPayrollRecordsAsync(employeeId))
                 .ReturnsAsync(true);
@@ -84,7 +82,7 @@ namespace backend.Tests
             Assert.IsTrue(result.Message.Contains(payrollCount.ToString()));
 
             _mockEmployeeRepository.Verify(x => x.GetEmployeeByIdAsync(employeeId), Times.Once);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(employerId), Times.Once);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena), Times.Once);
             _mockEmployeeRepository.Verify(x => x.HasPayrollRecordsAsync(employeeId), Times.Once);
             _mockEmployeeRepository.Verify(x => x.GetPayrollRecordsCountAsync(employeeId), Times.Once);
             _mockEmployeeRepository.Verify(
@@ -110,19 +108,14 @@ namespace backend.Tests
                 Estado = EmployeeConstants.StatusActive
             };
 
-            var employer = new Usuario
-            {
-                IdPersona = employerId,
-                Contrasena = "correctPassword",
-                TipoUsuario = "Empleador"
-            };
-
             _mockEmployeeRepository
                 .Setup(x => x.GetEmployeeByIdAsync(employeeId))
                 .ReturnsAsync(employee);
+
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync(employer);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena))
+                .ReturnsAsync(true);
+
             _mockEmployeeRepository
                 .Setup(x => x.HasPayrollRecordsAsync(employeeId))
                 .ReturnsAsync(false);
@@ -141,7 +134,7 @@ namespace backend.Tests
             Assert.IsTrue(result.Message.Contains(ReturnMessagesConstants.Employee.PhysicalDeletionSuccess));
 
             _mockEmployeeRepository.Verify(x => x.GetEmployeeByIdAsync(employeeId), Times.Once);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(employerId), Times.Once);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena), Times.Once);
             _mockEmployeeRepository.Verify(x => x.HasPayrollRecordsAsync(employeeId), Times.Once);
             _mockEmployeeRepository.Verify(x => x.DeleteEmployeePhysicallyAsync(employeeId), Times.Once);
             _mockEmployeeRepository.Verify(
@@ -173,7 +166,7 @@ namespace backend.Tests
             Assert.AreEqual(ReturnMessagesConstants.Employee.EmployeeNotFound, result.Message);
 
             _mockEmployeeRepository.Verify(x => x.GetEmployeeByIdAsync(employeeId), Times.Once);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(It.IsAny<int>()), Times.Never);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -193,19 +186,13 @@ namespace backend.Tests
                 Estado = EmployeeConstants.StatusActive
             };
 
-            var employer = new Usuario
-            {
-                IdPersona = employerId,
-                Contrasena = "correctPassword",
-                TipoUsuario = "Empleador"
-            };
-
             _mockEmployeeRepository
                 .Setup(x => x.GetEmployeeByIdAsync(employeeId))
                 .ReturnsAsync(employee);
+
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync(employer);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena))
+                .ReturnsAsync(false);
 
             // Act
             var result = await _employeeDeletionService.DeleteEmployeeAsync(employeeId, employerId, request);
@@ -216,7 +203,7 @@ namespace backend.Tests
             Assert.AreEqual(ReturnMessagesConstants.Employee.InvalidPassword, result.Message);
 
             _mockEmployeeRepository.Verify(x => x.GetEmployeeByIdAsync(employeeId), Times.Once);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(employerId), Times.Once);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena), Times.Once);
             _mockEmployeeRepository.Verify(x => x.HasPayrollRecordsAsync(It.IsAny<int>()), Times.Never);
         }
 
@@ -240,9 +227,11 @@ namespace backend.Tests
             _mockEmployeeRepository
                 .Setup(x => x.GetEmployeeByIdAsync(employeeId))
                 .ReturnsAsync(employee);
+
+            // Simulamos "empleador no encontrado" como password inválida (repo devuelve false)
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync((Usuario?)null);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena))
+                .ReturnsAsync(false);
 
             // Act
             var result = await _employeeDeletionService.DeleteEmployeeAsync(employeeId, employerId, request);
@@ -253,7 +242,7 @@ namespace backend.Tests
             Assert.AreEqual(ReturnMessagesConstants.Employee.InvalidPassword, result.Message);
 
             _mockEmployeeRepository.Verify(x => x.GetEmployeeByIdAsync(employeeId), Times.Once);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(employerId), Times.Once);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena), Times.Once);
         }
 
         [TestMethod]
@@ -274,21 +263,14 @@ namespace backend.Tests
                 Estado = EmployeeConstants.StatusActive
             };
 
-            var employer = new Usuario
-            {
-                IdPersona = employerId,
-                Contrasena = "correctPassword",
-                TipoUsuario = "Empleador"
-            };
-
             var payrollCount = 3;
 
             _mockEmployeeRepository
                 .Setup(x => x.GetEmployeeByIdAsync(employeeId))
                 .ReturnsAsync(employee);
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync(employer);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena))
+                .ReturnsAsync(true);
             _mockEmployeeRepository
                 .Setup(x => x.HasPayrollRecordsAsync(employeeId))
                 .ReturnsAsync(true);
@@ -327,19 +309,12 @@ namespace backend.Tests
                 Estado = EmployeeConstants.StatusActive
             };
 
-            var employer = new Usuario
-            {
-                IdPersona = employerId,
-                Contrasena = "correctPassword",
-                TipoUsuario = "Empleador"
-            };
-
             _mockEmployeeRepository
                 .Setup(x => x.GetEmployeeByIdAsync(employeeId))
                 .ReturnsAsync(employee);
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync(employer);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena))
+                .ReturnsAsync(true);
             _mockEmployeeRepository
                 .Setup(x => x.HasPayrollRecordsAsync(employeeId))
                 .ReturnsAsync(false);
@@ -376,21 +351,14 @@ namespace backend.Tests
                 Estado = EmployeeConstants.StatusActive
             };
 
-            var employer = new Usuario
-            {
-                IdPersona = employerId,
-                Contrasena = "correctPassword",
-                TipoUsuario = "Empleador"
-            };
-
             var payrollCount = 2;
 
             _mockEmployeeRepository
                 .Setup(x => x.GetEmployeeByIdAsync(employeeId))
                 .ReturnsAsync(employee);
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync(employer);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, request.Contrasena))
+                .ReturnsAsync(true);
             _mockEmployeeRepository
                 .Setup(x => x.HasPayrollRecordsAsync(employeeId))
                 .ReturnsAsync(true);
@@ -398,7 +366,7 @@ namespace backend.Tests
                 .Setup(x => x.GetPayrollRecordsCountAsync(employeeId))
                 .ReturnsAsync(payrollCount);
             _mockEmployeeRepository
-                .Setup(x => x.DeleteEmployeeLogicallyAsync(employeeId, employerId, EmployeeConstants.DefaultDeletionReason))
+                .Setup(x => x.DeleteEmployeeLogicallyAsync(employeeId, employerId, ReturnMessagesConstants.Employee.DefaultDeletionReason))
                 .ReturnsAsync(true);
 
             // Act
@@ -409,7 +377,7 @@ namespace backend.Tests
             Assert.IsTrue(result.Success);
 
             _mockEmployeeRepository.Verify(
-                x => x.DeleteEmployeeLogicallyAsync(employeeId, employerId, EmployeeConstants.DefaultDeletionReason),
+                x => x.DeleteEmployeeLogicallyAsync(employeeId, employerId, ReturnMessagesConstants.Employee.DefaultDeletionReason),
                 Times.Once);
         }
 
@@ -467,23 +435,17 @@ namespace backend.Tests
             // Arrange
             var employerId = 2;
             var password = "correctPassword";
-            var employer = new Usuario
-            {
-                IdPersona = employerId,
-                Contrasena = password,
-                TipoUsuario = "Empleador"
-            };
 
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync(employer);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, password))
+                .ReturnsAsync(true);
 
             // Act
             var result = await _employeeDeletionService.ValidateEmployerPasswordAsync(employerId, password);
 
             // Assert
             Assert.IsTrue(result);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(employerId), Times.Once);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(employerId, password), Times.Once);
         }
 
         [TestMethod]
@@ -491,25 +453,18 @@ namespace backend.Tests
         {
             // Arrange
             var employerId = 2;
-            var correctPassword = "correctPassword";
             var wrongPassword = "wrongPassword";
-            var employer = new Usuario
-            {
-                IdPersona = employerId,
-                Contrasena = correctPassword,
-                TipoUsuario = "Empleador"
-            };
 
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync(employer);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, wrongPassword))
+                .ReturnsAsync(false);
 
             // Act
             var result = await _employeeDeletionService.ValidateEmployerPasswordAsync(employerId, wrongPassword);
 
             // Assert
             Assert.IsFalse(result);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(employerId), Times.Once);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(employerId, wrongPassword), Times.Once);
         }
 
         [TestMethod]
@@ -520,15 +475,15 @@ namespace backend.Tests
             var password = "anyPassword";
 
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
-                .ReturnsAsync((Usuario?)null);
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, password))
+                .ReturnsAsync(false);
 
             // Act
             var result = await _employeeDeletionService.ValidateEmployerPasswordAsync(employerId, password);
 
             // Assert
             Assert.IsFalse(result);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(employerId), Times.Once);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(employerId, password), Times.Once);
         }
 
         [TestMethod]
@@ -539,7 +494,7 @@ namespace backend.Tests
             var password = "anyPassword";
 
             _mockUsuarioRepository
-                .Setup(x => x.GetUserByIdAsync(employerId))
+                .Setup(x => x.VerifyUserPasswordAsync(employerId, password))
                 .ThrowsAsync(new Exception("Database error"));
 
             // Act
@@ -547,8 +502,7 @@ namespace backend.Tests
 
             // Assert
             Assert.IsFalse(result);
-            _mockUsuarioRepository.Verify(x => x.GetUserByIdAsync(employerId), Times.Once);
+            _mockUsuarioRepository.Verify(x => x.VerifyUserPasswordAsync(employerId, password), Times.Once);
         }
     }
 }
-
