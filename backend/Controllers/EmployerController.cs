@@ -124,6 +124,5 @@ namespace backend.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error" });
             }
         }
-
     }
 }

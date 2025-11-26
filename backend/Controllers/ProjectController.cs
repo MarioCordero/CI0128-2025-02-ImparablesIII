@@ -288,5 +288,32 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Error al obtener la distribución de empleados", error = ex.Message });
             }
         }
+
+        // GET PAYROLL DISTRIBUTION ACROSS PROJECTS FOR AN EMPLOYER
+        [HttpGet("employer/{employerId}/payroll-distribution")]
+        public async Task<ActionResult<List<object>>> GetPayrollDistribution(int employerId)
+        {
+            try
+            {
+                var projects = await _projectService.GetProjectsByEmployerIdAsync(employerId);
+                var result = new List<object>();
+                foreach (var project in projects)
+                {
+                    var payroll = await _projectService.GetMonthlyPayrollAsync(project.Id);
+                    result.Add(new
+                    {
+                        id = project.Id,
+                        nombre = project.Nombre,
+                        payroll = payroll
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener la distribución de nómina", error = ex.Message });
+            }
+        }
     }
 }

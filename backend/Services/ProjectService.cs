@@ -147,10 +147,14 @@ namespace backend.Services
                 foreach (var project in projects)
                 {
                     project.ActiveEmployees = await _projectRepository.CountActiveEmployeesAsync(project.Id);
-                    project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id); // Cuanto se pagó, si quincena o mes y el ultimo monto  
-                    project.CedulaJuridica = project.CedulaJuridica; // Mantener la cédula jurídica
-                    project.MaximoBeneficios = project.MaximoBeneficios; // Mantener el máximo de beneficios
-                    project.PeriodoPago = project.PeriodoPago; // Mantener el período de pago
+
+                    // Use the new payroll method
+                    var payrollTotals = await GetMonthlyPayrollAsync(project.Id);
+                    project.MonthlyPayroll = payrollTotals?.TotalGross ?? 0; // Or use another property as needed
+
+                    project.CedulaJuridica = project.CedulaJuridica;
+                    project.MaximoBeneficios = project.MaximoBeneficios;
+                    project.PeriodoPago = project.PeriodoPago;
                 }
                 return projects;
             }
@@ -176,6 +180,7 @@ namespace backend.Services
             return await _projectRepository.GetProjectWithDireccionAsync(id);
         }
 
+        // DELETE A PROJECT BY ID
         public async Task<bool> DeleteProjectAsync(int id)
         {
             if (!await _projectRepository.ExistsAsync(id))
@@ -210,11 +215,6 @@ namespace backend.Services
         public async Task<bool> ProjectExistsAsync(int id)
         {
             return await _projectRepository.ExistsAsync(id);
-        }
-
-        private async Task<decimal> GetMonthlyPayrollAsync(int projectId)
-        {
-            return 0; // Placeholder
         }
 
         // DASHBOARD FOR THE PROJECT (INDIVIDUALLY) DASHBOARD METRICS
@@ -284,6 +284,12 @@ namespace backend.Services
                 _logger.LogError(ex, "Error obteniendo estadísticas de departamentos para el proyecto {ProjectId}", projectId);
                 throw;
             }
+        }
+
+        // HELPER METHOD TO GET MONTHLY PAYROLL
+        public async Task<PayrollTotalsDto?> GetMonthlyPayrollAsync(int projectId)
+        {
+            return await _payrollRepository.GetLatestPayrollTotalsByCompanyAsync(projectId);
         }
     }
 }
