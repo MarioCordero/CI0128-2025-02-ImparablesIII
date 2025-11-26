@@ -8,8 +8,6 @@ export const apiConfig = {
     login: `${API_BASE_URL}/api/login`,
     passwordSetup: `${API_BASE_URL}/api/PasswordSetup/setup`,
     benefit: `${API_BASE_URL}/api/Benefit`,
-    project: `${API_BASE_URL}/api/Project`, // BORRAR
-    projectsByEmployer: (employerId) => `${API_BASE_URL}/api/Project/employer/${employerId}`,
     benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
     benefitByCompanyAndName: (companyId, benefitName) => `${API_BASE_URL}/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`,
     projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
@@ -27,28 +25,29 @@ export const apiConfig = {
     employeePayrollReportDownloadPdf: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/pdf`,
     employeeHistoricalPayrollReport: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical`,
     employeeHistoricalPayrollReportDownloadExcel: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical/download/excel`,
-
+    
     // Project Direction endpoint
     projectDirection: (directionId) => `${API_BASE_URL}/api/Project/direction/${directionId}`,
-
-
+    
+    
     // Work-hours endpoints
     hours: `${API_BASE_URL}/api/hours`,
     hoursSummary: (employeeId) => `${API_BASE_URL}/api/hours/${employeeId}/summary`,
     hoursRecent: (employeeId, limit = 6) => `${API_BASE_URL}/api/hours/${employeeId}/recent?limit=${limit}`,
     hoursLastEntry: (employeeId) => `${API_BASE_URL}/api/hours/${employeeId}/last-entry`,
-  
+    
     // Profile Employee endpoints
     profileEmployee: (employeeId) => `${API_BASE_URL}/api/ProfileEmployee/${employeeId}`,
-
+    
     // SignUp Employer endpoint (nuevo)
     signUpEmployer: `${API_BASE_URL}/api/Employer/register`,
     resendVerificationEmployer: `${API_BASE_URL}/api/SignUpEmployer/resend-verification`,
     verifyEmployer: `${API_BASE_URL}/api/SignUpEmployer/verify`,
     verifyEmployerCode: `${API_BASE_URL}/api/employer/verify-email-token`,
     verifyEmployerLinkToken: `${API_BASE_URL}/api/employer/verify-link-token`,
-
+    
     // DASHBOARD ENDPOINTS
+    projectsByEmployer: (employerId) => `${API_BASE_URL}/api/Project/employer/${employerId}`,
     projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`,
     dashboardMetrics: (projectId) => `${API_BASE_URL}/api/Project/${projectId}/dashboard/metrics`,
     kpi: (userId) => `${API_BASE_URL}/api/employer/kpi?userId=${userId}`,
