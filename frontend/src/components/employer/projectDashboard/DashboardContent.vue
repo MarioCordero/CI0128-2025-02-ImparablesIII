@@ -111,10 +111,29 @@
         <!-- Distribución por Departamentos -->
         <div class="neumorphism-card p-6 rounded-2xl">
           <h3 class="text-lg font-semibold mb-4">Empleados por Departamento</h3>
-          <div v-if="departmentStats.length > 0" class="space-y-3">
-            <div v-for="dept in departmentStats" :key="dept.name" class="flex justify-between items-center">
-              <span class="text-gray-700">{{ dept.name }}</span>
-              <span class="font-bold text-blue-600">{{ dept.count }} empleados</span>
+          <div v-if="departmentStats.length > 0" class="flex flex-col items-center">
+            <!-- Gráfico de Pastel CSS -->
+            <div class="pie-chart mb-4" :style="pieChartStyle">
+              <div 
+                v-for="(segment, index) in pieSegments" 
+                :key="index"
+                class="pie-segment"
+                :style="segment.style"
+              ></div>
+            </div>
+            <!-- Leyenda -->
+            <div class="flex flex-wrap justify-center gap-3">
+              <div 
+                v-for="(dept, index) in departmentStats" 
+                :key="dept.name" 
+                class="flex items-center gap-1 text-sm"
+              >
+                <div 
+                  class="w-3 h-3 rounded-full" 
+                  :style="{ backgroundColor: departmentColors[index] }"
+                ></div>
+                <span>{{ dept.name }} ({{ dept.count }})</span>
+              </div>
             </div>
           </div>
           <div v-else class="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
@@ -125,7 +144,7 @@
           </div>
         </div>
 
-        <!-- Evolución de Planilla -->
+        <!-- Planilla -->
         <div class="neumorphism-card p-6 rounded-2xl">
           <h3 class="text-lg font-semibold mb-4">Resumen de Planilla</h3>
           <div class="space-y-4">
@@ -179,6 +198,61 @@ export default {
       loadingDirection: false,
       loadingDashboard: false,
       error: null,
+      departmentColors: [
+        '#3B82F6', // blue-500
+        '#10B981', // emerald-500  
+        '#F59E0B', // amber-500
+        '#EF4444', // red-500
+        '#8B5CF6', // violet-500
+        '#06B6D4', // cyan-500
+        '#84CC16', // lime-500
+        '#F97316'  // orange-500
+      ]
+    }
+  },
+  computed: {
+    pieSegments() {
+      if (this.departmentStats.length === 0) return []
+      
+      const total = this.departmentStats.reduce((sum, dept) => sum + dept.count, 0)
+      let currentAngle = 0
+      
+      return this.departmentStats.map((dept, index) => {
+        const angle = (dept.count / total) * 360
+        
+        const segment = {
+          style: {
+            '--start-angle': `${currentAngle}deg`,
+            '--angle': `${angle}deg`,
+            '--color': this.departmentColors[index % this.departmentColors.length],
+            transform: `rotate(${currentAngle}deg)`,
+            background: `conic-gradient(from 0deg, ${this.departmentColors[index % this.departmentColors.length]} ${angle}deg, transparent ${angle}deg)`
+          }
+        }
+        
+        currentAngle += angle
+        return segment
+      })
+    },
+    
+    pieChartStyle() {
+      if (this.departmentStats.length === 0) return {}
+      
+      const total = this.departmentStats.reduce((sum, dept) => sum + dept.count, 0)
+      const gradientParts = []
+      let currentPercentage = 0
+      
+      this.departmentStats.forEach((dept, index) => {
+        const percentage = (dept.count / total) * 100
+        const color = this.departmentColors[index % this.departmentColors.length]
+        
+        gradientParts.push(`${color} ${currentPercentage}% ${currentPercentage + percentage}%`)
+        currentPercentage += percentage
+      })
+      
+      return {
+        background: `conic-gradient(${gradientParts.join(', ')})`
+      }
     }
   },
   watch: {
@@ -217,6 +291,7 @@ export default {
           activeDepartments: 1,
           pendingTasks: 0,
         }
+        await this.fetchEmployeeStats()
       } finally {
         this.loadingDashboard = false
       }
@@ -226,7 +301,8 @@ export default {
       try {
         const response = await fetch(apiConfig.endpoints.projectEmployees(this.project.id))
         if (response.ok) {
-          const employees = await response.json()
+          const data = await response.json()
+          const employees = data.employees || []
           const activeEmployees = employees.filter(emp => emp.estado === 'Activo')
           const departmentGroups = activeEmployees.reduce((acc, emp) => {
             const dept = emp.departamento || 'Sin Departamento'
@@ -275,3 +351,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.pie-chart {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+</style>
