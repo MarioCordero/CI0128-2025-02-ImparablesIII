@@ -42,69 +42,69 @@
 </template>
 
 <script>
-import apiConfig from '../../config/api.js'
+  import apiConfig from '../../config/api.js'
 
-export default {
-  name: 'MainEmployerHeader',
-  data() {
-    return {
-      companies: [],
-      selectedProjectId: '',
-    }
-  },
-  async mounted() {
-    await this.fetchCompanies()
-    this.detectCurrentProject()
-  },
-  methods: {
-    async fetchCompanies() {
-      try {
-        const employerId = localStorage.getItem('employerId')
-        if (!employerId) {
+  export default {
+    name: 'MainEmployerHeader',
+    data() {
+      return {
+        companies: [],
+        selectedProjectId: '',
+      }
+    },
+    async mounted() {
+      await this.fetchCompanies()
+      this.detectCurrentProject()
+    },
+    methods: {
+      async fetchCompanies() {
+        try {
+          const employerId = localStorage.getItem('employerId')
+          if (!employerId) {
+            this.companies = []
+            return
+          }
+          
+          const response = await fetch(apiConfig.endpoints.projectsByEmployer(employerId))
+          if (response.ok) {
+            this.companies = await response.json()
+          }
+        } catch (error) {
           this.companies = []
-          return
         }
-        
-        const response = await fetch(apiConfig.endpoints.projectsByEmployer(employerId))
-        if (response.ok) {
-          this.companies = await response.json()
-        }
-      } catch (error) {
-        this.companies = []
-      }
-    },
-    navigateToHomeLogged() {
-      localStorage.removeItem('selectedProject')
-      this.selectedProjectId = ''
-      this.$router.push('/dashboard-main-employer')
-    },
-    logout() {
-      localStorage.removeItem('user')
-      localStorage.removeItem('token')
-      localStorage.removeItem('selectedProject')
-      this.$router.push('/login')
-    },
-    onProjectChange() {
-      if (this.selectedProjectId) {
-        const selectedProject = this.companies.find(
-          company => company.id == this.selectedProjectId
-        )
-        localStorage.setItem('selectedProject', JSON.stringify(selectedProject))
-        this.$emit('project-changed', selectedProject)
-        this.$router.push({
-          name: 'DashboardProject',
-          params: { id: this.selectedProjectId }
-        })
-      }
-    },
-    detectCurrentProject() {
-      const selectedProject = JSON.parse(localStorage.getItem('selectedProject'))
-      if (selectedProject) {
-        this.selectedProjectId = selectedProject.id
-      } else {
+      },
+      navigateToHomeLogged() {
+        localStorage.removeItem('selectedProject')
         this.selectedProjectId = ''
+        this.$router.push('/dashboard-main-employer')
+      },
+      logout() {
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        localStorage.removeItem('selectedProject')
+        this.$router.push('/login')
+      },
+      onProjectChange() {
+        if (this.selectedProjectId) {
+          const selectedProject = this.companies.find(
+            company => company.id == this.selectedProjectId
+          )
+          localStorage.setItem('selectedProject', JSON.stringify(selectedProject))
+          this.$emit('project-changed', selectedProject)
+          this.$router.push({
+            name: 'DashboardProject',
+            params: { id: this.selectedProjectId }
+          })
+        }
+      },
+      detectCurrentProject() {
+        const selectedProject = JSON.parse(localStorage.getItem('selectedProject'))
+        if (selectedProject) {
+          this.selectedProjectId = selectedProject.id
+        } else {
+          this.selectedProjectId = ''
+        }
       }
     }
   }
-}
 </script>

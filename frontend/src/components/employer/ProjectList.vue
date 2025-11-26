@@ -94,13 +94,14 @@
         </div>
 
         <!-- Notifications -->
-        <div v-if="company.notifications && company.notifications.length" class="mt-4">
+        <div class="mt-4">
           <h4 class="font-semibold text-blue-700 mb-2">Notificaciones</h4>
-          <ul class="list-disc pl-5">
-            <li v-for="(note, idx) in company.notifications" :key="idx" class="text-gray-700">
-              {{ note.message }}
-            </li>
-          </ul>
+          <p class="text-gray-700" v-if="company.notifications > 0">
+            Tienes {{ company.notifications }} notificación(es).
+          </p>
+          <p class="text-gray-500" v-else>
+            No tienes notificaciones.
+          </p>
         </div>
       </div>
     </div>
@@ -128,8 +129,8 @@ export default {
   watch: {
     userId: {
       immediate: true,
-      handler(newId) {
-        if (newId) this.fetchCompaniesByUser(newId);
+      async handler(newId) {
+        if (newId) await this.fetchCompaniesByUser(newId);
       }
     }
   },
@@ -141,7 +142,27 @@ export default {
         const response = await fetch(apiConfig.endpoints.projectDashboard(userId));
         if (!response.ok) throw new Error('No se pudieron cargar las empresas');
         const data = await response.json();
-        this.companies = data;
+
+        // Fetch notifications for each company
+        const companiesWithNotifications = await Promise.all(
+          data.map(async (company) => {
+            try {
+              const metricsRes = await fetch(apiConfig.endpoints.dashboardMetrics(company.id));
+              if (metricsRes.ok) {
+                const metrics = await metricsRes.json();
+                company.notifications = metrics.notifications || 0;
+                company.activeEmployees = metrics.totalEmployees || 0;
+              } else {
+                company.notifications = 0;
+              }
+            } catch {
+              company.notifications = 0;
+            }
+            return company;
+          })
+        );
+
+        this.companies = companiesWithNotifications;
       } catch (err) {
         this.error = err.message || 'Error al cargar las empresas';
       } finally {

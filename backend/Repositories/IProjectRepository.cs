@@ -8,7 +8,7 @@ namespace backend.Repositories
         Task<List<ProjectResponseDTO>> GetByEmployerIdAsync(int employerId);
         Task<ProjectResponseDTO?> GetByIdAsync(int id);
         Task<List<ProjectResponseDTO>> GetAllAsync();
-        Task<DirectionDTO?> GetDireccionByIdAsync(int id);
+        Task<DirectionDTO?> GetDirectionByIdAsync(int id);
         Task<decimal> GetMonthlyPayrollAsync(int projectId);
         Task<int> CountActiveEmployeesAsync(int projectId);
         Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id);
