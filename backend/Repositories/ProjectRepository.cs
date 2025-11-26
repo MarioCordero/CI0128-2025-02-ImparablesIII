@@ -252,17 +252,17 @@ namespace backend.Repositories
             }
         }
 
-        public async Task<bool> ExistsAsync(int id)
+
+        public async Task<bool> PhysicalDeleteAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
-
-            var query = "SELECT COUNT(1) FROM PlaniFy.Empresa WHERE Id = @Id";
-            var count = await connection.QuerySingleAsync<int>(query, new { Id = id });
-            return count > 0;
+            var query = "DELETE FROM PlaniFy.Empresa WHERE Id = @Id";
+            var rowsAffected = await connection.ExecuteAsync(query, new { Id = id });
+            return rowsAffected > 0;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> LogicalDeleteAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -273,6 +273,17 @@ namespace backend.Repositories
         }
         
         // ID CHECK
+        public async Task<bool> ExistsAsync(int id)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = "SELECT COUNT(1) FROM PlaniFy.Empresa WHERE Id = @Id";
+            var count = await connection.QuerySingleAsync<int>(query, new { Id = id });
+            return count > 0;
+        }
+
+        // ID CHECK X2
         public async Task<bool> ExistsByIdAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);

@@ -21,7 +21,8 @@ namespace backend.Repositories
         Task<bool> UpdateAsync(int id, UpdateProjectDTO dto);
         Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion);
 
-        Task<bool> DeleteAsync(int id);
+        Task<bool> PhysicalDeleteAsync(int id);
+        Task<bool> LogicalDeleteAsync(int id);
 
         Task<bool> ExistsByNameAsync(string nombre);
         Task<bool> ExistsByEmailAsync(string email);

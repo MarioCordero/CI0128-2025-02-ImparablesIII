@@ -9,13 +9,16 @@ namespace backend.Services
         private readonly IProjectRepository _projectRepository;
         private readonly IDirectionRepository _directionRepository;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IPayrollRepository _payrollRepository;
         private readonly ILogger<ProjectService> _logger;
 
-        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository, IEmployeeRepository employeeRepository, ILogger<ProjectService> logger)
+        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository, IEmployeeRepository employeeRepository, IPayrollRepository payrollRepository, ILogger<ProjectService> logger)
         {
             _projectRepository = projectRepository;
             _directionRepository = direccionRepository;
             _employeeRepository = employeeRepository;
+            _payrollRepository = payrollRepository;
+            _logger = logger;
         }
 
         // CREATE A PROJECT
@@ -175,7 +178,23 @@ namespace backend.Services
 
         public async Task<bool> DeleteProjectAsync(int id)
         {
-            return await _projectRepository.DeleteAsync(id);
+            if (!await _projectRepository.ExistsAsync(id))
+            {
+                throw new Exception("Error al eliminar la empresa porque no existe.");
+            }
+            if (await _projectRepository.CountActiveEmployeesAsync(id) > 0)
+            {
+                throw new Exception("Error al eliminar la empresa porque tiene empleados activos.");
+            }
+            var payrolls = await _payrollRepository.GetPayrollHistoryByCompanyAsync(id);
+            if (payrolls != null && payrolls.Any())
+            {
+                // LOGICAL DELETE
+                return await _projectRepository.LogicalDeleteAsync(id);
+            }
+            // PHYSICAL DELETE
+            return await _projectRepository.PhysicalDeleteAsync(id);
+            
         }
 
         public async Task<bool> ExistsByLegalIdAsync(string legalId)
