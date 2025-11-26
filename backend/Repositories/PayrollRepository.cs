@@ -306,6 +306,7 @@ namespace backend.Repositories
             await connection.ExecuteAsync(query, parameters);
         }
 
+        // GET LATEST PAYROLL TOTALS BY COMPANY
         public async Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId)
         {
             try

@@ -27,5 +27,6 @@ namespace backend.Services
         Task<List<DepartmentStatsDTO>> GetDepartmentStatsAsync(int projectId);
         Task<DashboardMetricsDTO?> GetDashboardMetricsAsync(int projectId);
         Task<DirectionDTO?> GetProjectDirectionByDirectionId(int id);
+        Task<PayrollTotalsDto?> GetMonthlyPayrollAsync(int projectId);
     }
 }
