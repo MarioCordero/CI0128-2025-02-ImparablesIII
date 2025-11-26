@@ -114,7 +114,7 @@
         </div>
 
         <div>
-          <EditProjectInfo/> <!--TODO: Make the component prettier-->
+          <EditProjectInfo/>
         </div>
       </div>
 

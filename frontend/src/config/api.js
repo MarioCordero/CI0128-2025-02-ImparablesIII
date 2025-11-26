@@ -53,6 +53,9 @@ export const apiConfig = {
     kpi: (userId) => `${API_BASE_URL}/api/employer/kpi?userId=${userId}`,
     employeeDistribution: (employerId) => `${API_BASE_URL}/api/Project/employer/${employerId}/employee-distribution`,
     payrollDistribution: (employerId) => `${API_BASE_URL}/api/Project/employer/${employerId}/payroll-distribution`,
+
+    // INFO ENDPOINTS
+    projectInfo: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
     
     // Employee endpoints
     validateCedula: (cedula) => `${API_BASE_URL}/api/Employee/validate-cedula/${encodeURIComponent(cedula)}`,
