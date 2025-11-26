@@ -12,6 +12,7 @@ namespace backend.Services
         Task<int> GetActiveEmployeesCountAsync(int projectId);
         Task<List<ProjectResponseDTO>> GetProjectsByEmployerIdAsync(int employerId);
 
+
         // Nuevos métodos para consolidar funcionalidad del dashboard
         Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId);
         Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id);
@@ -23,5 +24,10 @@ namespace backend.Services
         Task<bool> ExistsByLegalIdAsync(string legalId);
         Task<bool> ExistsByEmailAsync(string email);
         Task<bool> ProjectExistsAsync(int id);
+
+        // DASHBOARD METHODS
+        Task<List<DepartmentStatsDTO>> GetDepartmentStatsAsync(int projectId);
+        Task<DashboardMetricsDTO?> GetDashboardMetricsAsync(int projectId);
+        Task<DirectionDTO?> GetProjectDirectionByDirectionId(int id);
     }
 }

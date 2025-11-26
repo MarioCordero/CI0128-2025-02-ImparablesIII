@@ -4,6 +4,7 @@ const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || 'http://localhost:5011'
 export const apiConfig = {
   baseURL: API_BASE_URL,
   endpoints: {
+    // Dashboard endpoints 
     login: `${API_BASE_URL}/api/login`,
     passwordSetup: `${API_BASE_URL}/api/PasswordSetup/setup`,
     benefit: `${API_BASE_URL}/api/Benefit`,
@@ -27,6 +28,10 @@ export const apiConfig = {
     employeeHistoricalPayrollReport: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical`,
     employeeHistoricalPayrollReportDownloadExcel: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical/download/excel`,
 
+    // Project Direction endpoint
+    projectDirection: (directionId) => `${API_BASE_URL}/api/Project/direction/${directionId}`,
+
+
     // Work-hours endpoints
     hours: `${API_BASE_URL}/api/hours`,
     hoursSummary: (employeeId) => `${API_BASE_URL}/api/hours/${employeeId}/summary`,
@@ -43,8 +48,9 @@ export const apiConfig = {
     verifyEmployerCode: `${API_BASE_URL}/api/employer/verify-email-token`,
     verifyEmployerLinkToken: `${API_BASE_URL}/api/employer/verify-link-token`,
 
-    // ProjectList endpoint
+    // DASHBOARD ENDPOINTS
     projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`,
+    dashboardMetrics: (projectId) => `${API_BASE_URL}/api/Project/${projectId}/dashboard/metrics`,
 
     // Employee endpoints
     validateCedula: (cedula) => `${API_BASE_URL}/api/Employee/validate-cedula/${encodeURIComponent(cedula)}`,

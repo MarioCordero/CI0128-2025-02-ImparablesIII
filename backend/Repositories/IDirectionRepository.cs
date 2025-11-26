@@ -6,7 +6,7 @@ namespace backend.Repositories
     public interface IDirectionRepository
     {
         Task<int> CreateDireccionAsync(string provincia, string canton, string distrito, string? direccionParticular);
-        Task<DirectionDTO?> GetDireccionByIdAsync(int id);
+        Task<DirectionDTO?> GetDirectionByIdAsync(int id);
         Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion);
     }
 }
