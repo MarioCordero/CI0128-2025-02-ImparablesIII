@@ -53,6 +53,8 @@ export const apiConfig = {
     dashboardMetrics: (projectId) => `${API_BASE_URL}/api/Project/${projectId}/dashboard/metrics`,
 
     // Employee endpoints
+    validateCedula: (cedula) => `${API_BASE_URL}/api/Employee/validate-cedula/${encodeURIComponent(cedula)}`,
+    validateEmail: (email) => `${API_BASE_URL}/api/Employee/validate-email/${encodeURIComponent(email)}`,
     projectEmployees: (projectId) => `${API_BASE_URL}/api/Project/${projectId}/employees`,
     employeeDeletionInfo: (employeeId) => `${API_BASE_URL}/api/Employee/${employeeId}/deletion-info`,
     deleteEmployee: (employeeId, employerId) => `${API_BASE_URL}/api/Employee/${employeeId}?employerId=${employerId}`,
