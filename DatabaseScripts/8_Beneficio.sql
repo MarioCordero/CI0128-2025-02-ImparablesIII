@@ -9,6 +9,7 @@ CREATE TABLE PlaniFy.Beneficio (
     Valor INT,
     Porcentaje INT,
     Descripcion VARCHAR(200),           -- AÑADIDO: Faltaba
+    IsDeleted BIT DEFAULT 0,
     PRIMARY KEY (idEmpresa, Nombre),
     FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE
 );
