@@ -241,6 +241,165 @@ namespace backend.Tests
 
             _repoMock.Verify(r => r.GetPayrollHistoryByCompanyAsync(companyId), Times.Once);
         }
+
+        [TestMethod]
+        public async Task GetHistoricalPayrollReportAsync_ValidEmployeeId_ReturnsReport()
+        {
+            var employeeId = 100;
+            var authenticatedEmployeeId = 100;
+            var startDate = new DateTime(2024, 1, 1);
+            var endDate = new DateTime(2024, 12, 31);
+
+            var expectedReport = new HistoricalPayrollReportDto
+            {
+                Items = new List<HistoricalPayrollReportItemDto>
+                {
+                    new HistoricalPayrollReportItemDto
+                    {
+                        PayrollId = 1,
+                        ContractType = "Tiempo Completo",
+                        Position = "Desarrollador",
+                        PaymentDate = new DateTime(2024, 1, 15),
+                        GrossSalary = 500000m,
+                        MandatoryEmployeeDeductions = 50000m,
+                        VoluntaryDeductions = 10000m,
+                        NetSalary = 440000m
+                    },
+                    new HistoricalPayrollReportItemDto
+                    {
+                        PayrollId = 2,
+                        ContractType = "Tiempo Completo",
+                        Position = "Desarrollador",
+                        PaymentDate = new DateTime(2024, 2, 15),
+                        GrossSalary = 500000m,
+                        MandatoryEmployeeDeductions = 50000m,
+                        VoluntaryDeductions = 10000m,
+                        NetSalary = 440000m
+                    }
+                },
+                Totals = new HistoricalPayrollReportTotalsDto
+                {
+                    TotalGrossSalary = 1000000m,
+                    TotalMandatoryEmployeeDeductions = 100000m,
+                    TotalVoluntaryDeductions = 20000m,
+                    TotalNetSalary = 880000m
+                }
+            };
+
+            _repoMock.Setup(r => r.GetHistoricalPayrollReportAsync(employeeId, startDate, endDate))
+                .ReturnsAsync(expectedReport);
+
+            var result = await _service.GetHistoricalPayrollReportAsync(employeeId, authenticatedEmployeeId, startDate, endDate);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.Items.Count);
+            Assert.AreEqual(1, result.Items[0].PayrollId);
+            Assert.AreEqual(2, result.Items[1].PayrollId);
+            Assert.AreEqual(1000000m, result.Totals.TotalGrossSalary);
+            Assert.AreEqual(100000m, result.Totals.TotalMandatoryEmployeeDeductions);
+            Assert.AreEqual(20000m, result.Totals.TotalVoluntaryDeductions);
+            Assert.AreEqual(880000m, result.Totals.TotalNetSalary);
+
+            _repoMock.Verify(r => r.GetHistoricalPayrollReportAsync(employeeId, startDate, endDate), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task GetHistoricalPayrollReportAsync_InvalidEmployeeId_ThrowsArgumentOutOfRangeException()
+        {
+            var invalidEmployeeId = 0;
+            var authenticatedEmployeeId = 0;
+
+            await Assert.ThrowsExceptionAsync<ArgumentOutOfRangeException>(() =>
+                _service.GetHistoricalPayrollReportAsync(invalidEmployeeId, authenticatedEmployeeId, null, null));
+
+            _repoMock.Verify(r => r.GetHistoricalPayrollReportAsync(It.IsAny<int>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task GetHistoricalPayrollReportAsync_UnauthorizedAccess_ThrowsUnauthorizedAccessException()
+        {
+            var employeeId = 100;
+            var authenticatedEmployeeId = 200;
+
+            await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(() =>
+                _service.GetHistoricalPayrollReportAsync(employeeId, authenticatedEmployeeId, null, null));
+
+            _repoMock.Verify(r => r.GetHistoricalPayrollReportAsync(It.IsAny<int>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task GetHistoricalPayrollReportAsync_NoDateFilters_ReturnsAllRecords()
+        {
+            var employeeId = 100;
+            var authenticatedEmployeeId = 100;
+
+            var expectedReport = new HistoricalPayrollReportDto
+            {
+                Items = new List<HistoricalPayrollReportItemDto>
+                {
+                    new HistoricalPayrollReportItemDto
+                    {
+                        PayrollId = 1,
+                        ContractType = "Tiempo Completo",
+                        Position = "Desarrollador",
+                        PaymentDate = new DateTime(2023, 6, 15),
+                        GrossSalary = 500000m,
+                        MandatoryEmployeeDeductions = 50000m,
+                        VoluntaryDeductions = 10000m,
+                        NetSalary = 440000m
+                    }
+                },
+                Totals = new HistoricalPayrollReportTotalsDto
+                {
+                    TotalGrossSalary = 500000m,
+                    TotalMandatoryEmployeeDeductions = 50000m,
+                    TotalVoluntaryDeductions = 10000m,
+                    TotalNetSalary = 440000m
+                }
+            };
+
+            _repoMock.Setup(r => r.GetHistoricalPayrollReportAsync(employeeId, null, null))
+                .ReturnsAsync(expectedReport);
+
+            var result = await _service.GetHistoricalPayrollReportAsync(employeeId, authenticatedEmployeeId, null, null);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Items.Count);
+
+            _repoMock.Verify(r => r.GetHistoricalPayrollReportAsync(employeeId, null, null), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task GetHistoricalPayrollReportAsync_EmptyResult_ReturnsEmptyReport()
+        {
+            var employeeId = 100;
+            var authenticatedEmployeeId = 100;
+            var startDate = new DateTime(2025, 1, 1);
+            var endDate = new DateTime(2025, 12, 31);
+
+            var expectedReport = new HistoricalPayrollReportDto
+            {
+                Items = new List<HistoricalPayrollReportItemDto>(),
+                Totals = new HistoricalPayrollReportTotalsDto
+                {
+                    TotalGrossSalary = 0m,
+                    TotalMandatoryEmployeeDeductions = 0m,
+                    TotalVoluntaryDeductions = 0m,
+                    TotalNetSalary = 0m
+                }
+            };
+
+            _repoMock.Setup(r => r.GetHistoricalPayrollReportAsync(employeeId, startDate, endDate))
+                .ReturnsAsync(expectedReport);
+
+            var result = await _service.GetHistoricalPayrollReportAsync(employeeId, authenticatedEmployeeId, startDate, endDate);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Items.Count);
+            Assert.AreEqual(0m, result.Totals.TotalGrossSalary);
+
+            _repoMock.Verify(r => r.GetHistoricalPayrollReportAsync(employeeId, startDate, endDate), Times.Once);
+        }
     }
 }
 
