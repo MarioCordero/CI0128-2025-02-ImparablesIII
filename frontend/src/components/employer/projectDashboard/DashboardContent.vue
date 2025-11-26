@@ -146,56 +146,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Actividades Recientes -->
-      <div class="neumorphism-card p-6 rounded-2xl mb-8">
-        <h3 class="text-lg font-semibold mb-4">Actividades Recientes</h3>
-        <div class="space-y-3">
-          <div v-for="activity in mockRecentActivities" 
-               :key="activity.id" 
-               class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-          >
-            <div class="flex items-center">
-              <div class="text-lg mr-3">{{ activity.icon }}</div>
-              <div>
-                <div class="font-medium">{{ activity.title }}</div>
-                <div class="text-sm text-gray-600">{{ activity.description }}</div>
-              </div>
-            </div>
-            <div class="text-xs text-gray-500">{{ activity.time }}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Próximos Vencimientos -->
-      <div class="neumorphism-card p-6 rounded-2xl">
-        <h3 class="text-lg font-semibold mb-4">Próximos Vencimientos</h3>
-        <div class="space-y-3">
-          <div v-for="reminder in mockUpcomingReminders" 
-               :key="reminder.id" 
-               class="flex items-center justify-between p-3 border-l-4 rounded-lg"
-               :class="{
-                 'border-red-500 bg-red-50': reminder.priority === 'high',
-                 'border-yellow-500 bg-yellow-50': reminder.priority === 'medium',
-                 'border-blue-500 bg-blue-50': reminder.priority === 'low'
-               }"
-          >
-            <div>
-              <div class="font-medium">{{ reminder.title }}</div>
-              <div class="text-sm text-gray-600">{{ reminder.description }}</div>
-            </div>
-            <div class="text-sm font-medium" 
-                 :class="{
-                   'text-red-600': reminder.priority === 'high',
-                   'text-yellow-600': reminder.priority === 'medium',
-                   'text-blue-600': reminder.priority === 'low'
-                 }"
-            >
-              {{ reminder.dueDate }}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -229,52 +179,6 @@ export default {
       loadingDirection: false,
       loadingDashboard: false,
       error: null,
-      mockRecentActivities: [
-        {
-          id: 1,
-          icon: '👤',
-          title: 'Nuevo empleado registrado',
-          description: 'Juan Pérez se agregó al sistema',
-          time: 'Hace 2 horas'
-        },
-        {
-          id: 2,
-          icon: '💰',
-          title: 'Planilla procesada',
-          description: 'Planilla de noviembre completada',
-          time: 'Ayer'
-        },
-        {
-          id: 3,
-          icon: '🎁',
-          title: 'Beneficio actualizado',
-          description: 'Seguro médico modificado',
-          time: 'Hace 3 días'
-        }
-      ],
-      mockUpcomingReminders: [
-        {
-          id: 1,
-          title: 'Aguinaldo 2024',
-          description: 'Cálculo y pago de aguinaldo',
-          dueDate: '15 Dic',
-          priority: 'high'
-        },
-        {
-          id: 2,
-          title: 'Reporte mensual CCSS',
-          description: 'Envío de planilla a CCSS',
-          dueDate: '30 Nov',
-          priority: 'medium'
-        },
-        {
-          id: 3,
-          title: 'Revisión de vacaciones',
-          description: 'Actualizar días disponibles',
-          dueDate: '5 Dic',
-          priority: 'low'
-        }
-      ]
     }
   },
   watch: {
@@ -294,39 +198,24 @@ export default {
   methods: {
     async fetchDashboardData() {
       if (!this.project || !this.project.id) return
-
       try {
         this.loadingDashboard = true
         this.error = null
-
-        // Usar el endpoint de dashboard metrics
         const response = await fetch(apiConfig.endpoints.dashboardMetrics(this.project.id))
-        
         if (!response.ok) {
           throw new Error('No se pudieron cargar las métricas del dashboard')
         }
-
         const data = await response.json()
         this.dashboardData = { ...this.dashboardData, ...data }
-        
-        // También cargar empleados para estadísticas de departamentos
         await this.fetchEmployeeStats()
-        
-        console.log('Dashboard data loaded for project:', this.project.id, this.dashboardData)
       } catch (err) {
-        console.error('Error loading dashboard data:', err)
-        this.error = err.message || 'Error al cargar el dashboard'
-        
-        // Fallback con datos del proyecto
+        this.error = err.message || 'Error al cargar el dashboard'        
+        // Fallback
         this.dashboardData = {
           totalEmployees: this.project.activeEmployees || 0,
           currentPayroll: this.project.monthlyPayroll || 0,
           activeDepartments: 1,
           pendingTasks: 0,
-          employeesTrend: '+0% vs mes anterior',
-          payrollTrend: '+0% vs mes anterior',
-          departmentsTrend: 'Sin cambios',
-          tasksTrend: '0 nuevas hoy'
         }
       } finally {
         this.loadingDashboard = false
@@ -336,24 +225,19 @@ export default {
     async fetchEmployeeStats() {
       try {
         const response = await fetch(apiConfig.endpoints.projectEmployees(this.project.id))
-        
         if (response.ok) {
           const employees = await response.json()
           const activeEmployees = employees.filter(emp => emp.estado === 'Activo')
-          
-          // Agrupar por departamento
           const departmentGroups = activeEmployees.reduce((acc, emp) => {
             const dept = emp.departamento || 'Sin Departamento'
             acc[dept] = (acc[dept] || 0) + 1
             return acc
           }, {})
-
           this.departmentStats = Object.entries(departmentGroups)
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count)
         }
       } catch (err) {
-        console.error('Error loading employee stats:', err)
         this.departmentStats = []
       }
     },
@@ -363,21 +247,16 @@ export default {
         this.projectDirection = null
         return
       }
-
       try {
         this.loadingDirection = true
-        const response = await fetch(apiConfig.endpoints.projectDirection(this.project.idDireccion))
-        
+        const response = await fetch(apiConfig.endpoints.projectDirection(this.project.idDireccion)) 
         if (!response.ok) {
           throw new Error(`Error ${response.status}: No se pudo cargar la dirección`)
         }
-        
         const direction = await response.json()
         this.projectDirection = this.formatAddress(direction)
-        
         console.log('Direction loaded for project:', this.project.id, direction)
       } catch (err) {
-        console.error('Error loading direction:', err)
         this.projectDirection = 'Error al cargar dirección'
       } finally {
         this.loadingDirection = false
@@ -386,14 +265,11 @@ export default {
 
     formatAddress(direction) {
       if (!direction) return null
-      
       const parts = []
-      
       if (direction.provincia) parts.push(direction.provincia)
       if (direction.canton) parts.push(direction.canton)  
       if (direction.distrito) parts.push(direction.distrito)
       if (direction.direccionParticular) parts.push(direction.direccionParticular)
-      
       return parts.length > 0 ? parts.join(', ') : null
     }
   }
