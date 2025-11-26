@@ -135,7 +135,7 @@ namespace backend.Services
             };
         }
 
-        // GFENRAL DASHBOARD METHODS
+        // GENERAL DASHBOARD METHODS
         public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             try
@@ -176,16 +176,6 @@ namespace backend.Services
         public async Task<bool> DeleteProjectAsync(int id)
         {
             return await _projectRepository.DeleteAsync(id);
-        }
-
-        public async Task<bool> ActivateProjectAsync(int id)
-        {
-            return await _projectRepository.ActivateAsync(id);
-        }
-
-        public async Task<bool> DeactivateProjectAsync(int id)
-        {
-            return await _projectRepository.DeactivateAsync(id);
         }
 
         public async Task<bool> ExistsByLegalIdAsync(string legalId)
