@@ -5,6 +5,7 @@ namespace backend.Constants
         public static class ReportLabels
         {
             public const string ReportTitle = "REPORTE 1 – EMPLEADO (PAGO PLANILLA)";
+            public const string HistoricalReportTitle = "REPORTE HISTÓRICO DE PAGO PLANILLA";
             public const string CompanyNameLabel = "Nombre de la empresa";
             public const string EmployeeNameLabel = "Nombre completo del empleado";
             public const string PaymentDateLabel = "Fecha de pago";
