@@ -33,10 +33,7 @@
             <div class="font-bold text-gray-700 mb-1">Teléfono</div>
             <div class="text-gray-600">{{ project.telefono }}</div>
           </div>
-          <div class="mb-3">
-            <div class="font-bold text-gray-700 mb-1">ID Dirección</div>
-            <div class="text-gray-600">{{ project.idDireccion }}</div>
-          </div>
+
         </div>
         <div>
           <div class="mb-3">
@@ -46,16 +43,6 @@
           <div class="mb-3">
             <div class="font-bold text-gray-700 mb-1">Máximo de beneficios elegibles</div>
             <div class="text-gray-600">{{ project.maximoBeneficios }}</div>
-          </div>
-          <div v-if="project.direccion" class="mb-3">
-            <div class="font-bold text-gray-700 mb-1">Dirección</div>
-            <div class="text-gray-600">
-              <div><span class="font-bold">ID Dirección:</span> {{ project.direccion.id }}</div>
-              <div><span class="font-bold">Provincia:</span> {{ project.direccion.provincia }}</div>
-              <div><span class="font-bold">Cantón:</span> {{ project.direccion.canton }}</div>
-              <div><span class="font-bold">Distrito:</span> {{ project.direccion.distrito }}</div>
-              <div><span class="font-bold">Dirección Particular:</span> {{ project.direccion.direccionParticular }}</div>
-            </div>
           </div>
         </div>
       </div>
@@ -156,7 +143,7 @@ export default {
         if (!companyId) {
           throw new Error('No se encontró el ID de empresa en localStorage')
         }
-        const response = await fetch(apiConfig.endpoints.byCompany(companyId))
+        const response = await fetch(apiConfig.endpoints.projectInfo(companyId))
         if (!response.ok) {
           throw new Error('No se encontró la empresa')
         }
