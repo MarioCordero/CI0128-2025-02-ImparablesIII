@@ -261,5 +261,32 @@ namespace backend.Controllers
                 });
             }
         }
+
+        // GET EMPLOYEE DISTRIBUTION ACROSS PROJECTS FOR AN EMPLOYER
+        [HttpGet("employer/{employerId}/employee-distribution")]
+        public async Task<ActionResult<List<object>>> GetEmployeeDistribution(int employerId)
+        {
+            try
+            {
+                var projects = await _projectService.GetProjectsByEmployerIdAsync(employerId);
+                var result = new List<object>();
+                foreach (var project in projects)
+                {
+                    var count = await _projectService.GetActiveEmployeesCountAsync(project.Id);
+                    result.Add(new
+                    {
+                        id = project.Id,
+                        nombre = project.Nombre,
+                        employeeCount = count
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener la distribución de empleados", error = ex.Message });
+            }
+        }
     }
 }
