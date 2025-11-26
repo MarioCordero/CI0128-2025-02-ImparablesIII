@@ -515,5 +515,52 @@ namespace backend.Repositories
 
             return result;
         }
+
+        public async Task<HistoricalPayrollReportDto> GetHistoricalPayrollReportAsync(int employeeId, DateTime? startDate, DateTime? endDate)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var sql = @"
+                SELECT 
+                    p.id AS PayrollId,
+                    e.TipoContrato AS ContractType,
+                    dp.Puesto AS Position,
+                    p.FechaGeneracion AS PaymentDate,
+                    CAST(dp.salarioBruto AS DECIMAL(18,2)) AS GrossSalary,
+                    CAST(dp.DeduccionesEmpleado AS DECIMAL(18,2)) AS MandatoryEmployeeDeductions,
+                    CAST(dp.totalBeneficios AS DECIMAL(18,2)) AS VoluntaryDeductions,
+                    CAST(dp.salarioNeto AS DECIMAL(18,2)) AS NetSalary
+                FROM PlaniFy.DetallePlanilla dp
+                INNER JOIN PlaniFy.Planilla p ON dp.idPlanilla = p.id
+                INNER JOIN PlaniFy.Empleado e ON dp.idEmpleado = e.idPersona
+                WHERE dp.idEmpleado = @EmployeeId
+                    AND (@StartDate IS NULL OR CAST(p.FechaGeneracion AS DATE) >= @StartDate)
+                    AND (@EndDate IS NULL OR CAST(p.FechaGeneracion AS DATE) <= @EndDate)
+                ORDER BY p.FechaGeneracion DESC, p.id DESC;";
+
+            var items = (await connection.QueryAsync<HistoricalPayrollReportItemDto>(
+                sql,
+                new
+                {
+                    EmployeeId = employeeId,
+                    StartDate = startDate,
+                    EndDate = endDate
+                })).ToList();
+
+            var totals = new HistoricalPayrollReportTotalsDto
+            {
+                TotalGrossSalary = items.Sum(i => i.GrossSalary),
+                TotalMandatoryEmployeeDeductions = items.Sum(i => i.MandatoryEmployeeDeductions),
+                TotalVoluntaryDeductions = items.Sum(i => i.VoluntaryDeductions),
+                TotalNetSalary = items.Sum(i => i.NetSalary)
+            };
+
+            return new HistoricalPayrollReportDto
+            {
+                Items = items,
+                Totals = totals
+            };
+        }
     }
 }
