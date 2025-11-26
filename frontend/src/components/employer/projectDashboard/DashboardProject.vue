@@ -200,8 +200,6 @@
 
           <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
         </div>
-
-
         <div class="neumorphism-card p-6 rounded-2xl">
           <h2 class="text-xl font-semibold mb-4">Beneficios Corporativos</h2>
           <div v-if="!benefits || benefits.length === 0" class="text-gray-500 text-center py-8">
@@ -216,10 +214,9 @@
               <div class="flex flex-col space-y-2">
                 <div class="flex justify-between items-start">
                   <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.name }}</h3>
-                  <!-- Botón de editar -->
-                  <button class="neumorphism-button-normal-light p-[7px]! rounded-full!" @click="editBenefit(benefit)">
-                    ✏️
-                  </button>
+                  <DropdownMenu
+            @action="handleBenefitMenu($event, benefit)"
+          />
                 </div>
                 <div class="space-y-1 text-sm">
                   <div class="flex justify-between">
@@ -305,6 +302,7 @@ import EmployeesSection from './EmployeesSection.vue'
 import EmployeesFilter from './EmployeesFilter.vue'
 import EditProjectInfo from './EditProjectInfo.vue'
 import { apiConfig } from '../../../config/api.js'
+import DropdownMenu from './DropdownMenu.vue'
 
 export default {
   name: 'ProjectDashboard',
@@ -314,7 +312,8 @@ export default {
     PayrollReports,
     EmployeesSection,
     EmployeesFilter,
-    EditProjectInfo
+    EditProjectInfo,
+    DropdownMenu
   },
   data() {
     return {
@@ -474,6 +473,52 @@ export default {
 
     editBenefit(benefit) {
       this.$router.push(`/edit-benefit/${benefit.companyId}/${encodeURIComponent(benefit.name)}`);
+    },
+
+    handleBenefitMenu(action, benefit) {
+      if (!action || !benefit) {
+        return;
+      }
+
+      if (action === 'Editar') {
+        this.editBenefit(benefit);
+        return;
+      }
+
+      if (action === 'Eliminar') {
+        this.deleteBenefit(benefit);
+      }
+    },
+
+    async deleteBenefit(benefit) {
+      if (!benefit) {
+        return;
+      }
+
+      const confirmed = typeof window === 'undefined'
+        ? true
+        : window.confirm(`¿Deseas eliminar el beneficio "${benefit.name}"?`);
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        this.error = null;
+        const companyId = benefit.companyId ?? this.project.id;
+        const response = await fetch(
+          apiConfig.endpoints.benefitByCompanyAndName(companyId, benefit.name),
+          { method: 'DELETE' }
+        );
+
+        if (!response.ok) {
+          throw new Error('No se pudo eliminar el beneficio');
+        }
+
+        await this.fetchBenefits();
+      }
+      catch (err) {
+        this.error = err.message || 'Error al eliminar el beneficio';
+      }
     }
   },
   async mounted() {
