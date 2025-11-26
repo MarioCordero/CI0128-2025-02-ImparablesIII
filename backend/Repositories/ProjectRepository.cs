@@ -9,11 +9,13 @@ namespace backend.Repositories
     {
         private readonly string _connectionString;
         private readonly IDirectionRepository _direccionRepository;
+        private readonly ILogger<ProjectRepository> _logger;
 
-        public ProjectRepository(IConfiguration configuration, IDirectionRepository direccionRepository)
+        public ProjectRepository(IConfiguration configuration, IDirectionRepository direccionRepository, ILogger<ProjectRepository> logger)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
             _direccionRepository = direccionRepository;
+            _logger = logger;
         }
 
         public async Task<ProjectResponseDTO> CreateAsync(Project project)

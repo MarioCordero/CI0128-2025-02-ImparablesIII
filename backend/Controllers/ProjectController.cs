@@ -273,6 +273,7 @@ namespace backend.Controllers
                 foreach (var project in projects)
                 {
                     var count = await _projectService.GetActiveEmployeesCountAsync(project.Id);
+                    _logger.LogInformation("Project {ProjectId} has {EmployeeCount} active employees", project.Id, count);
                     result.Add(new
                     {
                         id = project.Id,
@@ -300,11 +301,14 @@ namespace backend.Controllers
                 foreach (var project in projects)
                 {
                     var payroll = await _projectService.GetMonthlyPayrollAsync(project.Id);
+                    var activeEmployees = await _projectService.GetActiveEmployeesCountAsync(project.Id);
+                    _logger.LogInformation("Project {ProjectId} has payroll {Payroll} and {ActiveEmployees} active employees", project.Id, payroll, activeEmployees);
                     result.Add(new
                     {
                         id = project.Id,
                         nombre = project.Nombre,
-                        payroll = payroll
+                        payroll = payroll,
+                        activeEmployees = activeEmployees
                     });
                 }
 

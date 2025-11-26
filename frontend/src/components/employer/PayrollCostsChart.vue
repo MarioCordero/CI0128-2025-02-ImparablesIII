@@ -48,7 +48,7 @@
               <div>
                 <div class="font-medium text-gray-800">{{ company.nombre }}</div>
                 <div class="text-xs text-gray-500">
-                  {{ getPercentage(company.payroll.totalGross) }}% • {{ company.payroll.employeeCount }} empleados
+                  {{ getPercentage(company.payroll.totalGross) }}% • {{ company.activeEmployees }} empleados                
                 </div>
               </div>
             </div>
@@ -123,7 +123,7 @@ export default {
       return this.companies.reduce((sum, company) => sum + (company.payroll?.totalGross || 0), 0);
     },
     totalEmployees() {
-      return this.companies.reduce((sum, company) => sum + (company.payroll?.employeeCount || 0), 0);
+      return this.companies.reduce((sum, company) => sum + (company.activeEmployees || 0), 0);
     },
     largestCompany() {
       if (this.companiesWithData.length === 0) return null;
