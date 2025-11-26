@@ -1,5 +1,5 @@
 <template>
-  <div class="payroll-chart neumorphism-card p-6">
+  <div class="neumorphism-card p-6">
     <h2 class="text-xl font-bold mb-4">Distribución de Costos de Planilla</h2>
     
     <!-- Gráfico de Pastel con SVG -->
