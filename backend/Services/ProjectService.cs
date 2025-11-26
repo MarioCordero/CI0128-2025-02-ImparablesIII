@@ -8,11 +8,14 @@ namespace backend.Services
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IDirectionRepository _directionRepository;
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly ILogger<ProjectService> _logger;
 
-        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository)
+        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository, IEmployeeRepository employeeRepository, ILogger<ProjectService> logger)
         {
             _projectRepository = projectRepository;
             _directionRepository = direccionRepository;
+            _employeeRepository = employeeRepository;
         }
 
         // CREATE A PROJECT
@@ -102,6 +105,7 @@ namespace backend.Services
             return await _projectRepository.GetByEmployerIdAsync(employerId);
         }
 
+        // UPDATE THE INFO OF A PROJECT GIVEN ITS ID
         public async Task<UpdateProjectResult> UpdateProjectAsync(int id, UpdateProjectDTO dto)
         {
             var project = await _projectRepository.GetByIdAsync(id);
@@ -131,7 +135,7 @@ namespace backend.Services
             };
         }
 
-        // DASHBOARD METHODS
+        // GFENRAL DASHBOARD METHODS
         public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             try
@@ -202,6 +206,75 @@ namespace backend.Services
         private async Task<decimal> GetMonthlyPayrollAsync(int projectId)
         {
             return 0; // Placeholder
+        }
+
+        // DASHBOARD FOR THE PROJECT (INDIVIDUALLY) DASHBOARD METRICS
+        public async Task<DashboardMetricsDTO?> GetDashboardMetricsAsync(int projectId)
+        {
+            try
+            {
+                if (projectId <= 0)
+                {
+                    throw new ArgumentException("El ID del proyecto debe ser válido", nameof(projectId));
+                }
+                var projectExists = await _projectRepository.ExistsAsync(projectId);
+                if (!projectExists)
+                {
+                    return null;
+                }
+
+                var employees = await _employeeRepository.GetEmployeesByCompanyAsync(projectId);
+                var activeEmployees = employees.Where(e => e.Estado == "Activo").ToList();
+                var currentPayroll = activeEmployees.Sum(e => e.Salario ?? 0);
+                var activeDepartments = activeEmployees
+                    .Where(e => !string.IsNullOrEmpty(e.Departamento))
+                    .Select(e => e.Departamento)
+                    .Distinct()
+                    .Count();
+                var notifications = 0; // TODO
+                var metrics = new DashboardMetricsDTO
+                {
+                    TotalEmployees = activeEmployees.Count,
+                    CurrentPayroll = currentPayroll,
+                    ActiveDepartments = activeDepartments,
+                    Notifications = notifications,
+                };
+
+                return metrics;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo métricas del dashboard para el proyecto {ProjectId}", projectId);
+                throw;
+            }
+        }
+
+        // HELPER METHOD TO GET DEPARTMENT STATS
+        public async Task<List<DepartmentStatsDTO>> GetDepartmentStatsAsync(int projectId)
+        {
+            try
+            {
+                var employees = await _employeeRepository.GetEmployeesByCompanyAsync(projectId);
+                var activeEmployees = employees.Where(e => e.Estado == "Activo").ToList();
+
+                var departmentStats = activeEmployees
+                    .GroupBy(e => e.Departamento ?? "Sin Departamento")
+                    .Select(g => new DepartmentStatsDTO
+                    {
+                        DepartmentName = g.Key,
+                        EmployeeCount = g.Count(),
+                        TotalSalary = g.Sum(e => e.Salario ?? 0)
+                    })
+                    .OrderByDescending(d => d.EmployeeCount)
+                    .ToList();
+
+                return departmentStats;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo estadísticas de departamentos para el proyecto {ProjectId}", projectId);
+                throw;
+            }
         }
     }
 }
