@@ -210,4 +210,30 @@ namespace backend.DTOs
         public int Horas { get; set; }
         public string NombreEmpresa { get; set; } = string.Empty;
     }
+
+    public class HistoricalPayrollReportItemDto
+    {
+        public int PayrollId { get; set; }
+        public string ContractType { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
+        public DateTime PaymentDate { get; set; }
+        public decimal GrossSalary { get; set; }
+        public decimal MandatoryEmployeeDeductions { get; set; }
+        public decimal VoluntaryDeductions { get; set; }
+        public decimal NetSalary { get; set; }
+    }
+
+    public class HistoricalPayrollReportTotalsDto
+    {
+        public decimal TotalGrossSalary { get; set; }
+        public decimal TotalMandatoryEmployeeDeductions { get; set; }
+        public decimal TotalVoluntaryDeductions { get; set; }
+        public decimal TotalNetSalary { get; set; }
+    }
+
+    public class HistoricalPayrollReportDto
+    {
+        public List<HistoricalPayrollReportItemDto> Items { get; set; } = new();
+        public HistoricalPayrollReportTotalsDto Totals { get; set; } = new();
+    }
 }
