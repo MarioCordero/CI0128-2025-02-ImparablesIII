@@ -6,11 +6,12 @@ DELETE FROM PlaniFy.Persona WHERE Id = 74;
 
 SELECT * FROM PlaniFy.Usuario;
 
-SELECT * FROM PlaniFy.Empleado;
 
-SELECT * FROM PlaniFy.Planilla;
 
 SELECT * FROM PlaniFy.Empresa;
+SELECT * FROM PlaniFy.Empleado;
+SELECT * FROM PlaniFy.Planilla;
+SELECT * FROM PlaniFy.DetallePlanilla;
 
 SELECT * FROM PlaniFy.Beneficio
 
