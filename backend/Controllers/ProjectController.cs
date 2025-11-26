@@ -141,11 +141,6 @@ namespace backend.Controllers
         {
             try
             {
-                if (!await _projectService.ProjectExistsAsync(id))
-                {
-                    return NotFound(new { message = ReturnMessagesConstants.Project.ProjectNotFound });
-                }
-
                 var success = await _projectService.DeleteProjectAsync(id);
                 if (success)
                 {
