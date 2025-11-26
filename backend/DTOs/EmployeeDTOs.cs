@@ -10,8 +10,9 @@ namespace backend.DTOs
         public int? Telefono { get; set; }
         public string Puesto { get; set; } = string.Empty;
         public string Departamento { get; set; } = string.Empty;
-        public int Salario { get; set; }
+        public int? Salario { get; set; }
         public string TipoContrato { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
     }
 
     public class EmployeeListResponseDto

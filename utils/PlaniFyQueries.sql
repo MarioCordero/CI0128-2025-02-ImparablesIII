@@ -28,18 +28,19 @@ SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'EmpleadorProyecto';
 
 SELECT * FROM PlaniFy.Empresa
 
-DECLARE @EmployerId INT = 25;
 SELECT 
-    e.Id,
-    e.Nombre,
-    e.CedulaJuridica,
-    e.Email,
-    e.PeriodoPago,
-    e.Telefono,
-    e.MaximoBeneficios,
-    e.idEmpleador
-FROM PlaniFy.Empresa AS e
-WHERE e.idEmpleador = @EmployerId;
+    e.idPersona AS Id,
+    CONCAT(p.Nombre, ' ', COALESCE(p.SegundoNombre + ' ', ''), p.Apellidos) AS NombreCompleto,
+    p.Correo,
+    p.Telefono,
+    e.Puesto,
+    e.Departamento,
+    e.Salario,
+    e.TipoContrato
+FROM PlaniFy.Empleado e
+INNER JOIN PlaniFy.Persona p ON p.Id = e.idPersona
+WHERE e.idEmpresa = 17
+AND (e.Estado = 'Activo' OR e.Estado IS NULL);
 
 
 

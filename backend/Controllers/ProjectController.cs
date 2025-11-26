@@ -288,5 +288,39 @@ namespace backend.Controllers
 
             return Ok(result.Project);
         }
+
+        // GET DASHBOARD METRICS FOR THE PROJECT (INDIVIDUALLY) DASHBOARD
+        [HttpGet("{projectId}/dashboard/metrics")]
+        public async Task<ActionResult<DashboardMetricsDTO>> GetDashboardMetrics(int projectId)
+        {
+            try
+            {
+                _logger.LogInformation("Obteniendo métricas de dashboard para el proyecto {ProjectId}", projectId);
+
+                var metrics = await _projectService.GetDashboardMetricsAsync(projectId);
+
+                if (metrics == null)
+                {
+                    return NotFound(new { message = "No se encontraron métricas para el proyecto especificado" });
+                }
+
+                _logger.LogInformation("Métricas obtenidas exitosamente para el proyecto {ProjectId}", projectId);
+                return Ok(metrics);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning("Argumento inválido para proyecto {ProjectId}: {Message}", projectId, ex.Message);
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error interno obteniendo métricas para el proyecto {ProjectId}", projectId);
+                return StatusCode(500, new
+                {
+                    message = ReturnMessagesConstants.General.InternalServerError,
+                    detail = ex.Message
+                });
+            }
+        }
     }
 }

@@ -149,4 +149,19 @@ namespace backend.DTOs
     public class ProjectListDto : ProjectResponseDTO { }
     public class CompanyDashboardMainEmployerDto : ProjectResponseDTO { }
     public class DashboardMainEmployerDto : ProjectResponseDTO { }
+
+    public class DashboardMetricsDTO
+    {
+        public int TotalEmployees { get; set; }
+        public decimal CurrentPayroll { get; set; }
+        public int ActiveDepartments { get; set; }
+        public int Notifications { get; set; }
+    }
+
+    public class DepartmentStatsDTO
+    {
+        public string DepartmentName { get; set; } = string.Empty;
+        public int EmployeeCount { get; set; }
+        public decimal TotalSalary { get; set; }
+    }
 }
