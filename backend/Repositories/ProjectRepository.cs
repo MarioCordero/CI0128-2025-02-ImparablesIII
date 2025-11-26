@@ -272,6 +272,7 @@ namespace backend.Repositories
             return rowsAffected > 0;
         }
         
+        // ID CHECK
         public async Task<bool> ExistsByIdAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -282,6 +283,7 @@ namespace backend.Repositories
             return count > 0;
         }
 
+        // NAME CHECK
         public async Task<bool> ExistsByNameAsync(string nombre)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -292,6 +294,7 @@ namespace backend.Repositories
             return count > 0;
         }
 
+        // EMAIL CHECK
         public async Task<bool> ExistsByEmailAsync(string email)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -302,6 +305,7 @@ namespace backend.Repositories
             return count > 0;
         }
 
+        // LEGAL ID (CÉDULA JURÍDICA) CHECK
         public async Task<bool> ExistsByLegalIdAsync(string legalId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -408,8 +412,7 @@ namespace backend.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
-            
-            var query = "SELECT COUNT(*) FROM PlaniFy.Empleado WHERE idEmpresa = @ProjectId";
+            var query = "SELECT COUNT(*) FROM PlaniFy.Empleado WHERE idEmpresa = @ProjectId AND Estado = 'Activo'";
             var count = await connection.QuerySingleOrDefaultAsync<int>(query, new { ProjectId = projectId });
             return count;
         }
@@ -418,33 +421,9 @@ namespace backend.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
-            
-            // TODO: Ajustar según esquema real de empleados
             var query = "SELECT ISNULL(SUM(Salario), 0) FROM PlaniFy.Empleado WHERE EmpresaId = @ProjectId AND Activo = 1";
             var payroll = await connection.QuerySingleOrDefaultAsync<decimal>(query, new { ProjectId = projectId });
             return payroll;
-        }
-
-        public async Task<bool> ActivateAsync(int projectId)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-            
-            // TODO: Verificar si existe columna Activo en tabla
-            var query = "UPDATE PlaniFy.Empresa SET Activo = 1 WHERE Id = @Id";
-            var rowsAffected = await connection.ExecuteAsync(query, new { Id = projectId });
-            return rowsAffected > 0;
-        }
-
-        public async Task<bool> DeactivateAsync(int projectId)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-            
-            // TODO: Verificar si existe columna Activo en tabla
-            var query = "UPDATE PlaniFy.Empresa SET Activo = 0 WHERE Id = @Id";
-            var rowsAffected = await connection.ExecuteAsync(query, new { Id = projectId });
-            return rowsAffected > 0;
         }
 
         public async Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular)

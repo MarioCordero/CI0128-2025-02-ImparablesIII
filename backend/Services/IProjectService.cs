@@ -17,8 +17,6 @@ namespace backend.Services
         Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId);
         Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id);
         Task<bool> DeleteProjectAsync(int id);
-        Task<bool> ActivateProjectAsync(int id);
-        Task<bool> DeactivateProjectAsync(int id);
         
         // Métodos para validación
         Task<bool> ExistsByLegalIdAsync(string legalId);
