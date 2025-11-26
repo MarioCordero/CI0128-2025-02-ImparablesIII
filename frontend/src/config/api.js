@@ -51,6 +51,7 @@ export const apiConfig = {
     // DASHBOARD ENDPOINTS
     projectDashboard: (userId) => `${API_BASE_URL}/api/Project/dashboard/${userId}`,
     dashboardMetrics: (projectId) => `${API_BASE_URL}/api/Project/${projectId}/dashboard/metrics`,
+    kpi: (userId) => `${API_BASE_URL}/api/employer/kpi?userId=${userId}`,
 
     // Employee endpoints
     validateCedula: (cedula) => `${API_BASE_URL}/api/Employee/validate-cedula/${encodeURIComponent(cedula)}`,
