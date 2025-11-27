@@ -119,14 +119,16 @@
       </div>
 
       <!-- Reports Section -->
-      <div v-else-if="selectedSection === 'reports'" class="body">        
-        <div class="space-y-[18px]">
-          <h1 class="text-4xl font-bold text-gray-800">Reportes de Planilla</h1>
-          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
-        </div>
-
+      <div v-else-if="selectedSection === 'reports'" class="body">
         <PayrollReports user-type="employer" />
       </div>
+
+      <div v-else-if="selectedSection === 'payment'" class="body">        
+        <div class="space-y-[18px]">
+        </div>
+        <PayrollPayment user-type="employer" />
+      </div>
+
     </div>
   </div>
 </template>
@@ -134,8 +136,8 @@
 <script>
 import MainEmployerHeader from '../../common/MainEmployerHeader.vue'
 import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
-// import PayrollReports from '../../common/PayrollReports.vue'
-import PayrollReports from '../projectDashboard/PayrollReports.vue'
+import PayrollPayment from '../projectDashboard/PayrollPayment.vue'
+import PayrollReports from '../../common/PayrollReports.vue'
 import EmployeesSection from './EmployeesSection.vue'
 import EmployeesFilter from './EmployeesFilter.vue'
 import EditProjectInfo from './EditProjectInfo.vue'
@@ -147,6 +149,7 @@ export default {
   components: {
     MainEmployerHeader,
     DashboardProjectSubHeader,
+    PayrollPayment,
     PayrollReports,
     DashboardContent,
     EmployeesSection,

@@ -1,7 +1,8 @@
 <template>
   <div class="payroll-reports-container">
     <h1 class="text-2xl font-bold mb-4">{{ title }}</h1>
-    <p class="text-gray-600 mb-6">{{ description }}</p>
+    <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
+    <p class="mt-4 text-gray-600 mb-6">{{ description }}</p>
     
     <!-- Report Type Selection (Initial View) -->
     <div v-if="!selectedReportType" class="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -56,7 +57,7 @@
 <script>
 import CurrentPayrollReport from '../employee/CurrentPayrollReport.vue'
 import HistoricalPayrollReport from '../employee/HistoricalPayrollReport.vue'
-import EmployerPayrollReports from '../employer/projectDashboard/PayrollReports.vue'
+import EmployerPayrollReports from '../employer/projectDashboard/PayrollPayment.vue'
 
 export default {
   name: 'PayrollReports',
