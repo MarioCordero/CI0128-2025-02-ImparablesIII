@@ -104,5 +104,51 @@ namespace backend.Repositories
         {
             return await _personaRepository.IsCedulaAvailableAsync(cedula);
         }
+
+        // GET KPI DATA (Key Performance Indicators)
+        public async Task<KPIResponseDTO?> GetKPIDataAsync(int userId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    SELECT
+                        (SELECT COUNT(*) 
+                        FROM PlaniFy.Empresa e 
+                        WHERE e.idEmpleador = @UserId AND e.Estado = 'Activo') AS TotalCompanies,
+
+                        (SELECT COUNT(DISTINCT em.idPersona)
+                        FROM PlaniFy.Empresa e
+                        JOIN PlaniFy.Empleado em ON em.idEmpresa = e.Id
+                        WHERE e.idEmpleador = @UserId AND em.Estado = 'Activo'
+                        ) AS TotalActiveEmployees,
+
+                        (SELECT COALESCE(SUM(dp.salarioBruto), 0)
+                        FROM PlaniFy.Empresa e
+                        JOIN PlaniFy.Planilla p ON p.idEmpresa = e.Id
+                        JOIN PlaniFy.DetallePlanilla dp ON dp.idPlanilla = p.Id
+                        WHERE e.idEmpleador = @UserId
+                        AND MONTH(p.FechaGeneracion) = MONTH(GETDATE())
+                        AND YEAR(p.FechaGeneracion) = YEAR(GETDATE())
+                        ) AS TotalPayroll,
+
+                        (SELECT COUNT(DISTINCT e.Id)
+                        FROM PlaniFy.Empresa e
+                        JOIN PlaniFy.Planilla p ON p.idEmpresa = e.Id
+                        WHERE e.idEmpleador = @UserId
+                        AND MONTH(p.FechaGeneracion) = MONTH(GETDATE())
+                        AND YEAR(p.FechaGeneracion) = YEAR(GETDATE())
+                        ) AS CompaniesWithPayroll
+                ";
+
+                return await connection.QueryFirstOrDefaultAsync<KPIResponseDTO>(query, new { UserId = userId });
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 }

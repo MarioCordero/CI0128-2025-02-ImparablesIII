@@ -1,17 +1,21 @@
 SELECT * FROM PlaniFy.Direccion;
-DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 53 AND 61;
+DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 65 AND 82;
 
 SELECT * FROM PlaniFy.Persona;
 DELETE FROM PlaniFy.Persona WHERE Id = 74;
 
 SELECT * FROM PlaniFy.Usuario;
 
-SELECT * FROM PlaniFy.Empleado;
+-- Elimina direcciones que no están asociadas ni a Persona ni a Empresa
+DELETE FROM PlaniFy.Direccion
+WHERE Id NOT IN (SELECT idDireccion FROM PlaniFy.Persona)
+  AND Id NOT IN (SELECT idDireccion FROM PlaniFy.Empresa);
 
-SELECT * FROM PlaniFy.Planilla;
 
 SELECT * FROM PlaniFy.Empresa;
-DELETE FROM PlaniFy.Empresa WHERE Id = 18;
+SELECT * FROM PlaniFy.Empleado;
+SELECT * FROM PlaniFy.Planilla;
+SELECT * FROM PlaniFy.DetallePlanilla;
 
 SELECT * FROM PlaniFy.Beneficio
 
@@ -28,18 +32,19 @@ SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'EmpleadorProyecto';
 
 SELECT * FROM PlaniFy.Empresa
 
-DECLARE @EmployerId INT = 25;
 SELECT 
-    e.Id,
-    e.Nombre,
-    e.CedulaJuridica,
-    e.Email,
-    e.PeriodoPago,
-    e.Telefono,
-    e.MaximoBeneficios,
-    e.idEmpleador
-FROM PlaniFy.Empresa AS e
-WHERE e.idEmpleador = @EmployerId;
+    e.idPersona AS Id,
+    CONCAT(p.Nombre, ' ', COALESCE(p.SegundoNombre + ' ', ''), p.Apellidos) AS NombreCompleto,
+    p.Correo,
+    p.Telefono,
+    e.Puesto,
+    e.Departamento,
+    e.Salario,
+    e.TipoContrato
+FROM PlaniFy.Empleado e
+INNER JOIN PlaniFy.Persona p ON p.Id = e.idPersona
+WHERE e.idEmpresa = 17
+AND (e.Estado = 'Activo' OR e.Estado IS NULL);
 
 
 

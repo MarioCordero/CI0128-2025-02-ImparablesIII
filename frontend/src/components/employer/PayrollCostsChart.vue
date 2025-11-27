@@ -1,13 +1,9 @@
 <template>
   <div class="neumorphism-card p-6">
     <h2 class="text-xl font-bold mb-4">Distribución de Costos de Planilla</h2>
-    
-    <!-- Gráfico de Pastel con SVG -->
     <div class="flex flex-col md:flex-row items-center gap-6">
-      <!-- Gráfico de Pastel SVG -->
       <div class="relative w-48 h-48">
         <svg width="192" height="192" viewBox="0 0 42 42" class="donut">
-          <!-- Fondo del donut -->
           <circle 
             cx="21" 
             cy="21" 
@@ -16,8 +12,6 @@
             stroke="#e5e7eb" 
             stroke-width="3"
           />
-          
-          <!-- Segmentos del pastel -->
           <circle 
             v-for="(segment, index) in pieSegments" 
             :key="index"
@@ -32,8 +26,6 @@
             class="donut-segment"
           />
         </svg>
-        
-        <!-- Centro del pastel con total -->
         <div class="absolute inset-0 flex items-center justify-center">
           <div class="text-center">
             <div class="text-2xl font-bold text-gray-800">₡{{ formatNumber(totalPayroll) }}</div>
@@ -41,8 +33,6 @@
           </div>
         </div>
       </div>
-      
-      <!-- Leyenda -->
       <div class="flex-1 min-w-0">
         <div class="space-y-3">
           <div 
@@ -58,17 +48,15 @@
               <div>
                 <div class="font-medium text-gray-800">{{ company.nombre }}</div>
                 <div class="text-xs text-gray-500">
-                  {{ getPercentage(company.currentPayroll) }}% • {{ company.employeeCount }} empleados
+                  {{ getPercentage(company.payroll.totalGross) }}% • {{ company.activeEmployees }} empleados                
                 </div>
               </div>
             </div>
             <div class="text-right">
-              <div class="font-semibold text-gray-800">₡{{ formatNumber(company.currentPayroll) }}</div>
+              <div class="font-semibold text-gray-800">₡{{ formatNumber(company.payroll.totalGross) }}</div>
               <div class="text-xs text-gray-500">planilla</div>
             </div>
           </div>
-          
-          <!-- Empresas sin planilla -->
           <div 
             v-if="companiesWithoutData.length > 0"
             class="p-2 border border-gray-200 rounded bg-gray-50"
@@ -81,8 +69,6 @@
         </div>
       </div>
     </div>
-    
-    <!-- Resumen Estadístico -->
     <div class="mt-6 pt-4 border-t border-gray-200">
       <div class="grid grid-cols-2 gap-4 text-sm">
         <div class="text-center">
@@ -94,8 +80,6 @@
           <div class="text-gray-600">Empleados totales</div>
         </div>
       </div>
-      
-      <!-- Empresa con mayor costo -->
       <div v-if="largestCompany" class="mt-4 p-3 bg-blue-50 rounded-lg">
         <div class="flex items-center justify-between">
           <div>
@@ -103,8 +87,8 @@
             <div class="font-semibold text-blue-900">{{ largestCompany.nombre }}</div>
           </div>
           <div class="text-right">
-            <div class="text-lg font-bold text-blue-800">₡{{ formatNumber(largestCompany.currentPayroll) }}</div>
-            <div class="text-sm text-blue-600">{{ getPercentage(largestCompany.currentPayroll) }}% del total</div>
+            <div class="text-lg font-bold text-blue-800">₡{{ formatNumber(largestCompany.payroll.totalGross) }}</div>
+            <div class="text-sm text-blue-600">{{ getPercentage(largestCompany.payroll.totalGross) }}% del total</div>
           </div>
         </div>
       </div>
@@ -113,6 +97,7 @@
 </template>
 
 <script>
+import apiConfig from '@/config/api';
 export default {
   name: 'PayrollCostsChart',
   props: {
@@ -128,39 +113,29 @@ export default {
     }
   },
   computed: {
-    // Solo empresas con planilla para el gráfico
     companiesWithData() {
-      return this.companies.filter(company => company.currentPayroll > 0);
+      return this.companies.filter(company => company.payroll && company.payroll.totalGross > 0);
     },
-    
-    // Empresas sin planilla
     companiesWithoutData() {
-      return this.companies.filter(company => company.currentPayroll === 0);
+      return this.companies.filter(company => !company.payroll || company.payroll.totalGross === 0);
     },
-    
     totalPayroll() {
-      return this.companies.reduce((sum, company) => sum + company.currentPayroll, 0);
+      return this.companies.reduce((sum, company) => sum + (company.payroll?.totalGross || 0), 0);
     },
-    
     totalEmployees() {
-      return this.companies.reduce((sum, company) => sum + company.employeeCount, 0);
+      return this.companies.reduce((sum, company) => sum + (company.activeEmployees || 0), 0);
     },
-    
-    // Empresa con mayor costo de planilla
     largestCompany() {
       if (this.companiesWithData.length === 0) return null;
       return this.companiesWithData.reduce((max, company) => 
-        company.currentPayroll > max.currentPayroll ? company : max
+        company.payroll.totalGross > max.payroll.totalGross ? company : max
       );
     },
-    
-    // Segmentos para el gráfico de pastel
     pieSegments() {
       if (this.companiesWithData.length === 0) return [];
-      
       let accumulatedPercentage = 0;
       return this.companiesWithData.map((company, index) => {
-        const percentage = this.getPercentage(company.currentPayroll);
+        const percentage = this.getPercentage(company.payroll.totalGross);
         const segment = {
           percentage: percentage,
           color: this.getCompanyColor(index),
@@ -175,40 +150,17 @@ export default {
     async fetchPayrollData() {
       this.loading = true;
       try {
-        // Datos basados en tu BD
-        this.companies = [
-          { 
-            id: 17, 
-            nombre: 'Imparables III', 
-            currentPayroll: 500000,
-            employeeCount: 2,
-            deductions: 182900,
-            netSalary: 446650
-          },
-          { 
-            id: 19, 
-            nombre: 'Patitos', 
-            currentPayroll: 0,
-            employeeCount: 0,
-            deductions: 0,
-            netSalary: 0
-          },
-          { 
-            id: 20, 
-            nombre: 'Pipasa', 
-            currentPayroll: 0,
-            employeeCount: 0,
-            deductions: 0,
-            netSalary: 0
-          }
-        ];
+        const endpoint = apiConfig.endpoints.payrollDistribution(this.userId);
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error('Error al obtener la distribución de planilla');
+        this.companies = await response.json();
       } catch (error) {
         console.error('Error fetching payroll data:', error);
+        this.companies = [];
       } finally {
         this.loading = false;
       }
     },
-    
     getCompanyColor(index) {
       const colors = [
         '#3B82F6', // Azul
@@ -220,12 +172,10 @@ export default {
       ];
       return colors[index % colors.length];
     },
-    
     getPercentage(value) {
       if (this.totalPayroll === 0) return 0;
-      return (value / this.totalPayroll) * 100;
+      return ((value / this.totalPayroll) * 100).toFixed(1);
     },
-    
     formatNumber(value) {
       return value.toLocaleString('es-CR');
     }

@@ -1,5 +1,4 @@
 using backend.DTOs;
-using backend.Repositories;
 using backend.Services;
 using backend.Constants;
 using Microsoft.AspNetCore.Mvc;
@@ -13,43 +12,27 @@ namespace backend.Controllers
     [Route("api/[controller]")]
     public class ProjectController : ControllerBase
     {
-        private readonly IProjectRepository _projectRepository;
         private readonly IEmployeeService _employeeService;
         private readonly ILogger<ProjectController> _logger;
         private readonly IProjectService _projectService;
 
         public ProjectController(
-            IProjectRepository projectRepository,
             IEmployeeService employeeService,
             ILogger<ProjectController> logger,
             IProjectService projectService)
         {
-            _projectRepository = projectRepository;
             _employeeService = employeeService;
             _projectService = projectService;
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<ProjectResponseDTO>>> GetAll()
-        {
-            try
-            {
-                var projects = await _projectRepository.GetAllAsync();
-                return Ok(projects);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorRetrievingProjects, error = ex.Message });
-            }
-        }
-
+        // GET PROJECT BY ID
         [HttpGet("{id}")]
         public async Task<ActionResult<ProjectResponseDTO>> GetById(int id)
         {
             try
             {
-                var project = await _projectRepository.GetByIdAsync(id);
+                var project = await _projectService.GetProjectByIdAsync(id);
                 if (project == null)
                 {
                     return NotFound(new { message = ReturnMessagesConstants.Project.ProjectNotFound });
@@ -62,7 +45,7 @@ namespace backend.Controllers
             }
         }
 
-        // GET projects by employer ID
+        // GET PROJECTS BY EMPLOYER ID
         [HttpGet("employer/{employerId}")]
         public async Task<ActionResult<List<ProjectResponseDTO>>> GetByEmployerId(int employerId)
         {
@@ -77,6 +60,27 @@ namespace backend.Controllers
             }
         }
 
+        // GET THE PROJECT'S DIRECTION BY DIRECTION ID
+        [HttpGet("direction/{directionId}")]
+        public async Task<ActionResult<DirectionDTO>> GetDirectionById(int directionId)
+        {
+            try
+            {
+                var direction = await _projectService.GetProjectDirectionByDirectionId(directionId);
+                if (direction == null)
+                {
+                    return NotFound(new { message = "Dirección no encontrada" });
+                }
+
+                return Ok(direction);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener la dirección", error = ex.Message });
+            }
+        }
+
+        // GET PROJECTS FOR MAIN DASHBOARD BY EMPLOYER ID
         [HttpGet("dashboard/{employerId}")]
         public async Task<ActionResult<List<ProjectResponseDTO>>> GetProjectsForDashboard(int employerId)
         {
@@ -91,38 +95,18 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPost]
+        // CREATE A NEW PROJECT
+        [HttpPost("create-project")]
         public async Task<ActionResult<int>> Create([FromBody] CreateProjectDto projectDto)
         {
             try
             {
-                if (await _projectRepository.ExistsByLegalIdAsync(projectDto.CedulaJuridica.ToString()))
+                var createdProject = await _projectService.CreateProjectAsync(projectDto);
+                if (createdProject != null && createdProject.Id > 0)
                 {
-                    return BadRequest(new { message = ReturnMessagesConstants.Project.LegalIdAlreadyExists });
+                    return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, createdProject);
                 }
-                if (await _projectRepository.ExistsByEmailAsync(projectDto.Email))
-                {
-                    return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
-                }
-
-                var project = new Project
-                {
-                    Nombre = projectDto.Nombre,
-                    CedulaJuridica = projectDto.CedulaJuridica,
-                    EmployerId = projectDto.EmployerId,
-                    Email = projectDto.Email,
-                    PeriodoPago = projectDto.PeriodoPago,
-                    Telefono = projectDto.Telefono,
-                    IdDireccion = await _projectRepository.CreateDireccionAsync(
-                        projectDto.Provincia,
-                        projectDto.Canton,
-                        projectDto.Distrito,
-                        projectDto.DireccionParticular),
-                    MaximoBeneficios = projectDto.MaximoBeneficios
-                };
-
-                var createdProject = await _projectRepository.CreateAsync(project);
-                return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, new { id = createdProject.Id });
+                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorCreatingProject });
             }
             catch (Exception ex)
             {
@@ -130,17 +114,13 @@ namespace backend.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        // DELETE A PROJECT
+        [HttpDelete("delete-project")]
+        public async Task<ActionResult> Delete([FromBody] DeleteProjectRequestDto request)
         {
             try
             {
-                if (!await _projectRepository.ExistsAsync(id))
-                {
-                    return NotFound(new { message = ReturnMessagesConstants.Project.ProjectNotFound });
-                }
-
-                var success = await _projectRepository.DeleteAsync(id);
+                var success = await _projectService.DeleteProjectAsync(request);
                 if (success)
                 {
                     return NoContent();
@@ -154,6 +134,7 @@ namespace backend.Controllers
             }
         }
 
+        // GET THE COUNT OF ACTIVE EMPLOYEES IN A PROJECT
         [HttpGet("{id}/employees/count")]
         public async Task<ActionResult<int>> GetActiveEmployeesCount(int id)
         {
@@ -168,56 +149,22 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("{id}/payroll")]
-        public async Task<ActionResult<decimal>> GetMonthlyPayroll(int id)
-        {
-            try
-            {
-                var payroll = await _projectRepository.GetMonthlyPayrollAsync(id);
-                return Ok(new { payroll });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ReturnMessagesConstants.Payroll.PayrollGeneratedSuccessfully, error = ex.Message });
-            }
-        }
+        // REFRACTO: GET THE MONTHLY PAYROLL OF A PROJECT
+        // [HttpGet("{id}/payroll")]
+        // public async Task<ActionResult<decimal>> GetMonthlyPayroll(int id)
+        // {
+        //     try
+        //     {
+        //         var payroll = await _projectRepository.GetMonthlyPayrollAsync(id);
+        //         return Ok(new { payroll });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, new { message = ReturnMessagesConstants.Payroll.PayrollGeneratedSuccessfully, error = ex.Message });
+        //     }
+        // }
 
-        [HttpPost("{id}/activate")]
-        public async Task<ActionResult> Activate(int id)
-        {
-            try
-            {
-                var success = await _projectService.ActivateProjectAsync(id);
-                if (success)
-                {
-                    return Ok(new { message = ReturnMessagesConstants.Project.ProjectActivatedSuccessfully });
-                }
-                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorActivatingProject });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorActivatingProject, error = ex.Message });
-            }
-        }
-
-        [HttpPost("{id}/deactivate")]
-        public async Task<ActionResult> Deactivate(int id)
-        {
-            try
-            {
-                var success = await _projectService.DeactivateProjectAsync(id);
-                if (success)
-                {
-                    return Ok(new { message = ReturnMessagesConstants.Project.ProjectDeactivatedSuccessfully });
-                }
-                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorDeactivatingProject });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorDeactivatingProject, error = ex.Message });
-            }
-        }
-
+        // GET EMPLOYEES FOR A SPECIFIC PROJECT
         [HttpGet("{projectId:int}/employees")]
         public async Task<ActionResult<EmployeeListResponseDto>> GetProjectEmployees(int projectId)
         {
@@ -246,16 +193,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("by-company/{companyId}")]
-        public async Task<ActionResult<ProjectResponseDTO>> GetByCompanyId(int companyId)
-        {
-            var project = await _projectRepository.GetProjectWithDireccionAsync(companyId);
-            if (project == null)
-                return NotFound();
-            return Ok(project);
-        }
-
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectDTO dto)
         {
             if (!ModelState.IsValid)
@@ -267,6 +205,98 @@ namespace backend.Controllers
                 return NotFound(result.ErrorMessage);
 
             return Ok(result.Project);
+        }
+
+        // GET DASHBOARD METRICS FOR THE PROJECT (INDIVIDUALLY) DASHBOARD
+        [HttpGet("{projectId}/dashboard/metrics")]
+        public async Task<ActionResult<DashboardMetricsDTO>> GetDashboardMetrics(int projectId)
+        {
+            try
+            {
+                _logger.LogInformation("Obteniendo métricas de dashboard para el proyecto {ProjectId}", projectId);
+
+                var metrics = await _projectService.GetDashboardMetricsAsync(projectId);
+
+                if (metrics == null)
+                {
+                    return NotFound(new { message = "No se encontraron métricas para el proyecto especificado" });
+                }
+
+                _logger.LogInformation("Métricas obtenidas exitosamente para el proyecto {ProjectId}", projectId);
+                return Ok(metrics);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning("Argumento inválido para proyecto {ProjectId}: {Message}", projectId, ex.Message);
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error interno obteniendo métricas para el proyecto {ProjectId}", projectId);
+                return StatusCode(500, new
+                {
+                    message = ReturnMessagesConstants.General.InternalServerError,
+                    detail = ex.Message
+                });
+            }
+        }
+
+        // GET EMPLOYEE DISTRIBUTION ACROSS PROJECTS FOR AN EMPLOYER
+        [HttpGet("employer/{employerId}/employee-distribution")]
+        public async Task<ActionResult<List<object>>> GetEmployeeDistribution(int employerId)
+        {
+            try
+            {
+                var projects = await _projectService.GetProjectsByEmployerIdAsync(employerId);
+                var result = new List<object>();
+                foreach (var project in projects)
+                {
+                    var count = await _projectService.GetActiveEmployeesCountAsync(project.Id);
+                    _logger.LogInformation("Project {ProjectId} has {EmployeeCount} active employees", project.Id, count);
+                    result.Add(new
+                    {
+                        id = project.Id,
+                        nombre = project.Nombre,
+                        employeeCount = count
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener la distribución de empleados", error = ex.Message });
+            }
+        }
+
+        // GET PAYROLL DISTRIBUTION ACROSS PROJECTS FOR AN EMPLOYER
+        [HttpGet("employer/{employerId}/payroll-distribution")]
+        public async Task<ActionResult<List<object>>> GetPayrollDistribution(int employerId)
+        {
+            try
+            {
+                var projects = await _projectService.GetProjectsByEmployerIdAsync(employerId);
+                var result = new List<object>();
+                foreach (var project in projects)
+                {
+                    var payroll = await _projectService.GetMonthlyPayrollAsync(project.Id);
+                    var activeEmployees = await _projectService.GetActiveEmployeesCountAsync(project.Id);
+                    _logger.LogInformation("Project {ProjectId} has payroll {Payroll} and {ActiveEmployees} active employees", project.Id, payroll, activeEmployees);
+                    result.Add(new
+                    {
+                        id = project.Id,
+                        nombre = project.Nombre,
+                        payroll = payroll,
+                        activeEmployees = activeEmployees
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener la distribución de nómina", error = ex.Message });
+            }
         }
     }
 }

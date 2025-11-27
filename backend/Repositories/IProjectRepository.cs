@@ -8,7 +8,7 @@ namespace backend.Repositories
         Task<List<ProjectResponseDTO>> GetByEmployerIdAsync(int employerId);
         Task<ProjectResponseDTO?> GetByIdAsync(int id);
         Task<List<ProjectResponseDTO>> GetAllAsync();
-        Task<DirectionDTO?> GetDireccionByIdAsync(int id);
+        Task<DirectionDTO?> GetDirectionByIdAsync(int id);
         Task<decimal> GetMonthlyPayrollAsync(int projectId);
         Task<int> CountActiveEmployeesAsync(int projectId);
         Task<ProjectResponseDTO?> GetProjectWithDireccionAsync(int id);
@@ -21,9 +21,8 @@ namespace backend.Repositories
         Task<bool> UpdateAsync(int id, UpdateProjectDTO dto);
         Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion);
 
-        Task<bool> ActivateAsync(int id);
-        Task<bool> DeactivateAsync(int id);
-        Task<bool> DeleteAsync(int id);
+        Task<bool> PhysicalDeleteAsync(int id);
+        Task<bool> LogicalDeleteAsync(DeleteProjectRequestDto deleteProjectRequest);
 
         Task<bool> ExistsByNameAsync(string nombre);
         Task<bool> ExistsByEmailAsync(string email);

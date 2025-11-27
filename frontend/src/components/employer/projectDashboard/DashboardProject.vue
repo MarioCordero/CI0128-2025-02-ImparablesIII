@@ -17,173 +17,8 @@
       </div>
 
       <!-- Dashboard Section -->
-      <div v-if="selectedSection === 'dashboard'" class="body">
-        <div class="space-y-[18px]">
-          <h1 class="text-4xl font-bold text-gray-800">Dashboard de Empresa</h1>
-          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
-        </div>
-
-        <!-- Métricas Clave -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Total Empleados -->
-          <div class="neumorphism-card text-center">
-            <div class="text-3xl font-bold text-blue-600 mb-2">{{ dashboardData.totalEmployees || 25 }}</div>
-            <div class="text-gray-600 text-sm">Empleados Activos</div>
-            <div class="text-green-500 text-xs mt-1">+5% vs mes anterior</div>
-          </div>
-
-          <!-- Planilla del Mes -->
-          <div class="neumorphism-card text-center">
-            <div class="text-3xl font-bold text-green-600 mb-2">₡{{ (dashboardData.currentPayroll || 2500000).toLocaleString() }}</div>
-            <div class="text-gray-600 text-sm">Planilla Actual</div>
-            <div class="text-red-500 text-xs mt-1">+3% vs mes anterior</div>
-          </div>
-
-          <!-- Departamentos -->
-          <div class="neumorphism-card text-center">
-            <div class="text-3xl font-bold text-purple-600 mb-2">{{ dashboardData.activeDepartments || 5 }}</div>
-            <div class="text-gray-600 text-sm">Departamentos</div>
-            <div class="text-gray-400 text-xs mt-1">Sin cambios</div>
-          </div>
-
-          <!-- Tareas Pendientes -->
-          <div class="neumorphism-card text-center">
-            <div class="text-3xl font-bold text-orange-600 mb-2">{{ dashboardData.pendingTasks || 3 }}</div>
-            <div class="text-gray-600 text-sm">Tareas Pendientes</div>
-            <div class="text-blue-500 text-xs mt-1">2 nuevas hoy</div>
-          </div>
-        </div>
-
-        <!-- Información de la Empresa y Acciones Rápidas -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Información de la Empresa -->
-          <div class="neumorphism-card p-6 rounded-2xl">
-            <h2 class="text-xl font-semibold mb-4">Información de la Empresa</h2>
-            <div class="space-y-2">
-              <p class="text-gray-700"><span class="font-bold">Nombre:</span> {{ project.nombre }}</p>
-              <p class="text-gray-700"><span class="font-bold">Cédula Jurídica:</span> {{ project.cedulaJuridica }}</p>
-              <p class="text-gray-700"><span class="font-bold">Período de Pago:</span> {{ project.periodoPago }}</p>
-              <p class="text-gray-700"><span class="font-bold">Email:</span> {{ project.email }}</p>
-              <p class="text-gray-700"><span class="font-bold">Teléfono:</span> {{ project.telefono }}</p>
-              <p class="text-gray-700"><span class="font-bold">Dirección:</span> {{ project.direccion || 'N/A' }}</p>
-            </div>
-          </div>
-
-          <!-- Acciones Rápidas -->
-          <div class="neumorphism-card p-6 rounded-2xl">
-            <h2 class="text-xl font-semibold mb-4">Acciones Rápidas</h2>
-            <div class="grid grid-cols-2 gap-4">
-              <button 
-                @click="selectedSection = 'employees'" 
-                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
-              >
-                <div class="text-2xl mb-2">👥</div>
-                <div class="text-sm font-medium">Gestionar Empleados</div>
-              </button>
-
-              <button 
-                @click="selectedSection = 'reports'" 
-                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
-              >
-                <div class="text-2xl mb-2">📊</div>
-                <div class="text-sm font-medium">Ver Reportes</div>
-              </button>
-
-              <button 
-                @click="selectedSection = 'benefits'" 
-                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
-              >
-                <div class="text-2xl mb-2">🎁</div>
-                <div class="text-sm font-medium">Gestionar Beneficios</div>
-              </button>
-
-              <button 
-                @click="selectedSection = 'info'" 
-                class="neumorphism-button-normal-light p-4! rounded-xl! text-center w-full h-full"
-              >
-                <div class="text-2xl mb-2">⚙️</div>
-                <div class="text-sm font-medium">Configurar Empresa</div>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gráficos Placeholder -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Distribución por Departamentos -->
-          <div class="neumorphism-card p-6 rounded-2xl">
-            <h3 class="text-lg font-semibold mb-4">Empleados por Departamento</h3>
-            <div class="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
-              <div class="text-center">
-                <div class="text-4xl mb-2">📊</div>
-                <div class="text-gray-500">Gráfico de Donut</div>
-                <div class="text-xs text-gray-400 mt-1">Próximamente</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Evolución de Planilla -->
-          <div class="neumorphism-card p-6 rounded-2xl">
-            <h3 class="text-lg font-semibold mb-4">Evolución de Planilla (6 meses)</h3>
-            <div class="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
-              <div class="text-center">
-                <div class="text-4xl mb-2">📈</div>
-                <div class="text-gray-500">Gráfico de Líneas</div>
-                <div class="text-xs text-gray-400 mt-1">Próximamente</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Actividades Recientes -->
-        <div class="neumorphism-card p-6 rounded-2xl">
-          <h3 class="text-lg font-semibold mb-4">Actividades Recientes</h3>
-          <div class="space-y-3">
-            <div v-for="activity in dashboardData.recentActivities || mockRecentActivities" 
-                 :key="activity.id" 
-                 class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-            >
-              <div class="flex items-center">
-                <div class="text-lg mr-3">{{ activity.icon }}</div>
-                <div>
-                  <div class="font-medium">{{ activity.title }}</div>
-                  <div class="text-sm text-gray-600">{{ activity.description }}</div>
-                </div>
-              </div>
-              <div class="text-xs text-gray-500">{{ activity.time }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Próximos Vencimientos -->
-        <div class="neumorphism-card p-6 rounded-2xl">
-          <h3 class="text-lg font-semibold mb-4">Próximos Vencimientos</h3>
-          <div class="space-y-3">
-            <div v-for="reminder in dashboardData.upcomingReminders || mockUpcomingReminders" 
-                 :key="reminder.id" 
-                 class="flex items-center justify-between p-3 border-l-4 rounded-lg"
-                 :class="{
-                   'border-red-500 bg-red-50': reminder.priority === 'high',
-                   'border-yellow-500 bg-yellow-50': reminder.priority === 'medium',
-                   'border-blue-500 bg-blue-50': reminder.priority === 'low'
-                 }"
-            >
-              <div>
-                <div class="font-medium">{{ reminder.title }}</div>
-                <div class="text-sm text-gray-600">{{ reminder.description }}</div>
-              </div>
-              <div class="text-sm font-medium" 
-                   :class="{
-                     'text-red-600': reminder.priority === 'high',
-                     'text-yellow-600': reminder.priority === 'medium',
-                     'text-blue-600': reminder.priority === 'low'
-                   }"
-              >
-                {{ reminder.dueDate }}
-              </div>
-            </div>
-          </div>
-        </div>
+      <div v-if="selectedSection === 'dashboard'">
+        <DashboardContent :project="project" @section-change="selectedSection = $event" />
       </div>
 
       <!-- Benefits Section -->
@@ -298,7 +133,7 @@
         </div>
 
         <div>
-          <EditProjectInfo/> <!--TODO: Make the component prettier-->
+          <EditProjectInfo/>
         </div>
       </div>
 
@@ -359,6 +194,7 @@ import EmployeesSection from './EmployeesSection.vue'
 import EmployeesFilter from './EmployeesFilter.vue'
 import EditProjectInfo from './EditProjectInfo.vue'
 import { apiConfig } from '../../../config/api.js'
+import DashboardContent from './DashboardContent.vue'
 import DropdownMenu from './DropdownMenu.vue'
 
 export default {
@@ -368,6 +204,7 @@ export default {
     MainEmployerHeader,
     DashboardProjectSubHeader,
     PayrollReports,
+    DashboardContent,
     EmployeesSection,
     EmployeesFilter,
     EditProjectInfo,
@@ -383,52 +220,6 @@ export default {
       benefits: [],
       selectedSection: 'dashboard',
       dashboardData: {},
-      mockRecentActivities: [
-        {
-          id: 1,
-          icon: '👤',
-          title: 'Nuevo empleado registrado',
-          description: 'Juan Pérez se agregó al sistema',
-          time: 'Hace 2 horas'
-        },
-        {
-          id: 2,
-          icon: '💰',
-          title: 'Planilla procesada',
-          description: 'Planilla de noviembre completada',
-          time: 'Ayer'
-        },
-        {
-          id: 3,
-          icon: '🎁',
-          title: 'Beneficio actualizado',
-          description: 'Seguro médico modificado',
-          time: 'Hace 3 días'
-        }
-      ],
-      mockUpcomingReminders: [
-        {
-          id: 1,
-          title: 'Aguinaldo 2024',
-          description: 'Cálculo y pago de aguinaldo',
-          dueDate: '15 Dic',
-          priority: 'high'
-        },
-        {
-          id: 2,
-          title: 'Reporte mensual CCSS',
-          description: 'Envío de planilla a CCSS',
-          dueDate: '30 Nov',
-          priority: 'medium'
-        },
-        {
-          id: 3,
-          title: 'Revisión de vacaciones',
-          description: 'Actualizar días disponibles',
-          dueDate: '5 Dic',
-          priority: 'low'
-        }
-      ],
       showDeleteModal: false,
       benefitPendingDeletion: null,
       deleteModalError: null,
@@ -438,6 +229,7 @@ export default {
       successMessageTimeoutId: null,
       errorMessageTimeoutId: null
     }
+
   },
 
   watch: {
@@ -445,7 +237,6 @@ export default {
       handler(newSection) {
         if (newSection) {
           this.selectedSection = newSection;
-          
           this.$router.replace({ 
             path: this.$route.path,
             query: {} 
@@ -474,17 +265,6 @@ export default {
         }
       })
     },
-
-    async fetchCompanies() {
-      try {
-        const response = await fetch(apiConfig.endpoints.project);
-        if (!response.ok) throw new Error('No se pudo cargar las empresas');
-        this.companies = await response.json();
-      } catch (err) {
-        console.error('Error fetching companies:', err);
-      }
-    },
-
     async fetchBenefits() {
       try {
         if (!this.project || !this.project.id) {
@@ -498,29 +278,11 @@ export default {
         this.error = err.message || 'Error al cargar los beneficios';
       }
     },
-
-    async fetchDashboardData() {
-      try {
-        if (!this.project || !this.project.id) return;
-        
-        // Cuando el backend esté listo, descomenta esto:
-        // const response = await fetch(apiConfig.endpoints.employerDashboard(this.project.id));
-        // if (!response.ok) throw new Error('No se pudo cargar el dashboard');
-        // this.dashboardData = await response.json();
-        
-        // Por ahora usa datos mock
-        console.log('Dashboard data loaded for company:', this.project.id);
-      } catch (err) {
-        console.error('Error loading dashboard:', err);
-      }
-    },
-
     onProjectChanged(project) {
       this.project = project;
       this.error = null;
       this.loading = false;
       this.fetchBenefits();
-      this.fetchDashboardData(); // Agregar esta línea
     },
 
     async fetchProject() {
@@ -686,10 +448,9 @@ export default {
   },
 
   async mounted() {
-    this.fetchCompanies();
     await this.fetchProject();
     this.fetchBenefits();
-    
+  
     if (this.$route.query.section) {
       this.selectedSection = this.$route.query.section;
 

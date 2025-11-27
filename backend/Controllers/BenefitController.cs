@@ -18,6 +18,7 @@ namespace backend.Controllers
             _logger = logger;
         }
 
+        // GET ALL BENEFITS
         [HttpGet]
         public async Task<ActionResult<List<BenefitResponseDto>>> GetAll()
         {
@@ -33,6 +34,7 @@ namespace backend.Controllers
             }
         }
 
+        // GET BENEFITS BY COMPANY ID
         [HttpGet("company/{companyId}")]
         public async Task<ActionResult<List<BenefitResponseDto>>> GetByCompanyId(int companyId)
         {

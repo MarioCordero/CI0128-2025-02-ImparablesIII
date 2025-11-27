@@ -30,6 +30,7 @@ namespace backend.Services
             _logger = logger;
         }
 
+        // REGISTER EMPLOYER
         public async Task<bool> RegisterEmployerAsync(SignUpEmployerDto form)
         {
             try
@@ -112,6 +113,7 @@ namespace backend.Services
             }
         }
 
+        // VERIFY AND CREATE USER
         public async Task<bool> VerifyAndCreateUserAsync(int personaId, string password)
         {
             var persona = await _personaRepository.GetByIdAsync(personaId);
@@ -141,6 +143,7 @@ namespace backend.Services
             return await _usuarioRepository.CreateUserAsync(usuario);
         }
 
+        // RESEND VERIFICATION EMAIL FUTURE USE, NOT IMPLEMENTED YET
         public async Task<bool> ResendVerificationAsync(string email)
         {
             var persona = await _personaRepository.GetByEmailAsync(email);
@@ -160,16 +163,32 @@ namespace backend.Services
             return true;
         }
 
+        // CHECK IF EMAIL IS AVAILABLE
         public async Task<bool> IsEmailAvailableAsync(string email)
         {
             var persona = await _personaRepository.GetByEmailAsync(email);
             return persona == null;
         }
 
+        // CHECK IF CEDULA IS AVAILABLE
         public async Task<bool> IsCedulaAvailableAsync(string cedula)
         {
             var empresa = await _personaRepository.GetByCedulaAsync(cedula);
             return empresa == null;
+        }
+
+        public async Task<KPIResponseDTO?> GetKPIAsync(int userId)
+        {
+            try
+            {
+                var kpiData = await _employerRepository.GetKPIDataAsync(userId);
+                return kpiData;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo KPI para Usuario {UserId}", userId);
+                return null;
+            }
         }
     }
 }

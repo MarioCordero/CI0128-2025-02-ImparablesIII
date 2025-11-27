@@ -104,7 +104,7 @@ namespace backend.Services
             }
         }
 
-        private bool VerifyPassword(string inputPassword, string storedHash)
+        public bool VerifyPassword(string inputPassword, string storedHash)
         {
             return BCrypt.Net.BCrypt.Verify(inputPassword, storedHash);
         }

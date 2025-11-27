@@ -12,5 +12,6 @@ namespace backend.Repositories
         Task<bool> IsEmailAvailableAsync(string email);
         Task<bool> IsCedulaAvailableAsync(string cedula);
         Task<Persona?> GetByCedulaAsync(string cedula);
+        Task<KPIResponseDTO?> GetKPIDataAsync(int userId);
     }
 }

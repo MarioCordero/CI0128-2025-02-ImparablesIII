@@ -59,7 +59,6 @@ namespace backend.DTOs
         public int IdDireccion { get; set; }
         public DirectionDTO? Direccion { get; set; }
         public int MaximoBeneficios { get; set; }
-        public DateTime CreatedAt { get; set; }
         
         // DASHBOARD FIELDS
         public int ActiveEmployees { get; set; }
@@ -149,4 +148,34 @@ namespace backend.DTOs
     public class ProjectListDto : ProjectResponseDTO { }
     public class CompanyDashboardMainEmployerDto : ProjectResponseDTO { }
     public class DashboardMainEmployerDto : ProjectResponseDTO { }
+
+    public class DashboardMetricsDTO
+    {
+        public int TotalEmployees { get; set; }
+        public decimal CurrentPayroll { get; set; }
+        public int ActiveDepartments { get; set; }
+        public int Notifications { get; set; }
+    }
+
+    public class DepartmentStatsDTO
+    {
+        public string DepartmentName { get; set; } = string.Empty;
+        public int EmployeeCount { get; set; }
+        public decimal TotalSalary { get; set; }
+    }
+    
+    public class DeleteProjectRequestDto
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("projectId")]
+        public int ProjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("UsuarioBajaId")]
+        public int UsuarioBajaId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("contrasena")]
+        public string Contrasena { get; set; } = string.Empty;
+        
+        [System.Text.Json.Serialization.JsonPropertyName("motivoBaja")]
+        public string? MotivoBaja { get; set; }
+    }
 }
