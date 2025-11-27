@@ -1,17 +1,21 @@
 SELECT * FROM PlaniFy.Direccion;
-DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 53 AND 61;
+DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 65 AND 82;
 
 SELECT * FROM PlaniFy.Persona;
 DELETE FROM PlaniFy.Persona WHERE Id = 74;
 
 SELECT * FROM PlaniFy.Usuario;
 
-SELECT * FROM PlaniFy.Empleado;
+-- Elimina direcciones que no están asociadas ni a Persona ni a Empresa
+DELETE FROM PlaniFy.Direccion
+WHERE Id NOT IN (SELECT idDireccion FROM PlaniFy.Persona)
+  AND Id NOT IN (SELECT idDireccion FROM PlaniFy.Empresa);
 
-SELECT * FROM PlaniFy.Planilla;
 
 SELECT * FROM PlaniFy.Empresa;
-DELETE FROM PlaniFy.Empresa WHERE Id = 18;
+SELECT * FROM PlaniFy.Empleado;
+SELECT * FROM PlaniFy.Planilla;
+SELECT * FROM PlaniFy.DetallePlanilla;
 
 SELECT * FROM PlaniFy.Beneficio
 

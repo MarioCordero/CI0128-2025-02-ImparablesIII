@@ -83,7 +83,7 @@
         this.loading = true
         this.error = null
         try {
-          const response = await fetch(apiConfig.endpoints.project)
+          const response = await fetch(apiConfig.endpoints.projectsByEmployer(this.user.idPersona))
           if (!response.ok) throw new Error('No se pudo cargar las empresas')
           this.companies = await response.json()
         } catch (err) {

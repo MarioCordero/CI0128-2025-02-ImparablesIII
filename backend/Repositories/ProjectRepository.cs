@@ -9,38 +9,42 @@ namespace backend.Repositories
     {
         private readonly string _connectionString;
         private readonly IDirectionRepository _direccionRepository;
+        private readonly ILogger<ProjectRepository> _logger;
 
-        public ProjectRepository(IConfiguration configuration, IDirectionRepository direccionRepository)
+        public ProjectRepository(IConfiguration configuration, IDirectionRepository direccionRepository, ILogger<ProjectRepository> logger)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
             _direccionRepository = direccionRepository;
+            _logger = logger;
         }
 
+        // CREATE A NEW PROJECT
         public async Task<ProjectResponseDTO> CreateAsync(Project project)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
             var query = @"
-                INSERT INTO PlaniFy.Empresa (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios, idEmpleador)
-                OUTPUT INSERTED.Id
-                VALUES (@Nombre, @CedulaJuridica, @Email, @PeriodoPago, @Telefono, @IdDireccion, @MaximoBeneficios, @EmployerId)";
+                INSERT INTO PlaniFy.Empresa
+                    (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios, idEmpleador, Estado)
+                VALUES
+                    (@Nombre, @CedulaJuridica, @Email, @PeriodoPago, @Telefono, @IdDireccion, @MaximoBeneficios, @EmployerId, 'Activo');
+                SELECT CAST(SCOPE_IDENTITY() as int);
+            ";
 
-            var parameters = new
+            var id = await connection.QuerySingleAsync<int>(query, new
             {
-                Nombre = project.Nombre,
-                CedulaJuridica = project.CedulaJuridica,
-                Email = project.Email,
-                PeriodoPago = project.PeriodoPago,
-                Telefono = project.Telefono,
+                project.Nombre,
+                project.CedulaJuridica,
+                project.Email,
+                project.PeriodoPago,
+                project.Telefono,
                 IdDireccion = project.IdDireccion,
-                MaximoBeneficios = project.MaximoBeneficios,
-                EmployerId = project.EmployerId
-            };
+                project.MaximoBeneficios,
+                EmployerId = project.EmployerId,
+            });
 
-            var id = await connection.QuerySingleAsync<int>(query, parameters);
             project.Id = id;
-
             return new ProjectResponseDTO
             {
                 Id = project.Id,
@@ -49,8 +53,8 @@ namespace backend.Repositories
                 Email = project.Email,
                 PeriodoPago = project.PeriodoPago,
                 Telefono = project.Telefono,
+                IdDireccion = project.IdDireccion,
                 MaximoBeneficios = project.MaximoBeneficios,
-                IdDireccion = project.IdDireccion
             };
         }
 
@@ -130,8 +134,7 @@ namespace backend.Repositories
                     PeriodoPago = result.PeriodoPago,
                     Telefono = result.Telefono,
                     IdDireccion = result.idDireccion,
-                    MaximoBeneficios = result.MaximoBeneficios,
-                    CreatedAt = DateTime.Now
+                    MaximoBeneficios = result.MaximoBeneficios
                 };
             }
             return null;
@@ -182,8 +185,7 @@ namespace backend.Repositories
                 PeriodoPago = r.PeriodoPago,
                 Telefono = r.Telefono,
                 IdDireccion = r.idDireccion,
-                MaximoBeneficios = r.MaximoBeneficios,
-                CreatedAt = DateTime.Now
+                MaximoBeneficios = r.MaximoBeneficios
             }).ToList();
         }
 
@@ -252,6 +254,40 @@ namespace backend.Repositories
             }
         }
 
+
+        public async Task<bool> PhysicalDeleteAsync(int id)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var query = "DELETE FROM PlaniFy.Empresa WHERE Id = @Id";
+            var rowsAffected = await connection.ExecuteAsync(query, new { Id = id });
+            return rowsAffected > 0;
+        }
+
+        public async Task<bool> LogicalDeleteAsync(DeleteProjectRequestDto deleteProjectRequest)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                UPDATE PlaniFy.Empresa
+                SET 
+                    Estado = 'Inactivo',
+                    FechaBaja = GETDATE(),
+                    MotivoBaja = @MotivoBaja,
+                    UsuarioBajaId = @UsuarioBajaId
+                WHERE Id = @Id";
+
+            var rowsAffected = await connection.ExecuteAsync(query, new 
+            { 
+                Id = deleteProjectRequest.ProjectId, 
+                MotivoBaja = deleteProjectRequest.MotivoBaja, 
+                UsuarioBajaId = deleteProjectRequest.UsuarioBajaId 
+            });
+            return rowsAffected > 0;
+        }
+        
+        // ID CHECK
         public async Task<bool> ExistsAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -262,16 +298,7 @@ namespace backend.Repositories
             return count > 0;
         }
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            var query = "DELETE FROM PlaniFy.Empresa WHERE Id = @Id";
-            var rowsAffected = await connection.ExecuteAsync(query, new { Id = id });
-            return rowsAffected > 0;
-        }
-        
+        // ID CHECK X2
         public async Task<bool> ExistsByIdAsync(int id)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -282,6 +309,7 @@ namespace backend.Repositories
             return count > 0;
         }
 
+        // NAME CHECK
         public async Task<bool> ExistsByNameAsync(string nombre)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -292,6 +320,7 @@ namespace backend.Repositories
             return count > 0;
         }
 
+        // EMAIL CHECK
         public async Task<bool> ExistsByEmailAsync(string email)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -302,6 +331,7 @@ namespace backend.Repositories
             return count > 0;
         }
 
+        // LEGAL ID (CÉDULA JURÍDICA) CHECK
         public async Task<bool> ExistsByLegalIdAsync(string legalId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -330,7 +360,8 @@ namespace backend.Repositories
                     e.MaximoBeneficios,
                     e.idEmpleador
                 FROM PlaniFy.Empresa e
-                WHERE e.idEmpleador = @EmployerId";
+                WHERE e.idEmpleador = @EmployerId
+                AND e.Estado = 'Activo'";
 
             var results = await connection.QueryAsync(query, new { EmployerId = employerId });
             
@@ -372,7 +403,8 @@ namespace backend.Repositories
                     e.MaximoBeneficios,
                     e.idEmpleador
                 FROM PlaniFy.Empresa AS e
-                WHERE e.idEmpleador = @EmployerId";
+                WHERE e.idEmpleador = @EmployerId
+                AND e.Estado = 'Activo'";
 
             var results = await connection.QueryAsync(query, new { EmployerId = employerId });
             
@@ -408,8 +440,7 @@ namespace backend.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
-            
-            var query = "SELECT COUNT(*) FROM PlaniFy.Empleado WHERE idEmpresa = @ProjectId";
+            var query = "SELECT COUNT(*) FROM PlaniFy.Empleado WHERE idEmpresa = @ProjectId AND Estado = 'Activo'";
             var count = await connection.QuerySingleOrDefaultAsync<int>(query, new { ProjectId = projectId });
             return count;
         }
@@ -418,33 +449,9 @@ namespace backend.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
-            
-            // TODO: Ajustar según esquema real de empleados
             var query = "SELECT ISNULL(SUM(Salario), 0) FROM PlaniFy.Empleado WHERE EmpresaId = @ProjectId AND Activo = 1";
             var payroll = await connection.QuerySingleOrDefaultAsync<decimal>(query, new { ProjectId = projectId });
             return payroll;
-        }
-
-        public async Task<bool> ActivateAsync(int projectId)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-            
-            // TODO: Verificar si existe columna Activo en tabla
-            var query = "UPDATE PlaniFy.Empresa SET Activo = 1 WHERE Id = @Id";
-            var rowsAffected = await connection.ExecuteAsync(query, new { Id = projectId });
-            return rowsAffected > 0;
-        }
-
-        public async Task<bool> DeactivateAsync(int projectId)
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-            
-            // TODO: Verificar si existe columna Activo en tabla
-            var query = "UPDATE PlaniFy.Empresa SET Activo = 0 WHERE Id = @Id";
-            var rowsAffected = await connection.ExecuteAsync(query, new { Id = projectId });
-            return rowsAffected > 0;
         }
 
         public async Task<int> CreateDireccionAsync(string provincia, string? canton, string? distrito, string? direccionParticular)

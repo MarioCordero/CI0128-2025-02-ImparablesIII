@@ -1,46 +1,34 @@
 <template>
   <div class="kpi-cards neumorphism-card p-6">
     <h2 class="text-xl font-bold mb-4">Métricas Clave</h2>
-    
     <div class="space-y-4">
       <!-- Total Empresas -->
       <div class="kpi-item">
-        <div class="kpi-icon bg-blue-100 text-blue-600">
-          🏢
-        </div>
+        <div class="kpi-icon bg-blue-100 text-blue-600">🏢</div>
         <div class="kpi-content">
           <div class="kpi-value">{{ metrics.totalCompanies }}</div>
           <div class="kpi-label">Empresas</div>
         </div>
       </div>
-      
       <!-- Empleados Activos -->
       <div class="kpi-item">
-        <div class="kpi-icon bg-green-100 text-green-600">
-          👥
-        </div>
+        <div class="kpi-icon bg-green-100 text-green-600">👥</div>
         <div class="kpi-content">
           <div class="kpi-value">{{ metrics.totalActiveEmployees }}</div>
           <div class="kpi-label">Empleados Activos</div>
         </div>
       </div>
-      
       <!-- Planilla Total -->
       <div class="kpi-item">
-        <div class="kpi-icon bg-purple-100 text-purple-600">
-          💰
-        </div>
+        <div class="kpi-icon bg-purple-100 text-purple-600">💰</div>
         <div class="kpi-content">
           <div class="kpi-value">₡{{ formatNumber(metrics.totalPayroll) }}</div>
           <div class="kpi-label">Planilla Mensual</div>
         </div>
       </div>
-      
       <!-- Empresas con Planilla -->
       <div class="kpi-item">
-        <div class="kpi-icon bg-orange-100 text-orange-600">
-          📊
-        </div>
+        <div class="kpi-icon bg-orange-100 text-orange-600">📊</div>
         <div class="kpi-content">
           <div class="kpi-value">{{ metrics.companiesWithPayroll }}</div>
           <div class="kpi-label">Empresas Activas</div>
@@ -51,6 +39,8 @@
 </template>
 
 <script>
+import apiConfig from '@/config/api'
+
 export default {
   name: 'KPICards',
   props: {
@@ -74,12 +64,16 @@ export default {
     async fetchKPIData() {
       this.loading = true;
       try {
-        // Datos basados en tu BD
+        const employerId = localStorage.getItem('employerId');
+        if (!employerId) throw new Error('No employerId found in localStorage');
+        const response = await fetch(apiConfig.endpoints.kpi(employerId));
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
         this.metrics = {
-          totalCompanies: 3,
-          totalActiveEmployees: 1, // Solo 1 activo en Imparables III
-          totalPayroll: 500000,    // De Imparables III
-          companiesWithPayroll: 1  // Solo Imparables III tiene planilla
+          totalCompanies: data.totalCompanies,
+          totalActiveEmployees: data.totalActiveEmployees,
+          totalPayroll: data.totalPayroll,
+          companiesWithPayroll: data.companiesWithPayroll
         };
       } catch (error) {
         console.error('Error fetching KPI data:', error);
@@ -87,7 +81,6 @@ export default {
         this.loading = false;
       }
     },
-    
     formatNumber(value) {
       return value.toLocaleString('es-CR');
     }

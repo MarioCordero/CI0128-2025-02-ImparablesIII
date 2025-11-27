@@ -9,13 +9,20 @@ namespace backend.Services
         private readonly IProjectRepository _projectRepository;
         private readonly IDirectionRepository _directionRepository;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IPayrollRepository _payrollRepository;
+        private readonly ILoginService _loginService;
         private readonly ILogger<ProjectService> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository, IEmployeeRepository employeeRepository, ILogger<ProjectService> logger)
+        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository, IEmployeeRepository employeeRepository, IPayrollRepository payrollRepository, ILoginService loginService, ILogger<ProjectService> logger, IUsuarioRepository usuarioRepository)
         {
             _projectRepository = projectRepository;
             _directionRepository = direccionRepository;
             _employeeRepository = employeeRepository;
+            _payrollRepository = payrollRepository;
+            _loginService = loginService;
+            _usuarioRepository = usuarioRepository;
+            _logger = logger;
         }
 
         // CREATE A PROJECT
@@ -52,8 +59,7 @@ namespace backend.Services
                 Telefono = createProjectDto.Telefono,
                 IdDireccion = direccionId,
                 MaximoBeneficios = createProjectDto.MaximoBeneficios,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                EmployerId = createProjectDto.EmployerId
             };
             var createdProject = await _projectRepository.CreateAsync(project);
             var direccion = await _directionRepository.GetDirectionByIdAsync(direccionId);
@@ -82,8 +88,7 @@ namespace backend.Services
                 CedulaJuridica = p.CedulaJuridica,
                 Email = p.Email,
                 PeriodoPago = p.PeriodoPago,
-                MaximoBeneficios = p.MaximoBeneficios,
-                CreatedAt = p.CreatedAt
+                MaximoBeneficios = p.MaximoBeneficios
             }).ToList();
         }
 
@@ -135,7 +140,7 @@ namespace backend.Services
             };
         }
 
-        // GFENRAL DASHBOARD METHODS
+        // GENERAL DASHBOARD METHODS
         public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             try
@@ -144,10 +149,14 @@ namespace backend.Services
                 foreach (var project in projects)
                 {
                     project.ActiveEmployees = await _projectRepository.CountActiveEmployeesAsync(project.Id);
-                    project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id); // Cuanto se pagó, si quincena o mes y el ultimo monto  
-                    project.CedulaJuridica = project.CedulaJuridica; // Mantener la cédula jurídica
-                    project.MaximoBeneficios = project.MaximoBeneficios; // Mantener el máximo de beneficios
-                    project.PeriodoPago = project.PeriodoPago; // Mantener el período de pago
+
+                    // Use the new payroll method
+                    var payrollTotals = await GetMonthlyPayrollAsync(project.Id);
+                    project.MonthlyPayroll = payrollTotals?.TotalGross ?? 0; // Or use another property as needed
+
+                    project.CedulaJuridica = project.CedulaJuridica;
+                    project.MaximoBeneficios = project.MaximoBeneficios;
+                    project.PeriodoPago = project.PeriodoPago;
                 }
                 return projects;
             }
@@ -155,12 +164,6 @@ namespace backend.Services
             {
                 return new List<ProjectResponseDTO>();
             }
-        }
-
-        // METHODS FOR COMPABILITY WITH EMPLOYER SERVICE
-        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
-        {
-            return await CreateProjectAsync(createProjectDto);
         }
 
         public async Task<int> GetActiveEmployeesCountAsync(int projectId)
@@ -173,19 +176,30 @@ namespace backend.Services
             return await _projectRepository.GetProjectWithDireccionAsync(id);
         }
 
-        public async Task<bool> DeleteProjectAsync(int id)
+        // DELETE A PROJECT BY ID
+        public async Task<bool> DeleteProjectAsync(DeleteProjectRequestDto deleteProjectRequest)
         {
-            return await _projectRepository.DeleteAsync(id);
-        }
+            var user = await _usuarioRepository.GetUserByIdAsync(deleteProjectRequest.UsuarioBajaId);
+            if (user == null)
+                throw new Exception("Usuario no encontrado.");
 
-        public async Task<bool> ActivateProjectAsync(int id)
-        {
-            return await _projectRepository.ActivateAsync(id);
-        }
+            if (!_loginService.VerifyPassword(deleteProjectRequest.Contrasena, user.Contrasena))
+                throw new Exception("Contraseña incorrecta.");
 
-        public async Task<bool> DeactivateProjectAsync(int id)
-        {
-            return await _projectRepository.DeactivateAsync(id);
+            if (!await _projectRepository.ExistsAsync(deleteProjectRequest.ProjectId))
+                throw new Exception("Error al eliminar la empresa porque no existe.");
+
+            if (await _projectRepository.CountActiveEmployeesAsync(deleteProjectRequest.ProjectId) > 0)
+                throw new Exception("Error al eliminar la empresa porque tiene empleados activos.");
+
+            var payrolls = await _payrollRepository.GetPayrollHistoryByCompanyAsync(deleteProjectRequest.ProjectId);
+            if (payrolls != null && payrolls.Any())
+            {
+                // LOGICAL DELETE
+                return await _projectRepository.LogicalDeleteAsync(deleteProjectRequest);
+            }
+            // PHYSICAL DELETE
+            return await _projectRepository.PhysicalDeleteAsync(deleteProjectRequest.ProjectId);
         }
 
         public async Task<bool> ExistsByLegalIdAsync(string legalId)
@@ -201,11 +215,6 @@ namespace backend.Services
         public async Task<bool> ProjectExistsAsync(int id)
         {
             return await _projectRepository.ExistsAsync(id);
-        }
-
-        private async Task<decimal> GetMonthlyPayrollAsync(int projectId)
-        {
-            return 0; // Placeholder
         }
 
         // DASHBOARD FOR THE PROJECT (INDIVIDUALLY) DASHBOARD METRICS
@@ -275,6 +284,12 @@ namespace backend.Services
                 _logger.LogError(ex, "Error obteniendo estadísticas de departamentos para el proyecto {ProjectId}", projectId);
                 throw;
             }
+        }
+
+        // HELPER METHOD TO GET MONTHLY PAYROLL
+        public async Task<PayrollTotalsDto?> GetMonthlyPayrollAsync(int projectId)
+        {
+            return await _payrollRepository.GetLatestPayrollTotalsByCompanyAsync(projectId);
         }
     }
 }
