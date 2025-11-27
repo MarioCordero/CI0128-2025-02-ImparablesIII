@@ -11,7 +11,9 @@ namespace backend.Repositories
         private const int DEFAULT_MAX_BENEFITS = 3;
         private const string STRING_NULL_MESSAGE = "Error mapping benefit row";
         private const string BENEFIT_ADDED_MESSAGE = "Beneficio agregado exitosamente";
+        private const string BENEFIT_REMOVED_MESSAGE = "Beneficio eliminado exitosamente";
         private const string BENEFIT_ADD_ERROR = "Error adding benefit to employee";
+        private const string BENEFIT_REMOVE_ERROR = "Error removing benefit from employee";
         
         private readonly string _connectionString;
         private readonly ILogger<EmployeeBenefitRepository> _logger;
@@ -121,6 +123,39 @@ namespace backend.Repositories
             {
                 _logger.LogError(ex, BENEFIT_ADD_ERROR);
                 return (false, $"Error al agregar el beneficio: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Success, string Message)> RemoveBenefitFromEmployeeAsync(int employeeId, int companyId, string benefitName)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    DELETE FROM PlaniFy.BeneficioEmpleado
+                    WHERE idEmpleado = @EmployeeId AND idEmpresa = @CompanyId AND NombreBeneficio = @BenefitName";
+
+                var parameters = new
+                {
+                    EmployeeId = employeeId,
+                    CompanyId = companyId,
+                    BenefitName = benefitName
+                };
+
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                if (affectedRows > 0)
+                {
+                    return (true, BENEFIT_REMOVED_MESSAGE);
+                }
+
+                return (false, "El beneficio no está asociado al empleado");
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, BENEFIT_REMOVE_ERROR);
+                return (false, $"Error al remover el beneficio: {ex.Message}");
             }
         }
         
