@@ -81,12 +81,6 @@
 
       <!-- Payroll Reports Section -->
       <div v-else-if="selectedSection === 'reports'">
-        <div class="space-y-[18px]">
-          <h1 class="text-4xl font-bold text-gray-800">Mis Reportes de Planilla</h1>
-          <p class="text-gray-600">Visualiza y descarga tus recibos de pago.</p>
-          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
-        </div>
-
         <div class="mt-[41px]">
           <PayrollReports
             :employee-id="user?.idPersona"
