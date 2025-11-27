@@ -101,7 +101,7 @@
         </div>
 
         <div class="grid grid-cols-[1fr_3fr] gap-[81px]">
-          <EmployeesFilter/>
+          <!-- <EmployeesFilter/> -->
           <EmployeesSection :project-id="project.id" />
         </div>
       </div>
@@ -139,7 +139,7 @@ import DashboardProjectSubHeader from './DashboardProjectSubHeader.vue'
 import PayrollPayment from '../projectDashboard/PayrollPayment.vue'
 import PayrollReports from '../../common/PayrollReports.vue'
 import EmployeesSection from './EmployeesSection.vue'
-import EmployeesFilter from './EmployeesFilter.vue'
+// import EmployeesFilter from './EmployeesFilter.vue'
 import EditProjectInfo from './EditProjectInfo.vue'
 import { apiConfig } from '../../../config/api.js'
 import DashboardContent from './DashboardContent.vue'
@@ -153,7 +153,7 @@ export default {
     PayrollReports,
     DashboardContent,
     EmployeesSection,
-    EmployeesFilter,
+    // EmployeesFilter,
     EditProjectInfo
   },
   data() {
