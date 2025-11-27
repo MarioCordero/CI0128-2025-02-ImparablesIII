@@ -6,15 +6,13 @@ DELETE FROM PlaniFy.Persona WHERE Id = 74;
 
 SELECT * FROM PlaniFy.Usuario;
 
+-- Elimina direcciones que no están asociadas ni a Persona ni a Empresa
+DELETE FROM PlaniFy.Direccion
+WHERE Id NOT IN (SELECT idDireccion FROM PlaniFy.Persona)
+  AND Id NOT IN (SELECT idDireccion FROM PlaniFy.Empresa);
 
 
 SELECT * FROM PlaniFy.Empresa;
-
-INSERT INTO PlaniFy.Empresa
-    (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios, idEmpleador, Estado)
-VALUES
-    ('Patitos SA', 123456789, 'contacto@patitos.com', 'Quincenal', 88887777, 63, 5, 73, 'Activo');
-    
 SELECT * FROM PlaniFy.Empleado;
 SELECT * FROM PlaniFy.Planilla;
 SELECT * FROM PlaniFy.DetallePlanilla;
