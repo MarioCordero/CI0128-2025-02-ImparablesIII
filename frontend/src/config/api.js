@@ -7,11 +7,6 @@ export const apiConfig = {
     // Dashboard endpoints
     login: `${API_BASE_URL}/api/login`,
     passwordSetup: `${API_BASE_URL}/api/PasswordSetup/setup`,
-    benefit: `${API_BASE_URL}/api/Benefit`,
-    benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
-    benefitByCompanyAndName: (companyId, benefitName) => `${API_BASE_URL}/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`,
-    employeeBenefits: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}`,
-    employeeBenefitsSelect: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}/select`,
     payrollGenerate: `${API_BASE_URL}/api/payroll/generate`,
     payrollSummary: (companyId) => `${API_BASE_URL}/api/payroll/summary?companyId=${companyId}`,
     payrollHistory: (companyId) => `${API_BASE_URL}/api/payroll/history?companyId=${companyId}`,
@@ -21,6 +16,13 @@ export const apiConfig = {
     employeePayrollReportDownloadPdf: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/pdf`,
     employeeHistoricalPayrollReport: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical`,
     employeeHistoricalPayrollReportDownloadExcel: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical/download/excel`,
+    
+    // Benefit endpoints
+    benefit: `${API_BASE_URL}/api/Benefit`,
+    benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
+    benefitByCompanyAndName: (companyId, benefitName) => `${API_BASE_URL}/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`,
+    employeeBenefitsSelect: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}/select`,
+    employeeBenefits: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}`,
     
     // Project endpoints
     projectDirection: (directionId) => `${API_BASE_URL}/api/Project/direction/${directionId}`,
