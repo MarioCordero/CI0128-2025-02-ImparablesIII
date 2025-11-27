@@ -18,31 +18,33 @@ namespace backend.Repositories
             _logger = logger;
         }
 
+        // CREATE A NEW PROJECT
         public async Task<ProjectResponseDTO> CreateAsync(Project project)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
             var query = @"
-                INSERT INTO PlaniFy.Empresa (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios, idEmpleador)
-                OUTPUT INSERTED.Id
-                VALUES (@Nombre, @CedulaJuridica, @Email, @PeriodoPago, @Telefono, @IdDireccion, @MaximoBeneficios, @EmployerId)";
+                INSERT INTO PlaniFy.Empresa
+                    (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios, idEmpleador, Estado)
+                VALUES
+                    (@Nombre, @CedulaJuridica, @Email, @PeriodoPago, @Telefono, @IdDireccion, @MaximoBeneficios, @EmployerId, 'Activo');
+                SELECT CAST(SCOPE_IDENTITY() as int);
+            ";
 
-            var parameters = new
+            var id = await connection.QuerySingleAsync<int>(query, new
             {
-                Nombre = project.Nombre,
-                CedulaJuridica = project.CedulaJuridica,
-                Email = project.Email,
-                PeriodoPago = project.PeriodoPago,
-                Telefono = project.Telefono,
+                project.Nombre,
+                project.CedulaJuridica,
+                project.Email,
+                project.PeriodoPago,
+                project.Telefono,
                 IdDireccion = project.IdDireccion,
-                MaximoBeneficios = project.MaximoBeneficios,
-                EmployerId = project.EmployerId
-            };
+                project.MaximoBeneficios,
+                EmployerId = project.EmployerId,
+            });
 
-            var id = await connection.QuerySingleAsync<int>(query, parameters);
             project.Id = id;
-
             return new ProjectResponseDTO
             {
                 Id = project.Id,
@@ -51,8 +53,8 @@ namespace backend.Repositories
                 Email = project.Email,
                 PeriodoPago = project.PeriodoPago,
                 Telefono = project.Telefono,
+                IdDireccion = project.IdDireccion,
                 MaximoBeneficios = project.MaximoBeneficios,
-                IdDireccion = project.IdDireccion
             };
         }
 
@@ -132,8 +134,7 @@ namespace backend.Repositories
                     PeriodoPago = result.PeriodoPago,
                     Telefono = result.Telefono,
                     IdDireccion = result.idDireccion,
-                    MaximoBeneficios = result.MaximoBeneficios,
-                    CreatedAt = DateTime.Now
+                    MaximoBeneficios = result.MaximoBeneficios
                 };
             }
             return null;
@@ -184,8 +185,7 @@ namespace backend.Repositories
                 PeriodoPago = r.PeriodoPago,
                 Telefono = r.Telefono,
                 IdDireccion = r.idDireccion,
-                MaximoBeneficios = r.MaximoBeneficios,
-                CreatedAt = DateTime.Now
+                MaximoBeneficios = r.MaximoBeneficios
             }).ToList();
         }
 

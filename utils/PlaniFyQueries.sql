@@ -1,5 +1,5 @@
 SELECT * FROM PlaniFy.Direccion;
-DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 53 AND 61;
+DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 65 AND 82;
 
 SELECT * FROM PlaniFy.Persona;
 DELETE FROM PlaniFy.Persona WHERE Id = 74;
@@ -9,6 +9,12 @@ SELECT * FROM PlaniFy.Usuario;
 
 
 SELECT * FROM PlaniFy.Empresa;
+
+INSERT INTO PlaniFy.Empresa
+    (Nombre, CedulaJuridica, Email, PeriodoPago, Telefono, idDireccion, MaximoBeneficios, idEmpleador, Estado)
+VALUES
+    ('Patitos SA', 123456789, 'contacto@patitos.com', 'Quincenal', 88887777, 63, 5, 73, 'Activo');
+    
 SELECT * FROM PlaniFy.Empleado;
 SELECT * FROM PlaniFy.Planilla;
 SELECT * FROM PlaniFy.DetallePlanilla;

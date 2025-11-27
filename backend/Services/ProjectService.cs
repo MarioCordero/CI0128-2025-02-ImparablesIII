@@ -59,8 +59,7 @@ namespace backend.Services
                 Telefono = createProjectDto.Telefono,
                 IdDireccion = direccionId,
                 MaximoBeneficios = createProjectDto.MaximoBeneficios,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                EmployerId = createProjectDto.EmployerId
             };
             var createdProject = await _projectRepository.CreateAsync(project);
             var direccion = await _directionRepository.GetDirectionByIdAsync(direccionId);
@@ -89,8 +88,7 @@ namespace backend.Services
                 CedulaJuridica = p.CedulaJuridica,
                 Email = p.Email,
                 PeriodoPago = p.PeriodoPago,
-                MaximoBeneficios = p.MaximoBeneficios,
-                CreatedAt = p.CreatedAt
+                MaximoBeneficios = p.MaximoBeneficios
             }).ToList();
         }
 
@@ -166,12 +164,6 @@ namespace backend.Services
             {
                 return new List<ProjectResponseDTO>();
             }
-        }
-
-        // METHODS FOR COMPABILITY WITH EMPLOYER SERVICE
-        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
-        {
-            return await CreateProjectAsync(createProjectDto);
         }
 
         public async Task<int> GetActiveEmployeesCountAsync(int projectId)

@@ -355,7 +355,7 @@ export default {
           MaximoBeneficios: parseInt(this.form.MaximoBeneficios),
           employerId: parseInt(localStorage.getItem('employerId'))
         }
-        await axios.post(apiConfig.endpoints.project, dataToSend, {
+        await axios.post(apiConfig.endpoints.createProject, dataToSend, {
           headers: { 'Content-Type': 'application/json' },
           timeout: 10000
         })
