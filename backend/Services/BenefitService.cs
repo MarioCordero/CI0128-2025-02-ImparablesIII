@@ -87,14 +87,13 @@ namespace backend.Services
             return result;
         }
 
+        // GET BENEFITS BY COMPANY ID
         public async Task<List<BenefitResponseDto>> GetBenefitsByCompanyIdAsync(int companyId)
         {
-            // Validate that the company exists
             if (!await _projectRepository.ExistsAsync(companyId))
             {
                 throw new ArgumentException("La empresa especificada no existe");
             }
-
             return await _benefitRepository.GetBenefitsWithCompanyNameAsync(companyId);
         }
 

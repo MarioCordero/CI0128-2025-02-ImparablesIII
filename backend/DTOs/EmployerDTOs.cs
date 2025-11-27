@@ -80,4 +80,12 @@ namespace backend.DTOs
     {
         public string Token { get; set; } = string.Empty;
     }
+    
+    public class KPIResponseDTO
+    {
+        public int TotalCompanies { get; set; }
+        public int TotalActiveEmployees { get; set; }
+        public decimal TotalPayroll { get; set; }
+        public int CompaniesWithPayroll { get; set; }
+    }
 }

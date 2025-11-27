@@ -7,12 +7,22 @@ namespace backend.Services
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _projectRepository;
-        private readonly IDirectionRepository _direccionRepository;
+        private readonly IDirectionRepository _directionRepository;
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IPayrollRepository _payrollRepository;
+        private readonly ILoginService _loginService;
+        private readonly ILogger<ProjectService> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository)
+        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository, IEmployeeRepository employeeRepository, IPayrollRepository payrollRepository, ILoginService loginService, ILogger<ProjectService> logger, IUsuarioRepository usuarioRepository)
         {
             _projectRepository = projectRepository;
-            _direccionRepository = direccionRepository;
+            _directionRepository = direccionRepository;
+            _employeeRepository = employeeRepository;
+            _payrollRepository = payrollRepository;
+            _loginService = loginService;
+            _usuarioRepository = usuarioRepository;
+            _logger = logger;
         }
 
         // CREATE A PROJECT
@@ -49,11 +59,10 @@ namespace backend.Services
                 Telefono = createProjectDto.Telefono,
                 IdDireccion = direccionId,
                 MaximoBeneficios = createProjectDto.MaximoBeneficios,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                EmployerId = createProjectDto.EmployerId
             };
             var createdProject = await _projectRepository.CreateAsync(project);
-            var direccion = await _direccionRepository.GetDireccionByIdAsync(direccionId);
+            var direccion = await _directionRepository.GetDirectionByIdAsync(direccionId);
             return new ProjectResponseDTO
             {
                 Id = createdProject.Id,
@@ -79,8 +88,7 @@ namespace backend.Services
                 CedulaJuridica = p.CedulaJuridica,
                 Email = p.Email,
                 PeriodoPago = p.PeriodoPago,
-                MaximoBeneficios = p.MaximoBeneficios,
-                CreatedAt = p.CreatedAt
+                MaximoBeneficios = p.MaximoBeneficios
             }).ToList();
         }
 
@@ -90,12 +98,19 @@ namespace backend.Services
             return await _projectRepository.GetProjectWithDireccionAsync(id);
         }
 
+        // GET A PROJECT'S DIRECTION BY DIRECTION ID
+        public async Task<DirectionDTO?> GetProjectDirectionByDirectionId(int id)
+        {
+            return await _directionRepository.GetDirectionByIdAsync(id);
+        }
+
         // GET A PROJECTS BY EMPLOYER ID
         public async Task<List<ProjectResponseDTO>> GetProjectsByEmployerIdAsync(int employerId)
         {
             return await _projectRepository.GetByEmployerIdAsync(employerId);
         }
 
+        // UPDATE THE INFO OF A PROJECT GIVEN ITS ID
         public async Task<UpdateProjectResult> UpdateProjectAsync(int id, UpdateProjectDTO dto)
         {
             var project = await _projectRepository.GetByIdAsync(id);
@@ -125,7 +140,7 @@ namespace backend.Services
             };
         }
 
-        // DASHBOARD METHODS
+        // GENERAL DASHBOARD METHODS
         public async Task<List<ProjectResponseDTO>> GetProjectsForDashboardAsync(int employerId)
         {
             try
@@ -134,10 +149,14 @@ namespace backend.Services
                 foreach (var project in projects)
                 {
                     project.ActiveEmployees = await _projectRepository.CountActiveEmployeesAsync(project.Id);
-                    project.MonthlyPayroll = await GetMonthlyPayrollAsync(project.Id); // Cuanto se pagó, si quincena o mes y el ultimo monto  
-                    project.CedulaJuridica = project.CedulaJuridica; // Mantener la cédula jurídica
-                    project.MaximoBeneficios = project.MaximoBeneficios; // Mantener el máximo de beneficios
-                    project.PeriodoPago = project.PeriodoPago; // Mantener el período de pago
+
+                    // Use the new payroll method
+                    var payrollTotals = await GetMonthlyPayrollAsync(project.Id);
+                    project.MonthlyPayroll = payrollTotals?.TotalGross ?? 0; // Or use another property as needed
+
+                    project.CedulaJuridica = project.CedulaJuridica;
+                    project.MaximoBeneficios = project.MaximoBeneficios;
+                    project.PeriodoPago = project.PeriodoPago;
                 }
                 return projects;
             }
@@ -145,12 +164,6 @@ namespace backend.Services
             {
                 return new List<ProjectResponseDTO>();
             }
-        }
-
-        // METHODS FOR COMPABILITY WITH EMPLOYER SERVICE
-        public async Task<ProjectResponseDTO> CreateProjectAsync(CreateProjectDto createProjectDto, int employerId)
-        {
-            return await CreateProjectAsync(createProjectDto);
         }
 
         public async Task<int> GetActiveEmployeesCountAsync(int projectId)
@@ -163,19 +176,30 @@ namespace backend.Services
             return await _projectRepository.GetProjectWithDireccionAsync(id);
         }
 
-        public async Task<bool> DeleteProjectAsync(int id)
+        // DELETE A PROJECT BY ID
+        public async Task<bool> DeleteProjectAsync(DeleteProjectRequestDto deleteProjectRequest)
         {
-            return await _projectRepository.DeleteAsync(id);
-        }
+            var user = await _usuarioRepository.GetUserByIdAsync(deleteProjectRequest.UsuarioBajaId);
+            if (user == null)
+                throw new Exception("Usuario no encontrado.");
 
-        public async Task<bool> ActivateProjectAsync(int id)
-        {
-            return await _projectRepository.ActivateAsync(id);
-        }
+            if (!_loginService.VerifyPassword(deleteProjectRequest.Contrasena, user.Contrasena))
+                throw new Exception("Contraseña incorrecta.");
 
-        public async Task<bool> DeactivateProjectAsync(int id)
-        {
-            return await _projectRepository.DeactivateAsync(id);
+            if (!await _projectRepository.ExistsAsync(deleteProjectRequest.ProjectId))
+                throw new Exception("Error al eliminar la empresa porque no existe.");
+
+            if (await _projectRepository.CountActiveEmployeesAsync(deleteProjectRequest.ProjectId) > 0)
+                throw new Exception("Error al eliminar la empresa porque tiene empleados activos.");
+
+            var payrolls = await _payrollRepository.GetPayrollHistoryByCompanyAsync(deleteProjectRequest.ProjectId);
+            if (payrolls != null && payrolls.Any())
+            {
+                // LOGICAL DELETE
+                return await _projectRepository.LogicalDeleteAsync(deleteProjectRequest);
+            }
+            // PHYSICAL DELETE
+            return await _projectRepository.PhysicalDeleteAsync(deleteProjectRequest.ProjectId);
         }
 
         public async Task<bool> ExistsByLegalIdAsync(string legalId)
@@ -193,9 +217,79 @@ namespace backend.Services
             return await _projectRepository.ExistsAsync(id);
         }
 
-        private async Task<decimal> GetMonthlyPayrollAsync(int projectId)
+        // DASHBOARD FOR THE PROJECT (INDIVIDUALLY) DASHBOARD METRICS
+        public async Task<DashboardMetricsDTO?> GetDashboardMetricsAsync(int projectId)
         {
-            return 0; // Placeholder
+            try
+            {
+                if (projectId <= 0)
+                {
+                    throw new ArgumentException("El ID del proyecto debe ser válido", nameof(projectId));
+                }
+                var projectExists = await _projectRepository.ExistsAsync(projectId);
+                if (!projectExists)
+                {
+                    return null;
+                }
+
+                var employees = await _employeeRepository.GetEmployeesByCompanyAsync(projectId);
+                var activeEmployees = employees.Where(e => e.Estado == "Activo").ToList();
+                var currentPayroll = activeEmployees.Sum(e => e.Salario ?? 0);
+                var activeDepartments = activeEmployees
+                    .Where(e => !string.IsNullOrEmpty(e.Departamento))
+                    .Select(e => e.Departamento)
+                    .Distinct()
+                    .Count();
+                var notifications = 0; // TODO
+                var metrics = new DashboardMetricsDTO
+                {
+                    TotalEmployees = activeEmployees.Count,
+                    CurrentPayroll = currentPayroll,
+                    ActiveDepartments = activeDepartments,
+                    Notifications = notifications,
+                };
+
+                return metrics;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo métricas del dashboard para el proyecto {ProjectId}", projectId);
+                throw;
+            }
+        }
+
+        // HELPER METHOD TO GET DEPARTMENT STATS
+        public async Task<List<DepartmentStatsDTO>> GetDepartmentStatsAsync(int projectId)
+        {
+            try
+            {
+                var employees = await _employeeRepository.GetEmployeesByCompanyAsync(projectId);
+                var activeEmployees = employees.Where(e => e.Estado == "Activo").ToList();
+
+                var departmentStats = activeEmployees
+                    .GroupBy(e => e.Departamento ?? "Sin Departamento")
+                    .Select(g => new DepartmentStatsDTO
+                    {
+                        DepartmentName = g.Key,
+                        EmployeeCount = g.Count(),
+                        TotalSalary = g.Sum(e => e.Salario ?? 0)
+                    })
+                    .OrderByDescending(d => d.EmployeeCount)
+                    .ToList();
+
+                return departmentStats;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo estadísticas de departamentos para el proyecto {ProjectId}", projectId);
+                throw;
+            }
+        }
+
+        // HELPER METHOD TO GET MONTHLY PAYROLL
+        public async Task<PayrollTotalsDto?> GetMonthlyPayrollAsync(int projectId)
+        {
+            return await _payrollRepository.GetLatestPayrollTotalsByCompanyAsync(projectId);
         }
     }
 }

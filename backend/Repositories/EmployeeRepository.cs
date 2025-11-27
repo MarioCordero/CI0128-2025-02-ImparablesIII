@@ -241,7 +241,8 @@ namespace backend.Repositories
                     e.Puesto,
                     e.Departamento,
                     e.Salario,
-                    e.TipoContrato
+                    e.TipoContrato,
+                    e.Estado
                 FROM PlaniFy.Empleado e
                 INNER JOIN PlaniFy.Persona p ON p.Id = e.idPersona
                 WHERE e.idEmpresa = @CompanyId

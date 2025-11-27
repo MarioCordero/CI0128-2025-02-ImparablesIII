@@ -486,9 +486,7 @@ export default {
           },
           body: JSON.stringify(requestData)
         })
-
         const data = await response.json();
-
         if (response.ok) {
           this.successMessage = 'Beneficio agregado exitosamente';
           this.form = {
@@ -499,10 +497,7 @@ export default {
             value: '',
             percentage: ''
           }
-          // Refresh the benefits list
           await this.fetchBenefitsByProject(this.selectedProject.id);
-          
-          // Auto-redirect after 2 seconds if coming from a project
           if (this.isProjectSelected) {
             setTimeout(() => {
               this.$router.push({ 
@@ -522,9 +517,12 @@ export default {
     },
     async fetchCompanies() {
       try {
-        const response = await fetch(apiConfig.endpoints.project);
+        // Obtén el employerId desde donde lo tengas almacenado
+        const employerId = localStorage.getItem('employerId'); // Ajusta esto según tu app
+        if (!employerId) throw new Error('No se encontró el employerId');
+        const response = await fetch(apiConfig.endpoints.projectsByEmployer(employerId));
         if (!response.ok) throw new Error('No se pudo cargar las empresas');
-        this.companies = await response.json()
+        this.companies = await response.json();
       } catch (err) {
         this.errorMessage = 'Error al cargar las empresas';
       }
@@ -541,12 +539,10 @@ export default {
     },
     async initializeProject() {
       const storedProject = localStorage.getItem('selectedProject');
-      
       if (storedProject) {
         try {
           this.selectedProject = JSON.parse(storedProject);
           this.form.companyId = this.selectedProject.id;
-          // Load benefits for the stored project
           await this.fetchBenefitsByProject(this.selectedProject.id);
         } catch (err) {
           this.errorMessage = 'Error al cargar el proyecto almacenado';
@@ -560,9 +556,7 @@ export default {
             if (response.ok) {
               this.selectedProject = await response.json();
               this.form.companyId = this.selectedProject.id;
-              // Store in localStorage for future use
               localStorage.setItem('selectedProject', JSON.stringify(this.selectedProject));
-              // Load benefits for the fetched project
               await this.fetchBenefitsByProject(this.selectedProject.id);
             }
           } catch (err) {
@@ -575,7 +569,6 @@ export default {
       this.isLoadingBenefits = true;
       try {
         const response = await fetch(apiConfig.endpoints.benefitByCompany(projectId));
-        
         if (response.ok) {
           this.benefits = await response.json();
         } else {

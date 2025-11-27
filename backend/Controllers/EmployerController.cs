@@ -27,6 +27,7 @@ namespace backend.Controllers
             _usuarioRepository = usuarioRepository;
         }
 
+        // REGISTER AN EMPLOYER
         [HttpPost("register")]
         public async Task<IActionResult> RegisterEmployer([FromBody] SignUpEmployerDto dto)
         {
@@ -53,6 +54,7 @@ namespace backend.Controllers
             }
         }
 
+        // CHECK IF EMAIL IS AVAILABLE
         [HttpGet("check-email/{email}")]
         public async Task<IActionResult> CheckEmail(string email)
         {
@@ -60,6 +62,7 @@ namespace backend.Controllers
             return Ok(new { available });
         }
 
+        // CHECK IF CEDULA IS AVAILABLE
         [HttpGet("check-cedula/{cedula}")]
         public async Task<IActionResult> CheckCedula(string cedula)
         {
@@ -67,6 +70,7 @@ namespace backend.Controllers
             return Ok(new { available });
         }
 
+        // VERIFY EMPLOYER
         [HttpPost("verify")]
         public async Task<IActionResult> Verify([FromBody] VerifyEmployerRequestDto req)
         {
@@ -80,6 +84,7 @@ namespace backend.Controllers
             return Ok(new { success = true, message = EmployerConstants.Employer.VerificationSuccess });
         }
 
+        // VERIFY LINK TOKEN
         [HttpPost("verify-link-token")]
         public async Task<IActionResult> VerifyLinkToken([FromBody] VerifyLinkTokenRequestDto req)
         {
@@ -94,6 +99,30 @@ namespace backend.Controllers
                 rol = rol,
                 message = "Token válido" 
             });
+        }
+
+        // GET KPI DATA (Key Performance Indicators)
+        [HttpGet("kpi")]
+        public async Task<IActionResult> GetKPI([FromQuery] int userId)
+        {
+            try
+            {
+                var kpi = await _employerService.GetKPIAsync(userId);
+                if (kpi == null)
+                    return NotFound(new { success = false, message = "No KPI data found." });
+                return Ok(new
+                {
+                    totalCompanies = kpi.TotalCompanies,
+                    totalActiveEmployees = kpi.TotalActiveEmployees,
+                    totalPayroll = kpi.TotalPayroll,
+                    companiesWithPayroll = kpi.CompaniesWithPayroll
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching KPI data");
+                return StatusCode(500, new { success = false, message = "Internal server error" });
+            }
         }
     }
 }
