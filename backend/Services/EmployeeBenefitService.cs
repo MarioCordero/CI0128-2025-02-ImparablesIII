@@ -66,11 +66,48 @@ namespace backend.Services
                     };
                 }
 
-                return await CreateSuccessResponseAsync(employeeId, companyId);
+                return await CreateSuccessResponseAsync(employeeId, companyId, "Beneficio agregado exitosamente");
             }
             catch (Exception ex)
             {
                 return HandleSelectionErrorAsync(ex, employeeId);
+            }
+        }
+
+        public async Task<EmployeeBenefitSelectionResponseDto> DeselectBenefitAsync(int employeeId, int companyId, string benefitName)
+        {
+            try
+            {
+                _logger.LogInformation("Removing benefit {BenefitName} for employee {EmployeeId}", benefitName, employeeId);
+
+                var isSelected = await _employeeBenefitRepository.IsBenefitSelectedAsync(employeeId, companyId, benefitName);
+                if (!isSelected)
+                {
+                    return CreateErrorResponse("El beneficio no está agregado");
+                }
+
+                var (success, message) = await _employeeBenefitRepository.RemoveBenefitFromEmployeeAsync(employeeId, companyId, benefitName);
+                if (!success)
+                {
+                    return new EmployeeBenefitSelectionResponseDto
+                    {
+                        Success = false,
+                        Message = message,
+                        CurrentSelections = await _employeeBenefitRepository.GetSelectedBenefitsCountAsync(employeeId, companyId),
+                        MaxSelections = await _employeeBenefitRepository.GetMaxBenefitLimitAsync(companyId)
+                    };
+                }
+
+                return await CreateSuccessResponseAsync(employeeId, companyId, "Beneficio eliminado exitosamente");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing benefit for employee {EmployeeId}", employeeId);
+                return new EmployeeBenefitSelectionResponseDto
+                {
+                    Success = false,
+                    Message = $"Error al eliminar el beneficio: {ex.Message}"
+                };
             }
         }
 
@@ -176,7 +213,7 @@ namespace backend.Services
             summary.SelectedBenefits = filteredSelected;
         }
 
-        private async Task<EmployeeBenefitSelectionResponseDto> CreateSuccessResponseAsync(int employeeId, int companyId)
+        private async Task<EmployeeBenefitSelectionResponseDto> CreateSuccessResponseAsync(int employeeId, int companyId, string message)
         {
             var newCount = await _employeeBenefitRepository.GetSelectedBenefitsCountAsync(employeeId, companyId);
             var maxSelections = await _employeeBenefitRepository.GetMaxBenefitLimitAsync(companyId);
@@ -184,7 +221,7 @@ namespace backend.Services
             return new EmployeeBenefitSelectionResponseDto
             {
                 Success = true,
-                Message = "Beneficio agregado exitosamente",
+                Message = message,
                 CurrentSelections = newCount,
                 MaxSelections = maxSelections
             };

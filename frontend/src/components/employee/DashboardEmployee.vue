@@ -29,11 +29,19 @@
 
       <!-- Benefits Selection Section -->
       <div v-else-if="selectedSection === 'benefits'">
-        <BenefitsSelectionView
-          :employee-id="user?.idPersona"
-          @success="handleBenefitUpdate"
-          @error="handleError"
-        />
+        <div class="space-y-[18px]">
+          <h1 class="text-4xl font-bold text-gray-800">Selección de Beneficios</h1>
+          <p class="text-gray-600">Elige tus beneficios según tus necesidades.</p>
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
+        </div>
+
+        <div class="mt-[41px]">
+          <BenefitsSelectionView
+            :employee-id="user?.idPersona"
+            @success="handleBenefitUpdate"
+            @error="handleError"
+          />
+        </div>
       </div>
 
       <!-- Hours Registry Section -->

@@ -10,6 +10,7 @@ namespace backend.Repositories
         Task<bool> IsBenefitSelectedAsync(int employeeId, int companyId, string benefitName);
         Task<int> GetSelectedBenefitsCountAsync(int employeeId, int companyId);
         Task<(bool Success, string Message)> AddBenefitToEmployeeAsync(int employeeId, int companyId, string benefitName, string benefitType, int? NumDependents = null, string? PensionType = null);
+        Task<(bool Success, string Message)> RemoveBenefitFromEmployeeAsync(int employeeId, int companyId, string benefitName);
         Task<int> GetMaxBenefitLimitAsync(int companyId);
         Task<int> GetTotalEmployeeCountAsync(int companyId);
     }

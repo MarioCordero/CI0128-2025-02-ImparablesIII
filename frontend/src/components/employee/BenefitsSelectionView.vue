@@ -1,52 +1,127 @@
 <template>
-  <div class="benefits-selection-container">
-    <!-- Header and Summary -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-800 mb-2">Selección de Beneficios</h1>
-      <p class="text-gray-600">Personaliza tus beneficios según tus necesidades</p>
-      
+  <div class="body m-0! p-0!">
+    
+    <h2 class="text-xl font-semibold">Beneficios seleccionados</h2>
+    
+    <div class="">
       <!-- Selection Counter -->
-      <div class="mt-4 p-4 bg-white rounded-lg shadow-sm border-2 border-[#4a5568]/30">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <p class="text-sm text-gray-600">Beneficios seleccionados</p>
-            <p class="text-2xl font-bold text-[#4a5568]">
-              {{ benefitsData.currentSelections }} / {{ benefitsData.maxSelections }}
-            </p>
-          </div>
-          <div v-if="canSelectMore" class="text-right">
-            <span class="text-[#4a5568] text-sm font-semibold">
-              Puedes seleccionar {{ benefitsData.maxSelections - benefitsData.currentSelections }} más
-            </span>
-          </div>
-          <div v-else class="text-right">
-            <span class="text-red-600 text-sm font-semibold">
-              Has alcanzado el límite máximo
-            </span>
-          </div>
+
+      <div class="flex items-center justify-between mb-3 neumorphism-card">
+        <div>
+          <p class="text-sm text-gray-600">Beneficios seleccionados</p>
+          <p class="text-2xl font-bold text-[#4a5568]">
+            {{ benefitsData.currentSelections }} / {{ benefitsData.maxSelections }}
+          </p>
         </div>
-        
-        <!-- Selected Benefits List -->
-        <div v-if="benefitsData.selectedBenefits.length > 0" class="border-t border-gray-200 pt-3">
-          <p class="text-sm font-semibold text-gray-700 mb-2">Beneficios activos:</p>
-          <div class="flex flex-wrap gap-2">
-            <div
-              v-for="benefit in benefitsData.selectedBenefits"
-              :key="`selected-${benefit.benefitName}`"
-              class="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg text-sm"
-            >
-              <span class="text-green-700 font-medium">{{ benefit.benefitName }}</span>
+        <div v-if="canSelectMore" class="text-right">
+          <span class="text-[#4a5568] text-sm font-semibold">
+            Puedes seleccionar {{ benefitsData.maxSelections - benefitsData.currentSelections }} más
+          </span>
+        </div>
+        <div v-else class="text-right">
+          <span class="text-red-600 text-sm font-semibold">
+            Has alcanzado el límite máximo
+          </span>
+        </div>
+      </div>
+
+
+
+
+      
+      <!-- Selected Benefits List -->
+      <div v-if="benefitsData.selectedBenefits.length > 0" class="pt-3">
+
+        <div v-if="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <!-- Benefit Card -->
+          <div
+            v-for="benefit in benefitsData.selectedBenefits"
+            :key="`selected-${benefit.benefitName}`"
+            class="neumorphism-card h-full space-y-[24px] border-2! border-[#1048ff]!"
+          >
+            <!-- Card Header -->
+            <div class="mb-2 w-full">
+              <div class="w-full flex justify-between items-top">
+
+                <div>
+                  <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.benefitName }}</h3>
+                  <div v-if="benefit.benefitDescription" class="">
+                    <p class="text-gray-800 text-[16px] mt-1 benefit-description">{{ benefit.benefitDescription }}</p>
+                  </div>
+                  <div v-else class="">
+                    <p class="text-gray-800 text-[16px] mt-1 benefit-description">No hay descripción disponible para este beneficio.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content card -->
+            <div class="text-[18px] grid grid-cols-1 gap-auto h-[216px]">
+              <div class="flex justify-between">
+                <span class="text-gray-600 font-medium">Tipo:</span>
+                <span class="text-gray-800">{{ benefit.benefitType }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 font-medium">Cálculo:</span>
+                <span :class="['benefit-type-chip', getBenefitStyleClass(benefit.calculationType)]">{{ benefit.calculationType }}</span>
+              </div>
+              <div v-if="benefit.value" class="flex justify-between">
+                <span class="text-gray-600 font-medium">Valor:</span>
+                <span class="text-gray-800">₡{{ benefit.value.toLocaleString() }}</span>
+              </div>
+              <div v-if="benefit.percentage" class="flex justify-between">
+                <span class="text-gray-600 font-medium">Porcentaje:</span>
+                <span class="text-gray-800">{{ benefit.percentage }}%</span>
+              </div>
+
+              <!-- Employees using benefit -->
+              <div class="flex justify-between items-center">
+                <span class="text-gray-600 font-medium">Empleados:</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-800 font-semibold">{{ benefit.employeeCount }}</span>
+                  <span
+                    class="text-xs text-[#4a5568]"
+                    :title="`${benefit.usagePercentage.toFixed(1)}% de empleados usan este beneficio`"
+                  >
+                    ({{ benefit.usagePercentage.toFixed(1) }}%)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Selection Action Button -->
+              <div class="mt-4 w-full">
+                <button
+                  @click="deselectBenefit(benefit)"
+                  class="neumorphism-button-normal-dark w-full text-white!"
+                >
+                  Remover
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        <div v-else class="border-t border-gray-200 pt-3">
-          <p class="text-sm text-gray-500 italic">No hay beneficios seleccionados aún</p>
-        </div>
+
+
+
+
+
+
+
+
+
+
       </div>
+      <div v-else class="border-t border-gray-200 pt-3">
+        <p class="text-sm text-gray-500 italic">No hay beneficios seleccionados aún</p>
+      </div>
+
     </div>
 
+
+    <h2 class="text-xl font-semibold">Beneficios disponibles</h2>
+
     <!-- Search and Filters -->
-    <div class="mb-6 bg-white rounded-lg shadow-sm p-4">
+    <div class="">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Search Input -->
         <div class="md:col-span-2">
@@ -54,7 +129,7 @@
             v-model="searchTerm"
             type="text"
             placeholder="Buscar beneficios..."
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="neumorphism-input"
             @input="fetchBenefits"
           />
         </div>
@@ -63,7 +138,7 @@
         <div>
           <select
             v-model="selectedCalculationType"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="neumorphism-input neumorphism-input-select"
             @change="fetchBenefits"
           >
             <option value="">Todos los tipos</option>
@@ -88,24 +163,12 @@
     <!-- Benefits Grid -->
     <div v-if="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
-
+      <!-- Benefit Card -->
       <div
         v-for="benefit in filteredBenefits"
         :key="`${benefit.companyId}-${benefit.benefitName}`"
         class="neumorphism-card h-full space-y-[24px]"
-        :class="getBenefitCardClass(benefit)"
       >
-
-
-
-
-
-
-
-
-
-
-
         <!-- Card Header -->
         <div class="mb-2 w-full">
           <div class="w-full flex justify-between items-top">
@@ -119,16 +182,8 @@
                 <p class="text-gray-800 text-[16px] mt-1 benefit-description">No hay descripción disponible para este beneficio.</p>
               </div>
             </div>
-
-            <span
-              v-if="benefit.isSelected"
-              class="px-2 py-1 bg-green-500 rounded-full text-xs font-semibold"
-            >
-              Seleccionado
-            </span>
           </div>
         </div>
-
 
         <!-- Content card -->
         <div class="text-[18px] grid grid-cols-1 gap-auto h-[216px]">
@@ -165,26 +220,15 @@
 
           <!-- Selection Action Button -->
           <div class="mt-4 w-full">
-            
-            <div v-if="benefit.isSelected">
-              <button
-                @click="deselectBenefit(benefit)"
-                class="neumorphism-button-normal-dark w-full text-white!"
-              >
-                Remover
-              </button>
-            </div>
-            <div v-else>
-              <button
-                @click="showBenefitSelectionModal(benefit)"
-                :disabled="!canSelectMore || benefit.isDeleted"
-                class="neumorphism-button-normal-light w-full text-black!"
-                :class="(!canSelectMore || benefit.isDeleted) ? 'bg-gray-300 text-gray-600' : 'bg-[#4a5568] text-white hover:bg-[#374151]'"
-              >
-                <template v-if="benefit.isDeleted">No disponible</template>
-                <template v-else>{{ canSelectMore ? 'Agregar' : 'Límite alcanzado' }}</template>
-              </button>
-            </div>
+            <button
+              @click="showBenefitSelectionModal(benefit)"
+              :disabled="!canSelectMore || benefit.isDeleted"
+              class="neumorphism-button-normal-light w-full text-black!"
+              :class="(!canSelectMore || benefit.isDeleted) ? 'bg-gray-300 text-gray-600' : 'bg-[#4a5568] text-white hover:bg-[#374151]'"
+            >
+              <template v-if="benefit.isDeleted">No disponible</template>
+              <template v-else>{{ canSelectMore ? 'Agregar' : 'Límite alcanzado' }}</template>
+            </button>
           </div>
         </div>
       </div>
@@ -195,71 +239,75 @@
       <p class="text-gray-500 text-lg">No se encontraron beneficios con los filtros seleccionados</p>
     </div>
 
-    <!-- Benefit Selection Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">
-          Configurar {{ selectedBenefit?.benefitName }}
-        </h3>
-        
-        <!-- Seguro Privado Fields -->
-        <div v-if="selectedBenefit?.benefitName === 'Seguro privado'" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Número de Dependientes *
-            </label>
-            <input
-              v-model="benefitForm.NumDependents"
-              type="number"
-              min="0"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ej: 2"
-            />
-            <p class="text-sm text-gray-500 mt-1">Hermanos o familiares que debe cuidar</p>
+    <teleport to="body"> 
+      <!-- Benefit Selection Modal -->
+      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="neumorphism-card-modal p-6! shadow-none! max-w-lg">
+          <h3 class="text-lg font-bold text-gray-800 mb-4">
+            Configurar {{ selectedBenefit?.benefitName }}
+          </h3>
+          
+          <!-- Seguro Privado Fields -->
+          <div v-if="selectedBenefit?.benefitName === 'Seguro privado'" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Número de Dependientes *
+              </label>
+              <input
+                v-model="benefitForm.NumDependents"
+                type="number"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ej: 2"
+              />
+              <p class="text-sm text-gray-500 mt-1">Hermanos o familiares que debe cuidar</p>
+            </div>
           </div>
-        </div>
-
-        <!-- Pensiones Voluntarias Fields -->
-        <div v-if="selectedBenefit?.benefitName === 'Pensiones voluntarias'" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Tipo de Pensión *
-            </label>
-            <select
-              v-model="benefitForm.PensionType"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+  
+          <!-- Pensiones Voluntarias Fields -->
+          <div v-if="selectedBenefit?.benefitName === 'Pensiones voluntarias'" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tipo de Pensión *
+              </label>
+              <select
+                v-model="benefitForm.PensionType"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Seleccione el tipo de pensión</option>
+                <option value="A">Tipo A</option>
+                <option value="B">Tipo B</option>
+                <option value="C">Tipo C</option>
+              </select>
+            </div>
+          </div>
+  
+          <!-- Error Message -->
+          <div v-if="modalError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ modalError }}
+          </div>
+  
+          <!-- Modal Actions -->
+          <div class="flex justify-end mt-6 gap-3">
+            <button
+              @click="closeModal"
+              class="neumorphism-button-normal-light"
             >
-              <option value="">Seleccione el tipo de pensión</option>
-              <option value="A">Tipo A</option>
-              <option value="B">Tipo B</option>
-              <option value="C">Tipo C</option>
-            </select>
+              Cancelar
+            </button>
+            <button
+              @click="confirmBenefitSelection"
+              :disabled="!isFormValid"
+              class="neumorphism-button-normal-blue"
+            >
+              Confirmar
+            </button>
           </div>
-        </div>
-
-        <!-- Error Message -->
-        <div v-if="modalError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {{ modalError }}
-        </div>
-
-        <!-- Modal Actions -->
-        <div class="flex justify-end space-x-3 mt-6">
-          <button
-            @click="closeModal"
-            class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-          >
-            Cancelar
-          </button>
-          <button
-            @click="confirmBenefitSelection"
-            :disabled="!isFormValid"
-            class="px-4 py-2 bg-[#4a5568] text-white rounded-lg hover:bg-[#374151] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Confirmar
-          </button>
         </div>
       </div>
-    </div>
+    </teleport>
+
+
   </div>
 </template>
 
@@ -381,12 +429,36 @@ export default {
         this.loading = false
       }
     },
-    getBenefitCardClass(benefit) {
-      if (benefit.isSelected) {
-        return 'ring-2 ring-green-500 border-green-300'
+
+    async deselectBenefit(benefit) {
+      this.loading = true
+      this.error = null
+
+      try {
+        const response = await fetch(`${apiConfig.endpoints.employeeBenefitsDeselect(this.employeeId, benefit.benefitName)}`, {
+          method: 'DELETE'
+        })
+
+        const result = await response.json()
+
+        if (response.ok && result.success) {
+          this.benefitsData.currentSelections = result.currentSelections
+          this.benefitsData.maxSelections = result.maxSelections
+          await this.fetchBenefits()
+          this.$emit('success', result.message || 'Beneficio eliminado exitosamente')
+        } else {
+          this.error = result.message || 'Error al eliminar el beneficio'
+          this.$emit('error', this.error)
+        }
+      } catch (error) {
+        console.error('Error deselecting benefit:', error)
+        this.error = 'Error al eliminar el beneficio'
+        this.$emit('error', this.error)
+      } finally {
+        this.loading = false
       }
-      return ''
     },
+
     getCalculationTypeBadgeClass(type) {
       const classes = {
         'Monto Fijo': 'bg-blue-100 text-blue-800',
@@ -395,6 +467,7 @@ export default {
       }
       return classes[type] || 'bg-gray-100 text-gray-800'
     },
+
     showBenefitSelectionModal(benefit) {
       if (benefit.isDeleted) {
         return
@@ -407,6 +480,7 @@ export default {
       this.modalError = null
       this.showModal = true
     },
+
     closeModal() {
       this.showModal = false
       this.selectedBenefit = null
@@ -416,6 +490,7 @@ export default {
       }
       this.modalError = null
     },
+
     async confirmBenefitSelection() {
       if (!this.isFormValid) return
 
