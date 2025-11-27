@@ -1,52 +1,61 @@
 <template>
-  <div class="historical-payroll-report-container">
-    <div class="flex justify-end items-center mb-6">
-      <button
-        v-if="report && report.items && report.items.length > 0 && !loading"
-        @click="downloadExcelReport"
-        :disabled="downloadingExcel"
-        class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
-      >
-        <svg v-if="!downloadingExcel" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-        </svg>
-        <div v-else class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-        {{ downloadingExcel ? 'Descargando...' : 'Exportar Excel' }}
-      </button>
-    </div>
+  <div class="body p-0! m-0!">
 
     <!-- Filters Section -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="w-full">
       <h3 class="text-lg font-semibold mb-4">Filtros: Por fecha (fecha inicio y fecha final)</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
-          <input
-            v-model="filters.startDate"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @change="applyFilters"
-          />
+      <div class="flex flex-wrap gap-6 items-end">
+        <div class="flex flex-wrap gap-4 items-end flex-grow">
+          <div class="min-w-[200px]">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
+            <input
+              v-model="filters.startDate"
+              type="date"
+              class="neumorphism-input"
+              @change="applyFilters"
+            />
+          </div>
+          <div class="min-w-[200px]">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Final</label>
+            <input
+              v-model="filters.endDate"
+              type="date"
+              class="neumorphism-input"
+              @change="applyFilters"
+            />
+          </div>
+          <div class="flex-shrink-0">
+            <button
+              @click="clearFilters"
+              class="neumorphism-button-normal-light w-full whitespace-nowrap"
+            >
+              Limpiar Filtros
+            </button>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Final</label>
-          <input
-            v-model="filters.endDate"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @change="applyFilters"
-          />
-        </div>
-        <div class="flex items-end">
+
+        <div class="flex items-end justify-end flex-shrink-0 ml-auto">
           <button
-            @click="clearFilters"
-            class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+            v-if="report && report.items && report.items.length > 0 && !loading"
+            @click="downloadExcelReport"
+            :disabled="downloadingExcel"
+            class="neumorphism-button-normal-blue px-4 py-2 flex items-center gap-2"
           >
-            Limpiar Filtros
+            <svg v-if="!downloadingExcel" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <div v-else class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            {{ downloadingExcel ? 'Descargando...' : 'Exportar Excel' }}
           </button>
         </div>
       </div>
     </div>
+
+
+ 
+
+
+
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
@@ -65,9 +74,9 @@
     </div>
 
     <!-- Report Content -->
-    <div v-else class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div v-else class="space-y-6">
       <!-- Employee and Company Information -->
-      <div class="p-6 border-b">
+      <div class="neumorphism-card p-4!"> 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <p class="text-sm text-blue-600 italic mb-1">Nombre de la empresa</p>
@@ -75,83 +84,86 @@
             <p v-else class="text-base font-medium">{{ companyName || 'No disponible' }}</p>
           </div>
           <div>
-            <p class="text-sm text-blue-600 italic mb-1">Nombre completo del empleado</p>
+            <p class="text-sm text-blue-600 italic mb-1">Nombre del empleado</p>
             <p class="text-base font-medium">{{ employeeName || 'No disponible' }}</p>
           </div>
         </div>
       </div>
 
+
       <!-- Table -->
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-blue-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Tipo de contrato
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Posición
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Fecha de pago
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Salario Bruto
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Deducciones obligatorias empleado
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Deducciones voluntarias
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Salario neto
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="item in report.items" :key="item.payrollId" class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ item.contractType }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ item.position }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ formatDate(item.paymentDate) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(item.grossSalary) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(item.mandatoryEmployeeDeductions) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(item.voluntaryDeductions) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(item.netSalary) }}
-            </td>
-          </tr>
-          <!-- Total Row -->
-          <tr class="bg-gray-50 font-semibold">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" colspan="3">
-              Total
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(report.totals.totalGrossSalary) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(report.totals.totalMandatoryEmployeeDeductions) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(report.totals.totalVoluntaryDeductions) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ₡{{ formatCurrency(report.totals.totalNetSalary) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="neumorphism-table-wrapper overflow-x-auto">
+        <table class="neumorphism-table min-w-full divide-y divide-gray-200">
+          <thead class="bg-blue-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Tipo de contrato
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Posición
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Fecha de pago
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Salario Bruto
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Deducciones obligatorias empleado
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Deducciones voluntarias
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Salario neto
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="item in report.items" :key="item.payrollId" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ item.contractType }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ item.position }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ formatDate(item.paymentDate) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ₡{{ formatCurrency(item.grossSalary) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ₡{{ formatCurrency(item.mandatoryEmployeeDeductions) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ₡{{ formatCurrency(item.voluntaryDeductions) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ₡{{ formatCurrency(item.netSalary) }}
+              </td>
+            </tr>
+            <!-- Total Row -->
+            <tr class="bg-gray-50 font-semibold">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" colspan="3">
+                Total
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ₡{{ formatCurrency(report.totals.totalGrossSalary) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ₡{{ formatCurrency(report.totals.totalMandatoryEmployeeDeductions) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ₡{{ formatCurrency(report.totals.totalVoluntaryDeductions) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ₡{{ formatCurrency(report.totals.totalNetSalary) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

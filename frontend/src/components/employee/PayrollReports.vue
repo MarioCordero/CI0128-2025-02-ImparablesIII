@@ -1,6 +1,6 @@
 <template>
   <div class="body p-0! m-0!">
-    
+
     <!-- Report Type Selection (Initial View) -->
     <div v-if="!selectedReportType" class="neumorphism-card">
       <h2 class="text-lg font-semibold mb-4">Seleccione el tipo de reporte</h2>
@@ -9,7 +9,7 @@
           v-for="reportType in reportTypes"
           :key="reportType.id"
           @click="selectReportType(reportType)"
-          class="w-full md:w-auto px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-left"
+          class="neumorphism-button-normal-blue"
         >
           {{ reportType.name }}
         </button>
@@ -22,7 +22,7 @@
       <div class="mb-4">
         <button
           @click="goBackToReportTypeSelection"
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center"
+          class="neumorphism-button-normal-light"
         >
           ← Volver a selección de reporte
         </button>

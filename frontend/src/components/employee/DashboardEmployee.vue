@@ -35,13 +35,16 @@
           <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
         </div>
 
-        <div v-if="user" class="mt-[41px]">
-          <div class="neumorphism-card">
-            <p><span class="font-semibold">Nombre:</span> {{ user.nombre }} {{ user.segundoNombre }} {{ user.apellidos }}</p>
-            <p><span class="font-semibold">Correo:</span> {{ user.correo }}</p>
-            <p><span class="font-semibold">Departamento:</span> {{ user.departamento }}</p>
-            <p><span class="font-semibold">Puesto:</span> {{ user.puesto }}</p>
-            <p><span class="font-semibold">Tipo de Usuario:</span> {{ user.tipoUsuario }}</p>
+        <div class="mt-[41px]">
+          <DashboardData
+            v-if="user"
+            :employee-id="user.idPersona"
+            :user="user"
+            @navigate="handleNavigate"
+            @error="handleError"
+          />
+          <div v-else class="neumorphism-card">
+            <p class="text-gray-600">No pudimos cargar tu información. Intenta volver a iniciar sesión.</p>
           </div>
         </div>
       </div>
@@ -81,6 +84,12 @@
 
       <!-- Payroll Reports Section -->
       <div v-else-if="selectedSection === 'reports'">
+        <div class="space-y-[18px]">
+          <h1 class="text-4xl font-bold text-gray-800">Mis Reportes de Planilla</h1>
+          <p class="text-gray-600">Visualiza y descarga tus recibos de pago.</p>
+          <div class="w-full h-[10px] mt-2 rounded neumorphism-on-small-item"></div>
+        </div>
+
         <div class="mt-[41px]">
           <PayrollReports
             :employee-id="user?.idPersona"
@@ -99,8 +108,9 @@
 import EmployeeHeader from '../common/EmployeeHeader.vue'
 import DashboardEmployeeSubHeader from './DashboardEmployeeSubHeader.vue'
 import BenefitsSelectionView from './BenefitsSelectionView.vue'
-import PayrollReports from '../common/PayrollReports.vue'
+import PayrollReports from './PayrollReports.vue'
 import HoursRegistry from './HoursRegistry.vue'
+import DashboardData from './DashboardData.vue'
 
 export default {
   name: 'DashboardEmployee',
@@ -109,7 +119,8 @@ export default {
     DashboardEmployeeSubHeader,
     BenefitsSelectionView,
     PayrollReports,
-    HoursRegistry
+    HoursRegistry,
+    DashboardData
   },
   data() {
     return {
@@ -135,6 +146,9 @@ export default {
       setTimeout(() => {
         this.error = null
       }, 5000)
+    },
+    handleNavigate(section) {
+      this.selectedSection = section
     }
   },
   created() {
