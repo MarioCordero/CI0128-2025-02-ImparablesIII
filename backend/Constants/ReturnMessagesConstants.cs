@@ -51,6 +51,9 @@ namespace backend.Constants
             public const string ErrorUpdatingBenefit = "Error al actualizar el beneficio";
             public const string ErrorSelectingBenefit = "Error al seleccionar el beneficio";
             public const string ErrorValidatingSelection = "Error al validar la selección";
+            public const string ErrorDeletingBenefit = "Error al eliminar el beneficio";
+            public const string LogicalDeletionSuccess = "El beneficio fue desactivado porque ya existe en planillas generadas.";
+            public const string PhysicalDeletionSuccess = "El beneficio fue eliminado permanentemente.";
         }
 
         // Project Messages

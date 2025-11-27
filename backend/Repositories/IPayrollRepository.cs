@@ -20,6 +20,7 @@ namespace backend.Repositories
         // Payroll Insert Methods
         Task<int> InsertPayrollAsync(PayrollInsertDto payroll);
         Task InsertPayrollDetailsAsync(int payrollId, List<PayrollDetailInsertDto> details);
+        Task InsertPayrollBenefitsAsync(int payrollId, int companyId, IEnumerable<string> benefitNames);
 
         // Payroll summary
         Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId);

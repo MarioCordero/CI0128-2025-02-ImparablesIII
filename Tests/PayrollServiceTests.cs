@@ -140,15 +140,15 @@ namespace backend.Tests
             {
                 Deductions = new List<BenefitDeductionItemDto>
                 {
-                    new BenefitDeductionItemDto { Code = "BEN1", Amount = 2000, Role = DeductionRoleNames.EmployeeDeduction },
-                    new BenefitDeductionItemDto { Code = "BEN2", Amount = 3000, Role = DeductionRoleNames.EmployerDeduction },
+                    new BenefitDeductionItemDto { Code = "SEGURO_MEDICO_EE", Amount = 2000, Role = DeductionRoleNames.EmployeeDeduction },
+                    new BenefitDeductionItemDto { Code = "SEGURO_MEDICO_ER", Amount = 3000, Role = DeductionRoleNames.EmployerDeduction },
                 }
             };
             var emp101Benefits = new BenefitDeductionCalculationDto
             {
                 Deductions = new List<BenefitDeductionItemDto>
                 {
-                    new BenefitDeductionItemDto { Code = "BEN3", Amount = 1000, Role = DeductionRoleNames.EmployeeDeduction },
+                    new BenefitDeductionItemDto { Code = "PENSION_VOLUNTARIA_EE", Amount = 1000, Role = DeductionRoleNames.EmployeeDeduction },
                 }
             };
 
@@ -159,6 +159,18 @@ namespace backend.Tests
             // We shortcut by stubbing GetEmployerDeductionsAsync and rely on the service to compute employerResults.
             _repoMock.Setup(r => r.GetEmployerDeductionsAsync()).ReturnsAsync(new List<EmployerDeductionDto>());
             _repoMock.Setup(r => r.GetEmployeePositionsByCompanyAsync(companyId)).ReturnsAsync(new Dictionary<int, string>());
+            _employeeBenefitRepoMock
+                .Setup(r => r.GetSelectedBenefitsForEmployeeAsync(100, companyId))
+                .ReturnsAsync(new List<EmployeeBenefitDto>
+                {
+                    new EmployeeBenefitDto { BenefitName = "Seguro Medico", BenefitType = BenefitConstants.BenefitTypeDescuento, CalculationType = BenefitConstants.CalculationTypeFixedAmount }
+                });
+            _employeeBenefitRepoMock
+                .Setup(r => r.GetSelectedBenefitsForEmployeeAsync(101, companyId))
+                .ReturnsAsync(new List<EmployeeBenefitDto>
+                {
+                    new EmployeeBenefitDto { BenefitName = "Pension Voluntaria", BenefitType = BenefitConstants.BenefitTypeDescuento, CalculationType = BenefitConstants.CalculationTypeFixedAmount }
+                });
 
             // However, the service maps employer results by IdEmpleado; to make it deterministic, we will bypass by stubbing the second method used inside service
             // by returning employees and zero employer deductions so TotalEmployerDeductions remains as provided in employerResults replacement path below.
@@ -175,6 +187,9 @@ namespace backend.Tests
             _repoMock
                 .Setup(r => r.InsertPayrollDetailsAsync(insertedPayrollId, It.IsAny<List<PayrollDetailInsertDto>>()))
                 .Callback<int, List<PayrollDetailInsertDto>>((id, details) => capturedDetails = details)
+                .Returns(Task.CompletedTask);
+            _repoMock
+                .Setup(r => r.InsertPayrollBenefitsAsync(insertedPayrollId, companyId, It.IsAny<IEnumerable<string>>()))
                 .Returns(Task.CompletedTask);
 
             var resultId = await _service.GeneratePayrollWithBenefitsAsync(companyId, responsibleEmployeeId: 9, hours: 160);
@@ -203,8 +218,19 @@ namespace backend.Tests
             _repoMock.Verify(r => r.ExistsPayrollForMonthAsync(companyId, It.IsAny<int>(), It.IsAny<int>()), Times.Once);
             _repoMock.Verify(r => r.GetEmployeesForPayrollAsync(companyId), Times.Exactly(2)); // once for employee path, once for employer path
             _repoMock.Verify(r => r.GetEmployerDeductionsAsync(), Times.Once);
+            _employeeBenefitRepoMock.Verify(r => r.GetSelectedBenefitsForEmployeeAsync(100, companyId), Times.Once);
+            _employeeBenefitRepoMock.Verify(r => r.GetSelectedBenefitsForEmployeeAsync(101, companyId), Times.Once);
             _repoMock.Verify(r => r.InsertPayrollAsync(It.IsAny<PayrollInsertDto>()), Times.Once);
             _repoMock.Verify(r => r.InsertPayrollDetailsAsync(insertedPayrollId, It.IsAny<List<PayrollDetailInsertDto>>()), Times.Once);
+            _repoMock.Verify(
+                r => r.InsertPayrollBenefitsAsync(
+                    insertedPayrollId,
+                    companyId,
+                    It.Is<IEnumerable<string>>(names =>
+                        names.Count() == 2 &&
+                        names.Contains("Seguro Medico") &&
+                        names.Contains("Pension Voluntaria"))),
+                Times.Once);
             _benefitsMock.Verify(b => b.CalculateBenefitDeductionsAsync(100, companyId), Times.Once);
             _benefitsMock.Verify(b => b.CalculateBenefitDeductionsAsync(101, companyId), Times.Once);
         }

@@ -45,7 +45,7 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage, Descripcion
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage, Descripcion, IsDeleted
                 FROM PlaniFy.Beneficio
                 WHERE idEmpresa = @CompanyId AND Nombre = @Name";
 
@@ -65,8 +65,9 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor, Porcentaje, Descripcion
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor, Porcentaje, Descripcion, IsDeleted
                 FROM PlaniFy.Beneficio
+                WHERE IsDeleted = 0
                 ORDER BY idEmpresa, Nombre";
 
             var result = await connection.QueryAsync<Benefit>(query);
@@ -79,9 +80,9 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage, Descripcion
+                SELECT idEmpresa as CompanyId, Nombre as Name, TipoCalculo as CalculationType, Tipo as Type, Valor as Value, Porcentaje as Percentage, Descripcion, IsDeleted
                 FROM PlaniFy.Beneficio
-                WHERE idEmpresa = @CompanyId
+                WHERE idEmpresa = @CompanyId AND IsDeleted = 0
                 ORDER BY Nombre";
 
             var parameters = new
@@ -121,7 +122,7 @@ namespace backend.Repositories
             var query = @"
                 SELECT COUNT(1)
                 FROM PlaniFy.Beneficio
-                WHERE idEmpresa = @CompanyId";
+                WHERE idEmpresa = @CompanyId AND IsDeleted = 0";
 
             var parameters = new
             {
@@ -138,10 +139,10 @@ namespace backend.Repositories
             await connection.OpenAsync();
 
             var query = @"
-                SELECT b.idEmpresa as CompanyId, b.Nombre as Name, b.TipoCalculo as CalculationType, b.Tipo as Type, b.Valor as Value, b.Porcentaje as Percentage, b.Descripcion as Descripcion, e.Nombre as CompanyName
+                SELECT b.idEmpresa as CompanyId, b.Nombre as Name, b.TipoCalculo as CalculationType, b.Tipo as Type, b.Valor as Value, b.Porcentaje as Percentage, b.Descripcion as Descripcion, e.Nombre as CompanyName, b.IsDeleted
                 FROM PlaniFy.Beneficio b
                 INNER JOIN PlaniFy.Empresa e ON b.idEmpresa = e.Id
-                WHERE b.idEmpresa = @CompanyId
+                WHERE b.idEmpresa = @CompanyId AND b.IsDeleted = 0
                 ORDER BY b.Nombre";
 
             var parameters = new
@@ -191,6 +192,59 @@ namespace backend.Repositories
                 else
                     throw new Exception($"Error al actualizar beneficio: {ex.Message}");
             }
+        }
+
+        public async Task RemoveEmployeeAssociationsAsync(int companyId, string name)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                DELETE FROM PlaniFy.BeneficioEmpleado
+                WHERE idEmpresa = @CompanyId AND NombreBeneficio = @Name";
+
+            await connection.ExecuteAsync(query, new { CompanyId = companyId, Name = name });
+        }
+
+        public async Task<bool> HasPayrollAssociationsAsync(int companyId, string name)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                SELECT CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM PlaniFy.PlanillaBeneficio
+                    WHERE IdEmpresa = @CompanyId AND NombreBeneficio = @Name)
+                THEN 1 ELSE 0 END";
+
+            var exists = await connection.ExecuteScalarAsync<int>(query, new { CompanyId = companyId, Name = name });
+            return exists == 1;
+        }
+
+        public async Task MarkBenefitAsDeletedAsync(int companyId, string name)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                UPDATE PlaniFy.Beneficio
+                SET IsDeleted = 1
+                WHERE idEmpresa = @CompanyId AND Nombre = @Name";
+
+            await connection.ExecuteAsync(query, new { CompanyId = companyId, Name = name });
+        }
+
+        public async Task DeleteBenefitAsync(int companyId, string name)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                DELETE FROM PlaniFy.Beneficio
+                WHERE idEmpresa = @CompanyId AND Nombre = @Name";
+
+            await connection.ExecuteAsync(query, new { CompanyId = companyId, Name = name });
         }
     }
 }
