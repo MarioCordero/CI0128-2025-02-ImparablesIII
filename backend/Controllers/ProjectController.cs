@@ -45,7 +45,7 @@ namespace backend.Controllers
             }
         }
 
-        // GET projects by employer ID
+        // GET PROJECTS BY EMPLOYER ID
         [HttpGet("employer/{employerId}")]
         public async Task<ActionResult<List<ProjectResponseDTO>>> GetByEmployerId(int employerId)
         {

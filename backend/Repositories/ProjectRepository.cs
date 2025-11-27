@@ -360,7 +360,8 @@ namespace backend.Repositories
                     e.MaximoBeneficios,
                     e.idEmpleador
                 FROM PlaniFy.Empresa e
-                WHERE e.idEmpleador = @EmployerId";
+                WHERE e.idEmpleador = @EmployerId
+                AND e.Estado = 'Activo'";
 
             var results = await connection.QueryAsync(query, new { EmployerId = employerId });
             
@@ -402,7 +403,8 @@ namespace backend.Repositories
                     e.MaximoBeneficios,
                     e.idEmpleador
                 FROM PlaniFy.Empresa AS e
-                WHERE e.idEmpleador = @EmployerId";
+                WHERE e.idEmpleador = @EmployerId
+                AND e.Estado = 'Activo'";
 
             var results = await connection.QueryAsync(query, new { EmployerId = employerId });
             
