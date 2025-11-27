@@ -89,7 +89,7 @@
       </div>
 
       <!-- Delete Warning Modal -->
-      <WarningModal
+      <ProjectDeletionModal
         :is-visible="showDeleteModal"
         title="Eliminar Empresa"
         :message="`¿Estás seguro de que deseas eliminar la empresa '${project?.nombre}'? Esta acción eliminará PERMANENTEMENTE todos los datos asociados incluyendo: empleados, planillas, beneficios, reportes y configuraciones. Esta acción NO se puede deshacer.`"
@@ -112,14 +112,14 @@
 <script>
 import { apiConfig } from '../../../config/api.js'
 import EditCompanyModal from './EditCompanyModal.vue'
-import WarningModal from '../../common/WarningModal.vue'
+import ProjectDeletionModal from '../../common/ProjectDeletionModal.vue'
 
 
 export default {
   name: 'EditProjectInfo',
   components: { 
     EditCompanyModal, 
-    WarningModal 
+    ProjectDeletionModal 
   },
   data() {
     return {
@@ -162,25 +162,28 @@ export default {
         localStorage.setItem('selectedProject', JSON.stringify(updatedCompany))
       }
     },
-    async confirmDeleteCompany() {
+    async confirmDeleteCompany({ password, motivoBaja }) {
       try {
-        // TODO: CALL API TO DELETE COMPANY
-        // const response = await fetch(apiConfig.endpoints.project, {
-        //   method: 'DELETE',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({ id: this.project.id })
-        // })
-        // if (!response.ok) {
-        //   throw new Error('Error al eliminar la empresa')
-        // }
-        // localStorage.removeItem('selectedProject')
+        const UsuarioBajaId = Number(localStorage.getItem('employerId'))
+        if (!UsuarioBajaId) {
+          throw new Error('No se pudo identificar el usuario que elimina la empresa.')
+        }
+        const body = {
+          projectId: this.project.id,
+          UsuarioBajaId,
+          contrasena: password,
+          motivoBaja: motivoBaja || null
+        }
+        const response = await fetch(apiConfig.endpoints.deleteProject, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        })
+
+        if (!response.ok) throw new Error('Error al eliminar la empresa')
+        localStorage.removeItem('selectedProject')
         this.$router.push('/dashboard-main-employer')
-        // TODO: Show success notification
-        
       } catch (error) {
-        console.error('Error deleting company:', error)
         this.errorMessage = 'Error al eliminar la empresa. Inténtalo de nuevo.'
       } finally {
         this.showDeleteModal = false
