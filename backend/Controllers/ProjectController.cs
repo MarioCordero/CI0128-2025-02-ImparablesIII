@@ -136,12 +136,12 @@ namespace backend.Controllers
         // }
 
         // DELETE A PROJECT
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        [HttpDelete]
+        public async Task<ActionResult> Delete([FromBody] DeleteProjectRequestDto request)
         {
             try
             {
-                var success = await _projectService.DeleteProjectAsync(id);
+                var success = await _projectService.DeleteProjectAsync(request);
                 if (success)
                 {
                     return NoContent();

@@ -6,5 +6,6 @@ namespace backend.Services
     {
         Task<LoginResponseDto> AuthenticateAsync(LoginRequestDto loginRequest);
         Task<UserDataDto?> GetUserDataAsync(int idPersona);
+        bool VerifyPassword(string inputPassword, string storedHash);
     }
 }

@@ -264,13 +264,26 @@ namespace backend.Repositories
             return rowsAffected > 0;
         }
 
-        public async Task<bool> LogicalDeleteAsync(int id)
+        public async Task<bool> LogicalDeleteAsync(DeleteProjectRequestDto deleteProjectRequest)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
-            var query = "DELETE FROM PlaniFy.Empresa WHERE Id = @Id";
-            var rowsAffected = await connection.ExecuteAsync(query, new { Id = id });
+            var query = @"
+                UPDATE PlaniFy.Empresa
+                SET 
+                    Estado = 'Inactiva',
+                    FechaBaja = GETDATE(),
+                    MotivoBaja = @MotivoBaja,
+                    UsuarioBajaId = @UsuarioBajaId
+                WHERE Id = @Id";
+
+            var rowsAffected = await connection.ExecuteAsync(query, new 
+            { 
+                Id = deleteProjectRequest.ProjectId, 
+                MotivoBaja = deleteProjectRequest.MotivoBaja, 
+                UsuarioBajaId = deleteProjectRequest.UsuarioBajaId 
+            });
             return rowsAffected > 0;
         }
         
