@@ -1,20 +1,15 @@
 <template>
-  <div class="w-full min-h-screen bg-[#eaf6fd] p-6">
+  <div class="w-full min-h-screen bg-[#eaf6fd] p-6 flex flex-col items-center justify-center">
+    <h1 class="text-3xl font-bold mb-8 text-center w-full">Pago de planilla</h1>
+
     <div v-if="showSuccess" class="fixed top-4 right-4 bg-green-600 text-white px-4 py-3 rounded shadow-md z-50">
       {{ successMessage }}
     </div>
     <div v-if="error" class="fixed top-4 right-4 bg-red-600 text-white px-4 py-3 rounded shadow-md z-50">
       {{ error }}
     </div>
-    <h1 class="text-2xl font-bold mb-2">Reportes de planilla</h1>
-    <hr class="mb-6 border-[#c7e0f7]">
 
-    <button class="custom-button neumorphism-light mb-6 flex items-center gap-2" @click="onPayPayroll">
-      <span>💸</span>
-      Pagar planilla
-    </button>
-
-    <div class="flex gap-6 mb-8 flex-wrap mt-6">
+    <div class="flex gap-6 mb-8 flex-wrap mt-6 w-full max-w-3xl">
       <div class="neumorphism-card p-6 flex-1 flex flex-col items-start min-w-[260px] mb-4">
         <span class="text-xs text-gray-500 mb-1 flex items-center gap-1">
           Nómina Total Mensual
@@ -31,10 +26,19 @@
       </div>
     </div>
 
-    <div class="neumorphism-card p-6">
-      <h2 class="text-base font-semibold mb-1">Detalle de Planilla por Fecha</h2>
-      <p class="text-xs text-gray-500 mb-4">Desglose completo de salarios, deducciones y beneficios</p>
-      <div class="overflow-x-auto">
+    <button
+      class="custom-button neumorphism-light flex items-center gap-2 px-10 py-6 bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold rounded shadow transition-colors duration-200 mb-10"
+      @click="onPayPayroll"
+      :disabled="loading"
+    >
+      <span>💸</span>
+      Pagar planilla
+    </button>
+
+    <div class="neumorphism-card p-8 w-full max-w-5xl mt-4">
+      <h2 class="text-xl font-semibold mb-2 w-full">Última planilla generada</h2>
+      <p class="text-xs text-gray-500 mb-4">Desglose de la última planilla creada</p>
+      <div v-if="lastPayroll">
         <table class="min-w-full text-sm text-left">
           <thead>
             <tr class="bg-[#eaf6fd]">
@@ -47,17 +51,19 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in history" :key="row.payrollId" class="border-t border-[#e0e0e0] hover:bg-[#f4fbff]">
-              <td class="py-2 px-4">{{ formatDate(row.fechaGeneracion) }}</td>
-              <td class="py-2 px-4">₡{{ formatNumber(row.totalGross) }}</td>
-              <td class="py-2 px-4">₡{{ formatNumber(row.totalEmployerDeductions) }}</td>
-              <td class="py-2 px-4">₡{{ formatNumber(row.totalEmployeeDeductions) }}</td>
-              <td class="py-2 px-4 text-blue-600 font-semibold">₡{{ formatNumber(row.totalBenefits) }}</td>
-              <td class="py-2 px-4">₡{{ formatNumber(row.totalNet) }}</td>
+            <tr>
+              <td class="py-2 px-4">{{ formatDate(lastPayroll.fechaGeneracion) }}</td>
+              <td class="py-2 px-4">₡{{ formatNumber(lastPayroll.totalGross) }}</td>
+              <td class="py-2 px-4">₡{{ formatNumber(lastPayroll.totalEmployerDeductions) }}</td>
+              <td class="py-2 px-4">₡{{ formatNumber(lastPayroll.totalEmployeeDeductions) }}</td>
+              <td class="py-2 px-4 text-blue-600 font-semibold">₡{{ formatNumber(lastPayroll.totalBenefits) }}</td>
+              <td class="py-2 px-4">₡{{ formatNumber(lastPayroll.totalNet) }}</td>
             </tr>
-            <tr class="h-8"></tr>
           </tbody>
         </table>
+      </div>
+      <div v-else class="text-gray-500 text-center py-8">
+        No hay planillas generadas aún.
       </div>
     </div>
   </div>
@@ -80,6 +86,11 @@ export default {
       showSuccess: false,
       successMessage: ''
     };
+  },
+  computed: {
+    lastPayroll() {
+      return this.history && this.history.length > 0 ? this.history[0] : null;
+    }
   },
   methods: {
     setError(message) {

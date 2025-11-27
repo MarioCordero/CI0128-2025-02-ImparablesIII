@@ -31,23 +31,45 @@
         </button>
       </div>
 
-      <!-- Current Payroll Report Component (Employee only) -->
+      <!-- Employee: Current Payroll Report -->
       <CurrentPayrollReport
         v-if="selectedReportType.id === 'pago-planilla' && userType === 'employee'"
         :employee-id="employeeId"
         @error="handleError"
       />
 
-      <!-- Historical Payroll Report Component (Employee only) -->
+      <!-- Employee: Historical Payroll Report -->
       <HistoricalPayrollReport
         v-if="selectedReportType.id === 'historico-pago-planilla' && userType === 'employee'"
         :employee-id="employeeId"
         @error="handleError"
       />
 
-      <!-- Employer Payroll Reports Component -->
+      <!-- Employer: Company Payroll Report -->
       <EmployerPayrollReports
-        v-if="userType === 'employer'"
+        v-if="selectedReportType.id === 'company-payroll-reports' && userType === 'employer'"
+        @error="handleError"
+      />
+
+      <!-- Employer: Employee Payroll Report -->
+      <div v-if="selectedReportType.id === 'employee-payroll-report' && userType === 'employer'">
+        <label class="block mb-2 font-semibold">Seleccione un empleado:</label>
+        <select v-model="selectedEmployee" class="mb-4 px-4 py-2 rounded border">
+          <option disabled value="">Seleccione...</option>
+          <option v-for="emp in employees" :key="emp.id" :value="emp.id">
+            {{ emp.nombre }}
+          </option>
+        </select>
+        <CurrentPayrollReport
+          v-if="selectedEmployee"
+          :employee-id="selectedEmployee"
+          @error="handleError"
+        />
+      </div>
+
+      <!-- Employer: Payroll History Report -->
+      <EmployerPayrollHistory
+        v-if="selectedReportType.id === 'employer-payroll-history' && userType === 'employer'"
         @error="handleError"
       />
     </div>
@@ -57,14 +79,14 @@
 <script>
 import CurrentPayrollReport from '../employee/CurrentPayrollReport.vue'
 import HistoricalPayrollReport from '../employee/HistoricalPayrollReport.vue'
-import EmployerPayrollReports from '../employer/projectDashboard/PayrollPayment.vue'
+import EmployerPayrollHistory from '../employer/projectDashboard/EmployerPayrollHistory.vue'
 
 export default {
   name: 'PayrollReports',
   components: {
     CurrentPayrollReport,
     HistoricalPayrollReport,
-    EmployerPayrollReports
+    EmployerPayrollHistory
   },
   props: {
     employeeId: {
@@ -81,7 +103,9 @@ export default {
   },
   data() {
     return {
-      selectedReportType: null
+      selectedReportType: null,
+      selectedEmployee: '',
+      employees: []
     }
   },
   computed: {
@@ -99,12 +123,15 @@ export default {
       if (this.userType === 'employer') {
         return [
           {
-            id: 'company-payroll-reports',
-            name: 'REPORTE DE PLANILLA DE EMPRESA'
+            id: 'employee-payroll-report',
+            name: 'REPORTE DE PLANILLA POR EMPLEADO'
+          },
+          {
+            id: 'employer-payroll-history',
+            name: 'HISTORIAL DE PLANILLAS'
           }
         ]
       }
-      
       return [
         {
           id: 'pago-planilla',
@@ -120,14 +147,27 @@ export default {
   methods: {
     selectReportType(reportType) {
       this.selectedReportType = reportType
+      if (reportType.id === 'employee-payroll-report' && this.userType === 'employer') {
+        this.fetchEmployees()
+      }
     },
     goBackToReportTypeSelection() {
       this.selectedReportType = null
+      this.selectedEmployee = ''
     },
     handleError(error) {
       this.$emit('error', error)
+    },
+    async fetchEmployees() {
+      // Placeholder: Replace with your endpoint call
+      // Example:
+      // const res = await fetch('/api/Employee/company/{companyId}');
+      // this.employees = await res.json();
+      this.employees = [
+        { id: 1, nombre: 'Empleado 1' },
+        { id: 2, nombre: 'Empleado 2' }
+      ]
     }
   }
 }
 </script>
-
