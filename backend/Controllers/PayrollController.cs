@@ -79,5 +79,15 @@ namespace backend.Controllers
             return Ok(history);
         }
 
+        // GET EMPLOYEES FOR PAYROLL
+        [HttpGet("{payrollId}/employees")]
+        public async Task<ActionResult<List<EmployeePayrollDto>>> GetEmployeesForPayroll(int payrollId)
+        {
+            if (payrollId <= 0)
+                return BadRequest("ID de planilla inválido");
+
+            var employees = await _service.GetEmployeesForPayrollAsync(payrollId);
+            return Ok(employees);
+        }
     }
 }

@@ -134,6 +134,11 @@ namespace backend.Services
             return report;
         }
 
+        public async Task<List<EmployeePayrollDto>> GetEmployeesForPayrollAsync(int payrollId)
+        {
+            return await _repo.GetEmployeesForPayrollAsync(payrollId);
+        }
+
         private EmployeeDeductionResult CalculateEmployeeDeductions(EmployeePayrollDto employee, List<EmployeeDeductionDto> deductions)
         {
             var deductionLines = new List<EmployeeDeductionLineDto>();
