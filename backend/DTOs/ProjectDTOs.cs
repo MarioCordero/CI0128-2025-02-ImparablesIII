@@ -164,4 +164,19 @@ namespace backend.DTOs
         public int EmployeeCount { get; set; }
         public decimal TotalSalary { get; set; }
     }
+    
+    public class DeleteProjectRequestDto
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("projectId")]
+        public int ProjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("UsuarioBajaId")]
+        public int UsuarioBajaId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("contrasena")]
+        public string Contrasena { get; set; } = string.Empty;
+        
+        [System.Text.Json.Serialization.JsonPropertyName("motivoBaja")]
+        public string? MotivoBaja { get; set; }
+    }
 }

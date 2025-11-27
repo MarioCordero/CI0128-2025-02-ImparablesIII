@@ -10,14 +10,18 @@ namespace backend.Services
         private readonly IDirectionRepository _directionRepository;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IPayrollRepository _payrollRepository;
+        private readonly ILoginService _loginService;
         private readonly ILogger<ProjectService> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository, IEmployeeRepository employeeRepository, IPayrollRepository payrollRepository, ILogger<ProjectService> logger)
+        public ProjectService(IProjectRepository projectRepository, IDirectionRepository direccionRepository, IEmployeeRepository employeeRepository, IPayrollRepository payrollRepository, ILoginService loginService, ILogger<ProjectService> logger, IUsuarioRepository usuarioRepository)
         {
             _projectRepository = projectRepository;
             _directionRepository = direccionRepository;
             _employeeRepository = employeeRepository;
             _payrollRepository = payrollRepository;
+            _loginService = loginService;
+            _usuarioRepository = usuarioRepository;
             _logger = logger;
         }
 
@@ -181,25 +185,29 @@ namespace backend.Services
         }
 
         // DELETE A PROJECT BY ID
-        public async Task<bool> DeleteProjectAsync(int id)
+        public async Task<bool> DeleteProjectAsync(DeleteProjectRequestDto deleteProjectRequest)
         {
-            if (!await _projectRepository.ExistsAsync(id))
-            {
+            var user = await _usuarioRepository.GetUserByIdAsync(deleteProjectRequest.UsuarioBajaId);
+            if (user == null)
+                throw new Exception("Usuario no encontrado.");
+
+            if (!_loginService.VerifyPassword(deleteProjectRequest.Contrasena, user.Contrasena))
+                throw new Exception("Contraseña incorrecta.");
+
+            if (!await _projectRepository.ExistsAsync(deleteProjectRequest.ProjectId))
                 throw new Exception("Error al eliminar la empresa porque no existe.");
-            }
-            if (await _projectRepository.CountActiveEmployeesAsync(id) > 0)
-            {
+
+            if (await _projectRepository.CountActiveEmployeesAsync(deleteProjectRequest.ProjectId) > 0)
                 throw new Exception("Error al eliminar la empresa porque tiene empleados activos.");
-            }
-            var payrolls = await _payrollRepository.GetPayrollHistoryByCompanyAsync(id);
+
+            var payrolls = await _payrollRepository.GetPayrollHistoryByCompanyAsync(deleteProjectRequest.ProjectId);
             if (payrolls != null && payrolls.Any())
             {
                 // LOGICAL DELETE
-                return await _projectRepository.LogicalDeleteAsync(id);
+                return await _projectRepository.LogicalDeleteAsync(deleteProjectRequest);
             }
             // PHYSICAL DELETE
-            return await _projectRepository.PhysicalDeleteAsync(id);
-            
+            return await _projectRepository.PhysicalDeleteAsync(deleteProjectRequest.ProjectId);
         }
 
         public async Task<bool> ExistsByLegalIdAsync(string legalId)

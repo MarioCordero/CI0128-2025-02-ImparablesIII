@@ -22,7 +22,7 @@ namespace backend.Repositories
         Task<bool> UpdateDireccionAsync(int id, DirectionDTO direccion);
 
         Task<bool> PhysicalDeleteAsync(int id);
-        Task<bool> LogicalDeleteAsync(int id);
+        Task<bool> LogicalDeleteAsync(DeleteProjectRequestDto deleteProjectRequest);
 
         Task<bool> ExistsByNameAsync(string nombre);
         Task<bool> ExistsByEmailAsync(string email);
