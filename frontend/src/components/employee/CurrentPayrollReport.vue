@@ -1,36 +1,7 @@
 <template>
   <div class="current-payroll-report-container">
     <!-- Filters Section -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-lg font-semibold mb-4">Seleccione el periodo</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Reporte</label>
-          <select
-            v-model="selectedReportId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @change="applyReportFilter"
-          >
-            <option :value="null">Últimos 10 reportes</option>
-            <option
-              v-for="report in allReports"
-              :key="report.payrollId"
-              :value="report.payrollId"
-            >
-              {{ formatPeriod(report) }}
-            </option>
-          </select>
-        </div>
-        <div class="flex items-end">
-          <button
-            @click="clearFilters"
-            class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
-          >
-            Limpiar Filtros
-          </button>
-        </div>
-      </div>
-    </div>
+
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
