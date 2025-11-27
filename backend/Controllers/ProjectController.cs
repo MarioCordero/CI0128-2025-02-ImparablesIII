@@ -96,7 +96,7 @@ namespace backend.Controllers
         }
 
         // CREATE A NEW PROJECT
-        [HttpPost("createProject")]
+        [HttpPost("create-project")]
         public async Task<ActionResult<int>> Create([FromBody] CreateProjectDto projectDto)
         {
             try
@@ -115,7 +115,7 @@ namespace backend.Controllers
         }
 
         // DELETE A PROJECT
-        [HttpDelete("deleteProject")]
+        [HttpDelete("delete-project")]
         public async Task<ActionResult> Delete([FromBody] DeleteProjectRequestDto request)
         {
             try

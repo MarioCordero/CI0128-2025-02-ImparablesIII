@@ -24,11 +24,12 @@ export const apiConfig = {
     
     // Project endpoints
     projectDirection: (directionId) => `${API_BASE_URL}/api/Project/direction/${directionId}`,
-    createProject: `${API_BASE_URL}/api/Project`,
+    createProject: `${API_BASE_URL}/api/Project/create-project`,
     projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
     byCompany: (companyId) => `${API_BASE_URL}/api/Project/by-company/${companyId}`,
     updateProject: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
     projectEmployeeCount: (companyId) => `${API_BASE_URL}/api/Project/${companyId}/employees/count`,
+    deleteProject: `${API_BASE_URL}/api/Project/delete-project`,
     
     // Work-hours endpoints
     hours: `${API_BASE_URL}/api/hours`,
