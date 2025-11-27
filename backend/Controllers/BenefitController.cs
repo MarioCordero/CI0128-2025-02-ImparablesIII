@@ -139,6 +139,26 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorUpdatingBenefit, error = ex.Message });
             }
         }
+
+        [HttpDelete("company/{companyId}/benefit/{name}")]
+        public async Task<ActionResult<DeleteBenefitResponseDto>> Delete(int companyId, string name)
+        {
+            try
+            {
+                var result = await _benefitService.DeleteBenefitAsync(companyId, name);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Benefit not found for deletion: {Name} - {CompanyId}", name, companyId);
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting benefit {Name} for company {CompanyId}", name, companyId);
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorDeletingBenefit, error = ex.Message });
+            }
+        }
     }
 
 }

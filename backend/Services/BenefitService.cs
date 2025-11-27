@@ -1,3 +1,4 @@
+using backend.Constants;
 using backend.DTOs;
 using backend.Models;
 using backend.Repositories;
@@ -56,7 +57,8 @@ namespace backend.Services
                 CompanyName = companyName,
                 Value = benefit.Value,
                 Percentage = benefit.Percentage,
-                Descripcion = benefit.Descripcion
+                Descripcion = benefit.Descripcion,
+                IsDeleted = benefit.IsDeleted
             };
         }
 
@@ -77,7 +79,8 @@ namespace backend.Services
                     CompanyName = company?.Nombre ?? "Empresa no encontrada",
                     Value = benefit.Value,
                     Percentage = benefit.Percentage,
-                    Descripcion = benefit.Descripcion
+                    Descripcion = benefit.Descripcion,
+                    IsDeleted = benefit.IsDeleted
                 });
             }
 
@@ -98,7 +101,7 @@ namespace backend.Services
         public async Task<BenefitResponseDto?> GetBenefitByIdAsync(int companyId, string name)
         {
             var benefit = await _benefitRepository.GetByIdAsync(companyId, name);
-            if (benefit == null)
+            if (benefit == null || benefit.IsDeleted)
             {
                 return null;
             }
@@ -113,7 +116,8 @@ namespace backend.Services
                 CompanyName = company?.Nombre ?? "Empresa no encontrada",
                 Value = benefit.Value,
                 Percentage = benefit.Percentage,
-                Descripcion = benefit.Descripcion
+                Descripcion = benefit.Descripcion,
+                IsDeleted = benefit.IsDeleted
             };
         }
 
@@ -167,7 +171,8 @@ namespace backend.Services
                         CompanyName = company?.Nombre ?? "Empresa no encontrada",
                         Value = updatedBenefit.Value,
                         Percentage = updatedBenefit.Percentage,
-                        Descripcion = updatedBenefit.Descripcion
+                        Descripcion = updatedBenefit.Descripcion,
+                        IsDeleted = updatedBenefit.IsDeleted
                     }
                 };
             }
@@ -189,6 +194,38 @@ namespace backend.Services
                     Message = $"Error al actualizar: {ex.Message}"
                 };
             }
+        }
+
+        public async Task<DeleteBenefitResponseDto> DeleteBenefitAsync(int companyId, string name)
+        {
+            var benefit = await _benefitRepository.GetByIdAsync(companyId, name);
+            if (benefit == null || benefit.IsDeleted)
+            {
+                throw new ArgumentException(ReturnMessagesConstants.Benefit.BenefitNotFound);
+            }
+
+            var hasPayrollAssociations = await _benefitRepository.HasPayrollAssociationsAsync(companyId, name);
+
+            await _benefitRepository.RemoveEmployeeAssociationsAsync(companyId, name);
+
+            if (hasPayrollAssociations)
+            {
+                await _benefitRepository.MarkBenefitAsDeletedAsync(companyId, name);
+                return new DeleteBenefitResponseDto
+                {
+                    Success = true,
+                    IsLogicalDeletion = true,
+                    Message = ReturnMessagesConstants.Benefit.LogicalDeletionSuccess
+                };
+            }
+
+            await _benefitRepository.DeleteBenefitAsync(companyId, name);
+            return new DeleteBenefitResponseDto
+            {
+                Success = true,
+                IsLogicalDeletion = false,
+                Message = ReturnMessagesConstants.Benefit.PhysicalDeletionSuccess
+            };
         }
     }
 }

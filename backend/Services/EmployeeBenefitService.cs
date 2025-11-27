@@ -1,5 +1,7 @@
 using backend.DTOs;
 using backend.Repositories;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace backend.Services
 {
@@ -26,7 +28,9 @@ namespace backend.Services
                 _logger.LogInformation("Getting benefits for employee {EmployeeId} in company {CompanyId}", employeeId, companyId);
 
                 // Use the optimized stored procedure method instead of multiple calls
-                return await _employeeBenefitRepository.GetEmployeeBenefitsSummaryAsync(employeeId, companyId, filter);
+                var summary = await _employeeBenefitRepository.GetEmployeeBenefitsSummaryAsync(employeeId, companyId, filter);
+                await RemoveDeletedBenefitsFromSummaryAsync(companyId, summary);
+                return summary;
             }
             catch (Exception ex)
             {
@@ -96,6 +100,11 @@ namespace backend.Services
                 return CreateErrorResponse("El beneficio no existe");
             }
 
+            if (benefit.IsDeleted)
+            {
+                return CreateErrorResponse("El beneficio ya no está disponible");
+            }
+
             var isSelected = await _employeeBenefitRepository.IsBenefitSelectedAsync(employeeId, companyId, request.BenefitName);
             if (isSelected)
             {
@@ -126,12 +135,45 @@ namespace backend.Services
             {
                 throw new InvalidOperationException($"Benefit {benefitName} not found");
             }
+            if (benefit.IsDeleted)
+            {
+                throw new InvalidOperationException($"Benefit {benefitName} is no longer available");
+            }
             return benefit;
         }
 
         private async Task<(bool Success, string Message)> AddBenefitAsync(int employeeId, int companyId, string benefitName, string benefitType, int? NumDependents = null, string? PensionType = null)
         {
             return await _employeeBenefitRepository.AddBenefitToEmployeeAsync(employeeId, companyId, benefitName, benefitType, NumDependents, PensionType);
+        }
+
+        private async Task RemoveDeletedBenefitsFromSummaryAsync(int companyId, EmployeeBenefitsSummaryDto summary)
+        {
+            var activeBenefits = await _benefitRepository.GetByCompanyIdAsync(companyId);
+            if (activeBenefits == null || activeBenefits.Count == 0)
+            {
+                summary.AvailableBenefits = new List<EmployeeBenefitDto>();
+                summary.SelectedBenefits = new List<EmployeeBenefitDto>();
+                return;
+            }
+
+            var activeBenefitNames = new HashSet<string>(activeBenefits.Select(b => b.Name), StringComparer.OrdinalIgnoreCase);
+
+            var filteredAvailable = summary.AvailableBenefits
+                .Where(b => activeBenefitNames.Contains(b.BenefitName))
+                .ToList();
+
+            var filteredSelected = summary.SelectedBenefits
+                .Where(b => activeBenefitNames.Contains(b.BenefitName))
+                .ToList();
+
+            if (filteredAvailable.Count != summary.AvailableBenefits.Count || filteredSelected.Count != summary.SelectedBenefits.Count)
+            {
+                _logger.LogInformation("Filtered logically deleted benefits for company {CompanyId}", companyId);
+            }
+
+            summary.AvailableBenefits = filteredAvailable;
+            summary.SelectedBenefits = filteredSelected;
         }
 
         private async Task<EmployeeBenefitSelectionResponseDto> CreateSuccessResponseAsync(int employeeId, int companyId)
