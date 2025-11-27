@@ -42,6 +42,7 @@ namespace backend.DTOs
         public int? Value { get; set; }
         public int? Percentage { get; set; }
         public string? Descripcion { get; set; }
+        public bool IsDeleted { get; set; }
     }
 
     public class BenefitListDto
@@ -71,6 +72,13 @@ namespace backend.DTOs
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
         public BenefitResponseDto? UpdatedBenefit { get; set; }
+    }
+
+    public class DeleteBenefitResponseDto
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public bool IsLogicalDeletion { get; set; }
     }
 
 }

@@ -4,6 +4,7 @@ using backend.Services;
 using backend.Repositories;
 using backend.DTOs;
 using backend.Models;
+using backend.Constants;
 
 namespace backend.Tests
 {
@@ -69,6 +70,7 @@ namespace backend.Tests
             Assert.AreEqual("Test Company", result.CompanyName);
             Assert.AreEqual(10, result.Percentage);
             Assert.IsNull(result.Value);
+            Assert.IsFalse(result.IsDeleted);
 
             _mockProjectRepository.Verify(x => x.ExistsAsync(1), Times.Once);
             _mockBenefitRepository.Verify(x => x.ExistsAsync(1, "Vacaciones"), Times.Once);
@@ -182,6 +184,8 @@ namespace backend.Tests
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual("Company 1", result[0].CompanyName);
             Assert.AreEqual("Company 2", result[1].CompanyName);
+            Assert.IsFalse(result[0].IsDeleted);
+            Assert.IsFalse(result[1].IsDeleted);
 
             _mockBenefitRepository.Verify(x => x.GetAllAsync(), Times.Once);
             _mockProjectRepository.Verify(x => x.GetByIdAsync(1), Times.Once);
@@ -236,6 +240,7 @@ namespace backend.Tests
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual("Vacaciones", result[0].Name);
+            Assert.IsFalse(result[0].IsDeleted);
 
             _mockProjectRepository.Verify(x => x.ExistsAsync(companyId), Times.Once);
             _mockBenefitRepository.Verify(x => x.GetBenefitsWithCompanyNameAsync(companyId), Times.Once);
@@ -285,6 +290,7 @@ namespace backend.Tests
             Assert.IsNotNull(result);
             Assert.AreEqual("Vacaciones", result.Name);
             Assert.AreEqual("Test Company", result.CompanyName);
+            Assert.IsFalse(result.IsDeleted);
 
             _mockBenefitRepository.Verify(x => x.GetByIdAsync(companyId, name), Times.Once);
             _mockProjectRepository.Verify(x => x.GetByIdAsync(companyId), Times.Once);
@@ -315,7 +321,8 @@ namespace backend.Tests
             var benefit = new Benefit
             {
                 CompanyId = 1,
-                Name = "Vacaciones"
+                Name = "Vacaciones",
+                IsDeleted = false
             };
 
             _mockBenefitRepository.Setup(x => x.GetByIdAsync(companyId, name)).ReturnsAsync(benefit);
@@ -325,6 +332,72 @@ namespace backend.Tests
             var result = await _benefitService.GetBenefitByIdAsync(companyId, name);
 
             Assert.AreEqual("Empresa no encontrada", result.CompanyName);
+            Assert.IsFalse(result.IsDeleted);
+
+        }
+
+
+        [TestMethod]
+        public async Task GetBenefitByIdAsync_BenefitDeleted_ReturnsNull()
+        {
+            var benefit = new Benefit { CompanyId = 1, Name = "Vacaciones", IsDeleted = true };
+            _mockBenefitRepository.Setup(x => x.GetByIdAsync(1, "Vacaciones")).ReturnsAsync(benefit);
+
+            var result = await _benefitService.GetBenefitByIdAsync(1, "Vacaciones");
+
+            Assert.IsNull(result);
+        }
+        [TestMethod]
+        public async Task DeleteBenefitAsync_WithPayrollAssociations_PerformsLogicalDelete()
+        {
+            var companyId = 1;
+            var benefitName = "Seguro";
+            var benefit = new Benefit { CompanyId = companyId, Name = benefitName, IsDeleted = false };
+
+            _mockBenefitRepository.Setup(x => x.GetByIdAsync(companyId, benefitName)).ReturnsAsync(benefit);
+            _mockBenefitRepository.Setup(x => x.HasPayrollAssociationsAsync(companyId, benefitName)).ReturnsAsync(true);
+
+            var result = await _benefitService.DeleteBenefitAsync(companyId, benefitName);
+
+            Assert.IsTrue(result.Success);
+            Assert.IsTrue(result.IsLogicalDeletion);
+            Assert.AreEqual(ReturnMessagesConstants.Benefit.LogicalDeletionSuccess, result.Message);
+
+            _mockBenefitRepository.Verify(x => x.RemoveEmployeeAssociationsAsync(companyId, benefitName), Times.Once);
+            _mockBenefitRepository.Verify(x => x.MarkBenefitAsDeletedAsync(companyId, benefitName), Times.Once);
+            _mockBenefitRepository.Verify(x => x.DeleteBenefitAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task DeleteBenefitAsync_WithoutPayrollAssociations_PerformsPhysicalDelete()
+        {
+            var companyId = 2;
+            var benefitName = "Pension";
+            var benefit = new Benefit { CompanyId = companyId, Name = benefitName, IsDeleted = false };
+
+            _mockBenefitRepository.Setup(x => x.GetByIdAsync(companyId, benefitName)).ReturnsAsync(benefit);
+            _mockBenefitRepository.Setup(x => x.HasPayrollAssociationsAsync(companyId, benefitName)).ReturnsAsync(false);
+
+            var result = await _benefitService.DeleteBenefitAsync(companyId, benefitName);
+
+            Assert.IsTrue(result.Success);
+            Assert.IsFalse(result.IsLogicalDeletion);
+            Assert.AreEqual(ReturnMessagesConstants.Benefit.PhysicalDeletionSuccess, result.Message);
+
+            _mockBenefitRepository.Verify(x => x.RemoveEmployeeAssociationsAsync(companyId, benefitName), Times.Once);
+            _mockBenefitRepository.Verify(x => x.DeleteBenefitAsync(companyId, benefitName), Times.Once);
+            _mockBenefitRepository.Verify(x => x.MarkBenefitAsDeletedAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task DeleteBenefitAsync_BenefitNotFound_ThrowsArgumentException()
+        {
+            _mockBenefitRepository.Setup(x => x.GetByIdAsync(1, "Seguro")).ReturnsAsync((Benefit?)null);
+
+            var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => _benefitService.DeleteBenefitAsync(1, "Seguro"));
+            Assert.AreEqual(ReturnMessagesConstants.Benefit.BenefitNotFound, ex.Message);
+
+            _mockBenefitRepository.Verify(x => x.RemoveEmployeeAssociationsAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
         }
 
         // ------------------------------

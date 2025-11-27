@@ -37,7 +37,9 @@ namespace backend.Repositories
             var result = await connection.QueryAsync<dynamic>("PlaniFy.GetEmployeeBenefitsSummary", parameters, commandType: System.Data.CommandType.StoredProcedure);
             var benefits = MapBenefitsFromStoredProcedure(result);
             
-            return benefits.Where(b => !b.IsSelected).ToList();
+            return benefits
+                .Where(b => !b.IsSelected && !b.IsDeleted)
+                .ToList();
         }
 
         public async Task<List<EmployeeBenefitDto>> GetSelectedBenefitsForEmployeeAsync(int employeeId, int companyId)
@@ -137,14 +139,16 @@ namespace backend.Repositories
             using var multi = await connection.QueryMultipleAsync("PlaniFy.GetEmployeeBenefitsSummary", parameters, commandType: System.Data.CommandType.StoredProcedure);
             
             var benefits = MapBenefitsFromStoredProcedure(await multi.ReadAsync());
+            var availableBenefits = benefits.Where(b => !b.IsSelected && !b.IsDeleted).ToList();
+            var selectedBenefits = benefits.Where(b => b.IsSelected).ToList();
             
             if (multi.IsConsumed)
             {
                 _logger.LogWarning("Second result set is consumed");
                 return new EmployeeBenefitsSummaryDto
                 {
-                    AvailableBenefits = benefits.Where(b => !b.IsSelected).ToList(),
-                    SelectedBenefits = benefits.Where(b => b.IsSelected).ToList(),
+                    AvailableBenefits = availableBenefits,
+                    SelectedBenefits = selectedBenefits,
                     CurrentSelections = 0,
                     MaxSelections = 0
                 };
@@ -161,8 +165,8 @@ namespace backend.Repositories
 
             return new EmployeeBenefitsSummaryDto
             {
-                AvailableBenefits = benefits.Where(b => !b.IsSelected).ToList(),
-                SelectedBenefits = benefits.Where(b => b.IsSelected).ToList(),
+                AvailableBenefits = availableBenefits,
+                SelectedBenefits = selectedBenefits,
                 CurrentSelections = GetSummaryValue<int>(summary, "CurrentSelections"),
                 MaxSelections = GetSummaryValue<int>(summary, "MaxSelections")
             };
@@ -250,6 +254,7 @@ namespace backend.Repositories
                 Value = GetPropertyValue<int?>(rowDict, "Value"),
                 Percentage = GetPropertyValue<int?>(rowDict, "Percentage"),
                 IsSelected = IsBenefitSelected(rowDict),
+                IsDeleted = GetPropertyValue<bool?>(rowDict, "IsDeleted") ?? false,
                 EmployeeCount = GetPropertyValue<int>(rowDict, "EmployeeCount"),
                 UsagePercentage = GetPropertyValue<double>(rowDict, "UsagePercentage"),
                 // Employee-specific fields from BeneficioEmpleado table
