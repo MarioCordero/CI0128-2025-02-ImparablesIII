@@ -17,6 +17,7 @@ SELECT * FROM PlaniFy.Empleado;
 SELECT * FROM PlaniFy.Planilla;
 SELECT * FROM PlaniFy.DetallePlanilla;
 
+
 SELECT * FROM PlaniFy.Beneficio
 
 

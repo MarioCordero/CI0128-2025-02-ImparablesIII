@@ -101,6 +101,23 @@ namespace backend.Services
             
             return await _repo.GetPayrollHistoryByCompanyAsync(companyId);
         }
+        
+        public async Task<DetailedPayrollReportDto?> GetDetailedPayrollReportNoAuthAsync(int employeeId, int payrollId)
+        {
+            // No ValidateEmployeeAccess call
+
+            var report = await _repo.GetDetailedPayrollReportAsync(employeeId, payrollId);
+            if (report == null)
+            {
+                return null;
+            }
+
+            await EnrichReportWithEmployeeInfoAsync(report, employeeId);
+            await EnrichReportWithMandatoryDeductionsAsync(report);
+            await EnrichReportWithVoluntaryDeductionsAsync(report, employeeId, payrollId);
+
+            return report;
+        }
 
         public async Task<DetailedPayrollReportDto?> GetDetailedPayrollReportAsync(int employeeId, int payrollId, int authenticatedEmployeeId)
         {
@@ -136,6 +153,11 @@ namespace backend.Services
             }
 
             return report;
+        }
+
+        public async Task<List<EmployeePayrollDto>> GetEmployeesForPayrollAsync(int payrollId)
+        {
+            return await _repo.GetEmployeesForPayrollAsync(payrollId);
         }
 
         private EmployeeDeductionResult CalculateEmployeeDeductions(EmployeePayrollDto employee, List<EmployeeDeductionDto> deductions)

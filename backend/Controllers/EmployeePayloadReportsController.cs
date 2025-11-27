@@ -76,6 +76,40 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("{id:int}/payroll-reports/{payrollId:int}/detailed-noauth")]
+        public async Task<ActionResult<DetailedPayrollReportDto>> GetDetailedPayrollReportNoAuth(
+            int id,
+            int payrollId)
+        {
+            try
+            {
+                _logger.LogInformation("Solicitud de reporte detallado de planilla SIN AUTH para empleado {EmployeeId}, planilla {PayrollId}", id, payrollId);
+
+                if (id <= 0)
+                {
+                    return BadRequest(new { message = ReturnMessagesConstants.Validation.EmployeeIdMustBeGreaterThanZero });
+                }
+
+                var report = await _payrollService.GetDetailedPayrollReportNoAuthAsync(id, payrollId);
+
+                if (report == null)
+                {
+                    return NotFound(new { message = ReturnMessagesConstants.Payroll.ReportNotFound });
+                }
+
+                return Ok(report);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error interno obteniendo reporte detallado SIN AUTH para empleado {EmployeeId}", id);
+                return StatusCode(500, new 
+                { 
+                    message = ReturnMessagesConstants.General.InternalServerError,
+                    detail = ex.Message 
+                });
+            }
+        }
+
         [HttpGet("{id:int}/payroll-reports/{payrollId:int}/detailed")]
         public async Task<ActionResult<DetailedPayrollReportDto>> GetDetailedPayrollReport(
             int id,

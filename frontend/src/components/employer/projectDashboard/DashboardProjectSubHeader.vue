@@ -30,11 +30,18 @@
         Informacion de la Empresa
       </button>
       <button
-        class="self-stretch flex-auto px-3 py-3.5 neumorphism-subheader-option nso-last"
+        class="self-stretch flex-auto px-3 py-3.5 neumorphism-subheader-option"
         :class="selectedSection === 'reports' ? 'bg-[#373bff]! text-[#fefefe]!' : 'text-gray-700 hover:bg-blue-100'"
         @click="emit('section-change', 'reports')"
       >
         Reportes de planilla
+      </button>
+      <button
+        class="self-stretch flex-auto px-3 py-3.5 neumorphism-subheader-option nso-last"
+        :class="selectedSection === 'payment' ? 'bg-[#373bff]! text-[#fefefe]!' : 'text-gray-700 hover:bg-blue-100'"
+        @click="emit('section-change', 'payment')"
+      >
+        Pago de planilla
       </button>
     </div>
 

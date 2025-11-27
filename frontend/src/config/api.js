@@ -7,15 +7,20 @@ export const apiConfig = {
     // Dashboard endpoints
     login: `${API_BASE_URL}/api/login`,
     passwordSetup: `${API_BASE_URL}/api/PasswordSetup/setup`,
+
+    // Payroll endpoints
     payrollGenerate: `${API_BASE_URL}/api/payroll/generate`,
     payrollSummary: (companyId) => `${API_BASE_URL}/api/payroll/summary?companyId=${companyId}`,
     payrollHistory: (companyId) => `${API_BASE_URL}/api/payroll/history?companyId=${companyId}`,
+    payrollEmployees: (payrollId) => `${API_BASE_URL}/api/payroll/${payrollId}/employees`,
     employeePayrollReports: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports`,
     employeePayrollReportDetailed: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/detailed`,
+    employeePayrollReportDetailedNoAuth: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/detailed-noauth`,
     employeePayrollReportDownloadExcel: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/excel`,
     employeePayrollReportDownloadPdf: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/pdf`,
     employeeHistoricalPayrollReport: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical`,
     employeeHistoricalPayrollReportDownloadExcel: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical/download/excel`,
+
     
     // Benefit endpoints
     benefit: `${API_BASE_URL}/api/Benefit`,
