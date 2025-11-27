@@ -13,5 +13,9 @@ namespace backend.Repositories
         Task<bool> ExistsByCompanyIdAsync(int companyId);
         Task<List<BenefitResponseDto>> GetBenefitsWithCompanyNameAsync(int companyId);
         Task<bool> UpdateAsync(int companyId, string name, UpdateBenefitRequestDto updateDto);
+        Task RemoveEmployeeAssociationsAsync(int companyId, string name);
+        Task<bool> HasPayrollAssociationsAsync(int companyId, string name);
+        Task MarkBenefitAsDeletedAsync(int companyId, string name);
+        Task DeleteBenefitAsync(int companyId, string name);
     }
 }

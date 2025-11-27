@@ -1,5 +1,5 @@
 <template>
-  <div class="payroll-chart neumorphism-card p-6">
+  <div class="neumorphism-card p-6">
     <h2 class="text-xl font-bold mb-4">Distribución de Costos de Planilla</h2>
     <div class="flex flex-col md:flex-row items-center gap-6">
       <div class="relative w-48 h-48">

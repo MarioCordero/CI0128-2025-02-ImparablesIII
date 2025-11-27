@@ -17,6 +17,8 @@ namespace backend.Models
         [Required]
         [MaxLength(20)]
         public string BenefitType { get; set; } = string.Empty;
+
+        public bool IsDeleted { get; set; }
         
         // Additional fields for API benefits - employee-specific data
         [Range(0, int.MaxValue, ErrorMessage = "El número de dependientes debe ser mayor o igual a 0")]

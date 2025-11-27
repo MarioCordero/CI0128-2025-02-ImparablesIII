@@ -5,6 +5,7 @@ using backend.Services;
 using backend.Repositories;
 using backend.DTOs;
 using backend.Models;
+using System.Linq;
 
 namespace backend.Tests
 {
@@ -52,6 +53,13 @@ namespace backend.Tests
                 x.GetEmployeeBenefitsSummaryAsync(employeeId, companyId, null))
                 .ReturnsAsync(expectedSummary);
 
+            _mockBenefitRepository.Setup(x => x.GetByCompanyIdAsync(companyId))
+                .ReturnsAsync(new List<Benefit>
+                {
+                    new Benefit { Name = "Vacaciones" },
+                    new Benefit { Name = "Seguro" }
+                });
+
             // Act
             var result = await _employeeBenefitService.GetEmployeeBenefitsAsync(employeeId, companyId);
 
@@ -84,6 +92,9 @@ namespace backend.Tests
                 x.GetEmployeeBenefitsSummaryAsync(employeeId, companyId, filter))
                 .ReturnsAsync(expectedSummary);
 
+            _mockBenefitRepository.Setup(x => x.GetByCompanyIdAsync(companyId))
+                .ReturnsAsync(new List<Benefit>());
+
             // Act
             var result = await _employeeBenefitService.GetEmployeeBenefitsAsync(employeeId, companyId, filter);
 
@@ -107,6 +118,45 @@ namespace backend.Tests
             // Act & Assert
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(
                 () => _employeeBenefitService.GetEmployeeBenefitsAsync(employeeId, companyId));
+        }
+
+        [TestMethod]
+        public async Task GetEmployeeBenefitsAsync_FiltersLogicallyDeletedBenefits()
+        {
+            // Arrange
+            var employeeId = 1;
+            var companyId = 1;
+            var summary = new EmployeeBenefitsSummaryDto
+            {
+                AvailableBenefits = new List<EmployeeBenefitDto>
+                {
+                    new EmployeeBenefitDto { BenefitName = "Activo" },
+                    new EmployeeBenefitDto { BenefitName = "Eliminado" }
+                },
+                SelectedBenefits = new List<EmployeeBenefitDto>
+                {
+                    new EmployeeBenefitDto { BenefitName = "Eliminado", IsSelected = true }
+                }
+            };
+
+            _mockEmployeeBenefitRepository.Setup(x =>
+                x.GetEmployeeBenefitsSummaryAsync(employeeId, companyId, null))
+                .ReturnsAsync(summary);
+
+            _mockBenefitRepository.Setup(x => x.GetByCompanyIdAsync(companyId))
+                .ReturnsAsync(new List<Benefit>
+                {
+                    new Benefit { Name = "Activo" }
+                });
+
+            // Act
+            var result = await _employeeBenefitService.GetEmployeeBenefitsAsync(employeeId, companyId);
+
+            // Assert
+            Assert.AreEqual(1, result.AvailableBenefits.Count);
+            Assert.AreEqual("Activo", result.AvailableBenefits.First().BenefitName);
+            Assert.AreEqual(0, result.SelectedBenefits.Count);
+            _mockBenefitRepository.Verify(x => x.GetByCompanyIdAsync(companyId), Times.Once);
         }
 
         [TestMethod]
@@ -170,6 +220,36 @@ namespace backend.Tests
             Assert.AreEqual("El beneficio no existe", result.Message);
             _mockEmployeeBenefitRepository.Verify(x => 
                 x.AddBenefitToEmployeeAsync(It.IsAny<int>(), It.IsAny<int>(), 
+                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string?>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task SelectBenefitAsync_LogicalDeletedBenefit_ReturnsUnavailableMessage()
+        {
+            // Arrange
+            var employeeId = 1;
+            var companyId = 1;
+            var request = new SelectBenefitRequestDto { BenefitName = "Seguro" };
+            var benefit = new Benefit
+            {
+                CompanyId = companyId,
+                Name = "Seguro",
+                CalculationType = "Monto Fijo",
+                IsDeleted = true
+            };
+
+            _mockBenefitRepository.Setup(x => x.GetByIdAsync(companyId, request.BenefitName))
+                .ReturnsAsync(benefit);
+
+            // Act
+            var result = await _employeeBenefitService.SelectBenefitAsync(employeeId, companyId, request);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("El beneficio ya no está disponible", result.Message);
+            _mockEmployeeBenefitRepository.Verify(x =>
+                x.AddBenefitToEmployeeAsync(It.IsAny<int>(), It.IsAny<int>(),
                     It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string?>()), Times.Never);
         }
 

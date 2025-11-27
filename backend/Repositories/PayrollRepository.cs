@@ -306,6 +306,48 @@ namespace backend.Repositories
             await connection.ExecuteAsync(query, parameters);
         }
 
+        public async Task InsertPayrollBenefitsAsync(int payrollId, int companyId, IEnumerable<string> benefitNames)
+        {
+            if (benefitNames == null)
+            {
+                return;
+            }
+
+            var distinctNames = benefitNames
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (!distinctNames.Any())
+            {
+                return;
+            }
+
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                INSERT INTO PlaniFy.PlanillaBeneficio (IdPlanilla, IdEmpresa, NombreBeneficio)
+                SELECT @PayrollId, @CompanyId, @NombreBeneficio
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM PlaniFy.PlanillaBeneficio
+                    WHERE IdPlanilla = @PayrollId
+                      AND IdEmpresa = @CompanyId
+                      AND NombreBeneficio = @NombreBeneficio);
+            ";
+
+            var parameters = distinctNames.Select(name => new
+            {
+                PayrollId = payrollId,
+                CompanyId = companyId,
+                NombreBeneficio = name
+            });
+
+            await connection.ExecuteAsync(query, parameters);
+        }
+
         // GET LATEST PAYROLL TOTALS BY COMPANY
         public async Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId)
         {

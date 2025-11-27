@@ -11,6 +11,7 @@ namespace backend.DTOs
         public int? Value { get; set; }
         public int? Percentage { get; set; }
         public bool IsSelected { get; set; }
+        public bool IsDeleted { get; set; }
         public int EmployeeCount { get; set; }
         public double UsagePercentage { get; set; }
         

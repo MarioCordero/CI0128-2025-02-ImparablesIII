@@ -147,7 +147,8 @@ CREATE TABLE PlaniFy.Beneficio (
     Tipo NVARCHAR(40) NOT NULL,         -- CORREGIDO: 20 → 40
     Valor INT,
     Porcentaje INT,
-    Descripcion VARCHAR(200),           -- AÑADIDO: Falta en tu script
+    Descripcion VARCHAR(200),
+    IsDeleted BIT DEFAULT 0,
     PRIMARY KEY (idEmpresa, Nombre),
     FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id) ON DELETE CASCADE
 );
