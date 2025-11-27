@@ -174,6 +174,82 @@
 }
 
 
+
+
+
+.neumorphism-option-light {
+  background: #dbeafe;
+  width: 100%;
+  padding: 8px 16px;
+  color: #1e2939;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-option-light:hover {
+  background: #bfcddf;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-option-light:active {
+  background: #dbeafe;
+  box-shadow: inset 3px 3px 6px #bebebe,
+              inset -3px -3px 6px #ffffff;
+  transition: all 0.1s ease;
+}
+
+.neumorphism-option-blue {
+  background: #7476ff;
+  width: 100%;
+  padding: 8px 16px;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-option-blue:hover {
+  background: #373bff;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-option-blue:active {
+  background: #7476ff;
+  box-shadow: inset 3px 3px 6px #5658b9,
+              inset -3px -3px 6px #a9aaff;
+  transition: all 0.1s ease;
+}
+
+.neumorphism-option-red {
+  background: #ff7474;
+  width: 100%;
+  padding: 8px 16px;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-option-red:hover {
+  background: #ff3737;
+  transition: all 0.3s ease;
+}
+
+.neumorphism-option-red:active {
+  background: #ff7474;
+  box-shadow: inset 3px 3px 6px #b95656,
+              inset -3px -3px 6px #ffa9a9;
+  transition: all 0.1s ease;
+}
+
+.n-option-first {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.n-option-last {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+
+
+
 /* ===================================== Cards ===================================== */
 .neumorphism-on {
   background: #dbeafe;
@@ -204,6 +280,38 @@
               -8px -8px 16px #ffffff;
   padding: 30px;
   border: none;
+}
+
+.neumorphism-table-wrapper {
+  border-radius: 21px;
+  background: #dbeafe;
+  box-shadow: 8px 8px 16px #b0bed4,
+              -8px -8px 16px #ffffff;
+  padding: 5px;
+}
+
+.neumorphism-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #f7fbff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: inset 3px 3px 6px #bec8d9,
+              inset -3px -3px 6px #ffffff;
+}
+
+.neumorphism-table thead {
+  background: #eef2ff;
+}
+
+.neumorphism-table th,
+.neumorphism-table td {
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.neumorphism-table tr:last-child td {
+  border-bottom: none;
 }
 
 .scrollable-card {

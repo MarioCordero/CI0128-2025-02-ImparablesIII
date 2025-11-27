@@ -71,6 +71,7 @@ BEGIN
         END as UsagePercentage,
         @CurrentSelections as CurrentSelections,
         @MaxBenefitLimit as MaxSelections,
+        b.IsDeleted,
         CASE 
             WHEN be_selected.idEmpleado IS NOT NULL THEN 'Seleccionado' 
             ELSE 'Disponible' 
@@ -84,7 +85,7 @@ BEGIN
         AND be_selected.idEmpleado = @EmployeeId
     LEFT JOIN BenefitUsageStats bus ON b.idEmpresa = bus.idEmpresa 
         AND b.Nombre = bus.Nombre
-    WHERE b.idEmpresa = @CompanyId
+    WHERE b.idEmpresa = @CompanyId AND (b.IsDeleted = 0 OR b.IsDeleted IS NULL)
         AND (@SearchTerm IS NULL OR b.Nombre LIKE '%' + @SearchTerm + '%')
         AND (@CalculationType IS NULL OR b.TipoCalculo = @CalculationType)
         AND (@Status IS NULL OR 

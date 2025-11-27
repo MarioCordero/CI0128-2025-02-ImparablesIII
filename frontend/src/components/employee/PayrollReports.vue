@@ -1,17 +1,15 @@
 <template>
-  <div class="payroll-reports-container">
-    <h1 class="text-2xl font-bold mb-4">Mis Reportes de Planilla</h1>
-    <p class="text-gray-600 mb-6">Visualiza y descarga tus recibos de pago</p>
-    
+  <div class="body p-0! m-0!">
+
     <!-- Report Type Selection (Initial View) -->
-    <div v-if="!selectedReportType" class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div v-if="!selectedReportType" class="neumorphism-card">
       <h2 class="text-lg font-semibold mb-4">Seleccione el tipo de reporte</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <button
           v-for="reportType in reportTypes"
           :key="reportType.id"
           @click="selectReportType(reportType)"
-          class="w-full md:w-auto px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-left"
+          class="neumorphism-button-normal-blue"
         >
           {{ reportType.name }}
         </button>
@@ -24,7 +22,7 @@
       <div class="mb-4">
         <button
           @click="goBackToReportTypeSelection"
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center"
+          class="neumorphism-button-normal-light"
         >
           ← Volver a selección de reporte
         </button>

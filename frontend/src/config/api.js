@@ -27,6 +27,7 @@ export const apiConfig = {
     benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
     benefitByCompanyAndName: (companyId, benefitName) => `${API_BASE_URL}/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`,
     employeeBenefitsSelect: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}/select`,
+    employeeBenefitsDeselect: (employeeId, benefitName) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}/benefit/${encodeURIComponent(benefitName)}`,
     employeeBenefits: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}`,
     
     // Project endpoints

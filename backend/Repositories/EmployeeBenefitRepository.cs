@@ -11,7 +11,9 @@ namespace backend.Repositories
         private const int DEFAULT_MAX_BENEFITS = 3;
         private const string STRING_NULL_MESSAGE = "Error mapping benefit row";
         private const string BENEFIT_ADDED_MESSAGE = "Beneficio agregado exitosamente";
+        private const string BENEFIT_REMOVED_MESSAGE = "Beneficio eliminado exitosamente";
         private const string BENEFIT_ADD_ERROR = "Error adding benefit to employee";
+        private const string BENEFIT_REMOVE_ERROR = "Error removing benefit from employee";
         
         private readonly string _connectionString;
         private readonly ILogger<EmployeeBenefitRepository> _logger;
@@ -37,7 +39,9 @@ namespace backend.Repositories
             var result = await connection.QueryAsync<dynamic>("PlaniFy.GetEmployeeBenefitsSummary", parameters, commandType: System.Data.CommandType.StoredProcedure);
             var benefits = MapBenefitsFromStoredProcedure(result);
             
-            return benefits.Where(b => !b.IsSelected).ToList();
+            return benefits
+                .Where(b => !b.IsSelected && !b.IsDeleted)
+                .ToList();
         }
 
         public async Task<List<EmployeeBenefitDto>> GetSelectedBenefitsForEmployeeAsync(int employeeId, int companyId)
@@ -121,6 +125,39 @@ namespace backend.Repositories
                 return (false, $"Error al agregar el beneficio: {ex.Message}");
             }
         }
+
+        public async Task<(bool Success, string Message)> RemoveBenefitFromEmployeeAsync(int employeeId, int companyId, string benefitName)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var query = @"
+                    DELETE FROM PlaniFy.BeneficioEmpleado
+                    WHERE idEmpleado = @EmployeeId AND idEmpresa = @CompanyId AND NombreBeneficio = @BenefitName";
+
+                var parameters = new
+                {
+                    EmployeeId = employeeId,
+                    CompanyId = companyId,
+                    BenefitName = benefitName
+                };
+
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                if (affectedRows > 0)
+                {
+                    return (true, BENEFIT_REMOVED_MESSAGE);
+                }
+
+                return (false, "El beneficio no está asociado al empleado");
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, BENEFIT_REMOVE_ERROR);
+                return (false, $"Error al remover el beneficio: {ex.Message}");
+            }
+        }
         
         public async Task<EmployeeBenefitsSummaryDto> GetEmployeeBenefitsSummaryAsync(int employeeId, int companyId, BenefitFilterDto? filter = null)
         {
@@ -137,14 +174,16 @@ namespace backend.Repositories
             using var multi = await connection.QueryMultipleAsync("PlaniFy.GetEmployeeBenefitsSummary", parameters, commandType: System.Data.CommandType.StoredProcedure);
             
             var benefits = MapBenefitsFromStoredProcedure(await multi.ReadAsync());
+            var availableBenefits = benefits.Where(b => !b.IsSelected && !b.IsDeleted).ToList();
+            var selectedBenefits = benefits.Where(b => b.IsSelected).ToList();
             
             if (multi.IsConsumed)
             {
                 _logger.LogWarning("Second result set is consumed");
                 return new EmployeeBenefitsSummaryDto
                 {
-                    AvailableBenefits = benefits.Where(b => !b.IsSelected).ToList(),
-                    SelectedBenefits = benefits.Where(b => b.IsSelected).ToList(),
+                    AvailableBenefits = availableBenefits,
+                    SelectedBenefits = selectedBenefits,
                     CurrentSelections = 0,
                     MaxSelections = 0
                 };
@@ -161,8 +200,8 @@ namespace backend.Repositories
 
             return new EmployeeBenefitsSummaryDto
             {
-                AvailableBenefits = benefits.Where(b => !b.IsSelected).ToList(),
-                SelectedBenefits = benefits.Where(b => b.IsSelected).ToList(),
+                AvailableBenefits = availableBenefits,
+                SelectedBenefits = selectedBenefits,
                 CurrentSelections = GetSummaryValue<int>(summary, "CurrentSelections"),
                 MaxSelections = GetSummaryValue<int>(summary, "MaxSelections")
             };
@@ -250,6 +289,7 @@ namespace backend.Repositories
                 Value = GetPropertyValue<int?>(rowDict, "Value"),
                 Percentage = GetPropertyValue<int?>(rowDict, "Percentage"),
                 IsSelected = IsBenefitSelected(rowDict),
+                IsDeleted = GetPropertyValue<bool?>(rowDict, "IsDeleted") ?? false,
                 EmployeeCount = GetPropertyValue<int>(rowDict, "EmployeeCount"),
                 UsagePercentage = GetPropertyValue<double>(rowDict, "UsagePercentage"),
                 // Employee-specific fields from BeneficioEmpleado table

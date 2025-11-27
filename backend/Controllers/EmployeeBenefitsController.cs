@@ -103,6 +103,34 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorValidatingSelection, error = ex.Message });
             }
         }
+
+        [HttpDelete("employee/{employeeId:int}/benefit/{benefitName}")]
+        public async Task<ActionResult<EmployeeBenefitSelectionResponseDto>> DeselectBenefit(int employeeId, string benefitName)
+        {
+            try
+            {
+                _logger.LogInformation("Removing benefit {BenefitName} for employee {EmployeeId}", benefitName, employeeId);
+
+                var companyId = await _employeeService.GetEmployeeCompanyIdAsync(employeeId);
+                if (!companyId.HasValue)
+                {
+                    return NotFound(new { message = ReturnMessagesConstants.Employee.EmployeeNotFoundOrNoCompany });
+                }
+
+                var result = await _employeeBenefitService.DeselectBenefitAsync(employeeId, companyId.Value, benefitName);
+                if (!result.Success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing benefit for employee {EmployeeId}", employeeId);
+                return StatusCode(500, new { message = ReturnMessagesConstants.Benefit.ErrorSelectingBenefit, error = ex.Message });
+            }
+        }
     }
 }
 

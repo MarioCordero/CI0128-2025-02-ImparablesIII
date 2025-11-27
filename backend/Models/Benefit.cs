@@ -28,6 +28,8 @@ namespace backend.Models
         [MaxLength(200)]
         public string? Descripcion { get; set; }
         
+        public bool IsDeleted { get; set; }
+        
         // Navigation property - change from Empresa to Project
         public Project? Project { get; set; }
     }

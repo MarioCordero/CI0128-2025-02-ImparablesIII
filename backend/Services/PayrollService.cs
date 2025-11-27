@@ -70,10 +70,14 @@ namespace backend.Services
             var employerDeductions = await GetEmployerPayrollWithDeductionsAsync(companyId);
             var employeePositions = await _repo.GetEmployeePositionsByCompanyAsync(companyId);
             
-            var payrollDetails = await BuildPayrollDetailsAsync(employees, employerDeductions, employeePositions, companyId);
+            var payrollBuildResult = await BuildPayrollDetailsAsync(employees, employerDeductions, employeePositions, companyId);
             
             var payrollId = await CreatePayrollRecordAsync(companyId, responsibleEmployeeId, hours);
-            await _repo.InsertPayrollDetailsAsync(payrollId, payrollDetails);
+            await _repo.InsertPayrollDetailsAsync(payrollId, payrollBuildResult.PayrollDetails);
+            if (payrollBuildResult.BenefitNames.Any())
+            {
+                await _repo.InsertPayrollBenefitsAsync(payrollId, companyId, payrollBuildResult.BenefitNames);
+            }
             
             return payrollId;
         }
@@ -244,13 +248,14 @@ namespace backend.Services
             }
         }
 
-        private async Task<List<PayrollDetailInsertDto>> BuildPayrollDetailsAsync(
+        private async Task<PayrollBuildResult> BuildPayrollDetailsAsync(
             List<EmployeePayrollDto> employees,
             List<EmployerDeductionResultDto> employerDeductions,
             Dictionary<int, string> employeePositions,
             int companyId)
         {
             var payrollDetails = new List<PayrollDetailInsertDto>();
+            var benefitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var employee in employees)
             {
@@ -261,6 +266,12 @@ namespace backend.Services
                 }
 
                 var benefitCalculation = await _benefitDeductionsService.CalculateBenefitDeductionsAsync(employee.IdEmpleado, companyId);
+                var selectedBenefits = await _employeeBenefitRepository.GetSelectedBenefitsForEmployeeAsync(employee.IdEmpleado, companyId);
+                var benefitNameMap = BuildBenefitNameMap(selectedBenefits);
+                foreach (var benefitName in ExtractBenefitNames(benefitCalculation, benefitNameMap))
+                {
+                    benefitNames.Add(benefitName);
+                }
                 var benefitTotals = CalculateBenefitTotals(benefitCalculation);
                 
                 var totalEmployeeDeductions = employee.TotalEmployeeDeductions + benefitTotals.EmployeeDeductions;
@@ -271,7 +282,11 @@ namespace backend.Services
                 payrollDetails.Add(CreatePayrollDetail(employee, totalEmployeeDeductions, totalEmployerDeductions, benefitTotals.TotalBenefits, netSalary, position));
             }
 
-            return payrollDetails;
+            return new PayrollBuildResult
+            {
+                PayrollDetails = payrollDetails,
+                BenefitNames = benefitNames.ToList()
+            };
         }
 
         private BenefitTotals CalculateBenefitTotals(BenefitDeductionCalculationDto benefitCalculation)
@@ -410,9 +425,18 @@ namespace backend.Services
 
         private Dictionary<string, string> BuildBenefitNameMap(List<EmployeeBenefitDto> selectedBenefits)
         {
-            return selectedBenefits.ToDictionary(
-                b => _benefitCodeParser.GenerateBenefitCode(b.BenefitName, BenefitConstants.DeductionTypeEmployee),
-                b => b.BenefitName);
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var benefit in selectedBenefits)
+            {
+                var employeeCode = _benefitCodeParser.GenerateBenefitCode(benefit.BenefitName, BenefitConstants.DeductionTypeEmployee);
+                var employerCode = _benefitCodeParser.GenerateBenefitCode(benefit.BenefitName, BenefitConstants.DeductionTypeEmployer);
+
+                map[employeeCode] = benefit.BenefitName;
+                map[employerCode] = benefit.BenefitName;
+            }
+
+            return map;
         }
 
         private string GetBenefitDisplayName(string code, Dictionary<string, string> benefitNameMap)
@@ -423,6 +447,23 @@ namespace backend.Services
             }
 
             return _benefitCodeParser.ParseBenefitNameFromCode(code);
+        }
+
+        private IEnumerable<string> ExtractBenefitNames(BenefitDeductionCalculationDto benefitCalculation, Dictionary<string, string> benefitNameMap)
+        {
+            if (benefitCalculation?.Deductions == null)
+            {
+                yield break;
+            }
+
+            foreach (var deduction in benefitCalculation.Deductions)
+            {
+                var displayName = GetBenefitDisplayName(deduction.Code, benefitNameMap);
+                if (!string.IsNullOrWhiteSpace(displayName))
+                {
+                    yield return displayName.Trim();
+                }
+            }
         }
 
         private class EmployeeDeductionResult
@@ -442,6 +483,12 @@ namespace backend.Services
             public decimal TotalBenefits { get; set; }
             public decimal EmployeeDeductions { get; set; }
             public decimal EmployerDeductions { get; set; }
+        }
+
+        private class PayrollBuildResult
+        {
+            public List<PayrollDetailInsertDto> PayrollDetails { get; set; } = new();
+            public List<string> BenefitNames { get; set; } = new();
         }
     }
 }
