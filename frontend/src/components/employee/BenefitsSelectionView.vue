@@ -24,10 +24,6 @@
           </span>
         </div>
       </div>
-
-
-
-
       
       <!-- Selected Benefits List -->
       <div v-if="benefitsData.selectedBenefits.length > 0" class="pt-3">
@@ -100,21 +96,10 @@
             </div>
           </div>
         </div>
-
-
-
-
-
-
-
-
-
-
       </div>
       <div v-else class="border-t border-gray-200 pt-3">
         <p class="text-sm text-gray-500 italic">No hay beneficios seleccionados aún</p>
       </div>
-
     </div>
 
 
@@ -156,7 +141,7 @@
     </div>
 
     <!-- Error State -->
-    <div v-if="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <div v-if="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-4 neumorphism-card">
       {{ error }}
     </div>
 
@@ -257,8 +242,9 @@
                 v-model="benefitForm.NumDependents"
                 type="number"
                 min="0"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="neumorphism-input"
                 placeholder="Ej: 2"
+                required
               />
               <p class="text-sm text-gray-500 mt-1">Hermanos o familiares que debe cuidar</p>
             </div>
@@ -283,7 +269,7 @@
           </div>
   
           <!-- Error Message -->
-          <div v-if="modalError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div v-if="modalError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-4 neumorphism-card">
             {{ modalError }}
           </div>
   
