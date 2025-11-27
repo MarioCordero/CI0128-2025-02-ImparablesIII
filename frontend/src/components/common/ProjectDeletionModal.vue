@@ -25,9 +25,37 @@
       </h2>
 
       <!-- Message -->
-      <p class="text-gray-600 text-center mb-8 leading-relaxed">
-        {{ message }}
-      </p>
+      <div class="text-gray-600 text-center mb-6 leading-relaxed">
+        <p class="mb-2">{{ message }}</p>
+      </div>
+
+      <!-- Password Input (shown after first confirmation) -->
+      <div v-if="firstConfirmed && !secondConfirmed" class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Confirme su contraseña para continuar:
+        </label>
+        <input
+          v-model="password"
+          type="password"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          placeholder="Ingrese su contraseña"
+          @keyup.enter="confirmSecond"
+        />
+        <p v-if="passwordError" class="text-red-600 text-sm mt-2">{{ passwordError }}</p>
+      </div>
+
+      <!-- Motivo Baja Input (optional) -->
+      <div v-if="firstConfirmed && !secondConfirmed" class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Motivo de eliminación (opcional):
+        </label>
+        <textarea
+          v-model="motivoBaja"
+          rows="3"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          placeholder="Ingrese el motivo de la eliminación del proyecto"
+        ></textarea>
+      </div>
 
       <!-- Confirmation Steps -->
       <div class="space-y-4">
@@ -60,13 +88,15 @@
           <div class="flex gap-3 justify-center">
             <button
               @click="confirmSecond"
-              class="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors font-bold"
+              :disabled="!password || isDeleting"
+              class="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors font-bold disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Confirmar Definitivamente
+              {{ isDeleting ? 'Eliminando...' : 'Confirmar Definitivamente' }}
             </button>
             <button
               @click="resetConfirmation"
-              class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+              :disabled="isDeleting"
+              class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium disabled:bg-gray-200"
             >
               Volver Atrás
             </button>
@@ -74,7 +104,7 @@
         </div>
 
         <!-- Success State -->
-        <div v-if="secondConfirmed" class="text-center">
+        <div v-if="secondConfirmed && !isDeleting" class="text-center">
           <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -89,11 +119,11 @@
 
 <script>
 export default {
-  name: 'WarningModal',
+  name: 'ProjectDeletionModal',
   props: {
     title: {
       type: String,
-      required: true
+      default: 'Eliminar Empresa'
     },
     message: {
       type: String,
@@ -107,20 +137,35 @@ export default {
   data() {
     return {
       firstConfirmed: false,
-      secondConfirmed: false
+      secondConfirmed: false,
+      password: '',
+      motivoBaja: '',
+      passwordError: '',
+      isDeleting: false
     }
   },
   emits: ['confirm', 'cancel', 'close'],
   methods: {
     confirmFirst() {
       this.firstConfirmed = true
+      this.passwordError = ''
     },
-    confirmSecond() {
+    async confirmSecond() {
+      if (!this.password) {
+        this.passwordError = 'La contraseña es requerida'
+        return
+      }
+      this.passwordError = ''
+      this.isDeleting = true
       this.secondConfirmed = true
+
       setTimeout(() => {
-        this.$emit('confirm')
+        this.$emit('confirm', {
+          password: this.password,
+          motivoBaja: this.motivoBaja || null
+        })
         this.closeModal()
-      }, 1000)
+      }, 500)
     },
     cancel() {
       this.$emit('cancel')
@@ -129,6 +174,10 @@ export default {
     resetConfirmation() {
       this.firstConfirmed = false
       this.secondConfirmed = false
+      this.password = ''
+      this.motivoBaja = ''
+      this.passwordError = ''
+      this.isDeleting = false
     },
     closeModal() {
       this.resetConfirmation()
