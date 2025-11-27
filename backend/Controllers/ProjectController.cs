@@ -95,48 +95,27 @@ namespace backend.Controllers
             }
         }
 
-        // CREATE A NEW PROJECT REFRACT
-        // [HttpPost]
-        // public async Task<ActionResult<int>> Create([FromBody] CreateProjectDto projectDto)
-        // {
-        //     try
-        //     {
-        //         if (await _projectRepository.ExistsByLegalIdAsync(projectDto.CedulaJuridica.ToString()))
-        //         {
-        //             return BadRequest(new { message = ReturnMessagesConstants.Project.LegalIdAlreadyExists });
-        //         }
-        //         if (await _projectRepository.ExistsByEmailAsync(projectDto.Email))
-        //         {
-        //             return BadRequest(new { message = ReturnMessagesConstants.General.EmailAlreadyExists });
-        //         }
-
-        //         var project = new Project
-        //         {
-        //             Nombre = projectDto.Nombre,
-        //             CedulaJuridica = projectDto.CedulaJuridica,
-        //             EmployerId = projectDto.EmployerId,
-        //             Email = projectDto.Email,
-        //             PeriodoPago = projectDto.PeriodoPago,
-        //             Telefono = projectDto.Telefono,
-        //             IdDireccion = await _projectRepository.CreateDireccionAsync(
-        //                 projectDto.Provincia,
-        //                 projectDto.Canton,
-        //                 projectDto.Distrito,
-        //                 projectDto.DireccionParticular),
-        //             MaximoBeneficios = projectDto.MaximoBeneficios
-        //         };
-
-        //         var createdProject = await _projectRepository.CreateAsync(project);
-        //         return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, new { id = createdProject.Id });
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorCreatingProject, error = ex.Message });
-        //     }
-        // }
+        // CREATE A NEW PROJECT
+        [HttpPost("createProject")]
+        public async Task<ActionResult<int>> Create([FromBody] CreateProjectDto projectDto)
+        {
+            try
+            {
+                var createdProject = await _projectService.CreateProjectAsync(projectDto);
+                if (createdProject != null && createdProject.Id > 0)
+                {
+                    return CreatedAtAction(nameof(GetById), new { id = createdProject.Id }, createdProject);
+                }
+                return BadRequest(new { message = ReturnMessagesConstants.Project.ErrorCreatingProject });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ReturnMessagesConstants.Project.ErrorCreatingProject, error = ex.Message });
+            }
+        }
 
         // DELETE A PROJECT
-        [HttpDelete]
+        [HttpDelete("deleteProject")]
         public async Task<ActionResult> Delete([FromBody] DeleteProjectRequestDto request)
         {
             try
@@ -214,7 +193,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectDTO dto)
         {
             if (!ModelState.IsValid)

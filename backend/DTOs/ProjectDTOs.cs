@@ -59,7 +59,6 @@ namespace backend.DTOs
         public int IdDireccion { get; set; }
         public DirectionDTO? Direccion { get; set; }
         public int MaximoBeneficios { get; set; }
-        public DateTime CreatedAt { get; set; }
         
         // DASHBOARD FIELDS
         public int ActiveEmployees { get; set; }

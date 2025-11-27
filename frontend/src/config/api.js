@@ -4,21 +4,17 @@ const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || 'http://localhost:5011'
 export const apiConfig = {
   baseURL: API_BASE_URL,
   endpoints: {
-    // Dashboard endpoints 
+    // Dashboard endpoints
     login: `${API_BASE_URL}/api/login`,
     passwordSetup: `${API_BASE_URL}/api/PasswordSetup/setup`,
     benefit: `${API_BASE_URL}/api/Benefit`,
     benefitByCompany: (companyId) => `${API_BASE_URL}/api/Benefit/company/${companyId}`,
     benefitByCompanyAndName: (companyId, benefitName) => `${API_BASE_URL}/api/Benefit/company/${companyId}/benefit/${encodeURIComponent(benefitName)}`,
-    projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
-    updateProject: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
     employeeBenefits: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}`,
     employeeBenefitsSelect: (employeeId) => `${API_BASE_URL}/api/employeebenefits/employee/${employeeId}/select`,
-    byCompany: (companyId) => `${API_BASE_URL}/api/Project/by-company/${companyId}`,
     payrollGenerate: `${API_BASE_URL}/api/payroll/generate`,
     payrollSummary: (companyId) => `${API_BASE_URL}/api/payroll/summary?companyId=${companyId}`,
     payrollHistory: (companyId) => `${API_BASE_URL}/api/payroll/history?companyId=${companyId}`,
-    projectEmployeeCount: (companyId) => `${API_BASE_URL}/api/Project/${companyId}/employees/count`,
     employeePayrollReports: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports`,
     employeePayrollReportDetailed: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/detailed`,
     employeePayrollReportDownloadExcel: (employeeId, payrollId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/${payrollId}/download/excel`,
@@ -26,9 +22,13 @@ export const apiConfig = {
     employeeHistoricalPayrollReport: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical`,
     employeeHistoricalPayrollReportDownloadExcel: (employeeId) => `${API_BASE_URL}/api/employees/${employeeId}/payroll-reports/historical/download/excel`,
     
-    // Project Direction endpoint
+    // Project endpoints
     projectDirection: (directionId) => `${API_BASE_URL}/api/Project/direction/${directionId}`,
-    
+    createProject: `${API_BASE_URL}/api/Project`,
+    projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
+    byCompany: (companyId) => `${API_BASE_URL}/api/Project/by-company/${companyId}`,
+    updateProject: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
+    projectEmployeeCount: (companyId) => `${API_BASE_URL}/api/Project/${companyId}/employees/count`,
     
     // Work-hours endpoints
     hours: `${API_BASE_URL}/api/hours`,
