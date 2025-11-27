@@ -86,17 +86,40 @@
     </div>
 
     <!-- Benefits Grid -->
-    <div v-if="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-if="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+
+
       <div
         v-for="benefit in filteredBenefits"
         :key="`${benefit.companyId}-${benefit.benefitName}`"
-        class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden"
+        class="neumorphism-card h-full space-y-[24px]"
         :class="getBenefitCardClass(benefit)"
       >
+
+
+
+
+
+
+
+
+
+
+
         <!-- Card Header -->
-        <div class="p-4 bg-[#4a5568] text-white">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold">{{ benefit.benefitName }}</h3>
+        <div class="mb-2 w-full">
+          <div class="w-full flex justify-between items-top">
+
+            <div>
+              <h3 class="text-lg font-bold text-gray-800 truncate">{{ benefit.benefitName }}</h3>
+              <div v-if="benefit.benefitDescription" class="">
+                <p class="text-gray-800 text-[16px] mt-1 benefit-description">{{ benefit.benefitDescription }}</p>
+              </div>
+              <div v-else class="">
+                <p class="text-gray-800 text-[16px] mt-1 benefit-description">No hay descripción disponible para este beneficio.</p>
+              </div>
+            </div>
+
             <span
               v-if="benefit.isSelected"
               class="px-2 py-1 bg-green-500 rounded-full text-xs font-semibold"
@@ -106,62 +129,47 @@
           </div>
         </div>
 
-        <!-- Card Body -->
-        <div class="p-4">
-          <!-- Calculation Type Badge -->
-          <div class="mb-3">
-            <span
-              class="px-3 py-1 rounded-full text-xs font-semibold"
-              :class="getCalculationTypeBadgeClass(benefit.calculationType)"
-            >
-              {{ benefit.calculationType }}
-            </span>
+
+        <!-- Content card -->
+        <div class="text-[18px] grid grid-cols-1 gap-auto h-[216px]">
+          <div class="flex justify-between">
+            <span class="text-gray-600 font-medium">Tipo:</span>
+            <span class="text-gray-800">{{ benefit.benefitType }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 font-medium">Cálculo:</span>
+            <span :class="['benefit-type-chip', getBenefitStyleClass(benefit.calculationType)]">{{ benefit.calculationType }}</span>
+          </div>
+          <div v-if="benefit.value" class="flex justify-between">
+            <span class="text-gray-600 font-medium">Valor:</span>
+            <span class="text-gray-800">₡{{ benefit.value.toLocaleString() }}</span>
+          </div>
+          <div v-if="benefit.percentage" class="flex justify-between">
+            <span class="text-gray-600 font-medium">Porcentaje:</span>
+            <span class="text-gray-800">{{ benefit.percentage }}%</span>
           </div>
 
-          <!-- Benefit Details -->
-          <div class="space-y-2 text-sm mb-4">
-            <div class="flex justify-between">
-              <span class="text-gray-600 font-medium">Tipo:</span>
-              <span class="text-gray-800">{{ benefit.benefitType }}</span>
-            </div>
-            
-            <div v-if="benefit.value" class="flex justify-between">
-              <span class="text-gray-600 font-medium">Valor:</span>
-              <span class="text-gray-800 font-semibold">₡{{ benefit.value.toLocaleString() }}</span>
-            </div>
-            
-            <div v-if="benefit.percentage" class="flex justify-between">
-              <span class="text-gray-600 font-medium">Porcentaje:</span>
-              <span class="text-gray-800 font-semibold">{{ benefit.percentage }}%</span>
-            </div>
-            
-            <div v-if="!benefit.value && !benefit.percentage" class="flex justify-between">
-              <span class="text-gray-600 font-medium">Valor:</span>
-              <span class="text-gray-800 font-semibold">Variable</span>
-            </div>
-
-            <!-- Employees using benefit -->
-            <div class="flex justify-between items-center pt-2 border-t border-gray-200">
-              <span class="text-gray-600 font-medium">Empleados:</span>
-              <div class="flex items-center gap-2">
-                <span class="text-gray-800 font-semibold">{{ benefit.employeeCount }}</span>
-                <span
-                  class="text-xs text-[#4a5568]"
-                  :title="`${benefit.usagePercentage.toFixed(1)}% de empleados usan este beneficio`"
-                >
-                  ({{ benefit.usagePercentage.toFixed(1) }}%)
-                </span>
-              </div>
+          <!-- Employees using benefit -->
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600 font-medium">Empleados:</span>
+            <div class="flex items-center gap-2">
+              <span class="text-gray-800 font-semibold">{{ benefit.employeeCount }}</span>
+              <span
+                class="text-xs text-[#4a5568]"
+                :title="`${benefit.usagePercentage.toFixed(1)}% de empleados usan este beneficio`"
+              >
+                ({{ benefit.usagePercentage.toFixed(1) }}%)
+              </span>
             </div>
           </div>
 
           <!-- Selection Action Button -->
-          <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+          <div class="mt-4 w-full">
             
             <div v-if="benefit.isSelected">
               <button
                 @click="deselectBenefit(benefit)"
-                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm font-medium"
+                class="neumorphism-button-normal-dark w-full text-white!"
               >
                 Remover
               </button>
@@ -169,11 +177,12 @@
             <div v-else>
               <button
                 @click="showBenefitSelectionModal(benefit)"
-                :disabled="!canSelectMore"
-                class="px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
-                :class="canSelectMore ? 'bg-[#4a5568] text-white hover:bg-[#374151]' : 'bg-gray-300 text-gray-600'"
+                :disabled="!canSelectMore || benefit.isDeleted"
+                class="neumorphism-button-normal-light w-full text-black!"
+                :class="(!canSelectMore || benefit.isDeleted) ? 'bg-gray-300 text-gray-600' : 'bg-[#4a5568] text-white hover:bg-[#374151]'"
               >
-                {{ canSelectMore ? 'Agregar' : 'Límite alcanzado' }}
+                <template v-if="benefit.isDeleted">No disponible</template>
+                <template v-else>{{ canSelectMore ? 'Agregar' : 'Límite alcanzado' }}</template>
               </button>
             </div>
           </div>
@@ -292,7 +301,7 @@ export default {
       return this.benefitsData.currentSelections < this.benefitsData.maxSelections
     },
     filteredBenefits() {
-      return this.benefitsData.availableBenefits || []
+      return (this.benefitsData.availableBenefits || []).filter(b => !b.isDeleted)
     },
     isFormValid() {
       if (!this.selectedBenefit) return false
@@ -387,6 +396,9 @@ export default {
       return classes[type] || 'bg-gray-100 text-gray-800'
     },
     showBenefitSelectionModal(benefit) {
+      if (benefit.isDeleted) {
+        return
+      }
       this.selectedBenefit = benefit
       this.benefitForm = {
         NumDependents: '',
@@ -443,8 +455,81 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+
+    getBenefitStyleClass(calculationType) {
+      if (!calculationType) {
+        return '';
+      }
+
+      const normalizedType = calculationType.toLowerCase();
+
+      if (normalizedType === 'api') {
+        return 'api-type';
+      }
+
+      if (normalizedType === 'porcentaje') {
+        return 'percentage-type';
+      }
+
+      if (normalizedType === 'monto fijo') {
+        return 'value-type';
+      }
+
+      return '';
     }
   }
 }
 </script>
+<style scoped>
+.benefit-type-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  max-height: fit-content;
+  max-width: fit-content;
+  box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+}
 
+.benefit-description {
+  max-height: 50px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  line-height: 1.4;
+  scrollbar-gutter: stable;
+  padding-right: 5px;
+}
+
+.benefit-description::-webkit-scrollbar {
+  width: 12px;
+}
+
+.benefit-description::-webkit-scrollbar-track {
+  background: #dbeafe;
+  border-radius: 10px;
+  box-shadow: inset 2px 2px 4px #bebebe,
+              inset -2px -2px 4px #ffffff;
+}
+
+.benefit-description::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: inset 0 0 2px 1px rgba(16, 72, 255, 1);
+  transition: all 0.3s;
+}
+
+.api-type{
+  background: #dbeafe;
+  color: #7476ff;
+}
+
+.percentage-type{
+  background: #7476ff;
+  color: #ffffff;
+}
+
+.value-type{
+  background: #74ff90;
+  color: #000000;
+}
+</style>

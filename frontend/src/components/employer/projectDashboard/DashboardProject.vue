@@ -264,7 +264,6 @@
                 <span class="text-gray-600 font-medium">Porcentaje:</span>
                 <span class="text-gray-800">{{ benefit.percentage }}%</span>
               </div>
-              <!-- Mostrar descripción si existe -->
             </div>
           </div>
         </div>
