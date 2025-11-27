@@ -272,7 +272,7 @@ namespace backend.Repositories
             var query = @"
                 UPDATE PlaniFy.Empresa
                 SET 
-                    Estado = 'Inactiva',
+                    Estado = 'Inactivo',
                     FechaBaja = GETDATE(),
                     MotivoBaja = @MotivoBaja,
                     UsuarioBajaId = @UsuarioBajaId
