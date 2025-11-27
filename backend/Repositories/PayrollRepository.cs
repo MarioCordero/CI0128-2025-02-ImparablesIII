@@ -15,6 +15,7 @@ namespace backend.Repositories
             _connectionString = config.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
         }
 
+        // EXECUTE PAYROLL REPORT STORED PROCEDURE
         public async Task<(List<EmployeePayrollDto> Items, PayrollTotalsDto Totals)> ExecutePayrollReportAsync( int companyId, int year, int month, string periodType, int? fortnight, string? department) 
         {
             try
@@ -305,6 +306,7 @@ namespace backend.Repositories
             await connection.ExecuteAsync(query, parameters);
         }
 
+        // GET LATEST PAYROLL TOTALS BY COMPANY
         public async Task<PayrollTotalsDto?> GetLatestPayrollTotalsByCompanyAsync(int companyId)
         {
             try
@@ -375,6 +377,7 @@ namespace backend.Repositories
             return exists == 1;
         }
 
+        // GET PAYROLL HISTORY BY COMPANY
         public async Task<List<PayrollHistoryItemDto>> GetPayrollHistoryByCompanyAsync(int companyId)
         {
             using var connection = new SqlConnection(_connectionString);

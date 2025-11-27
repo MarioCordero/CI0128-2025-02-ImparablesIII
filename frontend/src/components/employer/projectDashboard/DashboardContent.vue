@@ -331,7 +331,6 @@ export default {
         }
         const direction = await response.json()
         this.projectDirection = this.formatAddress(direction)
-        console.log('Direction loaded for project:', this.project.id, direction)
       } catch (err) {
         this.projectDirection = 'Error al cargar dirección'
       } finally {

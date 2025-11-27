@@ -33,10 +33,7 @@
             <div class="font-bold text-gray-700 mb-1">Teléfono</div>
             <div class="text-gray-600">{{ project.telefono }}</div>
           </div>
-          <div class="mb-3">
-            <div class="font-bold text-gray-700 mb-1">ID Dirección</div>
-            <div class="text-gray-600">{{ project.idDireccion }}</div>
-          </div>
+
         </div>
         <div>
           <div class="mb-3">
@@ -46,16 +43,6 @@
           <div class="mb-3">
             <div class="font-bold text-gray-700 mb-1">Máximo de beneficios elegibles</div>
             <div class="text-gray-600">{{ project.maximoBeneficios }}</div>
-          </div>
-          <div v-if="project.direccion" class="mb-3">
-            <div class="font-bold text-gray-700 mb-1">Dirección</div>
-            <div class="text-gray-600">
-              <div><span class="font-bold">ID Dirección:</span> {{ project.direccion.id }}</div>
-              <div><span class="font-bold">Provincia:</span> {{ project.direccion.provincia }}</div>
-              <div><span class="font-bold">Cantón:</span> {{ project.direccion.canton }}</div>
-              <div><span class="font-bold">Distrito:</span> {{ project.direccion.distrito }}</div>
-              <div><span class="font-bold">Dirección Particular:</span> {{ project.direccion.direccionParticular }}</div>
-            </div>
           </div>
         </div>
       </div>
@@ -94,7 +81,7 @@
       <!-- Action Buttons -->
       <div class="mt-8 flex justify-center gap-4">
         <button 
-          class="neumorfismo-boton-rojo px-6 py-3"
+          class="rounded-md! px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow transition-colors duration-200 neumorphism-button-danger"
           @click="showDeleteModal = true"
         >
           🗑️ Eliminar Empresa
@@ -102,7 +89,7 @@
       </div>
 
       <!-- Delete Warning Modal -->
-      <WarningModal
+      <ProjectDeletionModal
         :is-visible="showDeleteModal"
         title="Eliminar Empresa"
         :message="`¿Estás seguro de que deseas eliminar la empresa '${project?.nombre}'? Esta acción eliminará PERMANENTEMENTE todos los datos asociados incluyendo: empleados, planillas, beneficios, reportes y configuraciones. Esta acción NO se puede deshacer.`"
@@ -125,14 +112,14 @@
 <script>
 import { apiConfig } from '../../../config/api.js'
 import EditCompanyModal from './EditCompanyModal.vue'
-import WarningModal from '../../common/WarningModal.vue'
+import ProjectDeletionModal from '../../common/ProjectDeletionModal.vue'
 
 
 export default {
   name: 'EditProjectInfo',
   components: { 
     EditCompanyModal, 
-    WarningModal 
+    ProjectDeletionModal 
   },
   data() {
     return {
@@ -156,7 +143,7 @@ export default {
         if (!companyId) {
           throw new Error('No se encontró el ID de empresa en localStorage')
         }
-        const response = await fetch(apiConfig.endpoints.byCompany(companyId))
+        const response = await fetch(apiConfig.endpoints.projectInfo(companyId))
         if (!response.ok) {
           throw new Error('No se encontró la empresa')
         }
@@ -175,25 +162,28 @@ export default {
         localStorage.setItem('selectedProject', JSON.stringify(updatedCompany))
       }
     },
-    async confirmDeleteCompany() {
+    async confirmDeleteCompany({ password, motivoBaja }) {
       try {
-        // TODO: CALL API TO DELETE COMPANY
-        // const response = await fetch(apiConfig.endpoints.project, {
-        //   method: 'DELETE',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({ id: this.project.id })
-        // })
-        // if (!response.ok) {
-        //   throw new Error('Error al eliminar la empresa')
-        // }
-        // localStorage.removeItem('selectedProject')
+        const UsuarioBajaId = Number(localStorage.getItem('employerId'))
+        if (!UsuarioBajaId) {
+          throw new Error('No se pudo identificar el usuario que elimina la empresa.')
+        }
+        const body = {
+          projectId: this.project.id,
+          UsuarioBajaId,
+          contrasena: password,
+          motivoBaja: motivoBaja || null
+        }
+        const response = await fetch(apiConfig.endpoints.deleteProject, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        })
+
+        if (!response.ok) throw new Error('Error al eliminar la empresa')
+        localStorage.removeItem('selectedProject')
         this.$router.push('/dashboard-main-employer')
-        // TODO: Show success notification
-        
       } catch (error) {
-        console.error('Error deleting company:', error)
         this.errorMessage = 'Error al eliminar la empresa. Inténtalo de nuevo.'
       } finally {
         this.showDeleteModal = false

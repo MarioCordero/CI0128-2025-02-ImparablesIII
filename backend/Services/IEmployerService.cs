@@ -8,5 +8,6 @@ namespace backend.Services
         Task<bool> IsEmailAvailableAsync(string email);
         Task<bool> IsCedulaAvailableAsync(string cedula);
         Task<bool> VerifyAndCreateUserAsync(int personaId, string password);
+        Task<KPIResponseDTO?> GetKPIAsync(int userId);
     }
 }

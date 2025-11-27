@@ -2,8 +2,8 @@
   <div class="distribution-chart neumorphism-card p-6">
     <h2 class="text-xl font-bold mb-4">Distribución de Empleados</h2>
     
-    <!-- Gráfico de Barras Simple -->
-    <div class="chart-container">
+    <div v-if="loading" class="text-center py-8">Cargando...</div>
+    <div v-else class="chart-container">
       <div v-for="company in companies" :key="company.id" class="bar-item mb-3">
         <div class="flex justify-between items-center mb-1">
           <span class="text-sm font-medium text-gray-700">{{ company.nombre }}</span>
@@ -22,7 +22,6 @@
       </div>
     </div>
     
-    <!-- Leyenda -->
     <div class="mt-4 pt-4 border-t border-gray-200">
       <div class="text-sm text-gray-600">
         <div class="flex items-center justify-between">
@@ -39,6 +38,8 @@
 </template>
 
 <script>
+import apiConfig from '@/config/api'
+
 export default {
   name: 'EmployeeDistributionChart',
   props: {
@@ -59,7 +60,7 @@ export default {
     },
     maxEmployees() {
       const counts = this.companies.map(company => company.employeeCount);
-      return Math.max(...counts, 1); // Mínimo 1 para evitar división por cero
+      return Math.max(...counts, 1);
     },
     companiesWithEmployees() {
       return this.companies.filter(company => company.employeeCount > 0).length;
@@ -69,19 +70,17 @@ export default {
     async fetchEmployeeData() {
       this.loading = true;
       try {
-        // Datos basados en tu BD
-        this.companies = [
-          { id: 17, nombre: 'Imparables III', employeeCount: 2 },
-          { id: 19, nombre: 'Patitos', employeeCount: 0 },
-          { id: 20, nombre: 'Pipasa', employeeCount: 0 }
-        ];
+        const endpoint = apiConfig.endpoints.employeeDistribution(this.userId);
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error('Error al obtener la distribución de empleados');
+        this.companies = await response.json();
       } catch (error) {
         console.error('Error fetching employee data:', error);
+        this.companies = [];
       } finally {
         this.loading = false;
       }
     },
-    
     getBarWidth(employeeCount) {
       const percentage = (employeeCount / this.maxEmployees) * 100;
       return `${percentage}%`;
