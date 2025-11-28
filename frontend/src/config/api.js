@@ -35,7 +35,7 @@ export const apiConfig = {
     createProject: `${API_BASE_URL}/api/Project/create-project`,
     projectById: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
     byCompany: (companyId) => `${API_BASE_URL}/api/Project/by-company/${companyId}`,
-    updateProject: (projectId) => `${API_BASE_URL}/api/Project/${projectId}`,
+    updateProject: (projectId) => `${API_BASE_URL}/api/Project/update/${projectId}`,
     projectEmployeeCount: (companyId) => `${API_BASE_URL}/api/Project/${companyId}/employees/count`,
     deleteProject: `${API_BASE_URL}/api/Project/delete-project`,
     

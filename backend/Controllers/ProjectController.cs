@@ -193,6 +193,7 @@ namespace backend.Controllers
             }
         }
 
+        // UPDATE PROJECT DETAILS
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectDTO dto)
         {

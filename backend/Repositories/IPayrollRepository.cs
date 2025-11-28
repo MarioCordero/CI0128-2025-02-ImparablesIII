@@ -16,6 +16,7 @@ namespace backend.Repositories
         Task<List<EmployeeDeductionDto>> GetEmployeeDeductionsAsync();
         Task<List<EmployerDeductionDto>> GetEmployerDeductionsAsync();
         Task<List<EmployeePayrollDto>> GetEmployeesForPayrollAsync(int companyId);
+        Task<List<EmployeePayrollDto>> GetEmployeesForPayrollIdAsync(int payrollId);
         
         // Payroll Insert Methods
         Task<int> InsertPayrollAsync(PayrollInsertDto payroll);

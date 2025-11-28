@@ -13,6 +13,6 @@ namespace backend.Services
         Task<DetailedPayrollReportDto?> GetDetailedPayrollReportNoAuthAsync(int employeeId, int payrollId);
         Task<List<EmployeePayrollReportDto>> GetEmployeePayrollReportsAsync(int employeeId, int authenticatedEmployeeId, int? year = null, int? month = null, string? puesto = null);
         Task<HistoricalPayrollReportDto> GetHistoricalPayrollReportAsync(int employeeId, int authenticatedEmployeeId, DateTime? startDate, DateTime? endDate);
-        Task<List<EmployeePayrollDto>> GetEmployeesForPayrollAsync(int payrollId);
+        Task<List<EmployeePayrollDto>> GetEmployeesByPayrollIdAsync(int payrollId);
     }
 }

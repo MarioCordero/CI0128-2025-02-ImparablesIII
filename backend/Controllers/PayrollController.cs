@@ -81,12 +81,12 @@ namespace backend.Controllers
 
         // GET EMPLOYEES FOR PAYROLL
         [HttpGet("{payrollId}/employees")]
-        public async Task<ActionResult<List<EmployeePayrollDto>>> GetEmployeesForPayroll(int payrollId)
+        public async Task<ActionResult<List<EmployeePayrollDto>>> GetEmployeesByPayrollId(int payrollId)
         {
             if (payrollId <= 0)
                 return BadRequest("ID de planilla inválido");
 
-            var employees = await _service.GetEmployeesForPayrollAsync(payrollId);
+            var employees = await _service.GetEmployeesByPayrollIdAsync(payrollId);
             return Ok(employees);
         }
     }

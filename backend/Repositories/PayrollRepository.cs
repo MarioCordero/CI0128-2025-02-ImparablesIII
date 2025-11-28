@@ -10,9 +10,12 @@ namespace backend.Repositories
     public class PayrollRepository : IPayrollRepository
     {
         private readonly string _connectionString;
-        public PayrollRepository(IConfiguration config)
+        private readonly ILogger<PayrollRepository> _logger;
+
+        public PayrollRepository(IConfiguration config, ILogger<PayrollRepository> logger)
         {
             _connectionString = config.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Connection string not found");
+            _logger = logger;
         }
 
         // EXECUTE PAYROLL REPORT STORED PROCEDURE
@@ -231,6 +234,7 @@ namespace backend.Repositories
             return result;
         }
 
+        // GET EMPLOYEES FOR PAYROLL STORED PROCEDURE
         public async Task<List<EmployeePayrollDto>> GetEmployeesForPayrollAsync(int companyId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -250,6 +254,37 @@ namespace backend.Repositories
                     jsonResult += reader.GetString(0);
                 }
             }
+
+            if (string.IsNullOrWhiteSpace(jsonResult))
+                return new List<EmployeePayrollDto>();
+
+            var empleadosRoot = JsonSerializer.Deserialize<EmpleadosRoot>(jsonResult);
+            return empleadosRoot?.Empleados ?? new List<EmployeePayrollDto>();
+        }
+
+        // GET EMPLOYEES FOR PAYROLL BY PAYROLL ID STORED PROCEDURE
+        public async Task<List<EmployeePayrollDto>> GetEmployeesForPayrollIdAsync(int payrollId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            using var command = new SqlCommand("PlaniFy.GetEmployeesForPayrollId", connection)
+            {
+                CommandType = System.Data.CommandType.StoredProcedure
+            };
+            command.Parameters.AddWithValue("@PayrollId", payrollId);
+
+            string jsonResult = "";
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    jsonResult += reader.GetString(0);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(jsonResult))
+                return new List<EmployeePayrollDto>();
 
             var empleadosRoot = JsonSerializer.Deserialize<EmpleadosRoot>(jsonResult);
             return empleadosRoot?.Empleados ?? new List<EmployeePayrollDto>();
