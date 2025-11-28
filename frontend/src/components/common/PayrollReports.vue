@@ -321,7 +321,6 @@ export default {
       if (!value) return '0';
       return new Intl.NumberFormat(LOCALE).format(value);
     },
-    // --- PDF Download logic copied from CurrentPayrollReport ---
     async downloadPdfReport() {
       if (!this.modalPayrollId || !this.modalDetailedReport || !this.modalEmployeeId) {
         return
@@ -330,8 +329,11 @@ export default {
       this.downloadingPdf = true
 
       try {
-        // For employer, no authentication param is needed, just use the endpoint
-        const url = apiConfig.endpoints.employeePayrollReportDownloadPdf(this.modalEmployeeId, this.modalPayrollId)
+        const url = apiConfig.endpoints.employeePayrollReportDownloadPdf(
+          this.modalEmployeeId,
+          this.modalPayrollId,
+          this.modalEmployeeId
+        ) + `?authenticatedEmployeeId=${this.modalEmployeeId}`
         const response = await fetch(url, {
           method: 'GET',
           headers: {
