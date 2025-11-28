@@ -106,92 +106,20 @@
       />
 
       <!-- MODAL: Detailed Payroll Report -->
-      <div v-if="showReportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative">
-          <button
-            class="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-red-500 hover:text-white text-2xl font-bold shadow transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
-            @click="closeReportModal"
-            aria-label="Cerrar"
-            title="Cerrar"
-          >
-            &times;
-          </button>
-          <!-- Loading State -->
-          <div v-if="modalLoadingDetail" class="text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <p class="mt-2 text-gray-600">Cargando detalle del reporte...</p>
-          </div>
-          <!-- Error State -->
-          <div v-else-if="modalDetailError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {{ modalDetailError }}
-          </div>
-          <!-- Detailed Report Content -->
-          <div v-else-if="modalDetailedReport" class="space-y-6">
-            <!-- Employee and Company Information -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <p class="text-sm text-blue-600 italic mb-1">Nombre de la empresa</p>
-                <p class="text-base font-medium">{{ modalDetailedReport.nombreEmpresa || 'No disponible' }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-blue-600 italic mb-1">Nombre completo del empleado</p>
-                <p class="text-base font-medium">{{ modalDetailedReport.nombreEmpleado || 'No disponible' }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-blue-600 italic mb-1">Fecha de pago</p>
-                <p class="text-base font-medium">{{ formatDate(modalDetailedReport.fechaGeneracion) }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-blue-600 italic mb-1">Tipo de contrato</p>
-                <p class="text-base font-medium">{{ modalDetailedReport.tipoContrato || 'No disponible' }}</p>
-              </div>
-            </div>
-            <!-- Financial Breakdown -->
-            <div class="space-y-4">
-              <!-- Gross Salary -->
-              <div class="flex justify-between items-center py-2 border-b">
-                <span class="font-semibold">Salario Bruto</span>
-                <span>₡{{ modalDetailedReport.salarioBruto ? modalDetailedReport.salarioBruto.toLocaleString() : '0' }}</span>
-              </div>
-              <!-- Mandatory Deductions -->
-              <div>
-                <div class="font-semibold mb-1">Deducciones obligatorias</div>
-                <div v-if="modalDetailedReport.deduccionesObligatorias && modalDetailedReport.deduccionesObligatorias.length">
-                  <div v-for="ded in modalDetailedReport.deduccionesObligatorias" :key="ded.nombre" class="flex justify-between py-1">
-                    <span>{{ ded.nombre }}</span>
-                    <span>-₡{{ ded.monto ? ded.monto.toLocaleString() : '0' }}</span>
-                  </div>
-                  <div class="flex justify-between font-semibold border-t pt-2 mt-2">
-                    <span>Total deducciones obligatorias</span>
-                    <span>-₡{{ modalDetailedReport.totalDeduccionesObligatorias ? modalDetailedReport.totalDeduccionesObligatorias.toLocaleString() : '0' }}</span>
-                  </div>
-                </div>
-                <div v-else class="text-gray-500 italic">No hay deducciones obligatorias</div>
-              </div>
-              <!-- Voluntary Deductions -->
-              <div>
-                <div class="font-semibold mb-1">Deducciones voluntarias</div>
-                <div v-if="modalDetailedReport.deduccionesVoluntarias && modalDetailedReport.deduccionesVoluntarias.length">
-                  <div v-for="ded in modalDetailedReport.deduccionesVoluntarias" :key="ded.nombre" class="flex justify-between py-1">
-                    <span>{{ ded.nombre }}</span>
-                    <span>-₡{{ ded.monto ? ded.monto.toLocaleString() : '0' }}</span>
-                  </div>
-                  <div class="flex justify-between font-semibold border-t pt-2 mt-2">
-                    <span>Total deducciones voluntarias</span>
-                    <span>-₡{{ modalDetailedReport.totalDeduccionesVoluntarias ? modalDetailedReport.totalDeduccionesVoluntarias.toLocaleString() : '0' }}</span>
-                  </div>
-                </div>
-                <div v-else class="text-gray-500 italic">No hay deducciones voluntarias</div>
-              </div>
-              <!-- Net Salary -->
-              <div class="flex justify-between items-center py-2 border-t font-bold text-green-700">
-                <span>Pago Neto</span>
-                <span>₡{{ modalDetailedReport.salarioNeto ? modalDetailedReport.salarioNeto.toLocaleString() : '0' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PayrollReportDetailModal
+        :show="showReportModal"
+        :detailedReport="modalDetailedReport"
+        :loadingDetail="modalLoadingDetail"
+        :detailError="modalDetailError"
+        :downloadingPdf="downloadingPdf"
+        :companyName="modalDetailedReport?.nombreEmpresa"
+        :employeeName="modalDetailedReport?.nombreEmpleado"
+        :loadingCompanyName="false"
+        :formatCurrency="formatCurrency"
+        :formatDate="formatDate"
+        @close="closeReportModal"
+        @download-pdf="downloadPdfReport"
+      />
       <!-- END MODAL -->
     </div>
   </div>
@@ -201,14 +129,22 @@
 import CurrentPayrollReport from '../employee/CurrentPayrollReport.vue'
 import HistoricalPayrollReport from '../employee/HistoricalPayrollReport.vue'
 import EmployerPayrollHistory from '../employer/projectDashboard/EmployerPayrollHistory.vue'
+import PayrollReportDetailModal from '../employee/PayrollReportDetailModal.vue'
 import { apiConfig } from '../../config/api.js'
+import {
+  HTTP_STATUS,
+  CONTENT_TYPES,
+  ERROR_MESSAGES,
+  LOCALE
+} from '../../config/const.js'
 
 export default {
   name: 'PayrollReports',
   components: {
     CurrentPayrollReport,
     HistoricalPayrollReport,
-    EmployerPayrollHistory
+    EmployerPayrollHistory,
+    PayrollReportDetailModal
   },
   props: {
     employeeId: {
@@ -235,7 +171,8 @@ export default {
       modalPayrollId: null,
       modalDetailedReport: null,
       modalLoadingDetail: false,
-      modalDetailError: null
+      modalDetailError: null,
+      downloadingPdf: false // <-- Add this
     }
   },
   computed: {
@@ -301,6 +238,7 @@ export default {
       this.modalDetailedReport = null
       this.modalLoadingDetail = false
       this.modalDetailError = null
+      this.downloadingPdf = false
     },
     selectReportType(reportType) {
       this.selectedReportType = reportType
@@ -378,6 +316,61 @@ export default {
     formatDate(value) {
       if (!value) return '';
       return new Date(value).toLocaleDateString();
+    },
+    formatCurrency(value) {
+      if (!value) return '0';
+      return new Intl.NumberFormat(LOCALE).format(value);
+    },
+    // --- PDF Download logic copied from CurrentPayrollReport ---
+    async downloadPdfReport() {
+      if (!this.modalPayrollId || !this.modalDetailedReport || !this.modalEmployeeId) {
+        return
+      }
+
+      this.downloadingPdf = true
+
+      try {
+        // For employer, no authentication param is needed, just use the endpoint
+        const url = apiConfig.endpoints.employeePayrollReportDownloadPdf(this.modalEmployeeId, this.modalPayrollId)
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': CONTENT_TYPES.JSON
+          }
+        })
+
+        if (!response.ok) {
+          if (response.status === HTTP_STATUS.UNAUTHORIZED) {
+            throw new Error(ERROR_MESSAGES.UNAUTHORIZED_ACCESS)
+          }
+          if (response.status === HTTP_STATUS.NOT_FOUND) {
+            throw new Error(ERROR_MESSAGES.ENDPOINT_NOT_FOUND(url))
+          }
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.message || 'Error al descargar el PDF')
+        }
+
+        const blob = await response.blob()
+        const downloadUrl = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = downloadUrl
+        link.download = this.generatePdfFileName(this.modalDetailedReport)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(downloadUrl)
+      } catch (error) {
+        this.modalDetailError = error.message || 'Error al descargar el PDF'
+      } finally {
+        this.downloadingPdf = false
+      }
+    },
+    generatePdfFileName(report) {
+      const date = new Date(report.fechaGeneracion)
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `Reporte_Planilla_${year}${month}${day}.pdf`
     }
   }
 }
