@@ -261,3 +261,17 @@ CREATE TABLE PlaniFy.ResumenPlanilla (
     FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id),
     FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id)
 );
+
+-- ===================================
+-- (20) Tabla PlanillaBeneficio (NUEVA)
+-- ===================================
+CREATE TABLE PlaniFy.PlanillaBeneficio (
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	IdPlanilla INT NOT NULL,
+	IdEmpresa INT NOT NULL,
+	NombreBeneficio NVARCHAR(50) NOT NULL,
+	FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (IdPlanilla) REFERENCES PlaniFy.Planilla(Id),
+	FOREIGN KEY (IdEmpresa, NombreBeneficio) REFERENCES PlaniFy.Beneficio(idEmpresa, Nombre)
+);
+GO
