@@ -2,12 +2,12 @@
 -- (10) TABLA HorasTrabajadas (Mario)
 -- ===================================
 CREATE TABLE PlaniFy.HorasTrabajadas (
-    id INT IDENTITY PRIMARY KEY NOT NULL, -- CORREGIDO: PK simple (no compuesta)
+    id INT IDENTITY PRIMARY KEY NOT NULL,
     idEmpleado INT NOT NULL,
     Cantidad INT NOT NULL,
-    Detalle NVARCHAR(300) NOT NULL,       -- CORREGIDO: 150 → 300
+    Detalle NVARCHAR(300) NOT NULL,
     Fecha DATE NOT NULL,
-    Estado VARCHAR(9) NOT NULL DEFAULT 'Pendiente', -- CORREGIDO: BIT → VARCHAR(9) con default 'Pendiente'
+    Estado VARCHAR(9) NOT NULL DEFAULT 'Pendiente',
     idAprobador INT NOT NULL,
 
     FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona),

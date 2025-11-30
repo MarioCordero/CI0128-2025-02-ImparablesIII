@@ -142,9 +142,9 @@ CREATE TABLE PlaniFy.Planilla (
 -- ===================================
 CREATE TABLE PlaniFy.Beneficio (
     idEmpresa INT NOT NULL,
-    Nombre NVARCHAR(100) NOT NULL,      -- CORREGIDO: 20 → 100
-    TipoCalculo NVARCHAR(40) NOT NULL,  -- CORREGIDO: 20 → 40
-    Tipo NVARCHAR(40) NOT NULL,         -- CORREGIDO: 20 → 40
+    Nombre NVARCHAR(50) NOT NULL,
+    TipoCalculo NVARCHAR(20) NOT NULL,
+    Tipo NVARCHAR(20) NOT NULL,
     Valor INT,
     Porcentaje INT,
     Descripcion VARCHAR(200),
@@ -175,12 +175,12 @@ CREATE TABLE PlaniFy.BeneficioEmpleado (
 -- (10) TABLA HorasTrabajadas CORREGIDA
 -- ===================================
 CREATE TABLE PlaniFy.HorasTrabajadas (
-    id INT IDENTITY PRIMARY KEY NOT NULL, -- CORREGIDO: PK simple (no compuesta)
+    id INT IDENTITY PRIMARY KEY NOT NULL,
     idEmpleado INT NOT NULL,
     Cantidad INT NOT NULL,
-    Detalle NVARCHAR(300) NOT NULL,       -- CORREGIDO: 150 → 300
+    Detalle NVARCHAR(300) NOT NULL,
     Fecha DATE NOT NULL,
-    Estado VARCHAR(9) NOT NULL DEFAULT 'Pendiente', -- CORREGIDO: BIT → VARCHAR(9) con default 'Pendiente'
+    Estado VARCHAR(9) NOT NULL DEFAULT 'Pendiente',
     idAprobador INT NOT NULL,
 
     FOREIGN KEY (idEmpleado) REFERENCES PlaniFy.Empleado(idPersona),
@@ -260,3 +260,17 @@ CREATE TABLE PlaniFy.ResumenPlanilla (
     FOREIGN KEY (idPlanilla) REFERENCES PlaniFy.Planilla(id),
     FOREIGN KEY (idEmpresa) REFERENCES PlaniFy.Empresa(Id)
 );
+
+-- ===================================
+-- (20) Tabla PlanillaBeneficio (NUEVA)
+-- ===================================
+CREATE TABLE PlaniFy.PlanillaBeneficio (
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	IdPlanilla INT NOT NULL,
+	IdEmpresa INT NOT NULL,
+	NombreBeneficio NVARCHAR(50) NOT NULL,
+	FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+	FOREIGN KEY (IdPlanilla) REFERENCES PlaniFy.Planilla(Id),
+	FOREIGN KEY (IdEmpresa, NombreBeneficio) REFERENCES PlaniFy.Beneficio(idEmpresa, Nombre)
+);
+GO
