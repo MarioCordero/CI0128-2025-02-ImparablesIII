@@ -13,5 +13,6 @@ namespace backend.Repositories
         Task<bool> IsCedulaAvailableAsync(string cedula);
         Task<Persona?> GetByCedulaAsync(string cedula);
         Task<KPIResponseDTO?> GetKPIDataAsync(int userId);
+        Task<int> RegisterEmployerTransactionalAsync(EmployerRegistrationCommand command);
     }
 }

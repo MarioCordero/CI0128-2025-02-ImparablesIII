@@ -37,6 +37,7 @@ namespace backend.Repositories
             return await _usuarioRepository.CreateUserAsync(usuario);
         }
 
+        // GET EMPLOYER BY ID
         public async Task<EmployerResponseDto?> GetEmployerByIdAsync(int personaId)
         {
             try
@@ -74,6 +75,7 @@ namespace backend.Repositories
             }
         }
 
+        // GET PERSONA BY CEDULA
         public async Task<Persona?> GetByCedulaAsync(string cedula)
         {
             try
@@ -148,6 +150,42 @@ namespace backend.Repositories
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        // REGISTER EMPLOYER WITH A TRANSACTION IN SQL
+        public async Task<int> RegisterEmployerTransactionalAsync(EmployerRegistrationCommand command)
+        {
+            var dto = command.EmployerData;
+            var apellidos = dto.PrimerApellido + (string.IsNullOrEmpty(dto.SegundoApellido) ? "" : $" {dto.SegundoApellido}");
+            var parameters = new DynamicParameters();
+            parameters.Add("@Provincia", dto.Provincia);
+            parameters.Add("@Canton", dto.Canton);
+            parameters.Add("@Distrito", dto.Distrito);
+            parameters.Add("@DireccionParticular", dto.DireccionParticular);
+            parameters.Add("@Nombre", dto.Nombre);
+            parameters.Add("@SegundoNombre", dto.SegundoNombre);
+            parameters.Add("@Apellidos", apellidos);
+            parameters.Add("@Correo", dto.Email);
+            parameters.Add("@Cedula", dto.Cedula);
+            parameters.Add("@Telefono", dto.Telefono);
+            parameters.Add("@FechaNacimiento", dto.FechaNacimiento);
+            parameters.Add("@ContrasenaHash", command.PasswordHash);
+            parameters.Add("@TokenHash", command.TokenHash);
+            parameters.Add("@TokenExpires", command.TokenExpires);
+            using var connection = new SqlConnection(_connectionString);
+            // USE THE SQL QUERY TO EXECUTE THE STORED PROCEDURE
+            try 
+            {
+                return await connection.ExecuteScalarAsync<int>(
+                    "PlaniFy.SP_RegistrarEmpleadorCompleto", 
+                    parameters, 
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception($"Error DB: {ex.Message}");
             }
         }
     }

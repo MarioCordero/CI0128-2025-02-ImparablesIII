@@ -58,6 +58,21 @@ namespace backend.DTOs
       [MaxLength(150)]
       public string? DireccionParticular { get; set; }
     }
+
+    public class EmployerRegistrationCommand
+    {
+        public SignUpEmployerDto EmployerData { get; set; } // Composition, reuse the DTO created to expand functionality
+        public string PasswordHash { get; set; }
+        public string TokenHash { get; set; }
+        public DateTime TokenExpires { get; set; }
+        public EmployerRegistrationCommand(SignUpEmployerDto data, string passHash, string tokenHash, DateTime expires)
+        {
+            EmployerData = data;
+            PasswordHash = passHash;
+            TokenHash = tokenHash;
+            TokenExpires = expires;
+        }
+    }
     
     public class ResendVerificationRequestDto
     {
