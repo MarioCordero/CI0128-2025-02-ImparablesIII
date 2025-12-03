@@ -37,78 +37,40 @@ namespace backend.Services
             {
                 if (string.IsNullOrWhiteSpace(form.Password))
                 {
-                    _logger.LogWarning("Password vacío");
+                    _logger.LogWarning("Intento de registro con password vacío");
                     return false;
                 }
                 if (!await IsEmailAvailableAsync(form.Email))
                     return false;
+
                 if (!await IsCedulaAvailableAsync(form.Cedula))
                     return false;
-
-                var direccionId = await _directionRepository.CreateDireccionAsync(
-                    form.Provincia,
-                    form.Canton,
-                    form.Distrito,
-                    form.DireccionParticular
-                );
-                
-                if (direccionId <= 0)
-                {
-                    _logger.LogError("Error creando Dirección");
-                    return false;
-                }
-
-                var apellidos = form.PrimerApellido;
-                if (!string.IsNullOrEmpty(form.SegundoApellido))
-                    apellidos += $" {form.SegundoApellido}";
-
-                var persona = new Persona
-                {
-                    Nombre = form.Nombre,
-                    SegundoNombre = form.SegundoNombre,
-                    Apellidos = form.PrimerApellido,
-                    Correo = form.Email,
-                    Cedula = form.Cedula,
-                    Telefono = form.Telefono,
-                    FechaNacimiento = form.FechaNacimiento,
-                    Rol = "Empleador",  
-                    IdDireccion = direccionId
-                };
-
-                var personaId = await _personaRepository.CreatePersonaAsync(persona);
-                if (personaId <= 0)
-                {
-                    _logger.LogError("Error creando Persona");
-                    return false;
-                }
-
                 var rawToken = _emailHelper.GenerateVerificationToken();
-                var hash = _emailHelper.HashToken(rawToken);
-
-                var usuario = new Usuario
+                var tokenHash = _emailHelper.HashToken(rawToken);
+                var tokenExpires = DateTime.UtcNow.AddHours(24);
+                var passwordHash = BCrypt.Net.BCrypt.HashPassword(form.Password);
+                var command = new EmployerRegistrationCommand(form, passwordHash, tokenHash, tokenExpires);
+                int newPersonaId = await _employerRepository.RegisterEmployerTransactionalAsync(command);
+                if (newPersonaId <= 0)
                 {
-                    IdPersona = personaId,
-                    TipoUsuario = "Empleador",
-                    Contrasena = BCrypt.Net.BCrypt.HashPassword(form.Password),
-                    VerificationTokenHash = hash,
-                    VerificationTokenExpires = DateTime.UtcNow.AddHours(24),
-                    IsVerified = false
-                };
-
-                var created = await _usuarioRepository.CreateUserAsync(usuario);
-                if (!created)
-                {
-                    _logger.LogError("Error creando Usuario para Persona {PersonaId}", personaId);
+                    _logger.LogError("El registro falló: La base de datos no retornó un ID válido.");
                     return false;
                 }
+                try 
+                {
+                    await _emailHelper.SendVerificationLinkAsync(form.Email, rawToken, "Empleador");
+                    _logger.LogInformation("Registro de empleador exitoso. ID Persona: {PersonaId}", newPersonaId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Usuario {Id} creado correctamente, pero falló el envío del correo de verificación.", newPersonaId);
+                }
 
-                await _emailHelper.SendVerificationLinkAsync(form.Email, rawToken, "Empleador");
-                _logger.LogInformation("Registro empleador OK Persona {PersonaId}", personaId);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registrando empleador");
+                _logger.LogError(ex, "Error crítico durante el proceso de registro de empleador.");
                 return false;
             }
         }
