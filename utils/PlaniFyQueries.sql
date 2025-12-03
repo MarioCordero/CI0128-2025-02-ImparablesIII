@@ -1,8 +1,10 @@
 SELECT * FROM PlaniFy.Direccion;
-DELETE FROM PlaniFy.Direccion WHERE Id BETWEEN 65 AND 82;
+DELETE FROM PlaniFy.Direccion WHERE Id = 103;
+
+SELECT COUNT(*) FROM PlaniFy.Direccion;
 
 SELECT * FROM PlaniFy.Persona;
-DELETE FROM PlaniFy.Persona WHERE Id = 74;
+DELETE FROM PlaniFy.Persona WHERE Id = 93;
 
 SELECT * FROM PlaniFy.Usuario;
 
@@ -10,6 +12,9 @@ SELECT * FROM PlaniFy.Usuario;
 DELETE FROM PlaniFy.Direccion
 WHERE Id NOT IN (SELECT idDireccion FROM PlaniFy.Persona)
   AND Id NOT IN (SELECT idDireccion FROM PlaniFy.Empresa);
+
+UPDATE PlaniFy.Usuario
+SET Contrasena = '$2a$11$PHLDj2NC6lmE2qnsrNyl2OrbRipaC/f17tPKFTqNfmxmXWsKKnfJ.', VerificationTokenHash = NULL, VerificationTokenExpires = NULL, IsVerified = 1
 
 
 SELECT * FROM PlaniFy.Empresa;

@@ -2,6 +2,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using backend.DTOs;
 using backend.Models;
+using System.Data;
 using Dapper;
 
 namespace backend.Repositories
