@@ -102,3 +102,25 @@ ALTER TABLE PlaniFy.HorasTrabajadas CHECK CONSTRAINT ALL;
 ALTER TABLE PlaniFy.DetallePlanilla CHECK CONSTRAINT ALL;
 ALTER TABLE PlaniFy.Deducciones CHECK CONSTRAINT ALL;
 ALTER TABLE PlaniFy.ResumenPlanilla CHECK CONSTRAINT ALL;
+
+SELECT 
+    sch.name AS 'Esquema',
+    t.name AS 'Tabla',
+    ind.name AS 'Nombre_Indice',
+    ind.type_desc AS 'Tipo_Indice',
+    COL_NAME(ic.object_id, ic.column_id) AS 'Columna',
+    ic.is_included_column AS 'Es_Include'
+FROM 
+    sys.indexes ind 
+INNER JOIN 
+    sys.index_columns ic ON  ind.object_id = ic.object_id and ind.index_id = ic.index_id 
+INNER JOIN 
+    sys.tables t ON ind.object_id = t.object_id 
+INNER JOIN 
+    sys.schemas sch ON t.schema_id = sch.schema_id
+WHERE 
+    ind.is_primary_key = 0 -- Cambia a 1 si quieres ver solo las Primary Keys
+    AND ind.is_unique_constraint = 0 -- Oculta constraints únicos automáticos
+    AND t.is_ms_shipped = 0 
+ORDER BY 
+    t.name, ind.name, ind.index_id, ic.is_included_column;
